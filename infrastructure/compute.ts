@@ -28,7 +28,7 @@ export function createComputeResources(
         timeoutSeconds: 300, // 5 minutes
         
         containers: [{
-          image: `gcr.io/${projectId}/adcraft-ai:latest`,
+          image: `gcr.io/adcraft-dev-2025/adcraft-ai:latest`,
           
           resources: {
             limits: {

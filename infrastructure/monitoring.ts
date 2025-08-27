@@ -49,10 +49,10 @@ export function createMonitoringResources(projectId: string) {
     },
   });
 
-  // Log sink for application logs
+  // Log sink for application logs  
   const logSink = new gcp.logging.ProjectSink('adcraft-logs', {
     name: 'adcraft-application-logs',
-    destination: pulumi.interpolate`storage.googleapis.com/adcraft-logs-${pulumi.getStack()}`,
+    destination: pulumi.interpolate`storage.googleapis.com/adcraft-storage-${pulumi.getStack()}`,
     filter: 'resource.type="cloud_run_revision" AND resource.labels.service_name="adcraft-service"',
     uniqueWriterIdentity: true,
   });
@@ -62,6 +62,7 @@ export function createMonitoringResources(projectId: string) {
     dashboardJson: JSON.stringify({
       displayName: 'AdCraft AI Monitoring',
       mosaicLayout: {
+        columns: 12,
         tiles: [
           {
             width: 6,

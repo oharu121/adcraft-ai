@@ -1,0 +1,3 @@
+config:
+  gcp:project: adcraft-dev-2025
+  gcp:region: asia-northeast1
