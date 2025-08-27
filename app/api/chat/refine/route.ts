@@ -83,18 +83,32 @@ export async function POST(request: NextRequest) {
       }, { status: 402 });
     }
 
-    // Get session information
-    const session = await firestoreService.getSession(validatedRequest.sessionId);
+    // Get session information (with mock mode fallback)
+    let session = await firestoreService.getSession(validatedRequest.sessionId);
     if (!session) {
-      return NextResponse.json({
-        success: false,
-        error: {
-          code: 'SESSION_NOT_FOUND',
-          message: 'Session not found or has expired.',
+      // In mock mode, create a temporary session for testing
+      if (firestoreService.isMock()) {
+        console.log(`[MOCK MODE] Creating temporary session for chat: ${validatedRequest.sessionId}`);
+        session = {
+          id: validatedRequest.sessionId,
+          prompt: validatedRequest.currentPrompt || 'A beautiful sunset over a calm lake',
+          chatHistory: [],
+          status: 'draft' as const,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          expiresAt: new Date(Date.now() + 12 * 60 * 60 * 1000), // 12 hours
+        };
+      } else {
+        return NextResponse.json({
+          success: false,
+          error: {
+            code: 'SESSION_NOT_FOUND',
+            message: 'Session not found or has expired.',
+            timestamp: new Date(),
+          },
           timestamp: new Date(),
-        },
-        timestamp: new Date(),
-      }, { status: 404 });
+        }, { status: 404 });
+      }
     }
 
     // Build chat context from session history and current request

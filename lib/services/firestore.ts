@@ -49,31 +49,44 @@ export interface CostEntry {
 /**
  * Firestore service for managing sessions, jobs, and cost tracking
  * Handles all database operations with proper indexing and lifecycle management
+ * Supports mock mode for local testing without GCP credentials
  */
 export class FirestoreService {
   private static instance: FirestoreService;
-  private db: Firestore;
-  private sessionsCollection: CollectionReference<DocumentData>;
-  private jobsCollection: CollectionReference<DocumentData>;
-  private costsCollection: CollectionReference<DocumentData>;
+  private db: Firestore | null = null;
+  private sessionsCollection: CollectionReference<DocumentData> | null = null;
+  private jobsCollection: CollectionReference<DocumentData> | null = null;
+  private costsCollection: CollectionReference<DocumentData> | null = null;
+  private isMockMode: boolean;
+  
+  // Mock data stores for development (static to persist across instances)
+  private static mockSessions: Map<string, VideoSession> = new Map();
+  private static mockJobs: Map<string, VideoJob> = new Map();
+  private static mockCosts: CostEntry[] = [];
 
   private constructor() {
     const projectId = process.env.GCP_PROJECT_ID;
+    this.isMockMode = process.env.NODE_ENV === 'development' && 
+                      (process.env.ENABLE_MOCK_MODE === 'true' || !projectId);
     
-    if (!projectId) {
-      throw new Error('GCP_PROJECT_ID environment variable is required');
+    if (!projectId && !this.isMockMode) {
+      throw new Error('GCP_PROJECT_ID environment variable is required for production mode');
     }
 
-    // Initialize Firestore
-    this.db = new Firestore({
-      projectId,
-      databaseId: '(default)',
-    });
+    if (this.isMockMode) {
+      console.log('[MOCK MODE] Using in-memory storage for Firestore operations');
+    } else {
+      // Initialize Firestore
+      this.db = new Firestore({
+        projectId: projectId!,
+        databaseId: '(default)',
+      });
 
-    // Initialize collections
-    this.sessionsCollection = this.db.collection('sessions');
-    this.jobsCollection = this.db.collection('videoJobs');
-    this.costsCollection = this.db.collection('costs');
+      // Initialize collections
+      this.sessionsCollection = this.db.collection('sessions');
+      this.jobsCollection = this.db.collection('videoJobs');
+      this.costsCollection = this.db.collection('costs');
+    }
   }
 
   /**
@@ -86,17 +99,26 @@ export class FirestoreService {
     return FirestoreService.instance;
   }
 
+  /**
+   * Check if service is running in mock mode
+   */
+  public isMock(): boolean {
+    return this.isMockMode;
+  }
+
   // Session Management
 
   /**
    * Create new video session
    */
-  public async createSession(prompt: string, userId?: string): Promise<VideoSession> {
+  public async createSession(prompt: string, userId?: string, sessionId?: string): Promise<VideoSession> {
     try {
       const now = new Date();
       const expiresAt = new Date(now.getTime() + 12 * 60 * 60 * 1000); // 12 hours
+      const finalSessionId = sessionId || `session-${Date.now()}-${Math.random().toString(36).substring(2)}`;
 
-      const sessionData: Omit<VideoSession, 'id'> = {
+      const sessionData: VideoSession = {
+        id: finalSessionId,
         userId,
         prompt,
         chatHistory: [],
@@ -106,11 +128,21 @@ export class FirestoreService {
         expiresAt,
       };
 
+      if (this.isMockMode) {
+        FirestoreService.mockSessions.set(finalSessionId, sessionData);
+        console.log(`[MOCK MODE] Created session: ${finalSessionId}`);
+        return sessionData;
+      }
+
+      if (!this.sessionsCollection) {
+        throw new Error('Firestore not initialized');
+      }
+
       const docRef = await this.sessionsCollection.add(sessionData);
       
       return {
-        id: docRef.id,
         ...sessionData,
+        id: docRef.id,
       };
 
     } catch (error) {
@@ -124,6 +156,21 @@ export class FirestoreService {
    */
   public async getSession(sessionId: string): Promise<VideoSession | null> {
     try {
+      if (this.isMockMode) {
+        const session = FirestoreService.mockSessions.get(sessionId);
+        if (session) {
+          console.log(`[MOCK MODE] Retrieved session: ${sessionId}`);
+          return session;
+        } else {
+          console.log(`[MOCK MODE] Session not found: ${sessionId}`);
+          return null;
+        }
+      }
+
+      if (!this.sessionsCollection) {
+        throw new Error('Firestore not initialized');
+      }
+
       const doc = await this.sessionsCollection.doc(sessionId).get();
       
       if (!doc.exists) {
@@ -159,6 +206,22 @@ export class FirestoreService {
         updatedAt: new Date(),
       };
 
+      if (this.isMockMode) {
+        const existingSession = FirestoreService.mockSessions.get(sessionId);
+        if (existingSession) {
+          FirestoreService.mockSessions.set(sessionId, { ...existingSession, ...updateData });
+          console.log(`[MOCK MODE] Updated session: ${sessionId}`);
+          return true;
+        } else {
+          console.warn(`[MOCK MODE] Session not found: ${sessionId}`);
+          return false;
+        }
+      }
+
+      if (!this.sessionsCollection) {
+        throw new Error('Firestore not initialized');
+      }
+
       await this.sessionsCollection.doc(sessionId).update(updateData);
       return true;
 
@@ -177,6 +240,23 @@ export class FirestoreService {
         id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         ...message,
       };
+
+      if (this.isMockMode) {
+        const existingSession = FirestoreService.mockSessions.get(sessionId);
+        if (existingSession) {
+          existingSession.chatHistory.push(chatMessage);
+          existingSession.updatedAt = new Date();
+          console.log(`[MOCK MODE] Added chat message to session: ${sessionId}`);
+          return true;
+        } else {
+          console.warn(`[MOCK MODE] Session not found for chat message: ${sessionId}`);
+          return false;
+        }
+      }
+
+      if (!this.sessionsCollection) {
+        throw new Error('Firestore not initialized');
+      }
 
       await this.sessionsCollection.doc(sessionId).update({
         chatHistory: FieldValue.arrayUnion(chatMessage),
@@ -199,12 +279,15 @@ export class FirestoreService {
   public async createVideoJob(
     sessionId: string,
     prompt: string,
-    estimatedCost: number
+    estimatedCost: number,
+    jobId?: string // Optional job ID from external service (like Veo)
   ): Promise<VideoJob> {
     try {
       const now = new Date();
+      const finalJobId = jobId || `job-${Date.now()}-${Math.random().toString(36).substring(2)}`;
       
-      const jobData: Omit<VideoJob, 'id'> = {
+      const jobData: VideoJob = {
+        id: finalJobId,
         sessionId,
         prompt,
         status: 'pending',
@@ -213,11 +296,21 @@ export class FirestoreService {
         updatedAt: now,
       };
 
+      if (this.isMockMode) {
+        FirestoreService.mockJobs.set(finalJobId, jobData);
+        console.log(`[MOCK MODE] Created video job: ${finalJobId}`);
+        return jobData;
+      }
+
+      if (!this.jobsCollection) {
+        throw new Error('Firestore not initialized');
+      }
+
       const docRef = await this.jobsCollection.add(jobData);
       
       return {
-        id: docRef.id,
         ...jobData,
+        id: docRef.id,
       };
 
     } catch (error) {
@@ -231,6 +324,21 @@ export class FirestoreService {
    */
   public async getVideoJob(jobId: string): Promise<VideoJob | null> {
     try {
+      if (this.isMockMode) {
+        const job = FirestoreService.mockJobs.get(jobId);
+        if (job) {
+          console.log(`[MOCK MODE] Retrieved video job: ${jobId}`);
+          return job;
+        } else {
+          console.log(`[MOCK MODE] Video job not found: ${jobId}`);
+          return null;
+        }
+      }
+
+      if (!this.jobsCollection) {
+        throw new Error('Firestore not initialized');
+      }
+
       const doc = await this.jobsCollection.doc(jobId).get();
       
       if (!doc.exists) {
@@ -261,6 +369,22 @@ export class FirestoreService {
         updatedAt: new Date(),
       };
 
+      if (this.isMockMode) {
+        const existingJob = FirestoreService.mockJobs.get(jobId);
+        if (existingJob) {
+          FirestoreService.mockJobs.set(jobId, { ...existingJob, ...updateData });
+          console.log(`[MOCK MODE] Updated video job: ${jobId}`);
+          return true;
+        } else {
+          console.warn(`[MOCK MODE] Video job not found: ${jobId}`);
+          return false;
+        }
+      }
+
+      if (!this.jobsCollection) {
+        throw new Error('Firestore not initialized');
+      }
+
       await this.jobsCollection.doc(jobId).update(updateData);
       return true;
 
@@ -275,6 +399,19 @@ export class FirestoreService {
    */
   public async getJobsByStatus(status: VideoJob['status'], limit = 50): Promise<VideoJob[]> {
     try {
+      if (this.isMockMode) {
+        const filteredJobs = Array.from(FirestoreService.mockJobs.values())
+          .filter(job => job.status === status)
+          .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+          .slice(0, limit);
+        console.log(`[MOCK MODE] Retrieved ${filteredJobs.length} jobs with status: ${status}`);
+        return filteredJobs;
+      }
+
+      if (!this.jobsCollection) {
+        throw new Error('Firestore not initialized');
+      }
+
       const snapshot: QuerySnapshot<DocumentData> = await this.jobsCollection
         .where('status', '==', status)
         .orderBy('createdAt', 'desc')
@@ -304,16 +441,28 @@ export class FirestoreService {
    */
   public async recordCost(entry: Omit<CostEntry, 'id'>): Promise<CostEntry> {
     try {
-      const costData = {
+      const costId = `cost-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+      const costData: CostEntry = {
+        id: costId,
         ...entry,
         timestamp: new Date(),
       };
 
+      if (this.isMockMode) {
+        FirestoreService.mockCosts.push(costData);
+        console.log(`[MOCK MODE] Recorded cost: $${costData.amount} for ${costData.service}`);
+        return costData;
+      }
+
+      if (!this.costsCollection) {
+        throw new Error('Firestore not initialized');
+      }
+
       const docRef = await this.costsCollection.add(costData);
       
       return {
-        id: docRef.id,
         ...costData,
+        id: docRef.id,
       };
 
     } catch (error) {
@@ -327,6 +476,26 @@ export class FirestoreService {
    */
   public async getTotalCosts(startDate?: Date, endDate?: Date): Promise<number> {
     try {
+      if (this.isMockMode) {
+        // Filter mock costs by date range if provided
+        let filteredCosts = FirestoreService.mockCosts;
+        
+        if (startDate) {
+          filteredCosts = filteredCosts.filter(cost => cost.timestamp >= startDate);
+        }
+        if (endDate) {
+          filteredCosts = filteredCosts.filter(cost => cost.timestamp <= endDate);
+        }
+
+        const total = filteredCosts.reduce((sum, cost) => sum + cost.amount, 0);
+        console.log(`[MOCK MODE] Total costs: $${total.toFixed(2)}`);
+        return total;
+      }
+
+      if (!this.costsCollection) {
+        throw new Error('Firestore not initialized');
+      }
+
       let query = this.costsCollection as any;
 
       if (startDate) {
@@ -388,6 +557,28 @@ export class FirestoreService {
    */
   public async cleanupExpiredSessions(): Promise<number> {
     try {
+      if (this.isMockMode) {
+        const now = new Date();
+        const expiredSessionIds: string[] = [];
+        
+        FirestoreService.mockSessions.forEach((session, sessionId) => {
+          if (session.expiresAt <= now) {
+            expiredSessionIds.push(sessionId);
+          }
+        });
+        
+        expiredSessionIds.forEach(sessionId => {
+          FirestoreService.mockSessions.delete(sessionId);
+        });
+        
+        console.log(`[MOCK MODE] Cleaned up ${expiredSessionIds.length} expired sessions`);
+        return expiredSessionIds.length;
+      }
+
+      if (!this.sessionsCollection || !this.db) {
+        throw new Error('Firestore not initialized');
+      }
+
       const now = new Date();
       const snapshot: QuerySnapshot<DocumentData> = await this.sessionsCollection
         .where('expiresAt', '<=', now)
@@ -414,6 +605,15 @@ export class FirestoreService {
    */
   public async healthCheck(): Promise<boolean> {
     try {
+      if (this.isMockMode) {
+        console.log('[MOCK MODE] Health check passed');
+        return true;
+      }
+
+      if (!this.sessionsCollection) {
+        throw new Error('Firestore not initialized');
+      }
+
       // Try to read from a collection to test connectivity
       const snapshot = await this.sessionsCollection.limit(1).get();
       return true;
@@ -433,6 +633,27 @@ export class FirestoreService {
     totalCosts: number;
   }> {
     try {
+      if (this.isMockMode) {
+        const now = new Date();
+        const activeSessions = Array.from(FirestoreService.mockSessions.values())
+          .filter(session => session.expiresAt > now).length;
+        const totalCosts = await this.getTotalCosts();
+        
+        const stats = {
+          totalSessions: FirestoreService.mockSessions.size,
+          activeSessions,
+          totalJobs: FirestoreService.mockJobs.size,
+          totalCosts,
+        };
+        
+        console.log(`[MOCK MODE] Database stats:`, stats);
+        return stats;
+      }
+
+      if (!this.sessionsCollection || !this.jobsCollection) {
+        throw new Error('Firestore not initialized');
+      }
+
       const now = new Date();
       
       const [sessionsSnapshot, activeSessionsSnapshot, jobsSnapshot] = await Promise.all([

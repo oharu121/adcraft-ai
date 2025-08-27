@@ -117,8 +117,8 @@ export async function POST(request: NextRequest) {
     // Create session
     const sessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2)}`;
     
-    // Create session in Firestore
-    const session = await firestoreService.createSession(sanitizedPrompt);
+    // Create session in Firestore with specified session ID
+    const session = await firestoreService.createSession(sanitizedPrompt, undefined, sessionId);
 
     // Initiate video generation
     const videoRequest = {
@@ -130,11 +130,12 @@ export async function POST(request: NextRequest) {
 
     const veoResponse = await veoService.generateVideo(videoRequest);
 
-    // Create video job record in Firestore
+    // Create video job record in Firestore using the Veo job ID
     const videoJob = await firestoreService.createVideoJob(
       session.id,
       sanitizedPrompt,
-      estimatedCost
+      estimatedCost,
+      veoResponse.jobId // Use Veo job ID for consistency
     );
 
     // Start job tracking

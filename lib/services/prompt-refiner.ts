@@ -259,9 +259,25 @@ Keep responses concise but informative. Focus on actionable advice.`;
   }
 
   /**
-   * Make request to Gemini API
+   * Make request to Gemini API (with mock mode support for local testing)
    */
   private async makeGeminiRequest(systemPrompt: string, userPrompt: string): Promise<string> {
+    // Check if VertexAI is in mock mode
+    if (this.vertexAI.isMock()) {
+      console.log('[MOCK MODE] Gemini API request (PromptRefiner)');
+      console.log('System:', systemPrompt.substring(0, 100) + '...');
+      console.log('User:', userPrompt.substring(0, 100) + '...');
+      
+      // Return a realistic mock response based on the context
+      if (userPrompt.toLowerCase().includes('sunset') || userPrompt.toLowerCase().includes('lake')) {
+        return "That's a beautiful concept! To make your sunset video more cinematic, consider adding details like: the golden hour lighting reflecting off the water, gentle ripples on the lake surface, perhaps some birds flying in the distance, and specify the camera movement - maybe a slow pan or a gentle zoom. What mood are you going for - peaceful and serene, or more dramatic?";
+      } else if (userPrompt.toLowerCase().includes('improve') || userPrompt.toLowerCase().includes('better')) {
+        return "Great question! To improve your video prompt, try being more specific about: lighting conditions (golden hour, soft morning light), camera angles (aerial view, ground level, close-up), movement (slow motion, steady cam), and visual details (textures, colors, atmosphere). What specific aspect would you like to focus on?";
+      } else {
+        return "I'd be happy to help improve your video prompt! To give you the best suggestions, could you tell me more about the style you're aiming for? Are you looking for something more cinematic, documentary-style, or artistic? Also, what's the main focus or story you want to tell in this video?";
+      }
+    }
+
     const accessToken = await this.vertexAI.getAccessToken();
     
     const requestBody = {
