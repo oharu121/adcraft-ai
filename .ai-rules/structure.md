@@ -186,7 +186,7 @@ tests/                           # Comprehensive test suite
 │   ├── mock-responses/         # API response mocks
 │   └── test-sessions.json      # Sample chat sessions
 └── setup/                      # Test configuration and utilities
-    ├── jest.config.js          # Jest configuration
+    ├── vitest.config.ts        # Vitest configuration
     ├── test-utils.tsx          # React testing utilities
     └── mock-services.ts        # Service mocks and stubs
 ```
@@ -212,10 +212,6 @@ deploy/                         # Deployment configurations
 ## Documentation and Planning
 
 ```
-PRPs/                           # Project Requirements and Planning
-├── product-commercial-generator.md  # Main project specification
-└── templates/                  # PRP templates for consistency
-
 discussion/                     # Architectural decisions and research
 ├── DESIGN.md                   # Technical design document
 ├── 02-development/architecture/  # Architecture documentation

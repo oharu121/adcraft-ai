@@ -5,6 +5,17 @@ import * as matchers from '@testing-library/jest-dom/matchers'
 // Extend Vitest's expect with jest-dom matchers
 expect.extend(matchers)
 
+// Declare jest-dom matchers for TypeScript
+declare module 'vitest' {
+  interface Assertion<T = any> extends jest.Matchers<void, T> {
+    toBeInTheDocument(): T
+    toBeDisabled(): T
+    toHaveClass(className: string): T
+    toHaveAttribute(attr: string, value?: string): T
+    toHaveTextContent(text: string): T
+  }
+}
+
 // Cleanup after each test case
 afterEach(() => {
   cleanup()

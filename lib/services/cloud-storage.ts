@@ -17,26 +17,35 @@ export interface DownloadResult {
 /**
  * Cloud Storage service for handling file uploads and downloads
  * Manages temporary files with automatic cleanup after 12 hours
+ * Supports mock mode for local testing without GCP credentials
  */
 export class CloudStorageService {
   private static instance: CloudStorageService;
-  private storage: Storage;
-  private bucket: Bucket;
+  private storage: Storage | null = null;
+  private bucket: Bucket | null = null;
   private bucketName: string;
+  private isMockMode: boolean;
 
   private constructor() {
     this.bucketName = process.env.STORAGE_BUCKET_NAME || '';
+    this.isMockMode = process.env.NODE_ENV === 'development' && 
+                      (process.env.ENABLE_MOCK_MODE === 'true' || !this.bucketName);
     
-    if (!this.bucketName) {
-      throw new Error('STORAGE_BUCKET_NAME environment variable is required');
+    if (!this.bucketName && !this.isMockMode) {
+      throw new Error('STORAGE_BUCKET_NAME environment variable is required for production mode');
     }
 
-    // Initialize Cloud Storage client
-    this.storage = new Storage({
-      projectId: process.env.GCP_PROJECT_ID,
-    });
+    if (this.isMockMode) {
+      console.log('[MOCK MODE] Using mock storage for Cloud Storage operations');
+      this.bucketName = this.bucketName || 'adcraft-storage-mock';
+    } else {
+      // Initialize Cloud Storage client
+      this.storage = new Storage({
+        projectId: process.env.GCP_PROJECT_ID,
+      });
 
-    this.bucket = this.storage.bucket(this.bucketName);
+      this.bucket = this.storage.bucket(this.bucketName);
+    }
   }
 
   /**
@@ -159,6 +168,17 @@ export class CloudStorageService {
     expiresInMinutes = 60
   ): Promise<string> {
     try {
+      if (this.isMockMode) {
+        // Return mock signed URL for testing
+        const mockUrl = `https://storage.googleapis.com/${this.bucketName}/${fileName}?mock_signed_url=true&expires=${Date.now() + (expiresInMinutes * 60 * 1000)}`;
+        console.log(`[MOCK MODE] Generated signed URL for: ${fileName}`);
+        return mockUrl;
+      }
+
+      if (!this.bucket) {
+        throw new Error('Cloud Storage not initialized');
+      }
+
       const file = this.bucket.file(fileName);
       const expires = new Date();
       expires.setMinutes(expires.getMinutes() + expiresInMinutes);

@@ -138,7 +138,12 @@ export class FirestoreService {
         throw new Error('Firestore not initialized');
       }
 
-      const docRef = await this.sessionsCollection.add(sessionData);
+      // Filter out undefined values for Firestore
+      const firestoreData = Object.fromEntries(
+        Object.entries(sessionData).filter(([_, value]) => value !== undefined)
+      );
+
+      const docRef = await this.sessionsCollection.add(firestoreData);
       
       return {
         ...sessionData,
@@ -222,7 +227,12 @@ export class FirestoreService {
         throw new Error('Firestore not initialized');
       }
 
-      await this.sessionsCollection.doc(sessionId).update(updateData);
+      // Filter out undefined values for Firestore
+      const firestoreUpdateData = Object.fromEntries(
+        Object.entries(updateData).filter(([_, value]) => value !== undefined)
+      );
+
+      await this.sessionsCollection.doc(sessionId).update(firestoreUpdateData);
       return true;
 
     } catch (error) {
@@ -280,7 +290,8 @@ export class FirestoreService {
     sessionId: string,
     prompt: string,
     estimatedCost: number,
-    jobId?: string // Optional job ID from external service (like Veo)
+    jobId?: string, // Optional simple job ID for Firestore
+    operationId?: string // Optional operation ID from external service (like Veo)
   ): Promise<VideoJob> {
     try {
       const now = new Date();
@@ -294,6 +305,7 @@ export class FirestoreService {
         estimatedCost,
         createdAt: now,
         updatedAt: now,
+        ...(operationId && { veoJobId: operationId }), // Store operation ID if provided
       };
 
       if (this.isMockMode) {
@@ -385,7 +397,12 @@ export class FirestoreService {
         throw new Error('Firestore not initialized');
       }
 
-      await this.jobsCollection.doc(jobId).update(updateData);
+      // Filter out undefined values for Firestore
+      const firestoreUpdateData = Object.fromEntries(
+        Object.entries(updateData).filter(([_, value]) => value !== undefined)
+      );
+
+      await this.jobsCollection.doc(jobId).update(firestoreUpdateData);
       return true;
 
     } catch (error) {

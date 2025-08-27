@@ -130,12 +130,16 @@ export async function POST(request: NextRequest) {
 
     const veoResponse = await veoService.generateVideo(videoRequest);
 
-    // Create video job record in Firestore using the Veo job ID
+    // Create a simple job ID for Firestore (compatible with document paths)
+    const simpleJobId = `job-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+    
+    // Create video job record in Firestore using simple job ID
     const videoJob = await firestoreService.createVideoJob(
       session.id,
       sanitizedPrompt,
       estimatedCost,
-      veoResponse.jobId // Use Veo job ID for consistency
+      simpleJobId,
+      veoResponse.jobId // Store the real operation ID as metadata
     );
 
     // Start job tracking
@@ -163,7 +167,7 @@ export async function POST(request: NextRequest) {
 
     // Prepare response
     const response: VideoGenerationResponse = {
-      jobId: veoResponse.jobId,
+      jobId: simpleJobId, // Return the simple job ID for UI tracking
       sessionId: sessionId,
       status: veoResponse.status,
       estimatedCompletionTime: veoResponse.estimatedCompletionTime,

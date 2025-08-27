@@ -119,8 +119,10 @@ export async function GET(
 
     if (['pending', 'processing'].includes(currentStatus)) {
       try {
-        // Query Veo service for latest status
-        const veoStatus = await veoService.getJobStatus(sanitizedJobId);
+        // Query Veo service for latest status using the stored operation ID
+        const operationId = videoJob.veoJobId || sanitizedJobId;
+        console.log(`🎬 Checking status for operation: ${operationId}`);
+        const veoStatus = await veoService.getJobStatus(operationId);
         
         // Update local variables with latest info
         currentStatus = veoStatus.status;
@@ -129,29 +131,10 @@ export async function GET(
         
         // If job completed, get video URLs
         if (veoStatus.status === 'completed' && veoStatus.videoUrl) {
-          // Create signed URLs for secure access
-          try {
-            const signedVideoUrl = await storageService.getSignedUrl(
-              veoStatus.videoUrl, 
-              'read',
-              60 * 60 // 1 hour expiry
-            );
-            videoUrl = signedVideoUrl;
-
-            if (veoStatus.thumbnailUrl) {
-              const signedThumbnailUrl = await storageService.getSignedUrl(
-                veoStatus.thumbnailUrl,
-                'read',
-                60 * 60 // 1 hour expiry
-              );
-              thumbnailUrl = signedThumbnailUrl;
-            }
-          } catch (urlError) {
-            console.warn('Failed to generate signed URLs:', urlError);
-            // Fall back to direct URLs if signed URL generation fails
-            videoUrl = veoStatus.videoUrl;
-            thumbnailUrl = veoStatus.thumbnailUrl;
-          }
+          // Use the proxy URL directly (no signing needed)
+          videoUrl = veoStatus.videoUrl;
+          thumbnailUrl = veoStatus.thumbnailUrl;
+          console.log(`🎬 Video completed with URL: ${videoUrl}`);
         }
 
         // Update job record in Firestore if status changed
@@ -159,7 +142,7 @@ export async function GET(
           await firestoreService.updateVideoJob(sanitizedJobId, {
             status: currentStatus,
             progress: progress,
-            videoUrl: veoStatus.videoUrl, // Store original URL
+            videoUrl: veoStatus.videoUrl, // Store proxy URL for frontend use
             thumbnailUrl: veoStatus.thumbnailUrl,
             error: error,
             updatedAt: new Date(),

@@ -2,10 +2,11 @@ import { render, RenderOptions, RenderResult } from '@testing-library/react'
 import { ReactElement, ReactNode } from 'react'
 import React from 'react'
 import { expect } from 'vitest'
+import userEvent from '@testing-library/user-event'
 
 // Re-export everything from testing-library/react
 export * from '@testing-library/react'
-export { default as userEvent } from '@testing-library/user-event'
+export { userEvent }
 
 /**
  * Custom render function that includes common providers
@@ -265,15 +266,15 @@ export const userInteractions = {
   /**
    * Types text into an input with realistic delay
    */
-  typeText: async (element: Element, text: string) => {
+  typeText: async (element: HTMLElement, text: string) => {
     const user = userEvent.setup()
-    await user.type(element, text, { delay: 10 })
+    await user.type(element, text)
   },
 
   /**
    * Uploads a file to a file input
    */
-  uploadFile: async (fileInput: Element, file: File) => {
+  uploadFile: async (fileInput: HTMLElement, file: File) => {
     const user = userEvent.setup()
     await user.upload(fileInput, file)
   },
@@ -281,9 +282,9 @@ export const userInteractions = {
   /**
    * Submits a form
    */
-  submitForm: async (form: Element) => {
+  submitForm: async (form: HTMLElement) => {
     const user = userEvent.setup()
-    const submitButton = form.querySelector('[type="submit"], button[form]')
+    const submitButton = form.querySelector('[type="submit"], button[form]') as HTMLElement
     if (submitButton) {
       await user.click(submitButton)
     }

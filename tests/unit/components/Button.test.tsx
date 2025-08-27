@@ -41,7 +41,7 @@ describe('Button Component', () => {
     render(<Button size="lg">Large button</Button>)
     
     const button = screen.getByRole('button')
-    expect(button).toHaveClass('px-6', 'py-2.5', 'text-base')
+    expect(button).toHaveClass('px-6 py-2.5 text-base')
   })
 
   it('shows loading state correctly', () => {

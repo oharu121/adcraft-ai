@@ -7,7 +7,7 @@ This project uses **Vitest** as the testing framework, which provides:
 - Native TypeScript support
 - Built-in coverage reporting
 - Modern ESM support
-- Jest-compatible API
+- Vitest-native API with Jest compatibility
 
 ## Test Structure
 
@@ -47,7 +47,7 @@ npm run test:watch
 ## Test Setup Features
 
 ### 1. Global Setup (`tests/setup.ts`)
-- Extends Vitest's expect with jest-dom matchers
+- Extends Vitest's expect with testing-library/jest-dom matchers
 - Mocks Next.js components (Image, router, etc.)
 - Sets up global test environment
 - Configures common test utilities
@@ -197,5 +197,5 @@ The test setup is optimized for Next.js 15 with:
 
 - [Vitest Documentation](https://vitest.dev/)
 - [Testing Library Documentation](https://testing-library.com/)
-- [Jest DOM Matchers](https://github.com/testing-library/jest-dom)
+- [Testing Library Jest-DOM Matchers](https://github.com/testing-library/jest-dom)
 - [Next.js Testing Documentation](https://nextjs.org/docs/testing)

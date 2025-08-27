@@ -255,13 +255,17 @@ export const apiMocks = ApiMocks.getInstance()
 export const testDataFactory = {
   videoJob: (overrides: Partial<VideoJob> = {}): VideoJob => ({
     id: 'test-job-123',
+    sessionId: 'test-session-123',
     prompt: 'A beautiful sunset over mountains',
     status: 'pending',
     progress: 0,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    estimatedDuration: 15,
-    aspectRatio: '16:9',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    estimatedCost: 1.50,
+    metadata: {
+      duration: 15,
+      aspectRatio: '16:9',
+    },
     ...overrides
   }),
 
@@ -269,7 +273,7 @@ export const testDataFactory = {
     id: 'msg-123',
     role: 'user',
     content: 'Can you make the video more dramatic?',
-    timestamp: new Date().toISOString(),
+    timestamp: new Date(),
     ...overrides
   }),
 

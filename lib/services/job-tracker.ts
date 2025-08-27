@@ -60,13 +60,13 @@ export class JobTracker {
     estimatedCost: number
   ): Promise<string> {
     try {
-      // Create job record in Firestore
-      const job = await this.firestore.createVideoJob(sessionId, prompt, estimatedCost);
+      // Create job record in Firestore using the Veo job ID for consistency
+      const job = await this.firestore.createVideoJob(sessionId, prompt, estimatedCost, veoJobId);
       
-      // Start tracking the job
-      this.startJobTracking(job.id, veoJobId);
+      // Start tracking the job with the same ID
+      this.startJobTracking(veoJobId, veoJobId);
       
-      return job.id;
+      return veoJobId; // Return the consistent job ID
 
     } catch (error) {
       console.error('Failed to create job:', error);

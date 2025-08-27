@@ -41,6 +41,16 @@ export class VeoService {
   }
 
   /**
+   * Check if we should use real Veo API or mock mode
+   */
+  private shouldUseRealAPI(): boolean {
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    
+    // Use real API if we have Gemini API key (ignore mock mode for Veo)
+    return !!geminiApiKey;
+  }
+
+  /**
    * Get singleton instance of VeoService
    */
   public static getInstance(): VeoService {
@@ -52,44 +62,21 @@ export class VeoService {
 
   /**
    * Generate video from text prompt using Veo API
+   * Uses real Gemini API when available, otherwise falls back to mock mode
    */
   public async generateVideo(request: VideoGenerationRequest): Promise<VideoGenerationResponse> {
     try {
-      const accessToken = await this.vertexAI.getAccessToken();
-      
-      // Prepare Veo API request
-      const veoRequest = {
-        prompt: request.prompt,
-        video_settings: {
-          duration_seconds: Math.min(request.duration || 15, 15), // Max 15 seconds
-          aspect_ratio: request.aspectRatio || '16:9',
-          style: request.style || 'realistic',
-        },
-      };
-
-      // Make request to Veo API endpoint
-      const response = await fetch(`${this.baseUrl}/publishers/google/models/veo:generateVideo`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(veoRequest),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(`Veo API error: ${response.status} - ${errorData.error?.message || response.statusText}`);
+      // Validate the request first
+      const validationErrors = this.validateRequest(request);
+      if (validationErrors.length > 0) {
+        throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
       }
 
-      const data = await response.json();
-      
-      // Return job information
-      return {
-        jobId: data.name || `veo-job-${Date.now()}`,
-        status: 'pending',
-        estimatedCompletionTime: 300, // 5 minutes estimate
-      };
+      if (this.shouldUseRealAPI()) {
+        return await this.generateVideoReal(request);
+      } else {
+        return await this.generateVideoMock(request);
+      }
 
     } catch (error) {
       console.error('Video generation failed:', error);
@@ -98,58 +85,240 @@ export class VeoService {
   }
 
   /**
+   * Generate video using real Gemini API with Veo 3
+   */
+  private async generateVideoReal(request: VideoGenerationRequest): Promise<VideoGenerationResponse> {
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    if (!geminiApiKey) {
+      throw new Error('GEMINI_API_KEY not configured');
+    }
+
+    const jobId = `veo-real-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+    
+    console.log(`🎬 REAL Veo API video generation started for job: ${jobId}`);
+    console.log(`Prompt: ${request.prompt}`);
+    console.log(`Aspect Ratio: ${request.aspectRatio || '16:9'}`);
+
+    // Prepare request for Gemini API
+    const requestBody = {
+      instances: [{
+        prompt: request.prompt
+      }],
+      parameters: {
+        aspectRatio: request.aspectRatio || '16:9'
+      }
+    };
+
+    // Call Gemini API to start video generation
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/veo-3.0-generate-preview:predictLongRunning', {
+      method: 'POST',
+      headers: {
+        'x-goog-api-key': geminiApiKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Gemini API error: ${response.status} - ${errorData.error?.message || response.statusText}`);
+    }
+
+    const data = await response.json();
+    const operationName = data.name;
+
+    console.log(`🎬 Veo video generation operation started: ${operationName}`);
+
+    // URL encode the operation name to handle slashes in URLs
+    const encodedJobId = encodeURIComponent(operationName);
+    console.log(`🎬 Encoded job ID for URL routing: ${encodedJobId}`);
+
+    // Store the encoded operation name as jobId for tracking
+    return {
+      jobId: encodedJobId, // Use URL-encoded operation name for routing
+      status: 'pending',
+      estimatedCompletionTime: 180, // 3 minutes typical for Veo
+    };
+  }
+
+  /**
+   * Generate video using mock implementation for testing
+   */
+  private async generateVideoMock(request: VideoGenerationRequest): Promise<VideoGenerationResponse> {
+    const jobId = `veo-demo-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+    
+    console.log(`Mock video generation started for job: ${jobId}`);
+    console.log(`Prompt: ${request.prompt}`);
+    console.log(`Duration: ${request.duration || 15} seconds`);
+    console.log(`Aspect Ratio: ${request.aspectRatio || '16:9'}`);
+    console.log(`Style: ${request.style || 'realistic'}`);
+
+    // Return job information
+    return {
+      jobId: jobId,
+      status: 'pending',
+      estimatedCompletionTime: 300, // 5 minutes estimate
+    };
+  }
+
+  /**
    * Check status of video generation job
+   * Handles both real Gemini API operations and mock jobs
    */
   public async getJobStatus(jobId: string): Promise<VideoJobStatus> {
     try {
-      const accessToken = await this.vertexAI.getAccessToken();
-      
-      // Check job status via Veo API
-      const response = await fetch(`${this.baseUrl}/operations/${jobId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      // Determine if this is a real API operation or mock job
+      if (jobId.startsWith('veo-demo-')) {
+        // Mock job
+        return await this.getJobStatusMock(jobId);
+      } else if (jobId.includes('operations') || jobId.includes('models')) {
+        // Real API operation (may be URL encoded)
+        const decodedJobId = decodeURIComponent(jobId);
+        console.log(`🎬 Checking status for decoded operation: ${decodedJobId}`);
+        return await this.getJobStatusReal(decodedJobId);
+      } else {
+        return {
+          jobId,
+          status: 'failed',
+          error: 'Invalid job ID format',
+        };
+      }
+    } catch (error) {
+      console.error('Job status check failed:', error);
+      return {
+        jobId,
+        status: 'failed',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }
 
-      if (!response.ok) {
-        throw new Error(`Failed to get job status: ${response.status}`);
+  /**
+   * Check status of real Gemini API operation
+   */
+  private async getJobStatusReal(operationName: string): Promise<VideoJobStatus> {
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    if (!geminiApiKey) {
+      throw new Error('GEMINI_API_KEY not configured');
+    }
+
+    const baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
+    const response = await fetch(`${baseUrl}/${operationName}`, {
+      method: 'GET',
+      headers: {
+        'x-goog-api-key': geminiApiKey,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Gemini API error: ${response.status} - ${errorData.error?.message || response.statusText}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.done) {
+      // Still processing
+      return {
+        jobId: operationName,
+        status: 'processing',
+        progress: 50, // Intermediate progress
+      };
+    }
+
+    if (data.error) {
+      // Failed
+      return {
+        jobId: operationName,
+        status: 'failed',
+        error: data.error.message || 'Video generation failed',
+      };
+    }
+
+    // Completed - extract video URL
+    const videoResponse = data.response?.generateVideoResponse;
+    if (videoResponse && videoResponse.generatedSamples?.[0]?.video?.uri) {
+      const videoUri = videoResponse.generatedSamples[0].video.uri;
+      console.log(`🎬 Video completed! URI: ${videoUri}`);
+      
+      // Extract file ID from URI and create proxy URL
+      const fileIdMatch = videoUri.match(/files\/([^:]+):/);
+      if (fileIdMatch) {
+        const fileId = fileIdMatch[1];
+        const proxyUrl = `/api/video/${fileId}`;
+        console.log(`🎬 Created proxy URL: ${proxyUrl}`);
+        
+        return {
+          jobId: operationName,
+          status: 'completed',
+          progress: 100,
+          videoUrl: proxyUrl,
+        };
+      } else {
+        console.error('Could not extract file ID from URI:', videoUri);
+        return {
+          jobId: operationName,
+          status: 'failed',
+          error: 'Could not parse video file ID',
+        };
+      }
+    }
+
+    // Fallback if no video URL found
+    return {
+      jobId: operationName,
+      status: 'failed',
+      error: 'Video URL not found in response',
+    };
+  }
+
+  /**
+   * Check status of mock job for testing
+   */
+  private async getJobStatusMock(jobId: string): Promise<VideoJobStatus> {
+    try {
+      // Extract timestamp from jobId to simulate progression
+      const timestampMatch = jobId.match(/veo-demo-(\d+)-/);
+      if (!timestampMatch) {
+        return {
+          jobId,
+          status: 'failed',
+          error: 'Cannot parse job timestamp',
+        };
       }
 
-      const data = await response.json();
+      const jobStartTime = parseInt(timestampMatch[1]);
+      const elapsed = Date.now() - jobStartTime;
+      const totalDuration = 15000; // 15 seconds simulation for quick testing
       
-      // Parse response and return status
-      if (data.done) {
-        if (data.error) {
-          return {
-            jobId,
-            status: 'failed',
-            error: data.error.message,
-          };
-        }
-        
-        // Job completed successfully
-        const result = data.response;
+      if (elapsed < 3000) {
+        // First 3 seconds: pending
+        return {
+          jobId,
+          status: 'pending',
+          progress: 0,
+        };
+      } else if (elapsed < totalDuration) {
+        // 3 seconds to 15 seconds: processing
+        const progress = Math.min(Math.floor((elapsed - 3000) / (totalDuration - 3000) * 100), 99);
+        return {
+          jobId,
+          status: 'processing',
+          progress,
+        };
+      } else {
+        // After 15 seconds: completed with mock video URL (using a real sample video for testing)
         return {
           jobId,
           status: 'completed',
           progress: 100,
-          videoUrl: result?.video_uri,
-          thumbnailUrl: result?.thumbnail_uri,
+          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+          thumbnailUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg',
         };
       }
 
-      // Job still processing
-      const progress = data.metadata?.progress_percentage || 0;
-      return {
-        jobId,
-        status: progress > 0 ? 'processing' : 'pending',
-        progress,
-      };
-
     } catch (error) {
-      console.error('Job status check failed:', error);
+      console.error('Mock job status check failed:', error);
       return {
         jobId,
         status: 'failed',

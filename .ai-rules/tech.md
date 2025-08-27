@@ -42,7 +42,7 @@ inclusion: always
 
 ### Development Tools
 
-- **Testing**: Jest 30.x + Testing Library + Playwright for E2E
+- **Testing**: Vitest 3.x + Testing Library + Playwright for E2E
 - **Code Quality**: ESLint 9.x + Prettier 3.6.2 + TypeScript compiler
 - **Build Tools**: Next.js Turbopack for development and production builds
 - **Package Manager**: npm with package-lock.json for consistency
@@ -172,7 +172,7 @@ try {
 
 ```bash
 # Unit Testing Pattern
-npm test                    # Jest with TypeScript support
+npm test                    # Vitest with TypeScript support
 npm run test:coverage       # Coverage reports >80% target
 npm run test:watch         # Development mode testing
 
