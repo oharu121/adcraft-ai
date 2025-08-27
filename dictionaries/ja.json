@@ -1,0 +1,95 @@
+{
+  "common": {
+    "loading": "読み込み中...",
+    "cancel": "キャンセル",
+    "continue": "続行",
+    "save": "保存",
+    "delete": "削除",
+    "edit": "編集",
+    "close": "閉じる",
+    "back": "戻る",
+    "next": "次へ",
+    "previous": "前へ",
+    "submit": "送信",
+    "confirm": "確認",
+    "yes": "はい",
+    "no": "いいえ",
+    "ok": "OK",
+    "error": "エラー",
+    "success": "成功",
+    "warning": "警告",
+    "info": "情報"
+  },
+  "navigation": {
+    "home": "生成",
+    "gallery": "ギャラリー",
+    "about": "について",
+    "generate": "動画生成",
+    "menu": "メニュー",
+    "toggleMenu": "メニューの切り替え"
+  },
+  "header": {
+    "title": "AdCraft AI",
+    "subtitle": "AI動画ジェネレーター",
+    "budget": "予算",
+    "remainingBudget": "残り予算"
+  },
+  "footer": {
+    "copyright": "© 2025 AdCraft AI. All rights reserved.",
+    "poweredBy": "Google Cloud AIを使用",
+    "version": "v0.1.0 - ハッカソンデモ"
+  },
+  "home": {
+    "heroTitle": "AIで動画を作成",
+    "heroSubtitle": "あなたのアイデアをプロフェッショナルな動画コンテンツに変換",
+    "heroCost": "Google DeepMind Veo APIを使用 • 15秒動画あたり約$1.50",
+    "describeVideo": "動画を説明してください",
+    "placeholder": "作成したい動画を説明してください...",
+    "advancedOptions": "詳細オプション",
+    "duration": "長さ",
+    "aspectRatio": "アスペクト比",
+    "style": "スタイル",
+    "estimatedCost": "推定コスト: 1回の生成あたり${cost}",
+    "createAnother": "別の動画を作成",
+    "tryAgain": "再試行",
+    "generationFailed": "生成に失敗しました"
+  },
+  "videoGenerator": {
+    "generateVideo": "動画を生成",
+    "generating": "生成中...",
+    "cancel": "キャンセル",
+    "download": "ダウンロード",
+    "share": "共有",
+    "regenerate": "再生成",
+    "estimatedCost": "推定コスト: ${cost}",
+    "costWarning": "この生成には約${cost}のコストがかかります",
+    "budgetWarning": "警告: 予算制限を超える可能性があります",
+    "insufficientBudget": "予算残高が不足しています",
+    "maxLength": "最大{count}文字",
+    "charactersRemaining": "残り{remaining}文字",
+    "charactersExceeded": "{count}文字超過しています"
+  },
+  "duration": {
+    "5seconds": "5秒",
+    "10seconds": "10秒",
+    "15seconds": "15秒"
+  },
+  "aspectRatio": {
+    "16:9": "16:9 (横長)",
+    "9:16": "9:16 (縦長)",
+    "1:1": "1:1 (正方形)"
+  },
+  "style": {
+    "realistic": "リアル",
+    "cinematic": "シネマティック",
+    "animated": "アニメーション",
+    "artistic": "アーティスティック"
+  },
+  "errors": {
+    "promptEmpty": "動画の説明を入力してください。"
+  },
+  "validation": {
+    "minLength": "最低{min}文字必要です",
+    "maxLength": "{max}文字を超えないでください"
+  }
+}

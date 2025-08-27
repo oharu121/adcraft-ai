@@ -1,0 +1,10 @@
+name: adcraft-ai-infrastructure
+runtime: nodejs
+description: AdCraft AI infrastructure for minimal video generator
+template:
+  config:
+    gcp:project:
+      description: The Google Cloud project to deploy into
+    gcp:region:
+      description: The Google Cloud region to deploy into
+      default: asia-northeast1

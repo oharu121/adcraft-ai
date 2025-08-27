@@ -1,0 +1,95 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Information"
+  },
+  "navigation": {
+    "home": "Generate",
+    "gallery": "Gallery",
+    "about": "About",
+    "generate": "Generate Video",
+    "menu": "Menu",
+    "toggleMenu": "Toggle menu"
+  },
+  "header": {
+    "title": "AdCraft AI",
+    "subtitle": "AI Video Generator",
+    "budget": "Budget",
+    "remainingBudget": "Remaining Budget"
+  },
+  "footer": {
+    "copyright": "© 2025 AdCraft AI. All rights reserved.",
+    "poweredBy": "Powered by Google Cloud AI",
+    "version": "v0.1.0 - Hackathon Demo"
+  },
+  "home": {
+    "heroTitle": "Create Videos with AI",
+    "heroSubtitle": "Transform your ideas into professional video content",
+    "heroCost": "Powered by Google DeepMind Veo API • ~$1.50 per 15-second video",
+    "describeVideo": "Describe Your Video",
+    "placeholder": "Describe the video you want to create...",
+    "advancedOptions": "Advanced Options",
+    "duration": "Duration",
+    "aspectRatio": "Aspect Ratio",
+    "style": "Style",
+    "estimatedCost": "Estimated cost: ${cost} per generation",
+    "createAnother": "Create Another",
+    "tryAgain": "Try Again",
+    "generationFailed": "Generation Failed"
+  },
+  "videoGenerator": {
+    "generateVideo": "Generate Video",
+    "generating": "Generating...",
+    "cancel": "Cancel",
+    "download": "Download",
+    "share": "Share",
+    "regenerate": "Regenerate",
+    "estimatedCost": "Est. Cost: ${cost}",
+    "costWarning": "This generation will cost approximately ${cost}",
+    "budgetWarning": "Warning: This may exceed your budget limit",
+    "insufficientBudget": "Insufficient budget remaining",
+    "maxLength": "Maximum {count} characters",
+    "charactersRemaining": "{remaining} characters remaining",
+    "charactersExceeded": "Exceeded by {count} characters"
+  },
+  "duration": {
+    "5seconds": "5 seconds",
+    "10seconds": "10 seconds", 
+    "15seconds": "15 seconds"
+  },
+  "aspectRatio": {
+    "16:9": "16:9 (Landscape)",
+    "9:16": "9:16 (Portrait)",
+    "1:1": "1:1 (Square)"
+  },
+  "style": {
+    "realistic": "Realistic",
+    "cinematic": "Cinematic",
+    "animated": "Animated",
+    "artistic": "Artistic"
+  },
+  "errors": {
+    "promptEmpty": "Please enter a description for your video."
+  },
+  "validation": {
+    "minLength": "Must be at least {min} characters",
+    "maxLength": "Must not exceed {max} characters"
+  }
+}
