@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(npm run typecheck:*)",
+      "WebFetch(domain:next-intl.dev)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

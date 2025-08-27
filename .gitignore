@@ -43,6 +43,3 @@ next-env.d.ts
 # ai related markdowns
 ENVIRONMENT.md
 CLAUDE.md
-
-# agents
-.claude
