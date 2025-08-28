@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SecurityMonitorService } from '@/lib/services/security-monitor';
 
 // Base validation schemas
 export const IdSchema = z.string().min(1, 'ID is required');
@@ -281,43 +282,180 @@ export const ValidationUtils = {
 
   /**
    * Validate rate limiting parameters
+   * @deprecated Use RateLimiterService.checkRateLimit() directly instead
    */
   validateRateLimit(ip: string, identifier?: string): boolean {
-    // Simple validation - in production you'd check against Redis/database
+    // Legacy method - kept for backward compatibility
+    // New implementations should use RateLimiterService directly
+    console.warn('ValidationUtils.validateRateLimit is deprecated. Use RateLimiterService.checkRateLimit() instead.');
     return true;
   },
 
   /**
-   * Sanitize user input
+   * Sanitize user input to prevent XSS and other injection attacks
    */
-  sanitizeInput(input: string): string {
-    return input
-      .trim()
-      .replace(/<script[^>]*>.*?<\/script>/gi, '')
-      .replace(/<[^>]*>/g, '')
-      .substring(0, 1000);
-  },
+  sanitizeInput(input: string, source?: string): string {
+    if (!input || typeof input !== 'string') {
+      return '';
+    }
 
-  /**
-   * Validate prompt content
-   */
-  validatePromptContent(prompt: string): { valid: boolean; errors: string[] } {
-    const errors: string[] = [];
-    const bannedWords = ['explicit', 'violence', 'illegal']; // Add more as needed
+    const originalInput = input;
+    const securityMonitor = SecurityMonitorService.getInstance();
 
-    const lowerPrompt = prompt.toLowerCase();
-    for (const word of bannedWords) {
-      if (lowerPrompt.includes(word)) {
-        errors.push(`Content contains prohibited word: ${word}`);
+    // Check for XSS patterns before sanitization
+    const xssPatterns = [
+      /<script[^>]*>/gi,
+      /javascript:/gi,
+      /vbscript:/gi,
+      /on\w+\s*=/gi,
+      /<iframe[^>]*>/gi,
+    ];
+
+    for (const pattern of xssPatterns) {
+      if (pattern.test(input)) {
+        if (source) {
+          securityMonitor.logXSSAttempt(source, originalInput);
+        }
+        break;
       }
     }
 
-    if (prompt.length < 5) {
-      errors.push('Prompt is too short');
+    // Check for injection attempts
+    const injectionPatterns = [
+      /union\s+select/gi,
+      /drop\s+table/gi,
+      /insert\s+into/gi,
+      /delete\s+from/gi,
+      /'.*or.*'.*=/gi,
+      /\d+\s*=\s*\d+/g,
+    ];
+
+    for (const pattern of injectionPatterns) {
+      if (pattern.test(input)) {
+        if (source) {
+          securityMonitor.logInjectionAttempt(source, originalInput, 'sql');
+        }
+        break;
+      }
+    }
+
+    const sanitized = input
+      .trim()
+      // Remove all HTML tags and their content
+      .replace(/<script[^>]*>.*?<\/script>/gi, '')
+      .replace(/<style[^>]*>.*?<\/style>/gi, '')
+      .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '')
+      .replace(/<object[^>]*>.*?<\/object>/gi, '')
+      .replace(/<embed[^>]*>.*?<\/embed>/gi, '')
+      .replace(/<link[^>]*>/gi, '')
+      .replace(/<meta[^>]*>/gi, '')
+      .replace(/<[^>]*>/g, '')
+      // Remove JavaScript-like patterns
+      .replace(/javascript:/gi, '')
+      .replace(/vbscript:/gi, '')
+      .replace(/data:/gi, '')
+      .replace(/on\w+\s*=/gi, '')
+      // Remove potentially dangerous characters
+      .replace(/[<>'"&]/g, (match) => {
+        const htmlEntities: Record<string, string> = {
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#x27;',
+          '&': '&amp;',
+        };
+        return htmlEntities[match] || match;
+      })
+      // Remove null bytes and control characters
+      .replace(/[\0-\x1F\x7F]/g, '')
+      // Limit length
+      .substring(0, 1000);
+
+    // Log if significant changes were made during sanitization
+    if (source && originalInput !== sanitized && originalInput.length > sanitized.length + 10) {
+      securityMonitor.logMaliciousInput(source, originalInput, 'Input significantly modified during sanitization');
+    }
+
+    return sanitized;
+  },
+
+  /**
+   * Validate prompt content for safety and policy compliance
+   */
+  validatePromptContent(prompt: string, source?: string): { valid: boolean; errors: string[] } {
+    const errors: string[] = [];
+    
+    // Basic length validation
+    if (!prompt || prompt.trim().length < 5) {
+      errors.push('Prompt is too short (minimum 5 characters)');
     }
 
     if (prompt.length > 500) {
-      errors.push('Prompt is too long');
+      errors.push('Prompt is too long (maximum 500 characters)');
+    }
+
+    // Enhanced content policy validation
+    const bannedPatterns = [
+      // Violence and harmful content
+      /\b(violence|violent|kill|murder|death|blood|gore|torture|harm)\b/gi,
+      // Explicit adult content
+      /\b(explicit|nude|naked|sexual|porn|adult|erotic)\b/gi,
+      // Illegal activities
+      /\b(illegal|drugs|weapon|bomb|terrorist|hack|steal|fraud)\b/gi,
+      // Hate speech indicators
+      /\b(hate|racist|discrimination|nazi|supremacist)\b/gi,
+      // Personal information patterns
+      /\b(\d{3}-\d{2}-\d{4}|\d{4}\s?\d{4}\s?\d{4}\s?\d{4}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\b/g,
+    ];
+
+    const lowerPrompt = prompt.toLowerCase();
+    
+    const securityMonitor = SecurityMonitorService.getInstance();
+    const violations: string[] = [];
+
+    for (const pattern of bannedPatterns) {
+      const matches = lowerPrompt.match(pattern);
+      if (matches) {
+        violations.push(`Pattern: ${pattern.toString()}`);
+        errors.push(`Content contains prohibited terms or patterns`);
+        break; // Don't reveal specific words for security
+      }
+    }
+
+    // Log content policy violations
+    if (violations.length > 0 && source) {
+      securityMonitor.logContentPolicyViolation(source, prompt, violations);
+    }
+
+    // Check for excessive repetition (potential spam)
+    const words = prompt.split(/\s+/);
+    const wordCounts = new Map<string, number>();
+    for (const word of words) {
+      if (word.length > 2) {
+        wordCounts.set(word.toLowerCase(), (wordCounts.get(word.toLowerCase()) || 0) + 1);
+      }
+    }
+
+    for (const [word, count] of wordCounts.entries()) {
+      if (count > 5 && words.length > 10) {
+        errors.push('Content contains excessive repetition');
+        break;
+      }
+    }
+
+    // Check for suspicious patterns (base64, hex encoding, etc.)
+    const suspiciousPatterns = [
+      /[A-Za-z0-9+/]{20,}={0,2}/, // Base64-like patterns
+      /0x[0-9a-fA-F]{10,}/, // Hex patterns
+      /\\x[0-9a-fA-F]{2}/, // Hex escape sequences
+      /%[0-9a-fA-F]{2}/, // URL encoding
+    ];
+
+    for (const pattern of suspiciousPatterns) {
+      if (pattern.test(prompt)) {
+        errors.push('Content contains suspicious encoding patterns');
+        break;
+      }
     }
 
     return {

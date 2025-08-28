@@ -16,29 +16,26 @@ export function createIAMResources() {
     privateKeyType: 'TYPE_GOOGLE_CREDENTIALS_FILE',
   });
 
-  // Required IAM roles for the service account
+  // Required IAM roles for the service account - Following principle of least privilege
   const roles = [
-    // Vertex AI access for Gemini and Veo APIs
+    // Vertex AI access for Gemini and Veo APIs - minimal permissions
     'roles/aiplatform.user',
-    'roles/aiplatform.serviceAgent',
+    // Note: aiplatform.serviceAgent removed - not needed for application service account
     
-    // Cloud Storage access for file upload/download
-    'roles/storage.admin',
+    // Cloud Storage access for file upload/download - restricted permissions
+    'roles/storage.objectUser', // Changed from storage.admin for least privilege
     
-    // Firestore access for database operations
-    'roles/datastore.user',
-    'roles/datastore.owner',
+    // Firestore access for database operations - minimal permissions
+    'roles/datastore.user', // datastore.owner removed - user role sufficient
     
-    // Cloud Run access for service deployment
-    'roles/run.invoker',
-    'roles/run.developer',
+    // Cloud Run access for service deployment - minimal permissions
+    'roles/run.invoker', // run.developer removed - only invoker needed for runtime
     
-    // Monitoring and logging
-    'roles/monitoring.editor',
+    // Monitoring and logging - minimal permissions
+    'roles/monitoring.metricWriter', // Changed from monitoring.editor for least privilege
     'roles/logging.logWriter',
     
-    // Cloud Functions (if needed for processing)
-    'roles/cloudfunctions.invoker',
+    // Cloud Functions access removed - not currently needed
   ];
 
   // Bind roles to service account

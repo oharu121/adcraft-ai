@@ -3,7 +3,8 @@ import {
   VeoService,
   FirestoreService,
   JobTracker,
-  CloudStorageService
+  CloudStorageService,
+  RateLimiterService
 } from '@/lib/services';
 import { 
   JobStatusRequestSchema,
@@ -59,18 +60,17 @@ export async function GET(
     // Sanitize job ID
     const sanitizedJobId = ValidationUtils.sanitizeInput(jobId);
 
-    // Rate limiting check
-    const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
-    if (!ValidationUtils.validateRateLimit(clientIP, sanitizedJobId)) {
-      return NextResponse.json({
-        success: false,
-        error: {
-          code: 'RATE_LIMIT_EXCEEDED',
-          message: 'Rate limit exceeded. Please slow down status checks.',
-          timestamp: new Date(),
-        },
-        timestamp: new Date(),
-      }, { status: 429 });
+    // Enhanced rate limiting for status checks
+    const rateLimiter = RateLimiterService.getInstance();
+    const clientId = rateLimiter.getClientIdentifier(request);
+    const rateLimitResult = rateLimiter.checkRateLimit(clientId, 'status-check');
+    
+    if (!rateLimitResult.allowed) {
+      const response = rateLimiter.createRateLimitResponse(rateLimitResult);
+      return NextResponse.json(response.body, {
+        status: response.status,
+        headers: response.headers,
+      });
     }
 
     // Initialize services
@@ -292,18 +292,17 @@ export async function DELETE(
     // Sanitize job ID
     const sanitizedJobId = ValidationUtils.sanitizeInput(jobId);
 
-    // Rate limiting check
-    const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
-    if (!ValidationUtils.validateRateLimit(clientIP, sanitizedJobId)) {
-      return NextResponse.json({
-        success: false,
-        error: {
-          code: 'RATE_LIMIT_EXCEEDED',
-          message: 'Rate limit exceeded. Please slow down.',
-          timestamp: new Date(),
-        },
-        timestamp: new Date(),
-      }, { status: 429 });
+    // Enhanced rate limiting for job cancellation
+    const rateLimiter = RateLimiterService.getInstance();
+    const clientId = rateLimiter.getClientIdentifier(request);
+    const rateLimitResult = rateLimiter.checkRateLimit(clientId, 'status-check'); // Same limits as status check
+    
+    if (!rateLimitResult.allowed) {
+      const response = rateLimiter.createRateLimitResponse(rateLimitResult);
+      return NextResponse.json(response.body, {
+        status: response.status,
+        headers: response.headers,
+      });
     }
 
     // Initialize services

@@ -8,6 +8,8 @@ export { FirestoreService } from './firestore';
 export { CostTracker } from './cost-tracker';
 export { PromptRefiner } from './prompt-refiner';
 export { JobTracker } from './job-tracker';
+export { RateLimiterService } from './rate-limiter';
+export { SecurityMonitorService } from './security-monitor';
 
 // Type Exports
 export type { 

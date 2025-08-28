@@ -3,7 +3,8 @@ import {
   VeoService, 
   FirestoreService, 
   CostTracker, 
-  JobTracker 
+  JobTracker,
+  RateLimiterService 
 } from '@/lib/services';
 import { 
   VideoGenerationRequestSchema,
@@ -54,18 +55,17 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Rate limiting check (simplified for demo)
-    const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
-    if (!ValidationUtils.validateRateLimit(clientIP)) {
-      return NextResponse.json({
-        success: false,
-        error: {
-          code: 'RATE_LIMIT_EXCEEDED',
-          message: 'Rate limit exceeded. Please try again later.',
-          timestamp: new Date(),
-        },
-        timestamp: new Date(),
-      }, { status: 429 });
+    // Enhanced rate limiting with proper implementation
+    const rateLimiter = RateLimiterService.getInstance();
+    const clientId = rateLimiter.getClientIdentifier(request);
+    const rateLimitResult = rateLimiter.checkRateLimit(clientId, 'video-generation');
+    
+    if (!rateLimitResult.allowed) {
+      const response = rateLimiter.createRateLimitResponse(rateLimitResult);
+      return NextResponse.json(response.body, {
+        status: response.status,
+        headers: response.headers,
+      });
     }
 
     // Initialize services
