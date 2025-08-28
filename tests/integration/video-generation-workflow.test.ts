@@ -257,7 +257,8 @@ describe('Video Generation Workflow Integration Tests', () => {
       const { ValidationUtils } = await import('@/lib/utils/validation')
       
       // Mock validation failure
-      ValidationUtils.validatePromptContent.mockReturnValue({
+      const mockValidatePrompt = vi.mocked(ValidationUtils.validatePromptContent)
+      mockValidatePrompt.mockReturnValue({
         valid: false,
         errors: ['Contains inappropriate content']
       })
@@ -292,7 +293,8 @@ describe('Video Generation Workflow Integration Tests', () => {
     it('should handle rate limiting correctly', async () => {
       // Arrange
       const { ValidationUtils } = await import('@/lib/utils/validation')
-      ValidationUtils.validateRateLimit.mockReturnValue(false)
+      const mockValidateRateLimit = vi.mocked(ValidationUtils.validateRateLimit)
+      mockValidateRateLimit.mockReturnValue(false)
 
       const { POST } = await import('../../app/api/generate-video/route')
       
@@ -371,7 +373,7 @@ describe('Video Generation Workflow Integration Tests', () => {
       
       // Mock request params
       const mockRequest = {} as any
-      const mockParams = { params: { jobId: testJobId } }
+      const mockParams = { params: Promise.resolve({ jobId: testJobId }) }
 
       // Act
       const response = await GET(mockRequest, mockParams)
@@ -399,7 +401,7 @@ describe('Video Generation Workflow Integration Tests', () => {
       const { GET } = await import('../../app/api/status/[jobId]/route')
       
       const mockRequest = {} as any
-      const mockParams = { params: { jobId: testJobId } }
+      const mockParams = { params: Promise.resolve({ jobId: testJobId }) }
 
       // Act
       const response = await GET(mockRequest, mockParams)

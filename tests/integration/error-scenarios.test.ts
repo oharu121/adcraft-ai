@@ -136,7 +136,8 @@ describe('Error Scenarios and Recovery Integration Tests', () => {
       })
 
       const { VideoGenerationRequestSchema } = await import('@/lib/utils/validation')
-      VideoGenerationRequestSchema.parse.mockReturnValue({
+      const mockParse = vi.mocked(VideoGenerationRequestSchema.parse)
+      mockParse.mockReturnValue({
         prompt: 'Test prompt',
         duration: 15,
         aspectRatio: '16:9',
@@ -170,7 +171,8 @@ describe('Error Scenarios and Recovery Integration Tests', () => {
       )
 
       const { VideoGenerationRequestSchema } = await import('@/lib/utils/validation')
-      VideoGenerationRequestSchema.parse.mockReturnValue({
+      const mockParse = vi.mocked(VideoGenerationRequestSchema.parse)
+      mockParse.mockReturnValue({
         prompt: 'Valid prompt',
         duration: 15,
         aspectRatio: '16:9',
@@ -204,7 +206,8 @@ describe('Error Scenarios and Recovery Integration Tests', () => {
       )
 
       const { VideoGenerationRequestSchema } = await import('@/lib/utils/validation')
-      VideoGenerationRequestSchema.parse.mockReturnValue({
+      const mockParse = vi.mocked(VideoGenerationRequestSchema.parse)
+      mockParse.mockReturnValue({
         prompt: 'Valid prompt',
         duration: 15,
         aspectRatio: '16:9',
@@ -244,7 +247,8 @@ describe('Error Scenarios and Recovery Integration Tests', () => {
       )
 
       const { VideoGenerationRequestSchema } = await import('@/lib/utils/validation')
-      VideoGenerationRequestSchema.parse.mockReturnValue({
+      const mockParse = vi.mocked(VideoGenerationRequestSchema.parse)
+      mockParse.mockReturnValue({
         prompt: 'Test prompt',
         duration: 15,
         aspectRatio: '16:9',
@@ -279,7 +283,8 @@ describe('Error Scenarios and Recovery Integration Tests', () => {
     it('should handle invalid session ID format', async () => {
       // Arrange
       const { ChatRefinementRequestSchema } = await import('@/lib/utils/validation')
-      ChatRefinementRequestSchema.parse.mockImplementation(() => {
+      const mockChatParse = vi.mocked(ChatRefinementRequestSchema.parse)
+      mockChatParse.mockImplementation(() => {
         throw new Error('Invalid session ID format')
       })
 
@@ -317,7 +322,8 @@ describe('Error Scenarios and Recovery Integration Tests', () => {
       )
 
       const { ChatRefinementRequestSchema } = await import('@/lib/utils/validation')
-      ChatRefinementRequestSchema.parse.mockReturnValue({
+      const mockChatParse = vi.mocked(ChatRefinementRequestSchema.parse)
+      mockChatParse.mockReturnValue({
         sessionId: 'session-123',
         message: 'Valid message',
       })
@@ -359,7 +365,8 @@ describe('Error Scenarios and Recovery Integration Tests', () => {
       mockServices.promptRefiner.chatAboutPrompt.mockResolvedValue('AI response')
 
       const { ChatRefinementRequestSchema } = await import('@/lib/utils/validation')
-      ChatRefinementRequestSchema.parse.mockReturnValue({
+      const mockChatParse = vi.mocked(ChatRefinementRequestSchema.parse)
+      mockChatParse.mockReturnValue({
         sessionId: 'session-123',
         message: 'Valid message',
       })
@@ -391,7 +398,7 @@ describe('Error Scenarios and Recovery Integration Tests', () => {
       const { GET } = await import('../../app/api/status/[jobId]/route')
       
       const mockRequest = {} as any
-      const mockParams = { params: { jobId: 'invalid/job/id/format' } }
+      const mockParams = { params: Promise.resolve({ jobId: 'invalid/job/id/format' }) }
 
       // Act
       const response = await GET(mockRequest, mockParams)
@@ -412,7 +419,7 @@ describe('Error Scenarios and Recovery Integration Tests', () => {
       const { GET } = await import('../../app/api/status/[jobId]/route')
       
       const mockRequest = {} as any
-      const mockParams = { params: { jobId: 'valid-job-123' } }
+      const mockParams = { params: Promise.resolve({ jobId: 'valid-job-123' }) }
 
       // Act
       const response = await GET(mockRequest, mockParams)
@@ -443,10 +450,10 @@ describe('Error Scenarios and Recovery Integration Tests', () => {
       const { GET } = await import('../../app/api/status/[jobId]/route')
       
       const mockRequest = {} as any
-      const mockParams = { params: { jobId: 'job-123' } }
+      const mockParams = { params: Promise.resolve({ jobId: 'job-123' }) }
 
       // Act
-      const response = await GET(mockRequest)
+      const response = await GET(mockRequest, mockParams)
       const responseData = await response.json()
 
       // Assert
@@ -465,7 +472,8 @@ describe('Error Scenarios and Recovery Integration Tests', () => {
       mockServices.veoService.generateVideo.mockRejectedValue(new Error('VEO service down'))
 
       const { VideoGenerationRequestSchema } = await import('@/lib/utils/validation')
-      VideoGenerationRequestSchema.parse.mockReturnValue({
+      const mockParse = vi.mocked(VideoGenerationRequestSchema.parse)
+      mockParse.mockReturnValue({
         prompt: 'Test prompt',
         duration: 15,
         aspectRatio: '16:9',
@@ -500,7 +508,8 @@ describe('Error Scenarios and Recovery Integration Tests', () => {
       )
 
       const { VideoGenerationRequestSchema } = await import('@/lib/utils/validation')
-      VideoGenerationRequestSchema.parse.mockReturnValue({
+      const mockParse = vi.mocked(VideoGenerationRequestSchema.parse)
+      mockParse.mockReturnValue({
         prompt: 'Test prompt with unicode: 🎥',
         duration: 15,
         aspectRatio: '16:9',
@@ -582,7 +591,8 @@ describe('Error Scenarios and Recovery Integration Tests', () => {
       mockServices.veoService.generateVideo.mockRejectedValue(new Error('VEO failure'))
 
       const { VideoGenerationRequestSchema } = await import('@/lib/utils/validation')
-      VideoGenerationRequestSchema.parse.mockReturnValue({
+      const mockParse = vi.mocked(VideoGenerationRequestSchema.parse)
+      mockParse.mockReturnValue({
         prompt: 'Test prompt',
         duration: 15,
         aspectRatio: '16:9',

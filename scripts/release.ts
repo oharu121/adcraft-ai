@@ -3,7 +3,7 @@ import Git from './util/Git';
 
 const config = {
   releaseType: 'Patch' as 'Major' | 'Minor' | 'Patch',
-  msg: 'removed ts-node, using tsx for script run instead',
+  msg: 'fix test files',
 };
 
 (async () => {

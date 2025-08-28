@@ -48,8 +48,8 @@ describe('Internationalization (i18n) Integration Tests', () => {
       expect(enDict.common.loading).toBe('Loading...')
       expect(enDict.common.error).toBe('Error')
       expect(enDict.videoGenerator).toBeDefined()
-      expect(enDict.videoGenerator.title).toBe('AI Video Generator')
-      expect(enDict.videoGenerator.promptPlaceholder).toContain('Describe your video')
+      expect(enDict.videoGenerator.generateVideo).toBe('Generate Video')
+      expect(enDict.videoGenerator.generating).toBe('Generating...')
     })
 
     it('should load Japanese dictionary correctly', async () => {
@@ -63,8 +63,8 @@ describe('Internationalization (i18n) Integration Tests', () => {
       expect(jaDict.common.loading).toBe('読み込み中...')
       expect(jaDict.common.error).toBe('エラー')
       expect(jaDict.videoGenerator).toBeDefined()
-      expect(jaDict.videoGenerator.title).toBe('AI動画ジェネレーター')
-      expect(jaDict.videoGenerator.promptPlaceholder).toContain('動画の内容を説明')
+      expect(jaDict.videoGenerator.generateVideo).toBe('動画を生成')
+      expect(jaDict.videoGenerator.generating).toBe('生成中...')
     })
 
     it('should handle invalid locale with fallback', async () => {
@@ -75,7 +75,7 @@ describe('Internationalization (i18n) Integration Tests', () => {
       // Assert - Should fallback to English
       expect(dict).toBeDefined()
       expect(dict.common.loading).toBe('Loading...')
-      expect(dict.videoGenerator.title).toBe('AI Video Generator')
+      expect(dict.videoGenerator.generateVideo).toBe('Generate Video')
     })
 
     it('should provide type-safe dictionary access', async () => {
@@ -87,10 +87,10 @@ describe('Internationalization (i18n) Integration Tests', () => {
       // Assert - TypeScript should enforce these properties exist
       expect(typeof enDict.common.loading).toBe('string')
       expect(typeof jaDict.common.loading).toBe('string')
-      expect(typeof enDict.videoGenerator.generate).toBe('string')
-      expect(typeof jaDict.videoGenerator.generate).toBe('string')
-      expect(typeof enDict.errors.networkError).toBe('string')
-      expect(typeof jaDict.errors.networkError).toBe('string')
+      expect(typeof enDict.videoGenerator.generateVideo).toBe('string')
+      expect(typeof jaDict.videoGenerator.generateVideo).toBe('string')
+      expect(typeof enDict.errors.promptEmpty).toBe('string')
+      expect(typeof jaDict.errors.promptEmpty).toBe('string')
     })
   })
 
@@ -349,7 +349,7 @@ describe('Internationalization (i18n) Integration Tests', () => {
     it('should redirect root path to locale-specific path', async () => {
       // Arrange
       const { NextResponse } = await import('next/server')
-      const mockRedirect = vi.fn(() => ({ status: 307 }))
+      const mockRedirect = vi.fn(() => new Response(null, { status: 307 })) as any
       NextResponse.redirect = mockRedirect
 
       const mockRequest = {

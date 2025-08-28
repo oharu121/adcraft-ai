@@ -426,9 +426,10 @@ describe('Service Layer Integration Tests', () => {
         jobData.estimatedCost
       )
 
-      const status = await jobTracker.getJobStatus('job-tracker-123')
+      const status = await jobTracker.getJobProgress('job-tracker-123')
       
       await jobTracker.updateJobStatus('job-tracker-123', {
+        jobId: 'job-tracker-123',
         status: 'completed',
         progress: 100,
         videoUrl: 'https://storage.googleapis.com/bucket/video.mp4',
@@ -461,7 +462,7 @@ describe('Service Layer Integration Tests', () => {
       const jobTracker = JobTracker.getInstance()
 
       // Act
-      const status = await jobTracker.getJobStatus('nonexistent-job')
+      const status = await jobTracker.getJobProgress('nonexistent-job')
 
       // Assert
       expect(status).toBeNull()
