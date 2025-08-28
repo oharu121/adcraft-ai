@@ -2,8 +2,8 @@ import fs from 'fs';
 import Git from './util/Git';
 
 const config = {
-  releaseType: 'Minor' as 'Major' | 'Minor' | 'Patch',
-  msg: 'PoC proofed MVP release',
+  releaseType: 'Patch' as 'Major' | 'Minor' | 'Patch',
+  msg: 'removed ts-node, using tsx for script run instead',
 };
 
 (async () => {

@@ -1,6 +1,6 @@
 {
   "name": "adcraft-ai",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -58,7 +58,6 @@
     "jsdom": "^26.1.0",
     "prettier": "^3.6.2",
     "tailwindcss": "^4",
-    "ts-node": "^10.9.2",
     "tsx": "^4.20.5",
     "typescript": "^5",
     "vitest": "^3.2.4"
