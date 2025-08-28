@@ -10,6 +10,10 @@ export { PromptRefiner } from './prompt-refiner';
 export { JobTracker } from './job-tracker';
 export { RateLimiterService } from './rate-limiter';
 export { SecurityMonitorService } from './security-monitor';
+export { Logger } from './logger';
+export { MetricsService } from './metrics';
+export { MonitoringService } from './monitoring';
+export { AlertingService } from './alerting';
 
 // Type Exports
 export type { 
@@ -44,3 +48,31 @@ export type {
   JobProgress,
   JobMetrics
 } from './job-tracker';
+
+export type {
+  LogLevel,
+  LogContext,
+  StructuredLogEntry,
+  LogMetrics
+} from './logger';
+
+export type {
+  PerformanceSummary,
+  APIMetric,
+  SystemMetric,
+  VideoGenerationMetric
+} from './metrics';
+
+export type {
+  SystemHealthStatus,
+  ServiceHealthCheck,
+  MonitoringDashboardData,
+  AlertSummary
+} from './monitoring';
+
+export type {
+  AlertRule,
+  Alert,
+  AlertingConfig,
+  AlertingSummary
+} from './alerting';

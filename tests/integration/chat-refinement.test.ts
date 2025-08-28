@@ -233,9 +233,10 @@ describe('Chat Refinement Integration Tests', () => {
     it('should validate and sanitize user messages', async () => {
       // Arrange
       const { ValidationUtils } = await import('@/lib/utils/validation')
+      const mockSanitizeInput = vi.mocked(ValidationUtils.sanitizeInput)
       
       // Mock empty message after sanitization
-      ValidationUtils.sanitizeInput.mockReturnValue('')
+      mockSanitizeInput.mockReturnValue('')
 
       const { POST } = await import('../../app/api/chat/refine/route')
       
@@ -266,7 +267,8 @@ describe('Chat Refinement Integration Tests', () => {
     it('should handle rate limiting for chat messages', async () => {
       // Arrange
       const { ValidationUtils } = await import('@/lib/utils/validation')
-      ValidationUtils.validateRateLimit.mockReturnValue(false)
+      const mockValidateRateLimit = vi.mocked(ValidationUtils.validateRateLimit)
+      mockValidateRateLimit.mockReturnValue(false)
 
       const { POST } = await import('../../app/api/chat/refine/route')
       

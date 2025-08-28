@@ -1,0 +1,1074 @@
+openapi: 3.0.3
+info:
+  title: AdCraft AI - Video Generation API
+  description: |
+    AI-powered video generation platform that transforms product images into professional commercials.
+    
+    ## Features
+    - **AI Video Generation**: Create professional commercials from product images using Google Veo AI
+    - **Interactive Chat**: Refine video concepts through natural language conversation
+    - **Real-time Status**: Track video generation progress with WebSocket-like polling
+    - **Multi-language Support**: Full English and Japanese localization
+    - **Cost Management**: Built-in budget tracking and cost optimization
+    - **Production Monitoring**: Comprehensive health checks and performance metrics
+    
+    ## Authentication
+    Most endpoints are publicly accessible for the demo application.
+    Admin endpoints require API key authentication via Bearer token.
+    
+    ## Rate Limits
+    - Video Generation: 1 request per hour per IP, 3 per day maximum
+    - Chat Refinement: 10 messages per session maximum
+    - Status Checks: 1 request per second per job
+    - Admin Endpoints: Requires valid admin API key
+    
+    ## Cost Information
+    - Average cost per video generation: $1.81-2.01
+    - Budget alerts at 50%, 75%, 90% thresholds
+    - Real-time cost tracking available through admin dashboard
+  version: 1.0.0
+  contact:
+    name: AdCraft AI Support
+    url: https://github.com/your-org/adcraft-ai
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://adcraft-service-1029593129571.asia-northeast1.run.app/api
+    description: Production server
+  - url: http://localhost:3000/api
+    description: Local development server
+
+paths:
+  /health:
+    get:
+      tags:
+        - System
+      summary: Health Check
+      description: |
+        Returns the current health status of the application and all dependencies.
+        Used for container orchestration and monitoring systems.
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: healthy
+                timestamp: "2025-08-28T10:30:00.000Z"
+                uptime: 86400
+                services:
+                  - name: "Vertex AI"
+                    status: healthy
+                    responseTime: 245
+        '503':
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /generate-video:
+    post:
+      tags:
+        - Video Generation
+      summary: Generate Video from Product Image
+      description: |
+        Creates a professional commercial video from a product image and description.
+        This endpoint handles the complete video generation workflow including:
+        - Image analysis and product understanding
+        - Commercial concept development
+        - AI video generation using Google Veo
+        - Cost tracking and budget validation
+      operationId: generateVideo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VideoGenerationRequest'
+            example:
+              productName: "Premium Wireless Headphones"
+              targetAudience: "Young professionals who value quality audio"
+              keyMessage: "Experience crystal-clear sound with all-day comfort"
+              duration: 15
+              language: "en"
+      responses:
+        '200':
+          description: Video generation started successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VideoGenerationResponse'
+              example:
+                jobId: "job_67890123"
+                status: "processing"
+                message: "Video generation started successfully"
+                estimatedCompletionTime: "2025-08-28T10:35:00.000Z"
+                costEstimate: 1.85
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /chat/refine:
+    post:
+      tags:
+        - Interactive Chat
+      summary: Refine Video Concept
+      description: |
+        Engage in interactive conversation to refine video concepts and requirements.
+        Supports natural language interaction to improve video generation results.
+      operationId: refineVideoChat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            example:
+              sessionId: "session_abc123"
+              message: "Can we make the video more energetic and focus on the bass response?"
+              context:
+                productName: "Premium Wireless Headphones"
+                currentConcept: "Professional audio quality showcase"
+      responses:
+        '200':
+          description: Chat response generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              example:
+                sessionId: "session_abc123"
+                message: "Great idea! I'll adjust the concept to emphasize the powerful bass and energetic feel. We can include dynamic music visualization and show people dancing or working out with the headphones."
+                updatedConcept:
+                  keyMessage: "Feel the Beat - Experience Powerful Bass"
+                  mood: "energetic"
+                  visualStyle: "dynamic_with_music_visualization"
+                suggestedChanges:
+                  - "Add bass frequency visualization"
+                  - "Include active lifestyle scenes"
+                  - "Use upbeat background music"
+        '400':
+          description: Invalid chat request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /status/{jobId}:
+    get:
+      tags:
+        - Status Tracking
+      summary: Get Video Generation Status
+      description: |
+        Retrieves the current status of a video generation job.
+        Provides real-time updates on processing progress, cost tracking, and completion estimates.
+      operationId: getJobStatus
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          description: Unique identifier for the video generation job
+          schema:
+            type: string
+            example: "job_67890123"
+      responses:
+        '200':
+          description: Job status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobStatusResponse'
+              example:
+                jobId: "job_67890123"
+                status: "completed"
+                progress: 100
+                message: "Video generation completed successfully"
+                videoUrl: "https://storage.googleapis.com/adcraft-videos/job_67890123.mp4"
+                actualCost: 1.82
+                processingTime: 387
+                completedAt: "2025-08-28T10:34:27.000Z"
+        '404':
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error retrieving job status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /video/{fileId}:
+    get:
+      tags:
+        - Video Delivery
+      summary: Stream Generated Video
+      description: |
+        Streams the generated video content with proper authentication and access control.
+        Handles video delivery with appropriate headers for web playback.
+      operationId: streamVideo
+      parameters:
+        - name: fileId
+          in: path
+          required: true
+          description: Unique identifier for the video file
+          schema:
+            type: string
+            example: "job_67890123"
+      responses:
+        '200':
+          description: Video stream
+          content:
+            video/mp4:
+              schema:
+                type: string
+                format: binary
+          headers:
+            Content-Type:
+              description: Video MIME type
+              schema:
+                type: string
+                example: "video/mp4"
+            Content-Length:
+              description: Video file size in bytes
+              schema:
+                type: integer
+            Cache-Control:
+              description: Caching instructions
+              schema:
+                type: string
+                example: "public, max-age=3600"
+        '404':
+          description: Video not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/monitoring:
+    get:
+      tags:
+        - Administration
+      summary: Get Monitoring Dashboard Data
+      description: |
+        Retrieves comprehensive monitoring data for system administration.
+        Requires admin authentication via Bearer token.
+      operationId: getMonitoringDashboard
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: section
+          in: query
+          required: false
+          description: Specific monitoring section to retrieve
+          schema:
+            type: string
+            enum: [overview, health, performance, costs, security, alerts, logs]
+            example: "overview"
+        - name: timeRange
+          in: query
+          required: false
+          description: Time range for historical data
+          schema:
+            type: string
+            default: "24h"
+            example: "24h"
+        - name: details
+          in: query
+          required: false
+          description: Include detailed historical data
+          schema:
+            type: boolean
+            default: false
+            example: false
+      responses:
+        '200':
+          description: Monitoring data retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitoringDashboard'
+        '401':
+          description: Unauthorized - invalid or missing admin API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: Invalid section parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Administration
+      summary: Execute Monitoring Actions
+      description: |
+        Executes administrative monitoring actions such as force health checks,
+        clearing trends, updating configuration, or resolving alerts.
+      operationId: executeMonitoringAction
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MonitoringActionRequest'
+            example:
+              action: "force_health_check"
+      responses:
+        '200':
+          description: Action executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitoringActionResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: Invalid action or parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/security:
+    get:
+      tags:
+        - Administration
+      summary: Get Security Dashboard Data
+      description: |
+        Retrieves comprehensive security monitoring data including threat detection,
+        security events, and system vulnerabilities.
+      operationId: getSecurityDashboard
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: timeRange
+          in: query
+          required: false
+          description: Time range for security data
+          schema:
+            type: string
+            default: "24h"
+            example: "24h"
+        - name: severity
+          in: query
+          required: false
+          description: Filter by security event severity
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+      responses:
+        '200':
+          description: Security data retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityDashboard'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Administration
+      summary: Execute Security Actions
+      description: |
+        Executes security-related administrative actions such as blocking IPs,
+        clearing security events, or updating security policies.
+      operationId: executeSecurityAction
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecurityActionRequest'
+      responses:
+        '200':
+          description: Security action executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityActionResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Admin API key for accessing administrative endpoints
+
+  schemas:
+    # Core Request/Response Schemas
+    VideoGenerationRequest:
+      type: object
+      required:
+        - productName
+        - targetAudience
+        - keyMessage
+      properties:
+        productName:
+          type: string
+          description: Name of the product for the commercial
+          example: "Premium Wireless Headphones"
+          maxLength: 100
+        targetAudience:
+          type: string
+          description: Target audience description
+          example: "Young professionals who value quality audio"
+          maxLength: 200
+        keyMessage:
+          type: string
+          description: Main message or value proposition
+          example: "Experience crystal-clear sound with all-day comfort"
+          maxLength: 300
+        duration:
+          type: integer
+          description: Video duration in seconds
+          minimum: 10
+          maximum: 60
+          default: 15
+          example: 15
+        language:
+          type: string
+          description: Language for the video
+          enum: [en, ja]
+          default: "en"
+          example: "en"
+        style:
+          type: string
+          description: Visual style preference
+          enum: [professional, energetic, elegant, modern]
+          default: "professional"
+          example: "professional"
+
+    VideoGenerationResponse:
+      type: object
+      properties:
+        jobId:
+          type: string
+          description: Unique identifier for tracking the generation job
+          example: "job_67890123"
+        status:
+          type: string
+          enum: [processing, queued, failed]
+          example: "processing"
+        message:
+          type: string
+          description: Human-readable status message
+          example: "Video generation started successfully"
+        estimatedCompletionTime:
+          type: string
+          format: date-time
+          description: Estimated completion time
+          example: "2025-08-28T10:35:00.000Z"
+        costEstimate:
+          type: number
+          format: float
+          description: Estimated cost in USD
+          example: 1.85
+        correlationId:
+          type: string
+          description: Correlation ID for request tracking
+          example: "corr_abc123"
+
+    ChatRequest:
+      type: object
+      required:
+        - message
+      properties:
+        sessionId:
+          type: string
+          description: Chat session identifier
+          example: "session_abc123"
+        message:
+          type: string
+          description: User message for refinement
+          example: "Can we make the video more energetic?"
+          maxLength: 500
+        context:
+          type: object
+          description: Current video concept context
+          properties:
+            productName:
+              type: string
+              example: "Premium Wireless Headphones"
+            currentConcept:
+              type: string
+              example: "Professional audio quality showcase"
+
+    ChatResponse:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          description: Chat session identifier
+          example: "session_abc123"
+        message:
+          type: string
+          description: AI response message
+          example: "Great idea! I'll adjust the concept to emphasize energy and excitement."
+        updatedConcept:
+          type: object
+          description: Updated video concept based on conversation
+          properties:
+            keyMessage:
+              type: string
+              example: "Feel the Beat - Experience Powerful Bass"
+            mood:
+              type: string
+              example: "energetic"
+            visualStyle:
+              type: string
+              example: "dynamic_with_music_visualization"
+        suggestedChanges:
+          type: array
+          items:
+            type: string
+          description: List of suggested improvements
+          example:
+            - "Add bass frequency visualization"
+            - "Include active lifestyle scenes"
+
+    JobStatusResponse:
+      type: object
+      properties:
+        jobId:
+          type: string
+          example: "job_67890123"
+        status:
+          type: string
+          enum: [queued, processing, completed, failed]
+          example: "completed"
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Progress percentage
+          example: 100
+        message:
+          type: string
+          description: Current status message
+          example: "Video generation completed successfully"
+        videoUrl:
+          type: string
+          format: uri
+          description: URL to the generated video (when completed)
+          example: "https://storage.googleapis.com/adcraft-videos/job_67890123.mp4"
+        actualCost:
+          type: number
+          format: float
+          description: Actual cost incurred
+          example: 1.82
+        processingTime:
+          type: integer
+          description: Processing time in seconds
+          example: 387
+        startedAt:
+          type: string
+          format: date-time
+          example: "2025-08-28T10:28:00.000Z"
+        completedAt:
+          type: string
+          format: date-time
+          example: "2025-08-28T10:34:27.000Z"
+        errorDetails:
+          type: string
+          description: Error details (when status is failed)
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy, critical]
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-08-28T10:30:00.000Z"
+        uptime:
+          type: integer
+          description: Uptime in seconds
+          example: 86400
+        overallScore:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Overall health score
+          example: 95
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceHealth'
+
+    ServiceHealth:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Vertex AI"
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy, critical]
+          example: "healthy"
+        responseTime:
+          type: integer
+          description: Response time in milliseconds
+          example: 245
+        lastCheck:
+          type: string
+          format: date-time
+          example: "2025-08-28T10:30:00.000Z"
+        details:
+          type: object
+          properties:
+            available:
+              type: boolean
+              example: true
+            errorRate:
+              type: number
+              format: float
+              example: 0.02
+
+    # Admin Dashboard Schemas
+    MonitoringDashboard:
+      type: object
+      properties:
+        system:
+          $ref: '#/components/schemas/SystemStatus'
+        performance:
+          $ref: '#/components/schemas/PerformanceMetrics'
+        costs:
+          $ref: '#/components/schemas/CostMetrics'
+        security:
+          $ref: '#/components/schemas/SecurityMetrics'
+        alerts:
+          $ref: '#/components/schemas/AlertSummary'
+        metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+
+    SystemStatus:
+      type: object
+      properties:
+        nodeVersion:
+          type: string
+          example: "v18.17.0"
+        platform:
+          type: string
+          example: "linux"
+        uptime:
+          type: number
+          example: 86400
+        memoryUsage:
+          type: object
+          properties:
+            rss:
+              type: integer
+              example: 52428800
+            heapTotal:
+              type: integer
+              example: 41943040
+            heapUsed:
+              type: integer
+              example: 29855488
+
+    PerformanceMetrics:
+      type: object
+      properties:
+        totalRequests:
+          type: integer
+          example: 1247
+        averageResponseTime:
+          type: number
+          format: float
+          example: 234.5
+        errorRate:
+          type: number
+          format: float
+          example: 2.3
+        currentCpuUsage:
+          type: number
+          format: float
+          example: 45.2
+        currentMemoryUsage:
+          type: integer
+          example: 512000000
+
+    CostMetrics:
+      type: object
+      properties:
+        totalBudget:
+          type: number
+          format: float
+          example: 300.00
+        currentSpend:
+          type: number
+          format: float
+          example: 45.50
+        remainingBudget:
+          type: number
+          format: float
+          example: 254.50
+        percentageUsed:
+          type: number
+          format: float
+          example: 15.17
+        alertLevel:
+          type: string
+          enum: [safe, warning, critical]
+          example: "safe"
+
+    SecurityMetrics:
+      type: object
+      properties:
+        totalEvents:
+          type: integer
+          example: 156
+        eventsBySeverity:
+          type: object
+          properties:
+            low:
+              type: integer
+              example: 98
+            medium:
+              type: integer
+              example: 42
+            high:
+              type: integer
+              example: 14
+            critical:
+              type: integer
+              example: 2
+        eventsLast24h:
+          type: integer
+          example: 23
+        eventsLastHour:
+          type: integer
+          example: 3
+
+    AlertSummary:
+      type: object
+      properties:
+        totalActive:
+          type: integer
+          example: 3
+        bySeverity:
+          type: object
+          properties:
+            low:
+              type: integer
+              example: 1
+            medium:
+              type: integer
+              example: 1
+            high:
+              type: integer
+              example: 1
+            critical:
+              type: integer
+              example: 0
+        recent:
+          type: array
+          items:
+            $ref: '#/components/schemas/Alert'
+
+    Alert:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "alert_abc123"
+        ruleId:
+          type: string
+          example: "high-error-rate"
+        title:
+          type: string
+          example: "High Error Rate Detected"
+        message:
+          type: string
+          example: "Error rate has exceeded 5% threshold"
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+          example: "high"
+        status:
+          type: string
+          enum: [active, resolved]
+          example: "active"
+        triggeredAt:
+          type: string
+          format: date-time
+          example: "2025-08-28T10:25:00.000Z"
+
+    SecurityDashboard:
+      type: object
+      properties:
+        metrics:
+          $ref: '#/components/schemas/SecurityMetrics'
+        recentEvents:
+          type: array
+          items:
+            $ref: '#/components/schemas/SecurityEvent'
+        activeAlerts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Alert'
+        suspiciousSources:
+          type: array
+          items:
+            $ref: '#/components/schemas/SuspiciousSource'
+
+    SecurityEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "event_xyz789"
+        type:
+          type: string
+          example: "suspicious_request_pattern"
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+          example: "medium"
+        source:
+          type: string
+          example: "192.168.1.100"
+        message:
+          type: string
+          example: "Multiple failed authentication attempts detected"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-08-28T10:20:00.000Z"
+
+    SuspiciousSource:
+      type: object
+      properties:
+        ip:
+          type: string
+          example: "192.168.1.100"
+        eventCount:
+          type: integer
+          example: 15
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+          example: "medium"
+        firstSeen:
+          type: string
+          format: date-time
+          example: "2025-08-28T09:00:00.000Z"
+        lastSeen:
+          type: string
+          format: date-time
+          example: "2025-08-28T10:20:00.000Z"
+
+    # Action Request/Response Schemas
+    MonitoringActionRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          enum: [force_health_check, clear_trends, update_config, resolve_alert, export_data]
+          example: "force_health_check"
+        config:
+          type: object
+          description: Configuration for update_config action
+        alertId:
+          type: string
+          description: Alert ID for resolve_alert action
+        source:
+          type: string
+          description: Alert source for resolve_alert action
+        startDate:
+          type: string
+          format: date-time
+          description: Start date for export_data action
+        endDate:
+          type: string
+          format: date-time
+          description: End date for export_data action
+
+    MonitoringActionResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Health check completed"
+        healthCheck:
+          $ref: '#/components/schemas/HealthResponse'
+        resolved:
+          type: boolean
+          example: true
+        data:
+          type: object
+          description: Exported data for export_data action
+        metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+
+    SecurityActionRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          enum: [block_ip, clear_events, update_policy, resolve_alert]
+          example: "block_ip"
+        ip:
+          type: string
+          description: IP address for block_ip action
+        duration:
+          type: integer
+          description: Block duration in seconds
+        eventIds:
+          type: array
+          items:
+            type: string
+          description: Event IDs for clear_events action
+
+    SecurityActionResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "IP address blocked successfully"
+        success:
+          type: boolean
+          example: true
+        details:
+          type: object
+        metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+
+    ResponseMetadata:
+      type: object
+      properties:
+        correlationId:
+          type: string
+          example: "corr_abc123"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-08-28T10:30:00.000Z"
+        generatedIn:
+          type: integer
+          description: Response generation time in milliseconds
+          example: 145
+        version:
+          type: string
+          example: "1.0.0"
+
+    # Error Response Schemas
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Validation Error"
+        message:
+          type: string
+          example: "Product name is required and must be between 1-100 characters"
+        correlationId:
+          type: string
+          example: "corr_abc123"
+        details:
+          type: object
+          description: Additional error details (development only)
+
+    RateLimitResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Rate Limit Exceeded"
+        message:
+          type: string
+          example: "Too many requests. Please wait before trying again."
+        retryAfter:
+          type: integer
+          description: Seconds to wait before retrying
+          example: 3600
+        limit:
+          type: integer
+          description: Rate limit threshold
+          example: 1
+        remaining:
+          type: integer
+          description: Remaining requests
+          example: 0
+        resetTime:
+          type: string
+          format: date-time
+          example: "2025-08-28T11:30:00.000Z"
+
+tags:
+  - name: Video Generation
+    description: Core video generation functionality
+  - name: Interactive Chat
+    description: Video concept refinement through conversation
+  - name: Status Tracking
+    description: Real-time job status and progress tracking
+  - name: Video Delivery
+    description: Generated video streaming and delivery
+  - name: System
+    description: System health and status endpoints
+  - name: Administration
+    description: Administrative endpoints for monitoring and management
+
+externalDocs:
+  description: Full Documentation
+  url: https://github.com/your-org/adcraft-ai/blob/main/README.md

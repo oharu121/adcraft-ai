@@ -68,6 +68,10 @@ export class CloudStorageService {
     folder = 'uploads'
   ): Promise<UploadResult> {
     try {
+      if (!this.bucket) {
+        throw new Error('Storage bucket not initialized');
+      }
+      
       // Generate unique filename
       const fileExtension = originalName.split('.').pop() || '';
       const fileName = `${folder}/${uuidv4()}.${fileExtension}`;
@@ -121,6 +125,10 @@ export class CloudStorageService {
    */
   public async downloadFile(fileName: string): Promise<DownloadResult> {
     try {
+      if (!this.bucket) {
+        throw new Error('Storage bucket not initialized');
+      }
+      
       const file = this.bucket.file(fileName);
       
       // Check if file exists
@@ -149,6 +157,10 @@ export class CloudStorageService {
    */
   public async deleteFile(fileName: string): Promise<boolean> {
     try {
+      if (!this.bucket) {
+        throw new Error('Storage bucket not initialized');
+      }
+      
       const file = this.bucket.file(fileName);
       await file.delete();
       return true;
@@ -201,6 +213,10 @@ export class CloudStorageService {
    */
   public async listFiles(folder = '', limit = 100): Promise<string[]> {
     try {
+      if (!this.bucket) {
+        throw new Error('Storage bucket not initialized');
+      }
+      
       const [files] = await this.bucket.getFiles({
         prefix: folder,
         maxResults: limit,
@@ -219,6 +235,10 @@ export class CloudStorageService {
    */
   public async cleanupExpiredFiles(): Promise<number> {
     try {
+      if (!this.bucket) {
+        throw new Error('Storage bucket not initialized');
+      }
+      
       const [files] = await this.bucket.getFiles();
       const now = new Date();
       let deletedCount = 0;
@@ -255,6 +275,10 @@ export class CloudStorageService {
     expiredFiles: number;
   }> {
     try {
+      if (!this.bucket) {
+        throw new Error('Storage bucket not initialized');
+      }
+      
       const [files] = await this.bucket.getFiles();
       const now = new Date();
       
@@ -296,6 +320,10 @@ export class CloudStorageService {
    */
   public async healthCheck(): Promise<boolean> {
     try {
+      if (!this.bucket) {
+        return false; // Return false if bucket not initialized (mock mode)
+      }
+      
       const [exists] = await this.bucket.exists();
       return exists;
     } catch (error) {

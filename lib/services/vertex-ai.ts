@@ -64,6 +64,9 @@ export class VertexAIService {
    * Get authentication instance
    */
   public getAuth(): GoogleAuth {
+    if (!this.auth) {
+      throw new Error('Google Auth not initialized - running in mock mode');
+    }
     return this.auth;
   }
 

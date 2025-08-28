@@ -12,6 +12,7 @@ import {
   ValidationUtils
 } from '@/lib/utils/validation';
 import type { JobStatusResponse } from '@/lib/utils/validation';
+import type { VideoJob } from '@/types';
 
 const JobStatusResponseApiSchema = createApiResponseSchema(
   JobStatusRequestSchema.omit({ jobId: true }).extend({
@@ -80,7 +81,7 @@ export async function GET(
     const storageService = CloudStorageService.getInstance();
 
     // Get job information from Firestore
-    const videoJob = await firestoreService.getVideoJob(sanitizedJobId);
+    const videoJob: VideoJob | null = await firestoreService.getVideoJob(sanitizedJobId);
     if (!videoJob) {
       return NextResponse.json({
         success: false,

@@ -16,7 +16,6 @@ import { FirestoreService } from '../lib/services/firestore.js';
 import { CostTracker } from '../lib/services/cost-tracker.js';
 
 // Production environment configuration
-process.env.NODE_ENV = 'production';
 process.env.GCP_PROJECT_ID = 'adcraft-dev-2025';
 process.env.GCP_REGION = 'asia-northeast1';
 process.env.ENABLE_MOCK_MODE = 'false'; // Force production mode
@@ -315,7 +314,8 @@ class FirestoreProductionTester {
         currency: 'USD' as const,
         description: 'Video generation via Veo API',
         sessionId,
-        jobId
+        jobId,
+        timestamp: new Date()
       },
       {
         service: 'gemini' as const,
@@ -323,7 +323,8 @@ class FirestoreProductionTester {
         currency: 'USD' as const,
         description: 'Prompt processing via Gemini API',
         sessionId,
-        jobId
+        jobId,
+        timestamp: new Date()
       }
     ];
 

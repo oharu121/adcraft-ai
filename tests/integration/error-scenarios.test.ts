@@ -104,7 +104,8 @@ describe('Error Scenarios and Recovery Integration Tests', () => {
     it('should handle malformed request body gracefully', async () => {
       // Arrange
       const { VideoGenerationRequestSchema } = await import('@/lib/utils/validation')
-      VideoGenerationRequestSchema.parse.mockImplementation(() => {
+      const mockParse = vi.mocked(VideoGenerationRequestSchema.parse)
+      mockParse.mockImplementation(() => {
         throw new Error('Invalid JSON structure')
       })
 

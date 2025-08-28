@@ -277,6 +277,17 @@ export const testDataFactory = {
     ...overrides
   }),
 
+  session: (overrides: Partial<any> = {}) => ({
+    id: 'test-session-123',
+    prompt: 'A beautiful mountain scene at sunset',
+    chatHistory: [],
+    status: 'draft',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    expiresAt: new Date(Date.now() + 12 * 60 * 60 * 1000), // 12 hours
+    ...overrides
+  }),
+
   apiError: (overrides = {}) => ({
     message: 'An error occurred',
     code: 'UNKNOWN_ERROR',

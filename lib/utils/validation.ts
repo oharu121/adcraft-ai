@@ -78,6 +78,7 @@ export type ChatMessage = z.infer<typeof ChatMessageSchema>;
 export const ChatRefinementRequestSchema = z.object({
   sessionId: IdSchema,
   message: z.string().min(1).max(1000),
+  currentPrompt: z.string().optional(),
   context: z.object({
     messages: z.array(ChatMessageSchema).max(20, 'Too many messages in context'),
   }).optional(),
