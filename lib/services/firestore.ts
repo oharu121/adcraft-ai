@@ -143,12 +143,11 @@ export class FirestoreService {
         Object.entries(sessionData).filter(([_, value]) => value !== undefined)
       );
 
-      const docRef = await this.sessionsCollection.add(firestoreData);
+      // Use set() with the custom session ID instead of add() to maintain ID consistency
+      await this.sessionsCollection.doc(finalSessionId).set(firestoreData);
       
-      return {
-        ...sessionData,
-        id: docRef.id,
-      };
+      // Return the session with the original custom ID
+      return sessionData;
 
     } catch (error) {
       console.error('Failed to create session:', error);
@@ -318,12 +317,11 @@ export class FirestoreService {
         throw new Error('Firestore not initialized');
       }
 
-      const docRef = await this.jobsCollection.add(jobData);
+      // Use set() with the custom job ID instead of add() to maintain ID consistency
+      await this.jobsCollection.doc(finalJobId).set(jobData);
       
-      return {
-        ...jobData,
-        id: docRef.id,
-      };
+      // Return the job with the original custom ID
+      return jobData;
 
     } catch (error) {
       console.error('Failed to create video job:', error);

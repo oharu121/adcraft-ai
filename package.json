@@ -17,6 +17,7 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest --watch",
+    "test:firestore-prod": "tsx scripts/test-firestore-production.ts",
     "docker:build": "docker build -t adcraft-ai .",
     "docker:tag": "docker tag adcraft-ai gcr.io/adcraft-dev-2025/adcraft-service:latest",
     "docker:push": "docker push gcr.io/adcraft-dev-2025/adcraft-service:latest",
@@ -56,6 +57,7 @@
     "jsdom": "^26.1.0",
     "prettier": "^3.6.2",
     "tailwindcss": "^4",
+    "tsx": "^4.20.5",
     "typescript": "^5",
     "vitest": "^3.2.4"
   }

@@ -159,9 +159,10 @@ export async function POST(request: NextRequest) {
       veoResponse.jobId
     );
 
-    // Update session with job ID
-    await firestoreService.updateSession(sessionId, {
-      videoJobId: veoResponse.jobId,
+    // Update session with the simple job ID that the UI will use for tracking
+    await firestoreService.updateSession(session.id, {
+      videoJobId: simpleJobId,
+      status: 'generating',
       updatedAt: new Date(),
     });
 
