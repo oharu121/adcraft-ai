@@ -30,14 +30,12 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   const dict = await getDictionary(locale as Locale);
 
   return (
-    <html lang={locale} className="scroll-smooth" data-scroll-behavior="smooth">
-      <body className="min-h-screen flex flex-col bg-slate-50">
-        <ErrorBoundary>
-          <Header dict={dict} locale={locale as Locale} />
-          <main className="flex-1">{children}</main>
-          <Footer dict={dict} />
-        </ErrorBoundary>
-      </body>
-    </html>
+    <>
+      <ErrorBoundary>
+        <Header dict={dict} locale={locale as Locale} />
+        <main className="flex-1">{children}</main>
+        <Footer dict={dict} />
+      </ErrorBoundary>
+    </>
   );
 }

@@ -6,8 +6,11 @@ import {
   useEffect,
   useRef,
   Fragment,
+  useState,
+  useCallback,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { useViewport, useTouchGestures, useHaptics } from '@/hooks';
 import { cn } from '@/lib/utils/cn';
 
 export interface ModalProps extends HTMLAttributes<HTMLDivElement> {
@@ -19,6 +22,10 @@ export interface ModalProps extends HTMLAttributes<HTMLDivElement> {
   showCloseButton?: boolean;
   title?: string;
   description?: string;
+  enableSwipeToClose?: boolean;
+  enableHaptics?: boolean;
+  mobileFullscreen?: boolean;
+  animationDuration?: number;
 }
 
 export interface ModalHeaderProps extends HTMLAttributes<HTMLDivElement> {
@@ -45,6 +52,10 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
       showCloseButton = true,
       title,
       description,
+      enableSwipeToClose = true,
+      enableHaptics = true,
+      mobileFullscreen = false,
+      animationDuration = 300,
       children,
       className,
       ...props
@@ -53,14 +64,33 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
   ) => {
     const modalRef = useRef<HTMLDivElement>(null);
     const previousActiveElement = useRef<HTMLElement | null>(null);
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragOffset, setDragOffset] = useState(0);
+    
+    const { isMobile, isTablet, height: viewportHeight } = useViewport();
+    const { selection, mediumTap } = useHaptics();
 
     const sizeClasses = {
-      sm: 'max-w-md',
-      md: 'max-w-lg',
-      lg: 'max-w-2xl',
-      xl: 'max-w-4xl',
-      full: 'max-w-7xl mx-4',
+      sm: isMobile ? 'max-w-full mx-2' : 'max-w-md',
+      md: isMobile ? 'max-w-full mx-2' : 'max-w-lg', 
+      lg: isMobile ? 'max-w-full mx-2' : 'max-w-2xl',
+      xl: isMobile ? 'max-w-full mx-2' : 'max-w-4xl',
+      full: isMobile ? 'max-w-full' : 'max-w-7xl mx-4',
     };
+
+    // Handle swipe gestures on mobile
+    const { touchHandlers } = useTouchGestures({
+      onSwipeDown: () => {
+        if (enableSwipeToClose && (isMobile || isTablet)) {
+          if (enableHaptics) {
+            mediumTap();
+          }
+          onClose();
+        }
+      },
+      swipeThreshold: 50,
+      disabled: !enableSwipeToClose || !(isMobile || isTablet)
+    });
 
     // Handle escape key
     useEffect(() => {
@@ -102,6 +132,9 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
     // Handle overlay click
     const handleOverlayClick = (e: React.MouseEvent) => {
       if (closeOnOverlayClick && e.target === e.currentTarget) {
+        if (enableHaptics) {
+          selection();
+        }
         onClose();
       }
     };
@@ -151,21 +184,43 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
         />
 
         {/* Modal positioning */}
-        <div className="flex min-h-full items-center justify-center p-4">
+        <div className={cn(
+          'flex min-h-full items-center justify-center',
+          isMobile ? 'p-0' : 'p-4'
+        )}>
           <div
             ref={modalRef}
             className={cn(
               // Base styles
-              'relative w-full transform overflow-hidden',
-              'rounded-lg bg-white shadow-xl transition-all',
+              'relative w-full transform overflow-hidden bg-white shadow-xl transition-all',
+              // Mobile-specific styles
+              isMobile && mobileFullscreen 
+                ? 'min-h-full rounded-none' 
+                : isMobile 
+                ? 'rounded-t-2xl mt-auto mb-0' 
+                : 'rounded-lg',
               // Size classes
               sizeClasses[size],
+              // Animation styles
+              isDragging && 'transition-none',
               className
             )}
+            style={{
+              transform: isDragging ? `translateY(${dragOffset}px)` : undefined,
+              maxHeight: isMobile && !mobileFullscreen ? `${viewportHeight * 0.9}px` : undefined
+            }}
             tabIndex={-1}
             onKeyDown={handleKeyDown}
+            {...touchHandlers}
             {...props}
           >
+            {/* Mobile swipe indicator */}
+            {enableSwipeToClose && (isMobile || isTablet) && (
+              <div className="flex justify-center pt-2 pb-1">
+                <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
+              </div>
+            )}
+
             {/* Default header if title or description provided */}
             {(title || description) && (
               <ModalHeader onClose={onClose} showCloseButton={showCloseButton}>

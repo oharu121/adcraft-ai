@@ -5,9 +5,15 @@
       "Bash(npm run typecheck:*)",
       "WebFetch(domain:next-intl.dev)",
       "Bash(docker build:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npm run lint)",
+      "Bash(npm test:*)",
+      "Bash(npm run test:run:*)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "additionalDirectories": [
+      "D:\\d\\repositories"
+    ]
   }
 }

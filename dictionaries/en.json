@@ -25,6 +25,7 @@
     "gallery": "Gallery",
     "about": "About",
     "generate": "Generate Video",
+    "monitoring": "Monitoring",
     "menu": "Menu",
     "toggleMenu": "Toggle menu"
   },
@@ -91,5 +92,131 @@
   "validation": {
     "minLength": "Must be at least {min} characters",
     "maxLength": "Must not exceed {max} characters"
+  },
+  "monitoring": {
+    "title": "System Monitoring",
+    "subtitle": "Real-time system health and performance dashboard",
+    "refreshData": "Refresh Data",
+    "lastUpdated": "Last updated: {time}",
+    "autoRefresh": "Auto Refresh",
+    "realTime": {
+      "connected": "Real-time connected",
+      "disconnected": "Real-time disconnected",
+      "reconnecting": "Reconnecting...",
+      "disabled": "Real-time disabled",
+      "lastUpdate": "Updated",
+      "reconnectButton": "Reconnect"
+    },
+    "systemHealth": {
+      "title": "System Health",
+      "overallScore": "Overall Score",
+      "status": {
+        "healthy": "Healthy",
+        "degraded": "Degraded",
+        "unhealthy": "Unhealthy",
+        "critical": "Critical",
+        "unknown": "Unknown"
+      },
+      "uptime": "Uptime",
+      "services": "Services",
+      "criticalIssues": "Critical Issues",
+      "warnings": "Warnings",
+      "allServicesHealthy": "All services are running normally",
+      "serviceStatus": "Service Status"
+    },
+    "budget": {
+      "title": "Budget Overview",
+      "totalBudget": "Total Budget",
+      "currentSpend": "Current Spend",
+      "remaining": "Remaining",
+      "utilizationRate": "Utilization Rate",
+      "projectedDepletion": "Projected Depletion",
+      "costBreakdown": "Cost Breakdown by Service",
+      "burnRate": "Burn Rate",
+      "recentTransactions": "Recent Transactions",
+      "budgetAlerts": "Budget Alerts",
+      "costTrends": "Cost Trends",
+      "services": {
+        "veo": "Veo API",
+        "gemini": "Gemini API",
+        "imagen": "Imagen API",
+        "storage": "Cloud Storage",
+        "firestore": "Firestore",
+        "other": "Other Services"
+      }
+    },
+    "performance": {
+      "title": "Performance Metrics",
+      "responseTime": "Response Time",
+      "errorRate": "Error Rate",
+      "throughput": "Throughput",
+      "requestVolume": "Request Volume",
+      "averageResponseTime": "Avg Response Time",
+      "totalRequests": "Total Requests",
+      "successfulRequests": "Successful Requests",
+      "failedRequests": "Failed Requests",
+      "requestsPerMinute": "Requests/min",
+      "p95ResponseTime": "95th Percentile"
+    },
+    "charts": {
+      "timeRange": {
+        "1h": "1 Hour",
+        "24h": "24 Hours",
+        "7d": "7 Days",
+        "30d": "30 Days"
+      },
+      "chartType": {
+        "line": "Line Chart",
+        "area": "Area Chart",
+        "bar": "Bar Chart",
+        "pie": "Pie Chart"
+      },
+      "noData": "No data available",
+      "loadingData": "Loading chart data...",
+      "export": "Export Data",
+      "zoom": "Zoom",
+      "pan": "Pan"
+    },
+    "realTime": {
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "reconnecting": "Reconnecting...",
+      "liveUpdates": "Live Updates",
+      "connectionStatus": "Connection Status",
+      "latency": "Latency"
+    },
+    "alerts": {
+      "title": "Active Alerts",
+      "severity": {
+        "critical": "Critical",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      },
+      "noActiveAlerts": "No active alerts",
+      "recentAlerts": "Recent Alerts",
+      "viewAll": "View All Alerts",
+      "acknowledge": "Acknowledge",
+      "resolved": "Resolved"
+    },
+    "errors": {
+      "failedToLoad": "Failed to load monitoring data",
+      "connectionLost": "Connection to monitoring service lost",
+      "retryLoad": "Retry Loading",
+      "serviceUnavailable": "Monitoring service is currently unavailable"
+    },
+    "units": {
+      "milliseconds": "ms",
+      "seconds": "s",
+      "minutes": "min",
+      "hours": "h",
+      "days": "d",
+      "bytes": "B",
+      "kilobytes": "KB",
+      "megabytes": "MB",
+      "gigabytes": "GB",
+      "percent": "%",
+      "currency": "$"
+    }
   }
 }

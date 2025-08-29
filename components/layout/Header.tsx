@@ -84,6 +84,12 @@ export function Header({ className, dict, locale }: HeaderProps) {
               {dict.navigation.gallery}
             </Link>
             <Link
+              href={`/${locale}/monitoring`}
+              className="text-slate-600 hover:text-slate-900 font-medium transition-colors"
+            >
+              {dict.navigation.monitoring}
+            </Link>
+            <Link
               href={`/${locale}/about`}
               className="text-slate-600 hover:text-slate-900 font-medium transition-colors"
             >
@@ -119,13 +125,6 @@ export function Header({ className, dict, locale }: HeaderProps) {
               </Link>
             </div>
 
-            {/* Cost Tracker */}
-            <div className="hidden sm:flex items-center gap-2 text-sm">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-slate-600 font-medium">
-                {dict.header.budget}: $300
-              </span>
-            </div>
 
             {/* Mobile menu button */}
             <Button
@@ -174,20 +173,19 @@ export function Header({ className, dict, locale }: HeaderProps) {
                 {dict.navigation.gallery}
               </Link>
               <Link
+                href={`/${locale}/monitoring`}
+                className="block px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-md font-medium transition-colors"
+                onClick={handleMenuClose}
+              >
+                {dict.navigation.monitoring}
+              </Link>
+              <Link
                 href={`/${locale}/about`}
                 className="block px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-md font-medium transition-colors"
                 onClick={handleMenuClose}
               >
                 {dict.navigation.about}
               </Link>
-              
-              {/* Mobile Budget Display */}
-              <div className="flex items-center gap-2 px-3 py-2 text-sm border-t border-slate-100 mt-2 pt-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-slate-600 font-medium">
-                  {dict.header.remainingBudget}: $300
-                </span>
-              </div>
             </div>
           </div>
         )}
