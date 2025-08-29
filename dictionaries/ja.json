@@ -25,6 +25,7 @@
     "gallery": "ギャラリー",
     "about": "について",
     "generate": "動画生成",
+    "monitoring": "モニタリング",
     "menu": "メニュー",
     "toggleMenu": "メニューの切り替え"
   },
@@ -91,5 +92,131 @@
   "validation": {
     "minLength": "最低{min}文字必要です",
     "maxLength": "{max}文字を超えないでください"
+  },
+  "monitoring": {
+    "title": "システムモニタリング",
+    "subtitle": "リアルタイムシステム状態とパフォーマンスダッシュボード",
+    "refreshData": "データを更新",
+    "lastUpdated": "最終更新: {time}",
+    "autoRefresh": "自動更新",
+    "realTime": {
+      "connected": "リアルタイム接続済み",
+      "disconnected": "リアルタイム切断",
+      "reconnecting": "再接続中...",
+      "disabled": "リアルタイム無効",
+      "lastUpdate": "更新日時",
+      "reconnectButton": "再接続"
+    },
+    "systemHealth": {
+      "title": "システム状態",
+      "overallScore": "総合スコア",
+      "status": {
+        "healthy": "正常",
+        "degraded": "軽度問題",
+        "unhealthy": "異常",
+        "critical": "重大",
+        "unknown": "不明"
+      },
+      "uptime": "稼働時間",
+      "services": "サービス",
+      "criticalIssues": "重大な問題",
+      "warnings": "警告",
+      "allServicesHealthy": "すべてのサービスが正常に動作中",
+      "serviceStatus": "サービス状態"
+    },
+    "budget": {
+      "title": "予算概要",
+      "totalBudget": "総予算",
+      "currentSpend": "現在の支出",
+      "remaining": "残高",
+      "utilizationRate": "利用率",
+      "projectedDepletion": "予算枯渇予測",
+      "costBreakdown": "サービス別コスト内訳",
+      "burnRate": "消費率",
+      "recentTransactions": "最近の取引",
+      "budgetAlerts": "予算アラート",
+      "costTrends": "コスト推移",
+      "services": {
+        "veo": "Veo API",
+        "gemini": "Gemini API",
+        "imagen": "Imagen API",
+        "storage": "Cloud Storage",
+        "firestore": "Firestore",
+        "other": "その他のサービス"
+      }
+    },
+    "performance": {
+      "title": "パフォーマンス指標",
+      "responseTime": "応答時間",
+      "errorRate": "エラー率",
+      "throughput": "スループット",
+      "requestVolume": "リクエスト量",
+      "averageResponseTime": "平均応答時間",
+      "totalRequests": "総リクエスト数",
+      "successfulRequests": "成功リクエスト数",
+      "failedRequests": "失敗リクエスト数",
+      "requestsPerMinute": "リクエスト/分",
+      "p95ResponseTime": "95パーセンタイル"
+    },
+    "charts": {
+      "timeRange": {
+        "1h": "1時間",
+        "24h": "24時間",
+        "7d": "7日間",
+        "30d": "30日間"
+      },
+      "chartType": {
+        "line": "線グラフ",
+        "area": "エリアグラフ",
+        "bar": "棒グラフ",
+        "pie": "円グラフ"
+      },
+      "noData": "データがありません",
+      "loadingData": "チャートデータを読み込み中...",
+      "export": "データをエクスポート",
+      "zoom": "ズーム",
+      "pan": "パン"
+    },
+    "realTime": {
+      "connected": "接続済み",
+      "disconnected": "切断",
+      "reconnecting": "再接続中...",
+      "liveUpdates": "リアルタイム更新",
+      "connectionStatus": "接続状態",
+      "latency": "レイテンシー"
+    },
+    "alerts": {
+      "title": "アクティブアラート",
+      "severity": {
+        "critical": "重大",
+        "high": "高",
+        "medium": "中",
+        "low": "低"
+      },
+      "noActiveAlerts": "アクティブなアラートはありません",
+      "recentAlerts": "最近のアラート",
+      "viewAll": "すべて表示",
+      "acknowledge": "確認",
+      "resolved": "解決済み"
+    },
+    "errors": {
+      "failedToLoad": "モニタリングデータの読み込みに失敗しました",
+      "connectionLost": "モニタリングサービスへの接続が失われました",
+      "retryLoad": "再読み込み",
+      "serviceUnavailable": "モニタリングサービスは現在利用できません"
+    },
+    "units": {
+      "milliseconds": "ミリ秒",
+      "seconds": "秒",
+      "minutes": "分",
+      "hours": "時間",
+      "days": "日",
+      "bytes": "B",
+      "kilobytes": "KB",
+      "megabytes": "MB",
+      "gigabytes": "GB",
+      "percent": "%",
+      "currency": "$"
+    }
   }
 }

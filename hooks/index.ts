@@ -86,3 +86,38 @@ export type {
   ErrorBoundaryActions,
   UseErrorBoundaryOptions,
 } from './useErrorBoundary';
+
+// Mobile Optimization Hooks
+export {
+  useTouchGestures,
+} from './useTouchGestures';
+export type {
+  TouchGestureConfig,
+} from './useTouchGestures';
+
+export {
+  useViewport,
+  useIntersectionObserver,
+  useVisibilityObserver,
+} from './useViewport';
+export type {
+  ViewportSize,
+  ViewportInfo,
+  IntersectionOptions,
+} from './useViewport';
+
+export {
+  usePullToRefresh,
+} from './usePullToRefresh';
+export type {
+  PullToRefreshConfig,
+  PullToRefreshState,
+} from './usePullToRefresh';
+
+export {
+  useHaptics,
+} from './useHaptics';
+export type {
+  HapticFeedbackType,
+  HapticOptions,
+} from './useHaptics';

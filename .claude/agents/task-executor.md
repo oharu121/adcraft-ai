@@ -110,6 +110,12 @@ All required development tools are installed and ready. Refer to @ENVIRONMENT.md
 - Server/client component split is essential for proper dictionary prop passing
 - Middleware must properly exclude static files and API routes for internationalization
 - Error boundaries should be placed at strategic points in component hierarchy
+- **Real-time Updates:** Server-Sent Events (SSE) work better than WebSocket for Next.js API routes; automatic reconnection and exponential backoff are essential for production reliability
+- **Type Mapping:** Different MonitoringDashboardData interfaces exist between service layer and UI layer; conversion functions prevent type mismatches
+
+## Progress Summary
+
+- Progress Summary should be recored in `specs/<feature>/task.md` after task completion
 
 # **OUTPUT FORMAT**
 

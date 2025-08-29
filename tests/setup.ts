@@ -13,6 +13,8 @@ declare module 'vitest' {
     toHaveClass(className: string): T
     toHaveAttribute(attr: string, value?: string): T
     toHaveTextContent(text: string): T
+    toHaveAccessibleName(name?: string): T
+    toHaveFocus(): T
   }
 }
 
