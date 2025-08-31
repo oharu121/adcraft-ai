@@ -2,9 +2,10 @@ import { HTMLAttributes, forwardRef } from 'react';
 import { cn } from '@/lib/utils/cn';
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'outlined' | 'elevated' | 'filled';
+  variant?: 'default' | 'outlined' | 'elevated' | 'filled' | 'glass' | 'magical';
   padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   hover?: boolean;
+  glow?: boolean;
 }
 
 export interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {
@@ -26,9 +27,10 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
   (
     {
       className,
-      variant = 'default',
+      variant = 'glass',
       padding = 'md',
       hover = false,
+      glow = false,
       children,
       ...props
     },
@@ -36,23 +38,34 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
   ) => {
     const baseClasses = [
       // Base styles
-      'rounded-lg transition-all duration-200',
-      'bg-white',
+      'rounded-lg transition-all duration-300',
+      'relative overflow-hidden',
     ];
 
     const variantClasses = {
       default: [
-        'border border-gray-200',
+        'bg-white border border-gray-200',
       ],
       outlined: [
-        'border-2 border-gray-200',
+        'bg-white border-2 border-gray-200',
       ],
       elevated: [
-        'shadow-lg border border-gray-100',
+        'bg-white shadow-lg border border-gray-100',
         hover && 'hover:shadow-xl',
       ],
       filled: [
         'bg-gray-50 border border-gray-100',
+      ],
+      glass: [
+        'glass-card',
+        hover && 'glass-card-hover',
+      ],
+      magical: [
+        'glass-card feature-card',
+        'before:absolute before:inset-0 before:rounded-lg',
+        'before:bg-gradient-to-r before:from-transparent before:via-white/5 before:to-transparent',
+        'before:translate-x-[-100%] before:transition-transform before:duration-700',
+        'hover:before:translate-x-[100%]',
       ],
     };
 
@@ -67,8 +80,13 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     const hoverClasses = hover
       ? [
           'cursor-pointer',
-          'hover:border-gray-300',
-          'active:scale-[0.98]',
+          'interactive-lift',
+        ]
+      : [];
+
+    const glowClasses = glow
+      ? [
+          'magical-glow-hover',
         ]
       : [];
 
@@ -80,6 +98,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
           variantClasses[variant],
           paddingClasses[padding],
           hoverClasses,
+          glowClasses,
           className
         )}
         {...props}

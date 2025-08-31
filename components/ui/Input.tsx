@@ -8,7 +8,9 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   showCharacterCount?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
-  variant?: 'default' | 'filled' | 'outline';
+  variant?: 'default' | 'filled' | 'outline' | 'magical' | 'glass';
+  enchanted?: boolean;
+  glow?: boolean;
 }
 
 /**
@@ -26,7 +28,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       showCharacterCount = false,
       leftIcon,
       rightIcon,
-      variant = 'default',
+      variant = 'magical',
+      enchanted = false,
+      glow = false,
       maxLength,
       value,
       disabled,
@@ -43,7 +47,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
     const baseClasses = [
       // Base styles
-      'block w-full transition-all duration-200',
+      'block w-full transition-all duration-300',
       'placeholder:text-gray-400',
       'focus:outline-none focus:ring-2 focus:ring-offset-1',
       'disabled:opacity-50 disabled:cursor-not-allowed',
@@ -68,6 +72,17 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         'hover:border-gray-300',
         'focus:border-blue-500 focus:ring-blue-500',
       ],
+      magical: [
+        'magical-input px-4 py-3 text-white',
+        'placeholder:text-gray-300',
+        'focus:ring-purple-500 focus:ring-opacity-50',
+      ],
+      glass: [
+        'glass-card px-4 py-3 text-white',
+        'placeholder:text-gray-300',
+        'hover:bg-opacity-10',
+        'focus:ring-purple-500 focus:ring-opacity-50',
+      ],
     };
 
     const errorClasses = error
@@ -82,12 +97,28 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       right: rightIcon ? 'pr-10' : '',
     };
 
+    const enchantedClasses = enchanted 
+      ? ['relative overflow-hidden',
+         'after:absolute after:inset-0 after:rounded-lg',
+         'after:bg-gradient-to-r after:from-purple-400/20 after:via-pink-400/20 after:to-purple-400/20',
+         'after:translate-x-[-100%] after:transition-transform after:duration-1000',
+         'focus-within:after:translate-x-[100%]']
+      : [];
+
+    const glowClasses = glow 
+      ? ['focus-within:shadow-lg focus-within:shadow-purple-500/30']
+      : [];
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (value === undefined) {
         setInternalValue(e.target.value);
       }
       props.onChange?.(e);
     };
+
+    const labelColor = variant === 'magical' || variant === 'glass' 
+      ? error ? 'text-red-400' : 'text-gray-200'
+      : error ? 'text-red-700' : 'text-gray-700';
 
     return (
       <div className="w-full">
@@ -96,9 +127,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           <label
             htmlFor={inputId}
             className={cn(
-              'block text-sm font-medium mb-1',
-              error ? 'text-red-700' : 'text-gray-700',
-              disabled && 'text-gray-400'
+              'block text-sm font-medium mb-2',
+              labelColor,
+              disabled && 'opacity-50'
             )}
           >
             {label}
@@ -111,7 +142,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
 
         {/* Input Container */}
-        <div className="relative">
+        <div className={cn('relative', enchantedClasses, glowClasses)}>
           {/* Left Icon */}
           {leftIcon && (
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
