@@ -2,8 +2,8 @@ import fs from 'fs';
 import Git from './util/Git';
 
 const config = {
-  releaseType: 'Patch' as 'Major' | 'Minor' | 'Patch',
-  msg: 'fix test files',
+  releaseType: 'Minor' as 'Major' | 'Minor' | 'Patch',
+  msg: 'finialize ui design',
 };
 
 (async () => {
