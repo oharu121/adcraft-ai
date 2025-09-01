@@ -124,7 +124,6 @@ const ImageUploadArea: React.FC<ImageUploadProps> = ({
       } : null);
 
     } catch (error) {
-      console.error('Upload failed:', error);
       setUploadedImage(prev => prev ? {
         ...prev,
         status: 'error',
@@ -154,6 +153,7 @@ const ImageUploadArea: React.FC<ImageUploadProps> = ({
     if (isUploading) return;
 
     const files = Array.from(e.dataTransfer.files);
+    
     if (files.length > 0) {
       const file = files[0];
       if (file.type.startsWith('image/')) {
@@ -171,6 +171,8 @@ const ImageUploadArea: React.FC<ImageUploadProps> = ({
     const files = e.target.files;
     if (files && files.length > 0) {
       handleFileUpload(files[0]);
+      // Clear the input after handling
+      e.target.value = '';
     }
   }, [handleFileUpload]);
 
@@ -261,7 +263,10 @@ const ImageUploadArea: React.FC<ImageUploadProps> = ({
                   <Button
                     variant="primary"
                     size="sm"
-                    onClick={handleFileInputClick}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleFileInputClick();
+                    }}
                     disabled={isUploading}
                     className="mt-2"
                   >

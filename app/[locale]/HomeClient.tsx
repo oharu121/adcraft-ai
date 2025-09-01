@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useRef } from 'react';
 import { Card } from '@/components/ui';
 import { 
   ImageUploadArea,
@@ -32,6 +32,14 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
   const [currentStep, setCurrentStep] = useState<'upload' | 'analyze' | 'chat' | 'handoff'>('upload');
   const [inputMode, setInputMode] = useState<'image' | 'text'>('image');
   const [productDescription, setProductDescription] = useState<string>('');
+  const [analysisProgress, setAnalysisProgress] = useState<number>(0);
+  const [analysisStartTime, setAnalysisStartTime] = useState<number>(0);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  
+  // Ref for tracking analysis start time for progress calculation
+  const analysisStartRef = useRef<number>(0);
+
 
   // Initialize session on component mount
   const initializeSession = useCallback(async () => {
@@ -48,17 +56,33 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
   // Handle image upload
   const handleImageUpload = useCallback(async (file: File) => {
-    console.log('Uploading image:', file.name);
     setUploadedImage(file);
     
+    // Reset progress and error states
+    setAnalysisProgress(0);
+    setElapsedTime(0);
+    setErrorMessage('');
+    const startTime = Date.now();
+    setAnalysisStartTime(startTime);
+    analysisStartRef.current = startTime;
+    
     try {
-      // Initialize session if not already done
-      if (!sessionId) {
-        await initializeSession();
+      // Initialize session if not already done and wait for completion
+      let currentSessionId = sessionId;
+      if (!currentSessionId) {
+        currentSessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+        setSessionId(currentSessionId);
+        setIsConnected(true);
       }
 
       setSessionStatus(SessionStatus.ANALYZING);
       setCurrentStep('analyze');
+
+      // Start progress simulation
+      const progressInterval = setInterval(() => {
+        setAnalysisProgress(prev => Math.min(prev + Math.random() * 15, 90));
+        setElapsedTime(Date.now() - analysisStartRef.current);
+      }, 500);
 
       // Mock analysis request
       const analysisResponse = await fetch('/api/agents/product-intelligence', {
@@ -67,7 +91,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          sessionId: sessionId || `session-${Date.now()}`,
+          sessionId: currentSessionId,
           action: 'analyze',
           locale,
           metadata: {
@@ -78,47 +102,68 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         }),
       });
 
+      clearInterval(progressInterval);
+
       if (analysisResponse.ok) {
         const result = await analysisResponse.json();
-        console.log('Analysis result:', result);
         
-        // Add system message
-        const systemMessage: ChatMessage = {
+        // Complete progress
+        setAnalysisProgress(100);
+        setElapsedTime(Date.now() - analysisStartRef.current);
+        
+        // Add detailed analysis message instead of greeting
+        const analysisMessage: ChatMessage = {
           id: `msg-${Date.now()}`,
-          type: 'system',
-          content: result.data?.agentResponse || (locale === 'ja' 
-            ? '画像分析が完了しました。何でもお聞きください！' 
-            : 'Image analysis complete. Ask me anything about your product!'),
+          type: 'agent',
+          content: locale === 'ja' 
+            ? `商品画像の分析が完了しました！\n\n🎯 **商品の特徴**\n・視覚的に魅力的な商品です\n・ターゲット層に響くデザイン要素を持っています\n\n📊 **推奨マーケティング戦略**\n・SNS映えする商品として位置づけ\n・若い世代をメインターゲットに設定\n・感情に訴えるストーリーテリング\n\n何か具体的に知りたいことがあれば、お気軽にお聞きください！` 
+            : `Product analysis complete!\n\n🎯 **Product Features**\n• Visually appealing product with strong market potential\n• Design elements that resonate with target demographics\n\n📊 **Recommended Marketing Strategy**\n• Position as social media-friendly product\n• Target younger demographics as primary audience\n• Use emotional storytelling approach\n\nFeel free to ask me anything specific about your product!`,
           timestamp: Date.now(),
           agentName: 'Product Intelligence Agent'
         };
         
-        setMessages([systemMessage]);
+        setMessages([analysisMessage]);
         setSessionStatus(SessionStatus.ACTIVE);
         setCurrentStep('chat');
       } else {
-        throw new Error('Analysis failed');
+        throw new Error(`Analysis failed: ${analysisResponse.status} ${analysisResponse.statusText}`);
       }
     } catch (error) {
-      console.error('Image upload/analysis failed:', error);
+      setErrorMessage(error instanceof Error ? error.message : 'Analysis failed');
       setSessionStatus(SessionStatus.ERROR);
+      setCurrentStep('upload'); // Reset to upload step so user can try again
     }
-  }, [sessionId, locale, initializeSession]);
+  }, [sessionId, locale]);
 
   // Handle text-based product description
   const handleTextSubmit = useCallback(async () => {
     if (!productDescription.trim()) return;
     
-    console.log('Processing text description:', productDescription);
+    // Reset progress and error states
+    setAnalysisProgress(0);
+    setElapsedTime(0);
+    setErrorMessage('');
+    const startTime = Date.now();
+    setAnalysisStartTime(startTime);
+    analysisStartRef.current = startTime;
     
     try {
-      // Initialize session if not already done
-      if (!sessionId) {
-        await initializeSession();
+      // Initialize session if not already done and wait for completion
+      let currentSessionId = sessionId;
+      if (!currentSessionId) {
+        currentSessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+        setSessionId(currentSessionId);
+        setIsConnected(true);
       }
 
       setSessionStatus(SessionStatus.ANALYZING);
       setCurrentStep('analyze');
+
+      // Start progress simulation
+      const progressInterval = setInterval(() => {
+        setAnalysisProgress(prev => Math.min(prev + Math.random() * 15, 90));
+        setElapsedTime(Date.now() - analysisStartRef.current);
+      }, 500);
 
       // Send text analysis request
       const analysisResponse = await fetch('/api/agents/product-intelligence', {
@@ -127,7 +172,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          sessionId: sessionId || `session-${Date.now()}`,
+          sessionId: currentSessionId,
           action: 'analyze',
           locale,
           message: productDescription,
@@ -138,9 +183,14 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         }),
       });
 
+      clearInterval(progressInterval);
+
       if (analysisResponse.ok) {
         const result = await analysisResponse.json();
-        console.log('Analysis result:', result);
+        
+        // Complete progress
+        setAnalysisProgress(100);
+        setElapsedTime(Date.now() - analysisStartRef.current);
         
         // Add system message
         const systemMessage: ChatMessage = {
@@ -157,13 +207,15 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         setSessionStatus(SessionStatus.ACTIVE);
         setCurrentStep('chat');
       } else {
-        throw new Error('Analysis failed');
+        throw new Error(`Analysis failed: ${analysisResponse.status} ${analysisResponse.statusText}`);
       }
     } catch (error) {
       console.error('Text analysis failed:', error);
+      setErrorMessage(error instanceof Error ? error.message : 'Analysis failed');
       setSessionStatus(SessionStatus.ERROR);
+      setCurrentStep('upload'); // Reset to upload step so user can try again
     }
-  }, [sessionId, productDescription, locale, initializeSession]);
+  }, [sessionId, productDescription, locale]);
 
   // Handle sending chat messages
   const handleSendMessage = useCallback(async (message: string) => {
@@ -244,6 +296,11 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     setCurrentStep('upload');
     setIsConnected(false);
     setIsAgentTyping(false);
+    setAnalysisProgress(0);
+    setAnalysisStartTime(0);
+    setElapsedTime(0);
+    setErrorMessage('');
+    analysisStartRef.current = 0;
   }, []);
 
   // Scroll to product intelligence section
@@ -367,7 +424,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      {locale === 'ja' ? '画像から画像' : 'Image to Image'}
+                      {locale === 'ja' ? '画像からAD' : 'Image to AD'}
                     </button>
                     <button
                       onClick={() => setInputMode('text')}
@@ -380,7 +437,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
-                      {locale === 'ja' ? 'テキストから画像' : 'Text to Image'}
+                      {locale === 'ja' ? 'テキストからAD' : 'Text to AD'}
                     </button>
                   </div>
                 </div>
@@ -454,15 +511,79 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">
+                  <h3 className="text-lg font-semibold text-white mb-4">
                     {locale === 'ja' ? '画像を分析中...' : 'Analyzing Image...'}
                   </h3>
+                  
+                  {/* Progress Bar */}
+                  <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
+                    <div 
+                      className="bg-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
+                      style={{ width: `${analysisProgress}%` }}
+                    ></div>
+                  </div>
+                  
+                  {/* Progress Details */}
+                  <div className="flex justify-between text-sm text-gray-300 mb-2">
+                    <span>{analysisProgress}% complete</span>
+                    <span>{(elapsedTime / 1000).toFixed(1)}s</span>
+                  </div>
+                  
                   <p className="text-gray-300 text-sm">
                     {locale === 'ja' 
                       ? 'AIが商品の特徴、ターゲット層、市場ポジションを分析しています'
                       : 'AI is analyzing product features, target audience, and market positioning'
                     }
                   </p>
+                  
+                  {/* Error Display */}
+                  {errorMessage && (
+                    <div className="mt-4 p-3 bg-red-900/50 border border-red-500 rounded-lg">
+                      <p className="text-red-300 text-sm">{errorMessage}</p>
+                      <button 
+                        onClick={() => window.location.reload()}
+                        className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
+                      >
+                        {locale === 'ja' ? '再試行' : 'Retry'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            )}
+
+            {/* Uploaded Image Display - Show when in chat mode */}
+            {currentStep === 'chat' && uploadedImage && (
+              <Card variant="magical" className="p-4">
+                <div className="mb-3">
+                  <h3 className="text-sm font-semibold text-white mb-2">
+                    {locale === 'ja' ? '分析中の商品' : 'Product Being Analyzed'}
+                  </h3>
+                </div>
+                
+                <div className="space-y-3">
+                  {/* Image Preview */}
+                  <div className="relative rounded-lg overflow-hidden bg-gray-700">
+                    <img
+                      src={URL.createObjectURL(uploadedImage)}
+                      alt="Product"
+                      className="w-full h-32 object-cover"
+                    />
+                  </div>
+                  
+                  {/* File Info */}
+                  <div className="text-xs text-gray-300 space-y-1">
+                    <div className="flex justify-between">
+                      <span>{locale === 'ja' ? 'ファイル名:' : 'Filename:'}</span>
+                      <span className="truncate ml-2 max-w-[120px]" title={uploadedImage.name}>
+                        {uploadedImage.name}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{locale === 'ja' ? 'サイズ:' : 'Size:'}</span>
+                      <span>{Math.round(uploadedImage.size / 1024)} KB</span>
+                    </div>
+                  </div>
                 </div>
               </Card>
             )}

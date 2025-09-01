@@ -138,7 +138,7 @@ The Product Intelligence Agent is the first agent in the AdCraft AI multi-agent 
 
 ### TC3: Technology Stack
 - Next.js 15.5.0 with App Router and TypeScript
-- Socket.io for real-time communication
+- Server-Sent Events (SSE) for real-time communication
 - React Hook Form with Zod validation
 - Tailwind CSS for styling
 - next-intl for bilingual support
@@ -179,7 +179,7 @@ The Product Intelligence Agent is the first agent in the AdCraft AI multi-agent 
 
 ### IR3: Backend Services
 - RESTful API endpoints for all operations
-- WebSocket server for real-time communication
+- Server-Sent Events (SSE) for real-time communication
 - Background processing for heavy operations
 - Monitoring and logging integration
 

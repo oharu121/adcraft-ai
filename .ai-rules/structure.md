@@ -43,7 +43,7 @@ app/                         # Next.js App Router structure
 │   │   └── video-producer/route.ts
 │   ├── upload/route.ts          # File upload handling
 │   ├── status/route.ts          # Processing status endpoints
-│   └── websocket/route.ts       # WebSocket connection handling
+│   └── events/route.ts          # Server-Sent Events (SSE) handling
 ├── globals.css                  # Global styles and Tailwind imports
 ├── layout.tsx                   # Root application layout
 ├── favicon.ico                  # Application favicon
@@ -109,10 +109,10 @@ lib/                         # Core business logic and utilities
 │   ├── session.ts              # Chat session persistence
 │   ├── chat-history.ts         # Message history management
 │   └── commercial-jobs.ts      # Processing job queue management
-├── websocket/                   # Real-time communication
-│   ├── server.ts               # WebSocket server implementation
-│   ├── handlers.ts             # Message routing and agent coordination
-│   └── types.ts                # WebSocket-specific types
+├── services/                    # Core business services
+│   ├── sse.ts                  # Server-Sent Events implementation
+│   ├── event-handler.ts        # Event routing and agent coordination
+│   └── types.ts                # SSE-specific types
 └── utils/                       # Helper functions and utilities
     ├── validation.ts           # Zod schemas and input validation
     ├── cost-calculator.ts      # Cost tracking and budget monitoring
@@ -125,7 +125,7 @@ lib/                         # Core business logic and utilities
 
 ```
 hooks/                       # Custom React hooks
-├── useWebSocket.ts              # WebSocket connection management
+├── useSSE.ts                    # Server-Sent Events connection management
 ├── useChatSession.ts            # Chat state and message handling
 ├── useFileUpload.ts             # File upload progress and validation
 ├── useAgentStatus.ts            # Agent processing status tracking
@@ -175,7 +175,7 @@ tests/                           # Comprehensive test suite
 │   └── utils/                  # Utility function tests
 ├── integration/                # Integration and workflow tests
 │   ├── agent-pipeline.test.ts  # Complete agent workflow
-│   ├── websocket-flow.test.ts  # Real-time communication
+│   ├── sse-flow.test.ts         # Real-time communication
 │   └── api-endpoints.test.ts   # API route integration
 ├── e2e/                        # End-to-end Playwright tests
 │   ├── complete-workflow.spec.ts  # Full user journey

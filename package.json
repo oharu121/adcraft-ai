@@ -19,6 +19,7 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest --watch",
     "test:firestore-prod": "tsx scripts/test-firestore-production.ts",
+    "deploy:firestore-rules": "node scripts/deploy-firestore-rules.js",
     "docker:build": "docker build -t adcraft-ai .",
     "docker:tag": "docker tag adcraft-ai gcr.io/adcraft-dev-2025/adcraft-service:latest",
     "docker:push": "docker push gcr.io/adcraft-dev-2025/adcraft-service:latest",

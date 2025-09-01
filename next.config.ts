@@ -86,7 +86,6 @@ const nextConfig: NextConfig = {
               'usb=()',
               'magnetometer=()',
               'gyroscope=()',
-              'speaker-selection=()',
               'display-capture=()',
               'fullscreen=(self)'
             ].join(', ')

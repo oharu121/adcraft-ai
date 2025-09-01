@@ -17,7 +17,7 @@ User Interface Layer:
          │                       │                       │
          ▼                       ▼                       ▼
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                            WebSocket Connection Layer                           │
+│                         Server-Sent Events (SSE) Layer                        │
 └─────────────────────────────────────────────────────────────────────────────────┘
          │
          ▼
@@ -65,7 +65,7 @@ User Interface Layer:
    User → Upload Component → API Route → Cloud Storage → Vertex AI → Analysis Engine
 
 2. Chat Conversation Flow:
-   User → Chat Interface → WebSocket → Conversation Controller → Gemini Pro → Response
+   User → Chat Interface → SSE → Conversation Controller → Gemini Pro → Response
 
 3. Session Management Flow:
    Session State → Firestore → Context Manager → Conversation Controller
@@ -93,17 +93,17 @@ User Interface Layer:
 └─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
 ```
 
-### WebSocket Connection Lifecycle
+### Server-Sent Events (SSE) Connection Lifecycle
 
 ```
 Connection Establishment:
-1. Client connects to /api/websocket with session ID
-2. Server validates session and establishes socket connection  
+1. Client connects to /api/agents/product-intelligence/events with session ID
+2. Server validates session and establishes SSE connection  
 3. Session state loaded from Firestore
 4. Connection confirmed to client
 
 Message Flow:
-1. Client sends user message via WebSocket
+1. Client sends user message via HTTP API
 2. Server validates message and updates chat history
 3. Agent processes message and generates response
 4. Server emits response with typing indicators
@@ -218,7 +218,7 @@ PUT /api/status/:sessionId
 }
 ```
 
-### WebSocket Message Protocols
+### Server-Sent Events (SSE) Protocols
 
 #### Client → Server Messages
 ```typescript
@@ -586,7 +586,7 @@ src/components/product-intelligence/
 
 src/hooks/product-intelligence/
 ├── useProductAnalysis.ts   # Image upload and analysis state management
-├── useAgentChat.ts         # Chat conversation and WebSocket management
+├── useAgentChat.ts         # Chat conversation and SSE management
 ├── useSessionProgress.ts   # Progress tracking and step management
 ├── useCostMonitoring.ts    # Budget tracking and alerts
 └── index.ts                # Hook exports
@@ -627,9 +627,9 @@ import { ChatHistoryStore } from '@/lib/database/chat-history';
 import { CloudStorageService } from '@/lib/services/cloud-storage';
 import { VertexAIService } from '@/lib/services/vertex-ai';
 
-// WebSocket integration
-import { WebSocketServer } from '@/lib/websocket/server';
-import { MessageHandler } from '@/lib/websocket/handlers';
+// Server-Sent Events integration
+import { SSEService } from '@/lib/services/sse';
+import { EventHandler } from '@/lib/services/event-handler';
 
 // i18n integration
 import { useTranslations } from 'next-intl';
@@ -741,13 +741,13 @@ import { getTranslations } from 'next-intl/server';
 - Gemini Pro API access
 - Conversation flow design approval
 
-### Phase 4: WebSocket Chat System (36 hours)
+### Phase 4: Server-Sent Events (SSE) Chat System (36 hours)
 
 **Week 3-4 - Real-Time Communication**
 
 #### Tasks:
-1. **WebSocket Server Setup (12 hours)**
-   - Configure Socket.io server with Next.js
+1. **SSE Server Setup (12 hours)**
+   - Configure SSE endpoints with Next.js API routes
    - Implement connection authentication
    - Set up room management for sessions
    - Add connection lifecycle handling
@@ -760,20 +760,20 @@ import { getTranslations } from 'next-intl/server';
 
 3. **Session State Management (8 hours)**
    - Implement real-time session updates
-   - Add progress tracking across WebSocket
+   - Add progress tracking across SSE
    - Create session recovery mechanisms
    - Handle concurrent session management
 
 **Deliverables:**
-- Working WebSocket communication
+- Working SSE communication
 - Real-time chat experience
 - Session persistence and recovery
 - Connection management
 
 **Dependencies:**
 - Phase 3 completion
-- Socket.io configuration
-- WebSocket server deployment setup
+- SSE endpoint configuration
+- SSE server deployment setup
 
 ### Phase 5: Agent Handoff and Integration (24 hours)
 
@@ -836,8 +836,8 @@ import { getTranslations } from 'next-intl/server';
 ```
 Week 1: Phase 1 (Infrastructure)
 Week 2: Phase 2 (Vision) + Phase 3 (Chat) 
-Week 3: Phase 3 (Chat) + Phase 4 (WebSocket)
-Week 4: Phase 4 (WebSocket) + Phase 5 (Handoff)
+Week 3: Phase 3 (Chat) + Phase 4 (SSE)
+Week 4: Phase 4 (SSE) + Phase 5 (Handoff)
 Week 5: Phase 6 (UI/UX + i18n)
 
 Total Estimated Hours: 192 hours
@@ -892,7 +892,7 @@ export { ErrorHandler } from '@/lib/utils/error-handlers';
 // Shared hooks
 export { useSessionProgress } from '@/hooks/useSessionProgress';
 export { useCostTracking } from '@/hooks/useCostTracking';
-export { useWebSocket } from '@/hooks/useWebSocket';
+export { useSSE } from '@/hooks/useSSE';
 ```
 
 ### Database Schema Updates

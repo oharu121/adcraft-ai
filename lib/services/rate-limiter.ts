@@ -40,6 +40,19 @@ export class RateLimiterService {
       windowMs: 60 * 1000, // 1 minute
       maxRequests: 60, // 60 status checks per minute (1 per second)
     }],
+    // Product Intelligence Agent endpoints
+    ['product-intelligence-analyze', {
+      windowMs: 60 * 60 * 1000, // 1 hour
+      maxRequests: 5, // 5 image/text analyses per hour (expensive operations)
+    }],
+    ['product-intelligence-chat', {
+      windowMs: 5 * 60 * 1000, // 5 minutes
+      maxRequests: 30, // 30 chat messages per 5 minutes
+    }],
+    ['product-intelligence-handoff', {
+      windowMs: 60 * 60 * 1000, // 1 hour
+      maxRequests: 10, // 10 handoffs per hour
+    }],
   ]);
 
   private constructor() {

@@ -16,7 +16,7 @@ inclusion: always
 - **Components**: React 19.1.0 + Lucide React icons
 - **Forms**: React Hook Form + Zod validation
 - **Animations**: Framer Motion 12.x
-- **Real-Time**: Socket.io 4.8.1 client for WebSocket connections
+- **Real-Time**: Server-Sent Events (SSE) client for real-time updates
 - **Internationalization**: next-intl 4.3.5 for bilingual support (Japanese/English)
 
 ### Backend Stack
@@ -24,7 +24,7 @@ inclusion: always
 - **Runtime**: Node.js 18+ via Next.js API Routes
 - **Framework**: Next.js API Routes with App Router pattern
 - **Language**: TypeScript (strict mode)
-- **Real-Time**: Socket.io 4.8.1 server for agent chat
+- **Real-Time**: Server-Sent Events (SSE) API endpoints for agent chat
 - **File Processing**: Sharp 0.34.3 for image optimization
 - **Validation**: Zod 4.1.1 for runtime type validation
 
@@ -79,7 +79,7 @@ export async function POST(
 }
 ```
 
-### WebSocket Integration Pattern
+### Server-Sent Events (SSE) Integration Pattern
 
 ```typescript
 // Real-time chat with session persistence
@@ -193,7 +193,7 @@ npm run build              # Production build validation
 - **GCP Service Accounts**: Server-side authentication only
 - **API Key Management**: Environment variables with proper scoping
 - **File Security**: Signed URLs for Cloud Storage access
-- **Session Security**: Secure WebSocket connections
+- **Session Security**: Secure SSE connections
 
 ### Privacy Compliance
 
@@ -219,7 +219,7 @@ IMAGEN_MODEL=imagegeneration@006
 VEO_MODEL=veo-2
 
 # Application Configuration
-NEXT_PUBLIC_WEBSOCKET_URL=ws://localhost:3001
+NEXT_PUBLIC_SSE_URL=http://localhost:3000
 NEXT_PUBLIC_SUPPORTED_LOCALES=en,ja
 NEXT_PUBLIC_DEFAULT_LOCALE=en
 
@@ -277,7 +277,7 @@ export default withNextIntl(nextConfig);
     "next": "15.5.0",
     "next-intl": "^4.3.5",
     "react": "19.1.0",
-    "socket.io": "^4.8.1",
+    "@types/event-stream": "^1.0.0",
     "zod": "^4.1.1"
   }
 }
@@ -289,7 +289,7 @@ export default withNextIntl(nextConfig);
 
 - API routes must export named functions (GET, POST, etc.)
 - Server vs Client components have different capabilities
-- WebSocket integration requires custom server setup
+- SSE integration uses Next.js API routes
 - Internationalization routing requires specific structure
 
 ### Google Cloud API Constraints
@@ -299,9 +299,9 @@ export default withNextIntl(nextConfig);
 - Service account authentication must be server-side only
 - Cost tracking requires careful token and API call monitoring
 
-### WebSocket Session Management
+### SSE Session Management
 
-- Use socket.io for cross-platform compatibility
+- Use SSE for cross-platform compatibility
 - Store session state in Firestore for persistence
 - Handle disconnections gracefully with resume capability
 - Implement timeout handling for user interactions
