@@ -252,80 +252,78 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   };
 
   return (
-    <div className={`w-full ${className}`}>
-      <Card className="flex flex-col h-96">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">
-            {t.title}
-          </h3>
-          
-          {/* Connection status */}
-          <div className="flex items-center text-sm">
-            <div
-              className={`w-2 h-2 rounded-full mr-2 ${
-                isConnected ? 'bg-green-500' : 'bg-red-500'
-              }`}
+    <div className={`w-full h-full flex flex-col ${className}`}>
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white rounded-t-lg">
+        <h3 className="text-lg font-semibold text-gray-900">
+          {t.title}
+        </h3>
+        
+        {/* Connection status */}
+        <div className="flex items-center text-sm">
+          <div
+            className={`w-2 h-2 rounded-full mr-2 ${
+              isConnected ? 'bg-green-500' : 'bg-red-500'
+            }`}
+          />
+          <span className={isConnected ? 'text-green-600' : 'text-red-600'}>
+            {isConnected ? t.connected : t.disconnected}
+          </span>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-0 bg-white">
+        {renderSuggestions()}
+        
+        {messages.map(renderMessage)}
+        {renderTypingIndicator()}
+        
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input area */}
+      <div className="p-4 border-t border-gray-200 bg-white rounded-b-lg">
+        <form onSubmit={handleSubmit} className="flex space-x-2">
+          <div className="flex-1">
+            <textarea
+              ref={inputRef}
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={t.placeholder}
+              disabled={!isConnected || isSubmitting}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              rows={1}
+              style={{
+                minHeight: '40px',
+                maxHeight: '120px',
+                resize: 'none'
+              }}
             />
-            <span className={isConnected ? 'text-green-600' : 'text-red-600'}>
-              {isConnected ? t.connected : t.disconnected}
-            </span>
           </div>
-        </div>
-
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-0">
-          {renderSuggestions()}
           
-          {messages.map(renderMessage)}
-          {renderTypingIndicator()}
-          
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input area */}
-        <div className="p-4 border-t border-gray-200">
-          <form onSubmit={handleSubmit} className="flex space-x-2">
-            <div className="flex-1">
-              <textarea
-                ref={inputRef}
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={t.placeholder}
-                disabled={!isConnected || isSubmitting}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                rows={1}
-                style={{
-                  minHeight: '40px',
-                  maxHeight: '120px',
-                  resize: 'none'
-                }}
-              />
-            </div>
-            
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={!inputMessage.trim() || !isConnected || isSubmitting}
-              className="px-4 py-2 min-w-[80px]"
-            >
-              {isSubmitting ? (
-                <LoadingSpinner size="sm" />
-              ) : (
-                t.send
-              )}
-            </Button>
-          </form>
-          
-          {/* User typing indicator */}
-          {userTyping && (
-            <div className="mt-1 text-xs text-gray-400">
-              {t.userTyping}
-            </div>
-          )}
-        </div>
-      </Card>
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={!inputMessage.trim() || !isConnected || isSubmitting}
+            className="px-4 py-2 min-w-[80px]"
+          >
+            {isSubmitting ? (
+              <LoadingSpinner size="sm" />
+            ) : (
+              t.send
+            )}
+          </Button>
+        </form>
+        
+        {/* User typing indicator */}
+        {userTyping && (
+          <div className="mt-1 text-xs text-gray-400">
+            {t.userTyping}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
