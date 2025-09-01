@@ -567,7 +567,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                   </p>
                 </div>
                 
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {/* Image Preview */}
                   <div className="relative rounded-lg overflow-hidden bg-gray-700">
                     <img
@@ -580,92 +580,51 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                     </div>
                   </div>
 
-                  {/* Product Features */}
-                  <div className="bg-gray-800/50 rounded-lg p-4">
-                    <h4 className="text-lg font-medium text-white mb-3 flex items-center">
-                      <span className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-sm mr-3">✨</span>
-                      {locale === 'ja' ? '商品の特徴' : 'Product Features'}
-                    </h4>
-                    <ul className="space-y-2 text-gray-300">
-                      <li className="flex items-start">
-                        <span className="text-blue-400 mr-2">•</span>
-                        {locale === 'ja' ? '視覚的に魅力的なデザイン' : 'Visually appealing design'}
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-blue-400 mr-2">•</span>
-                        {locale === 'ja' ? '高品質な素材・仕上げ' : 'Premium materials and finish'}
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-blue-400 mr-2">•</span>
-                        {locale === 'ja' ? 'モダンで洗練されたスタイル' : 'Modern and sophisticated style'}
-                      </li>
-                    </ul>
-                  </div>
+                  {/* Compact Analysis Summary */}
+                  <div className="bg-gray-800/30 rounded-lg p-3">
+                    <div className="space-y-3">
+                      {/* Product Features */}
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-300 mb-1 flex items-center">
+                          <span className="w-4 h-4 bg-gray-600 rounded-full flex items-center justify-center text-xs mr-2">✨</span>
+                          {locale === 'ja' ? '商品特徴' : 'Features'}
+                        </h4>
+                        <p className="text-xs text-gray-400 leading-relaxed">
+                          {locale === 'ja' 
+                            ? '視覚的に魅力的、高品質素材、モダンスタイル'
+                            : 'Visually appealing, premium materials, modern style'
+                          }
+                        </p>
+                      </div>
 
-                  {/* Target Audience */}
-                  <div className="bg-gray-800/50 rounded-lg p-4">
-                    <h4 className="text-lg font-medium text-white mb-3 flex items-center">
-                      <span className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-sm mr-3">🎯</span>
-                      {locale === 'ja' ? 'ターゲット層' : 'Target Audience'}
-                    </h4>
-                    <ul className="space-y-2 text-gray-300">
-                      <li className="flex items-start">
-                        <span className="text-green-400 mr-2">•</span>
-                        {locale === 'ja' ? '25-40歳の都市部在住者' : '25-40 year olds in urban areas'}
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-green-400 mr-2">•</span>
-                        {locale === 'ja' ? '品質を重視する消費者' : 'Quality-conscious consumers'}
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-green-400 mr-2">•</span>
-                        {locale === 'ja' ? 'ライフスタイル志向' : 'Lifestyle-oriented individuals'}
-                      </li>
-                    </ul>
-                  </div>
+                      {/* Target & Positioning */}
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-300 mb-1 flex items-center">
+                          <span className="w-4 h-4 bg-gray-600 rounded-full flex items-center justify-center text-xs mr-2">🎯</span>
+                          {locale === 'ja' ? 'ターゲット・ポジション' : 'Target & Position'}
+                        </h4>
+                        <p className="text-xs text-gray-400 leading-relaxed">
+                          {locale === 'ja' 
+                            ? '25-40歳都市部、品質重視、プレミアム・ミドルレンジ'
+                            : '25-40 urban professionals, quality-focused, premium-mid range'
+                          }
+                        </p>
+                      </div>
 
-                  {/* Brand Positioning */}
-                  <div className="bg-gray-800/50 rounded-lg p-4">
-                    <h4 className="text-lg font-medium text-white mb-3 flex items-center">
-                      <span className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-sm mr-3">🏷️</span>
-                      {locale === 'ja' ? 'ブランドポジション' : 'Brand Positioning'}
-                    </h4>
-                    <ul className="space-y-2 text-gray-300">
-                      <li className="flex items-start">
-                        <span className="text-purple-400 mr-2">•</span>
-                        {locale === 'ja' ? 'プレミアム・ミドルレンジ' : 'Premium-to-mid range'}
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-purple-400 mr-2">•</span>
-                        {locale === 'ja' ? 'イノベーティブ & トレンディ' : 'Innovative & trendy'}
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-purple-400 mr-2">•</span>
-                        {locale === 'ja' ? '信頼性と親しみやすさ' : 'Reliable yet approachable'}
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* Marketing Angles */}
-                  <div className="bg-gray-800/50 rounded-lg p-4">
-                    <h4 className="text-lg font-medium text-white mb-3 flex items-center">
-                      <span className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-sm mr-3">📈</span>
-                      {locale === 'ja' ? 'マーケティング角度' : 'Marketing Angles'}
-                    </h4>
-                    <ul className="space-y-2 text-gray-300">
-                      <li className="flex items-start">
-                        <span className="text-orange-400 mr-2">•</span>
-                        {locale === 'ja' ? 'ライフスタイルの向上' : 'Lifestyle enhancement'}
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-orange-400 mr-2">•</span>
-                        {locale === 'ja' ? '時間節約・利便性' : 'Time-saving convenience'}
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-orange-400 mr-2">•</span>
-                        {locale === 'ja' ? '自己表現・個性' : 'Self-expression & personality'}
-                      </li>
-                    </ul>
+                      {/* Marketing Approach */}
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-300 mb-1 flex items-center">
+                          <span className="w-4 h-4 bg-gray-600 rounded-full flex items-center justify-center text-xs mr-2">📈</span>
+                          {locale === 'ja' ? 'マーケティング' : 'Marketing'}
+                        </h4>
+                        <p className="text-xs text-gray-400 leading-relaxed">
+                          {locale === 'ja' 
+                            ? 'ライフスタイル向上、利便性、自己表現'
+                            : 'Lifestyle enhancement, convenience, self-expression'
+                          }
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Card>
