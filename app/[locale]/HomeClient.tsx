@@ -552,37 +552,120 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
               </Card>
             )}
 
-            {/* Uploaded Image Display - Show when in chat mode */}
+            {/* Product Insights - Show when in chat mode */}
             {currentStep === 'chat' && uploadedImage && (
-              <Card variant="magical" className="p-4">
-                <div className="mb-3">
-                  <h3 className="text-sm font-semibold text-white mb-2">
-                    {locale === 'ja' ? '分析中の商品' : 'Product Being Analyzed'}
+              <Card variant="magical" className="p-6">
+                <div className="mb-6">
+                  <h3 className="text-xl font-semibold text-white mb-2">
+                    {locale === 'ja' ? '📦 プロダクト分析' : '📦 Product Analysis'}
                   </h3>
+                  <p className="text-gray-300 text-sm">
+                    {locale === 'ja' 
+                      ? 'AI分析に基づいた商品の洞察'
+                      : 'AI-powered product insights'
+                    }
+                  </p>
                 </div>
                 
-                <div className="space-y-3">
+                <div className="space-y-6">
                   {/* Image Preview */}
                   <div className="relative rounded-lg overflow-hidden bg-gray-700">
                     <img
                       src={URL.createObjectURL(uploadedImage)}
                       alt="Product"
-                      className="w-full h-32 object-cover"
+                      className="w-full h-40 object-cover"
                     />
+                    <div className="absolute bottom-2 left-2 bg-black/70 rounded px-2 py-1">
+                      <span className="text-white text-xs">{uploadedImage.name}</span>
+                    </div>
                   </div>
-                  
-                  {/* File Info */}
-                  <div className="text-xs text-gray-300 space-y-1">
-                    <div className="flex justify-between">
-                      <span>{locale === 'ja' ? 'ファイル名:' : 'Filename:'}</span>
-                      <span className="truncate ml-2 max-w-[120px]" title={uploadedImage.name}>
-                        {uploadedImage.name}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>{locale === 'ja' ? 'サイズ:' : 'Size:'}</span>
-                      <span>{Math.round(uploadedImage.size / 1024)} KB</span>
-                    </div>
+
+                  {/* Product Features */}
+                  <div className="bg-gray-800/50 rounded-lg p-4">
+                    <h4 className="text-lg font-medium text-white mb-3 flex items-center">
+                      <span className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-sm mr-3">✨</span>
+                      {locale === 'ja' ? '商品の特徴' : 'Product Features'}
+                    </h4>
+                    <ul className="space-y-2 text-gray-300">
+                      <li className="flex items-start">
+                        <span className="text-blue-400 mr-2">•</span>
+                        {locale === 'ja' ? '視覚的に魅力的なデザイン' : 'Visually appealing design'}
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-blue-400 mr-2">•</span>
+                        {locale === 'ja' ? '高品質な素材・仕上げ' : 'Premium materials and finish'}
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-blue-400 mr-2">•</span>
+                        {locale === 'ja' ? 'モダンで洗練されたスタイル' : 'Modern and sophisticated style'}
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Target Audience */}
+                  <div className="bg-gray-800/50 rounded-lg p-4">
+                    <h4 className="text-lg font-medium text-white mb-3 flex items-center">
+                      <span className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-sm mr-3">🎯</span>
+                      {locale === 'ja' ? 'ターゲット層' : 'Target Audience'}
+                    </h4>
+                    <ul className="space-y-2 text-gray-300">
+                      <li className="flex items-start">
+                        <span className="text-green-400 mr-2">•</span>
+                        {locale === 'ja' ? '25-40歳の都市部在住者' : '25-40 year olds in urban areas'}
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-green-400 mr-2">•</span>
+                        {locale === 'ja' ? '品質を重視する消費者' : 'Quality-conscious consumers'}
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-green-400 mr-2">•</span>
+                        {locale === 'ja' ? 'ライフスタイル志向' : 'Lifestyle-oriented individuals'}
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Brand Positioning */}
+                  <div className="bg-gray-800/50 rounded-lg p-4">
+                    <h4 className="text-lg font-medium text-white mb-3 flex items-center">
+                      <span className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-sm mr-3">🏷️</span>
+                      {locale === 'ja' ? 'ブランドポジション' : 'Brand Positioning'}
+                    </h4>
+                    <ul className="space-y-2 text-gray-300">
+                      <li className="flex items-start">
+                        <span className="text-purple-400 mr-2">•</span>
+                        {locale === 'ja' ? 'プレミアム・ミドルレンジ' : 'Premium-to-mid range'}
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-purple-400 mr-2">•</span>
+                        {locale === 'ja' ? 'イノベーティブ & トレンディ' : 'Innovative & trendy'}
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-purple-400 mr-2">•</span>
+                        {locale === 'ja' ? '信頼性と親しみやすさ' : 'Reliable yet approachable'}
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Marketing Angles */}
+                  <div className="bg-gray-800/50 rounded-lg p-4">
+                    <h4 className="text-lg font-medium text-white mb-3 flex items-center">
+                      <span className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-sm mr-3">📈</span>
+                      {locale === 'ja' ? 'マーケティング角度' : 'Marketing Angles'}
+                    </h4>
+                    <ul className="space-y-2 text-gray-300">
+                      <li className="flex items-start">
+                        <span className="text-orange-400 mr-2">•</span>
+                        {locale === 'ja' ? 'ライフスタイルの向上' : 'Lifestyle enhancement'}
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-orange-400 mr-2">•</span>
+                        {locale === 'ja' ? '時間節約・利便性' : 'Time-saving convenience'}
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-orange-400 mr-2">•</span>
+                        {locale === 'ja' ? '自己表現・個性' : 'Self-expression & personality'}
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </Card>
@@ -621,20 +704,122 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
             )}
           </div>
 
-          {/* Right Column - Chat Interface */}
+          {/* Right Column - Analysis Results */}
           <div className="space-y-6">
-            {/* Step 3: Chat Interface */}
+            {/* Step 3: Commercial Strategy */}
             {currentStep === 'chat' && (
-              <Card variant="magical" hover glow className="h-[600px]">
-                <ChatContainer
-                  sessionId={sessionId}
-                  messages={messages}
-                  isConnected={isConnected}
-                  isAgentTyping={isAgentTyping}
-                  onSendMessage={handleSendMessage}
-                  locale={locale}
-                  className="h-full"
-                />
+              <Card variant="magical" hover glow className="p-6">
+                <div className="mb-6">
+                  <h3 className="text-xl font-semibold text-white mb-2">
+                    {locale === 'ja' ? '🎬 コマーシャル戦略' : '🎬 Commercial Strategy'}
+                  </h3>
+                  <p className="text-gray-300 text-sm">
+                    {locale === 'ja' 
+                      ? 'AI分析に基づいた撮影・制作の提案'
+                      : 'AI-powered filming and production recommendations'
+                    }
+                  </p>
+                </div>
+
+                <div className="space-y-6">
+                  {/* Visual Style */}
+                  <div className="bg-gray-800/50 rounded-lg p-4">
+                    <h4 className="text-lg font-medium text-white mb-3 flex items-center">
+                      <span className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-sm mr-3">🎨</span>
+                      {locale === 'ja' ? 'ビジュアルスタイル' : 'Visual Style'}
+                    </h4>
+                    <ul className="space-y-2 text-gray-300">
+                      <li className="flex items-start">
+                        <span className="text-purple-400 mr-2">•</span>
+                        {locale === 'ja' ? 'シネマティック撮影（映画的な質感）' : 'Cinematic filming (movie-like quality)'}
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-purple-400 mr-2">•</span>
+                        {locale === 'ja' ? '明るく鮮やかな色調' : 'Bright and vibrant color palette'}
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-purple-400 mr-2">•</span>
+                        {locale === 'ja' ? 'クローズアップと広角の組み合わせ' : 'Mix of close-ups and wide shots'}
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Narrative Structure */}
+                  <div className="bg-gray-800/50 rounded-lg p-4">
+                    <h4 className="text-lg font-medium text-white mb-3 flex items-center">
+                      <span className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-sm mr-3">📝</span>
+                      {locale === 'ja' ? 'ナラティブ構造' : 'Narrative Structure'}
+                    </h4>
+                    <ul className="space-y-2 text-gray-300">
+                      <li className="flex items-start">
+                        <span className="text-blue-400 mr-2">•</span>
+                        {locale === 'ja' ? 'ライフスタイル提案型（日常への溶け込み）' : 'Lifestyle integration approach'}
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-blue-400 mr-2">•</span>
+                        {locale === 'ja' ? '感情的なストーリーテリング' : 'Emotional storytelling'}
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-blue-400 mr-2">•</span>
+                        {locale === 'ja' ? '30秒の短編構成' : '30-second short format'}
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Key Scenes */}
+                  <div className="bg-gray-800/50 rounded-lg p-4">
+                    <h4 className="text-lg font-medium text-white mb-3 flex items-center">
+                      <span className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-sm mr-3">📍</span>
+                      {locale === 'ja' ? '重要シーン' : 'Key Scenes'}
+                    </h4>
+                    <ul className="space-y-2 text-gray-300">
+                      <li className="flex items-start">
+                        <span className="text-green-400 mr-2">•</span>
+                        {locale === 'ja' ? '商品のクローズアップ（質感重視）' : 'Product close-up (texture focus)'}
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-green-400 mr-2">•</span>
+                        {locale === 'ja' ? 'ターゲット層の使用シーン' : 'Target audience usage scenarios'}
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-green-400 mr-2">•</span>
+                        {locale === 'ja' ? 'ブランドロゴ・メッセージの表示' : 'Brand logo and message display'}
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Music & Tone */}
+                  <div className="bg-gray-800/50 rounded-lg p-4">
+                    <h4 className="text-lg font-medium text-white mb-3 flex items-center">
+                      <span className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-sm mr-3">🎵</span>
+                      {locale === 'ja' ? '音楽・トーン' : 'Music & Tone'}
+                    </h4>
+                    <ul className="space-y-2 text-gray-300">
+                      <li className="flex items-start">
+                        <span className="text-yellow-400 mr-2">•</span>
+                        {locale === 'ja' ? 'アップビートで親しみやすい音楽' : 'Upbeat and approachable music'}
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-yellow-400 mr-2">•</span>
+                        {locale === 'ja' ? '温かみのあるナレーション' : 'Warm and friendly narration'}
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-yellow-400 mr-2">•</span>
+                        {locale === 'ja' ? 'ポジティブで希望的な雰囲気' : 'Positive and optimistic atmosphere'}
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Continue Button */}
+                <div className="mt-8 text-center">
+                  <button
+                    onClick={() => setCurrentStep('handoff')}
+                    className="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200"
+                  >
+                    {locale === 'ja' ? 'Creative Directorエージェントへ進む' : 'Proceed to Creative Director'}
+                  </button>
+                </div>
               </Card>
             )}
 
