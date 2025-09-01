@@ -36,6 +36,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
   const [analysisStartTime, setAnalysisStartTime] = useState<number>(0);
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [showCommercialChat, setShowCommercialChat] = useState<boolean>(false);
   
   // Ref for tracking analysis start time for progress calculation
   const analysisStartRef = useRef<number>(0);
@@ -300,6 +301,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     setAnalysisStartTime(0);
     setElapsedTime(0);
     setErrorMessage('');
+    setShowCommercialChat(false);
     analysisStartRef.current = 0;
   }, []);
 
@@ -669,116 +671,174 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
             {currentStep === 'chat' && (
               <Card variant="magical" hover glow className="p-6">
                 <div className="mb-6">
-                  <h3 className="text-xl font-semibold text-white mb-2">
-                    {locale === 'ja' ? '🎬 コマーシャル戦略' : '🎬 Commercial Strategy'}
-                  </h3>
-                  <p className="text-gray-300 text-sm">
-                    {locale === 'ja' 
-                      ? 'AI分析に基づいた撮影・制作の提案'
-                      : 'AI-powered filming and production recommendations'
-                    }
-                  </p>
-                </div>
-
-                <div className="space-y-6">
-                  {/* Visual Style */}
-                  <div className="bg-gray-800/50 rounded-lg p-4">
-                    <h4 className="text-lg font-medium text-white mb-3 flex items-center">
-                      <span className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-sm mr-3">🎨</span>
-                      {locale === 'ja' ? 'ビジュアルスタイル' : 'Visual Style'}
-                    </h4>
-                    <ul className="space-y-2 text-gray-300">
-                      <li className="flex items-start">
-                        <span className="text-purple-400 mr-2">•</span>
-                        {locale === 'ja' ? 'シネマティック撮影（映画的な質感）' : 'Cinematic filming (movie-like quality)'}
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-purple-400 mr-2">•</span>
-                        {locale === 'ja' ? '明るく鮮やかな色調' : 'Bright and vibrant color palette'}
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-purple-400 mr-2">•</span>
-                        {locale === 'ja' ? 'クローズアップと広角の組み合わせ' : 'Mix of close-ups and wide shots'}
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* Narrative Structure */}
-                  <div className="bg-gray-800/50 rounded-lg p-4">
-                    <h4 className="text-lg font-medium text-white mb-3 flex items-center">
-                      <span className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-sm mr-3">📝</span>
-                      {locale === 'ja' ? 'ナラティブ構造' : 'Narrative Structure'}
-                    </h4>
-                    <ul className="space-y-2 text-gray-300">
-                      <li className="flex items-start">
-                        <span className="text-blue-400 mr-2">•</span>
-                        {locale === 'ja' ? 'ライフスタイル提案型（日常への溶け込み）' : 'Lifestyle integration approach'}
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-blue-400 mr-2">•</span>
-                        {locale === 'ja' ? '感情的なストーリーテリング' : 'Emotional storytelling'}
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-blue-400 mr-2">•</span>
-                        {locale === 'ja' ? '30秒の短編構成' : '30-second short format'}
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* Key Scenes */}
-                  <div className="bg-gray-800/50 rounded-lg p-4">
-                    <h4 className="text-lg font-medium text-white mb-3 flex items-center">
-                      <span className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-sm mr-3">📍</span>
-                      {locale === 'ja' ? '重要シーン' : 'Key Scenes'}
-                    </h4>
-                    <ul className="space-y-2 text-gray-300">
-                      <li className="flex items-start">
-                        <span className="text-green-400 mr-2">•</span>
-                        {locale === 'ja' ? '商品のクローズアップ（質感重視）' : 'Product close-up (texture focus)'}
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-green-400 mr-2">•</span>
-                        {locale === 'ja' ? 'ターゲット層の使用シーン' : 'Target audience usage scenarios'}
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-green-400 mr-2">•</span>
-                        {locale === 'ja' ? 'ブランドロゴ・メッセージの表示' : 'Brand logo and message display'}
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* Music & Tone */}
-                  <div className="bg-gray-800/50 rounded-lg p-4">
-                    <h4 className="text-lg font-medium text-white mb-3 flex items-center">
-                      <span className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-sm mr-3">🎵</span>
-                      {locale === 'ja' ? '音楽・トーン' : 'Music & Tone'}
-                    </h4>
-                    <ul className="space-y-2 text-gray-300">
-                      <li className="flex items-start">
-                        <span className="text-yellow-400 mr-2">•</span>
-                        {locale === 'ja' ? 'アップビートで親しみやすい音楽' : 'Upbeat and approachable music'}
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-yellow-400 mr-2">•</span>
-                        {locale === 'ja' ? '温かみのあるナレーション' : 'Warm and friendly narration'}
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-yellow-400 mr-2">•</span>
-                        {locale === 'ja' ? 'ポジティブで希望的な雰囲気' : 'Positive and optimistic atmosphere'}
-                      </li>
-                    </ul>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-xl font-semibold text-white mb-2">
+                        {showCommercialChat 
+                          ? (locale === 'ja' ? '💬 戦略についてチャット' : '💬 Chat About Strategy')
+                          : (locale === 'ja' ? '🎬 コマーシャル戦略' : '🎬 Commercial Strategy')
+                        }
+                      </h3>
+                      <p className="text-gray-300 text-sm">
+                        {showCommercialChat
+                          ? (locale === 'ja' 
+                              ? '戦略について質問や改善提案をしてください'
+                              : 'Ask questions or suggest improvements to the strategy'
+                            )
+                          : (locale === 'ja' 
+                              ? 'AI分析に基づいた撮影・制作の提案'
+                              : 'AI-powered filming and production recommendations'
+                            )
+                        }
+                      </p>
+                    </div>
+                    
+                    {/* Toggle Button */}
+                    <button
+                      onClick={() => setShowCommercialChat(!showCommercialChat)}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+                        showCommercialChat
+                          ? 'bg-purple-500 text-white hover:bg-purple-600'
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
+                      }`}
+                    >
+                      {showCommercialChat ? (
+                        <>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                          {locale === 'ja' ? '戦略表示' : 'Show Strategy'}
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                          </svg>
+                          {locale === 'ja' ? 'チャット' : 'Chat'}
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
 
-                {/* Continue Button */}
-                <div className="mt-8 text-center">
-                  <button
-                    onClick={() => setCurrentStep('handoff')}
-                    className="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200"
-                  >
-                    {locale === 'ja' ? 'Creative Directorエージェントへ進む' : 'Proceed to Creative Director'}
-                  </button>
-                </div>
+                {/* Toggle between Strategy View and Chat */}
+                {showCommercialChat ? (
+                  /* Chat Interface */
+                  <div className="h-[500px]">
+                    <ChatContainer
+                      sessionId={sessionId}
+                      messages={messages}
+                      isConnected={isConnected}
+                      isAgentTyping={isAgentTyping}
+                      onSendMessage={handleSendMessage}
+                      locale={locale}
+                      className="h-full"
+                    />
+                  </div>
+                ) : (
+                  /* Strategy View */
+                  <div className="space-y-6">
+                    {/* Visual Style */}
+                    <div className="bg-gray-800/50 rounded-lg p-4">
+                      <h4 className="text-lg font-medium text-white mb-3 flex items-center">
+                        <span className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-sm mr-3">🎨</span>
+                        {locale === 'ja' ? 'ビジュアルスタイル' : 'Visual Style'}
+                      </h4>
+                      <ul className="space-y-2 text-gray-300">
+                        <li className="flex items-start">
+                          <span className="text-purple-400 mr-2">•</span>
+                          {locale === 'ja' ? 'シネマティック撮影（映画的な質感）' : 'Cinematic filming (movie-like quality)'}
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-purple-400 mr-2">•</span>
+                          {locale === 'ja' ? '明るく鮮やかな色調' : 'Bright and vibrant color palette'}
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-purple-400 mr-2">•</span>
+                          {locale === 'ja' ? 'クローズアップと広角の組み合わせ' : 'Mix of close-ups and wide shots'}
+                        </li>
+                      </ul>
+                    </div>
+
+                    {/* Narrative Structure */}
+                    <div className="bg-gray-800/50 rounded-lg p-4">
+                      <h4 className="text-lg font-medium text-white mb-3 flex items-center">
+                        <span className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-sm mr-3">📝</span>
+                        {locale === 'ja' ? 'ナラティブ構造' : 'Narrative Structure'}
+                      </h4>
+                      <ul className="space-y-2 text-gray-300">
+                        <li className="flex items-start">
+                          <span className="text-blue-400 mr-2">•</span>
+                          {locale === 'ja' ? 'ライフスタイル提案型（日常への溶け込み）' : 'Lifestyle integration approach'}
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-blue-400 mr-2">•</span>
+                          {locale === 'ja' ? '感情的なストーリーテリング' : 'Emotional storytelling'}
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-blue-400 mr-2">•</span>
+                          {locale === 'ja' ? '30秒の短編構成' : '30-second short format'}
+                        </li>
+                      </ul>
+                    </div>
+
+                    {/* Key Scenes */}
+                    <div className="bg-gray-800/50 rounded-lg p-4">
+                      <h4 className="text-lg font-medium text-white mb-3 flex items-center">
+                        <span className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-sm mr-3">📍</span>
+                        {locale === 'ja' ? '重要シーン' : 'Key Scenes'}
+                      </h4>
+                      <ul className="space-y-2 text-gray-300">
+                        <li className="flex items-start">
+                          <span className="text-green-400 mr-2">•</span>
+                          {locale === 'ja' ? '商品のクローズアップ（質感重視）' : 'Product close-up (texture focus)'}
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-green-400 mr-2">•</span>
+                          {locale === 'ja' ? 'ターゲット層の使用シーン' : 'Target audience usage scenarios'}
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-green-400 mr-2">•</span>
+                          {locale === 'ja' ? 'ブランドロゴ・メッセージの表示' : 'Brand logo and message display'}
+                        </li>
+                      </ul>
+                    </div>
+
+                    {/* Music & Tone */}
+                    <div className="bg-gray-800/50 rounded-lg p-4">
+                      <h4 className="text-lg font-medium text-white mb-3 flex items-center">
+                        <span className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-sm mr-3">🎵</span>
+                        {locale === 'ja' ? '音楽・トーン' : 'Music & Tone'}
+                      </h4>
+                      <ul className="space-y-2 text-gray-300">
+                        <li className="flex items-start">
+                          <span className="text-yellow-400 mr-2">•</span>
+                          {locale === 'ja' ? 'アップビートで親しみやすい音楽' : 'Upbeat and approachable music'}
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-yellow-400 mr-2">•</span>
+                          {locale === 'ja' ? '温かみのあるナレーション' : 'Warm and friendly narration'}
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-yellow-400 mr-2">•</span>
+                          {locale === 'ja' ? 'ポジティブで希望的な雰囲気' : 'Positive and optimistic atmosphere'}
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                )}
+
+                {/* Continue Button - Only show in Strategy View */}
+                {!showCommercialChat && (
+                  <div className="mt-8 text-center">
+                    <button
+                      onClick={() => setCurrentStep('handoff')}
+                      className="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200"
+                    >
+                      {locale === 'ja' ? 'Creative Directorエージェントへ進む' : 'Proceed to Creative Director'}
+                    </button>
+                  </div>
+                )}
               </Card>
             )}
 
