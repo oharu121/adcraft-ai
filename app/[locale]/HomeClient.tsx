@@ -35,6 +35,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showCommercialChat, setShowCommercialChat] = useState<boolean>(false);
+  const [chatInputMessage, setChatInputMessage] = useState<string>('');
 
   // Ref for tracking analysis start time for progress calculation
   const analysisStartRef = useRef<number>(0);
@@ -315,6 +316,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     setElapsedTime(0);
     setErrorMessage("");
     setShowCommercialChat(false);
+    setChatInputMessage('');
     analysisStartRef.current = 0;
   }, []);
 
@@ -848,6 +850,8 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                         onSendMessage={handleSendMessage}
                         locale={locale}
                         className="h-full"
+                        inputMessage={chatInputMessage}
+                        onInputMessageChange={setChatInputMessage}
                       />
                     </div>
                   ) : (

@@ -21,6 +21,8 @@ export interface ChatContainerProps {
   onSendMessage: (message: string) => Promise<void>;
   locale?: 'en' | 'ja';
   className?: string;
+  inputMessage?: string;
+  onInputMessageChange?: (message: string) => void;
 }
 
 const ChatContainer: React.FC<ChatContainerProps> = ({
@@ -30,9 +32,11 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   isAgentTyping,
   onSendMessage,
   locale = 'en',
-  className = ''
+  className = '',
+  inputMessage = '',
+  onInputMessageChange
 }) => {
-  const [inputMessage, setInputMessage] = useState('');
+  // inputMessage is now controlled by parent component
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userTyping, setUserTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -124,7 +128,9 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
     
     try {
       await onSendMessage(inputMessage.trim());
-      setInputMessage('');
+      if (onInputMessageChange) {
+        onInputMessageChange('');
+      }
       inputRef.current?.focus();
     } catch (error) {
       console.error('Failed to send message:', error);
@@ -240,7 +246,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
           {t.suggestions.map((suggestion, index) => (
             <button
               key={index}
-              onClick={() => setInputMessage(suggestion)}
+              onClick={() => onInputMessageChange && onInputMessageChange(suggestion)}
               className="block w-full text-left px-3 py-2 text-sm text-blue-700 bg-white border border-blue-200 rounded hover:bg-blue-50 transition-colors"
             >
               {suggestion}
@@ -289,7 +295,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
             <textarea
               ref={inputRef}
               value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
+              onChange={(e) => onInputMessageChange && onInputMessageChange(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={t.placeholder}
               disabled={!isConnected || isSubmitting}
