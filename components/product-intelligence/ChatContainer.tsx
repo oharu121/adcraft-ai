@@ -47,7 +47,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   const text = {
     en: {
       title: 'Product Intelligence Agent',
-      placeholder: 'Ask me anything about your product, target audience, or positioning...',
+      placeholder: 'Ask questions or request adjustments...',
       send: 'Send',
       connecting: 'Connecting...',
       connected: 'Connected',
@@ -56,7 +56,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
       userTyping: 'You are typing...',
       retry: 'Retry',
       errorSending: 'Failed to send message',
-      welcomeMessage: 'Hello! I\'ve analyzed your product image. What would you like to know or discuss about your product?',
+      welcomeMessage: 'Commercial strategy has been generated based on your product analysis. Feel free to ask questions or request adjustments!',
       suggestionPrefix: 'You might want to ask:',
       suggestions: [
         'Who is my target audience?',
@@ -67,7 +67,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
     },
     ja: {
       title: 'プロダクト・インテリジェンス・エージェント',
-      placeholder: '商品、ターゲットオーディエンス、ポジショニングについて何でも聞いてください...',
+      placeholder: '質問や調整をお聞かせください...',
       send: '送信',
       connecting: '接続中...',
       connected: '接続済み',
@@ -76,7 +76,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
       userTyping: '入力中...',
       retry: '再試行',
       errorSending: 'メッセージの送信に失敗しました',
-      welcomeMessage: 'こんにちは！商品画像を分析しました。商品について何を知りたいか、何を話し合いたいかお聞かせください。',
+      welcomeMessage: '商品分析に基づいてコマーシャル戦略を作成しました。質問や調整があればお聞かせください！',
       suggestionPrefix: 'こんな質問はいかがですか：',
       suggestions: [
         'ターゲットオーディエンスは誰ですか？',
