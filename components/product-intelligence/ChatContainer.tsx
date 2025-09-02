@@ -293,7 +293,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
               onKeyDown={handleKeyDown}
               placeholder={t.placeholder}
               disabled={!isConnected || isSubmitting}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 placeholder-gray-500"
               rows={1}
               style={{
                 minHeight: '40px',
