@@ -268,7 +268,7 @@ const ImageUploadArea: React.FC<ImageUploadProps> = ({
                       handleFileInputClick();
                     }}
                     disabled={isUploading}
-                    className="mt-2"
+                    className="mt-2 cursor-pointer"
                   >
                     {t.selectFile}
                   </Button>

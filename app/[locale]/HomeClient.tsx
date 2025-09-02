@@ -437,7 +437,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
             <div className="space-y-6">
               {/* Step 1: Product Input */}
               {currentStep === "upload" && (
-                <Card variant="magical" hover glow className="p-6">
+                <Card variant="magical" glow className="p-6">
                   <div className="mb-6">
                     <h2 className="text-xl font-semibold text-white mb-2">
                       {locale === "ja"
@@ -456,7 +456,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                     <div className="flex rounded-lg bg-gray-800 p-1 max-w-md mx-auto">
                       <button
                         onClick={() => setInputMode("image")}
-                        className={`flex-1 flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                        className={`cursor-pointer flex-1 flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                           inputMode === "image"
                             ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md"
                             : "text-gray-300 hover:text-white"
@@ -479,7 +479,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                       </button>
                       <button
                         onClick={() => setInputMode("text")}
-                        className={`flex-1 flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                        className={`cursor-pointer flex-1 flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                           inputMode === "text"
                             ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-md"
                             : "text-gray-300 hover:text-white"
