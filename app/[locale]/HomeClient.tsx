@@ -755,6 +755,21 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                       {/* Compact Analysis Summary */}
                       <div className="bg-gray-800/30 rounded-lg p-3">
                         <div className="space-y-3">
+                          {/* Product Type */}
+                          <div>
+                            <h4 className="text-sm font-medium text-gray-300 mb-1 flex items-center">
+                              <span className="w-4 h-4 bg-gray-600 rounded-full flex items-center justify-center text-xs mr-2">
+                                🏷️
+                              </span>
+                              {locale === "ja" ? "商品種類" : "Product Type"}
+                            </h4>
+                            <p className="text-xs text-gray-400 leading-relaxed">
+                              {locale === "ja"
+                                ? "プレミアムセラミックマグ"
+                                : "Premium ceramic coffee mug"}
+                            </p>
+                          </div>
+
                           {/* Product Features */}
                           <div>
                             <h4 className="text-sm font-medium text-gray-300 mb-1 flex items-center">
