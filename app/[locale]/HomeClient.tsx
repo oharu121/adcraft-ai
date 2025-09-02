@@ -668,9 +668,16 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                 (uploadedImage || (inputMode === "text" && productDescription)) && (
                   <Card variant="magical" className="p-6">
                     <div className="mb-6">
-                      <h3 className="text-xl font-semibold text-white mb-2">
-                        {locale === "ja" ? "📦 プロダクト分析" : "📦 Product Analysis"}
-                      </h3>
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-xl font-semibold text-white">
+                          {locale === "ja" ? "📦 プロダクト分析" : "📦 Product Analysis"}
+                        </h3>
+                        {sessionId && (
+                          <span className="px-2 py-1 bg-gray-700/50 text-gray-400 text-xs rounded border border-gray-600 font-mono">
+                            #{sessionId.slice(-6)}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-gray-300 text-sm">
                         {locale === "ja"
                           ? "AI分析に基づいた商品の洞察"
@@ -810,27 +817,6 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                 />
               )}
 
-              {/* Session Status */}
-              {sessionId && (
-                <Card className="p-4 bg-gray-800/50">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={`w-3 h-3 rounded-full ${isConnected ? "bg-green-500" : "bg-red-500"}`}
-                      />
-                      <span className="text-sm text-gray-300">
-                        {locale === "ja" ? "セッション" : "Session"}: {sessionId.slice(0, 8)}...
-                      </span>
-                    </div>
-                    <button
-                      onClick={handleReset}
-                      className="text-xs text-gray-400 hover:text-white transition-colors"
-                    >
-                      {locale === "ja" ? "リセット" : "Reset"}
-                    </button>
-                  </div>
-                </Card>
-              )}
             </div>
 
             {/* Right Column - Analysis Results */}
