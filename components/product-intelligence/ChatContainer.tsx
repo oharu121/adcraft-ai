@@ -89,6 +89,15 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
 
   const t = text[locale];
 
+  // Auto-focus input when component mounts (chat opens)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100); // Small delay to ensure component is fully rendered
+    
+    return () => clearTimeout(timer);
+  }, []);
+
   // Scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
