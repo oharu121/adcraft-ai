@@ -164,7 +164,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
     
     return (
       <div key={message.id} className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
-        <div className={`max-w-3xl ${isUser ? 'order-2' : 'order-1'}`}>
+        <div className={`max-w-[80%] ${isUser ? 'order-2' : 'order-1'}`}>
           {/* Avatar */}
           {!isUser && (
             <div className="flex items-center mb-1">
@@ -185,7 +185,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
                 : 'bg-white text-gray-800 border border-gray-200 rounded-bl-sm'
             }`}
           >
-            <p className="whitespace-pre-wrap">{message.content}</p>
+            <p className="whitespace-pre-wrap break-words">{message.content}</p>
             
             {/* Message metadata */}
             {message.metadata && (
