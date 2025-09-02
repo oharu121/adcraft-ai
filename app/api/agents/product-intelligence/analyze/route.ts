@@ -13,6 +13,7 @@ import {
   AnalysisResponse,
   ApiErrorCode
 } from '@/types/product-intelligence';
+import { GeminiVisionService } from '@/lib/services/product-intelligence/gemini-vision';
 
 // Request validation schema
 const AnalysisRequestSchema = z.object({
@@ -192,10 +193,36 @@ async function performProductAnalysis(params: {
   warnings?: string[];
   suggestions?: string[];
 }> {
-  // TODO: Implement actual Vertex AI Gemini Pro Vision call
-  
-  // Placeholder analysis result
-  const mockAnalysis = {
+  try {
+    // Use the actual Gemini Vision service
+    const geminiVision = GeminiVisionService.getInstance();
+    
+    const analysisResult = await geminiVision.analyzeProductImage({
+      sessionId: params.sessionId,
+      imageUrl: params.imageUrl,
+      description: params.description,
+      locale: params.locale,
+      analysisOptions: {
+        detailLevel: params.options?.detailLevel || 'detailed',
+        includeTargetAudience: true,
+        includePositioning: true,
+        includeVisualPreferences: true
+      }
+    });
+    
+    return {
+      analysis: analysisResult.analysis,
+      cost: analysisResult.cost,
+      confidence: analysisResult.confidence,
+      warnings: analysisResult.warnings,
+      suggestions: [] // Can be added later
+    };
+    
+  } catch (error) {
+    console.error('Gemini Vision analysis failed, using fallback:', error);
+    
+    // Fallback to mock analysis if real AI fails
+    const mockAnalysis = {
     product: {
       id: params.sessionId,
       category: 'electronics',
@@ -326,15 +353,16 @@ async function performProductAnalysis(params: {
     }
   };
 
-  return {
-    analysis: mockAnalysis,
-    cost: 0.25,
-    confidence: 0.88,
-    warnings: [],
-    suggestions: params.locale === 'ja' 
-      ? ['ターゲット層をさらに詳しく教えてください', '価格帯についてお聞かせください']
-      : ['Please provide more details about your target audience', 'Could you share information about the price range?']
-  };
+    return {
+      analysis: mockAnalysis,
+      cost: 0.25,
+      confidence: 0.88,
+      warnings: ['Using fallback analysis due to AI service error'],
+      suggestions: params.locale === 'ja' 
+        ? ['ターゲット層をさらに詳しく教えてください', '価格帯についてお聞かせください']
+        : ['Please provide more details about your target audience', 'Could you share information about the price range?']
+    };
+  }
 }
 
 /**

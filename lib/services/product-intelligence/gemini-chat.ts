@@ -88,13 +88,23 @@ export class GeminiChatService {
   /**
    * Process chat message with context-aware response
    */
-  public async processMessage(request: ChatRequest): Promise<ChatResponse> {
+  public async processMessage(
+    request: ChatRequest, 
+    options?: { forceMode?: 'demo' | 'real' }
+  ): Promise<ChatResponse> {
     const startTime = Date.now();
 
     try {
-      if (this.isMockMode) {
+      // Use forced mode if provided, otherwise use instance mock mode
+      const shouldUseMockMode = options?.forceMode === 'demo' || 
+                               (!options?.forceMode && options?.forceMode !== 'real' && this.isMockMode);
+      
+      if (shouldUseMockMode) {
+        console.log('[GEMINI CHAT] Using mock mode for chat');
         return await this.generateMockResponse(request, startTime);
       }
+
+      console.log('[GEMINI CHAT] Using real Vertex AI for chat');
 
       // Generate contextual conversation prompt
       const conversationPrompt = this.generateConversationPrompt(request);

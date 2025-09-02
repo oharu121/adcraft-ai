@@ -10,7 +10,7 @@ import { ProductAnalysis, ProductCategory } from '@/types/product-intelligence';
 
 export interface VisionAnalysisRequest {
   sessionId: string;
-  imageUrl: string;
+  imageData: string; // Base64 encoded image data (without data URL prefix)
   description?: string;
   locale: 'en' | 'ja';
   analysisOptions?: {
@@ -83,19 +83,29 @@ export class GeminiVisionService {
   /**
    * Analyze product image with Gemini Pro Vision
    */
-  public async analyzeProductImage(request: VisionAnalysisRequest): Promise<VisionAnalysisResponse> {
+  public async analyzeProductImage(
+    request: VisionAnalysisRequest, 
+    options?: { forceMode?: 'demo' | 'real' }
+  ): Promise<VisionAnalysisResponse> {
     const startTime = Date.now();
     
     try {
-      if (this.isMockMode) {
+      // Use forced mode if provided, otherwise use instance mock mode
+      const shouldUseMockMode = options?.forceMode === 'demo' || 
+                               (!options?.forceMode && options?.forceMode !== 'real' && this.isMockMode);
+      
+      if (shouldUseMockMode) {
+        console.log('[GEMINI VISION] Using mock mode for analysis');
         return await this.generateMockAnalysis(request, startTime);
       }
+
+      console.log('[GEMINI VISION] Using real Vertex AI for analysis');
 
       // Generate analysis prompt
       const prompt = this.generateAnalysisPrompt(request);
 
       // Make API call to Gemini Pro Vision
-      const geminiResponse = await this.callGeminiVision(prompt, request.imageUrl);
+      const geminiResponse = await this.callGeminiVision(prompt, request.imageData);
       
       // Parse and structure the response
       const analysis = this.parseAnalysisResponse(geminiResponse.text, request);
@@ -273,24 +283,39 @@ Return ONLY the JSON response, no additional text.`;
   /**
    * Call Gemini Pro Vision API
    */
-  private async callGeminiVision(prompt: string, imageUrl: string): Promise<{
+  private async callGeminiVision(prompt: string, imageData: string): Promise<{
     text: string;
     usage: { input_tokens: number; output_tokens: number };
   }> {
-    const accessToken = await this.vertexAI.getAccessToken();
-    const baseUrl = this.vertexAI.getBaseUrl();
+    // Check if we have GEMINI_API_KEY for AI Studio API
+    const geminiApiKey = process.env.GEMINI_API_KEY;
     
-    // Download and encode image
-    const imageData = await this.fetchAndEncodeImage(imageUrl);
+    if (geminiApiKey) {
+      // Use Gemini AI Studio API (simpler authentication)
+      return await this.callGeminiAIStudio(prompt, imageData, geminiApiKey);
+    } else {
+      // Use Vertex AI API (requires service account)
+      return await this.callVertexAI(prompt, imageData);
+    }
+  }
+
+  /**
+   * Call Gemini AI Studio API with API key
+   */
+  private async callGeminiAIStudio(prompt: string, imageData: string, apiKey: string): Promise<{
+    text: string;
+    usage: { input_tokens: number; output_tokens: number };
+  }> {
+    const mimeType = this.detectMimeTypeFromBase64(imageData);
     
-    const request: GeminiVisionRequest = {
+    const request = {
       contents: [
         {
           parts: [
             { text: prompt },
             {
               inline_data: {
-                mime_type: 'image/jpeg',
+                mime_type: mimeType,
                 data: imageData
               }
             }
@@ -304,6 +329,70 @@ Return ONLY the JSON response, no additional text.`;
         max_output_tokens: 4096
       }
     };
+
+    console.log('[GEMINI VISION] Using AI Studio API with API key');
+    
+    // Use Gemini AI Studio endpoint
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Gemini AI Studio API error: ${response.status} - ${errorText}`);
+    }
+
+    const result = await response.json();
+    
+    if (!result.candidates || !result.candidates[0] || !result.candidates[0].content) {
+      throw new Error('Invalid response format from Gemini AI Studio API');
+    }
+    
+    return {
+      text: result.candidates[0].content.parts[0].text,
+      usage: result.usage_metadata || { input_tokens: 1000, output_tokens: 2000 }
+    };
+  }
+
+  /**
+   * Call Vertex AI API with service account authentication
+   */
+  private async callVertexAI(prompt: string, imageData: string): Promise<{
+    text: string;
+    usage: { input_tokens: number; output_tokens: number };
+  }> {
+    const accessToken = await this.vertexAI.getAccessToken();
+    const baseUrl = this.vertexAI.getBaseUrl();
+    
+    const mimeType = this.detectMimeTypeFromBase64(imageData);
+    
+    const request: GeminiVisionRequest = {
+      contents: [
+        {
+          parts: [
+            { text: prompt },
+            {
+              inline_data: {
+                mime_type: mimeType,
+                data: imageData
+              }
+            }
+          ]
+        }
+      ],
+      generation_config: {
+        temperature: 0.3,
+        top_p: 0.8,
+        top_k: 40,
+        max_output_tokens: 4096
+      }
+    };
+
+    console.log('[GEMINI VISION] Using Vertex AI API with service account');
 
     const response = await fetch(
       `${baseUrl}/publishers/google/models/${this.MODEL_NAME}:generateContent`,
@@ -319,13 +408,13 @@ Return ONLY the JSON response, no additional text.`;
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
+      throw new Error(`Vertex AI API error: ${response.status} - ${errorText}`);
     }
 
     const result = await response.json();
     
     if (!result.candidates || !result.candidates[0] || !result.candidates[0].content) {
-      throw new Error('Invalid response format from Gemini API');
+      throw new Error('Invalid response format from Vertex AI API');
     }
 
     return {
@@ -335,17 +424,30 @@ Return ONLY the JSON response, no additional text.`;
   }
 
   /**
-   * Fetch and encode image as base64
+   * Detect MIME type from base64 image data
    */
-  private async fetchAndEncodeImage(imageUrl: string): Promise<string> {
-    const response = await fetch(imageUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch image: ${response.status}`);
+  private detectMimeTypeFromBase64(base64Data: string): string {
+    // Check the first few characters of base64 data to detect image format
+    const header = base64Data.substring(0, 10);
+    
+    // JPEG: starts with /9j/
+    if (header.startsWith('/9j/')) {
+      return 'image/jpeg';
     }
     
-    const buffer = await response.arrayBuffer();
-    const base64 = Buffer.from(buffer).toString('base64');
-    return base64;
+    // PNG: starts with iVBORw0
+    if (header.startsWith('iVBORw0')) {
+      return 'image/png';
+    }
+    
+    // WebP: Look for WEBP signature (UklGR for RIFF header)
+    if (header.indexOf('UklGR') === 0) {
+      return 'image/webp';
+    }
+    
+    // Default to JPEG if unknown
+    console.warn('[GEMINI VISION] Unknown image format, defaulting to JPEG');
+    return 'image/jpeg';
   }
 
   /**

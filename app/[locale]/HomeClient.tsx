@@ -7,9 +7,29 @@ import {
   ChatContainer,
   ProductAnalysisCard,
 } from "@/components/product-intelligence";
+import { ModeIndicator, ModeToggle } from "@/components/debug/ModeIndicator";
+import { AppModeConfig } from "@/lib/config/app-mode";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
 import type { ChatMessage, ProductAnalysis, SessionState } from "@/types/product-intelligence";
 import { SessionStatus } from "@/types/product-intelligence";
+
+// Utility function to convert File to base64
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        // Extract base64 data after the data URL prefix (data:image/jpeg;base64,)
+        const base64Data = reader.result.split(',')[1];
+        resolve(base64Data);
+      } else {
+        reject(new Error('Failed to convert file to base64'));
+      }
+    };
+    reader.onerror = () => reject(new Error('Error reading file'));
+    reader.readAsDataURL(file);
+  });
+};
 
 interface HomeClientProps {
   dict: Dictionary;
@@ -37,6 +57,8 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
   const [showCommercialChat, setShowCommercialChat] = useState<boolean>(false);
   const [chatInputMessage, setChatInputMessage] = useState<string>('');
   const [showImageModal, setShowImageModal] = useState<boolean>(false);
+  const [analysisError, setAnalysisError] = useState<{type: string, canProceed: boolean} | null>(null);
+  const [showErrorToast, setShowErrorToast] = useState<boolean>(false);
 
   // Ref for tracking analysis start time for progress calculation
   const analysisStartRef = useRef<number>(0);
@@ -87,7 +109,10 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           setElapsedTime(Date.now() - analysisStartRef.current);
         }, 500);
 
-        // Mock analysis request
+        // Convert image to base64
+        const base64Image = await fileToBase64(file);
+
+        // Analysis request with current mode
         const analysisResponse = await fetch("/api/agents/product-intelligence", {
           method: "POST",
           headers: {
@@ -97,10 +122,13 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
             sessionId: currentSessionId,
             action: "analyze",
             locale,
+            appMode: AppModeConfig.mode, // Send current mode to server
             metadata: {
+              inputType: "image",
               fileName: file.name,
               fileSize: file.size,
               fileType: file.type,
+              imageData: base64Image, // Include base64 image data
             },
           }),
         });
@@ -114,20 +142,37 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           setAnalysisProgress(100);
           setElapsedTime(Date.now() - analysisStartRef.current);
 
-          // Add detailed analysis message instead of greeting
+          // Check if analysis had errors or limitations
+          if (result.data?.canProceed === false || result.data?.nextAction === 'error_recovery') {
+            setAnalysisError({
+              type: result.data?.errorType || 'unknown',
+              canProceed: false
+            });
+            setSessionStatus(SessionStatus.ERROR);
+            
+            // Show error toast
+            setShowErrorToast(true);
+            setTimeout(() => setShowErrorToast(false), 5000); // Hide after 5 seconds
+          } else {
+            setAnalysisError(null);
+            setSessionStatus(SessionStatus.ACTIVE);
+          }
+
+          // Store analysis results (if any)
+          setAnalysis(result.data?.analysis || null);
+
+          // Add analysis message (could be success or error feedback)
           const analysisMessage: ChatMessage = {
             id: `msg-${Date.now()}`,
-            type: "agent",
-            content:
-              locale === "ja"
-                ? `商品画像の分析が完了しました！\n何か調整したいことがあれば、お気軽にお聞きください！`
-                : `Product analysis complete!\nFeel free to talk to me if you want to adjust anything!`,
+            type: result.data?.canProceed === false ? "system" : "agent",
+            content: result.data?.agentResponse || (locale === "ja"
+              ? `商品画像の分析が完了しました！\n何か調整したいことがあれば、お気軽にお聞きください！`
+              : `Product analysis complete!\nFeel free to talk to me if you want to adjust anything!`),
             timestamp: Date.now(),
             agentName: "Product Intelligence Agent",
           };
 
           setMessages([analysisMessage]);
-          setSessionStatus(SessionStatus.ACTIVE);
           setCurrentStep("chat");
         } else {
           throw new Error(
@@ -183,6 +228,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           sessionId: currentSessionId,
           action: "analyze",
           locale,
+          appMode: AppModeConfig.mode, // Send current mode to server
           message: productDescription,
           metadata: {
             inputType: "text",
@@ -200,10 +246,29 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         setAnalysisProgress(100);
         setElapsedTime(Date.now() - analysisStartRef.current);
 
-        // Add system message
+        // Check if analysis had errors or limitations
+        if (result.data?.canProceed === false || result.data?.nextAction === 'error_recovery') {
+          setAnalysisError({
+            type: result.data?.errorType || 'unknown',
+            canProceed: false
+          });
+          setSessionStatus(SessionStatus.ERROR);
+          
+          // Show error toast
+          setShowErrorToast(true);
+          setTimeout(() => setShowErrorToast(false), 5000); // Hide after 5 seconds
+        } else {
+          setAnalysisError(null);
+          setSessionStatus(SessionStatus.ACTIVE);
+        }
+
+        // Store analysis results (if any)
+        setAnalysis(result.data?.analysis || null);
+
+        // Add analysis message (could be success or error feedback)
         const systemMessage: ChatMessage = {
           id: `msg-${Date.now()}`,
-          type: "system",
+          type: result.data?.canProceed === false ? "system" : "agent",
           content:
             result.data?.agentResponse ||
             (locale === "ja"
@@ -214,7 +279,6 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         };
 
         setMessages([systemMessage]);
-        setSessionStatus(SessionStatus.ACTIVE);
         setCurrentStep("chat");
       } else {
         throw new Error(
@@ -255,6 +319,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
             action: "chat",
             message,
             locale,
+            appMode: AppModeConfig.mode, // Send current mode to server
           }),
         });
 
@@ -320,6 +385,8 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     setErrorMessage("");
     setShowCommercialChat(false);
     setChatInputMessage('');
+    setAnalysisError(null);
+    setShowErrorToast(false);
     analysisStartRef.current = 0;
   }, []);
 
@@ -343,6 +410,11 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         </div>
 
         <div className="container mx-auto px-4 text-center relative z-10">
+          {/* Development Mode Indicator */}
+          <div className="absolute top-4 right-4">
+            <ModeIndicator />
+          </div>
+          
           <div className="inline-block mb-6 md:mb-8">
             <div className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 md:mb-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center animate-pulse">
               <svg
@@ -1051,21 +1123,45 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
                   {/* Action Buttons - Only show in Strategy View */}
                   {!showCommercialChat && (
-                    <div className="mt-8 flex items-center justify-center gap-4">
-                      <button
-                        onClick={handleReset}
-                        className="cursor-pointer px-6 py-3 border-2 border-gray-600 text-gray-300 rounded-lg font-medium hover:border-gray-500 hover:text-white transition-colors"
-                      >
-                        {locale === "ja" ? "やり直す" : "Start Over"}
-                      </button>
-                      <button
-                        onClick={() => setCurrentStep("handoff")}
-                        className="cursor-pointer px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200"
-                      >
-                        {locale === "ja"
-                          ? "Creative Directorエージェントへ進む"
-                          : "Proceed to Creative Director"}
-                      </button>
+                    <div className="mt-8 space-y-4">
+                      {/* Error Message */}
+                      {analysisError?.canProceed === false && (
+                        <div className="flex items-center justify-center">
+                          <div className="flex items-center gap-2 text-red-400 text-sm font-medium bg-red-900/20 px-4 py-2 rounded-lg border border-red-500/30">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z" />
+                            </svg>
+                            <span>
+                              {locale === "ja" 
+                                ? "分析エラーのため次のエージェントに進めません" 
+                                : "Cannot proceed to next agent due to analysis error"}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Action Buttons */}
+                      <div className="flex items-center justify-center gap-4">
+                        <button
+                          onClick={handleReset}
+                          className="cursor-pointer px-6 py-3 border-2 border-gray-600 text-gray-300 rounded-lg font-medium hover:border-gray-500 hover:text-white transition-colors"
+                        >
+                          {locale === "ja" ? "やり直す" : "Start Over"}
+                        </button>
+                        <button
+                          onClick={() => setCurrentStep("handoff")}
+                          disabled={analysisError?.canProceed === false}
+                          className={`px-8 py-3 rounded-lg font-medium transition-all duration-200 ${
+                            analysisError?.canProceed === false
+                              ? 'bg-gray-500 text-gray-300 cursor-not-allowed opacity-50'
+                              : 'cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 transform hover:scale-105'
+                          }`}
+                        >
+                          {locale === "ja"
+                            ? "Creative Directorエージェントへ進む"
+                            : "Proceed to Creative Director"}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </Card>
@@ -1194,6 +1290,40 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           </div>
         </div>
       )}
+
+      {/* Error Toast */}
+      {showErrorToast && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-slide-down">
+          <div className="bg-red-600 text-white px-6 py-4 rounded-lg shadow-lg border border-red-500 max-w-md">
+            <div className="flex items-center gap-3">
+              <svg className="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <div className="font-semibold">
+                  {locale === "ja" ? "分析エラー" : "Analysis Error"}
+                </div>
+                <div className="text-sm opacity-90">
+                  {locale === "ja" 
+                    ? "AI分析が失敗しました。デモモードに切り替えるか、やり直してください。"
+                    : "AI analysis failed. Switch to demo mode or try again."}
+                </div>
+              </div>
+              <button
+                onClick={() => setShowErrorToast(false)}
+                className="ml-2 text-white hover:text-red-200 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Development Mode Toggle */}
+      <ModeToggle />
     </div>
   );
 }
