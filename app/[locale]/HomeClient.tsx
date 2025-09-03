@@ -59,11 +59,32 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
   );
   const [showErrorToast, setShowErrorToast] = useState<boolean>(false);
   const [showAllFeatures, setShowAllFeatures] = useState<boolean>(false);
+  const [expandedSections, setExpandedSections] = useState<{
+    keyMessages: boolean;
+    visualStyle: boolean;
+    narrativeStructure: boolean;
+    keyScenes: boolean;
+    musicTone: boolean;
+  }>({
+    keyMessages: false,
+    visualStyle: false,
+    narrativeStructure: false,
+    keyScenes: false,
+    musicTone: false,
+  });
 
   // Ref for tracking analysis start time for progress calculation
   const analysisStartRef = useRef<number>(0);
   // Ref for text input auto-focus
   const textInputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Toggle accordion sections
+  const toggleSection = useCallback((section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  }, []);
 
   // Initialize session on component mount
   const initializeSession = useCallback(async () => {
@@ -389,6 +410,14 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     setChatInputMessage("");
     setAnalysisError(null);
     setShowErrorToast(false);
+    setShowAllFeatures(false);
+    setExpandedSections({
+      keyMessages: false,
+      visualStyle: false,
+      narrativeStructure: false,
+      keyScenes: false,
+      musicTone: false,
+    });
     analysisStartRef.current = 0;
   }, []);
 
@@ -1106,259 +1135,389 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                     /* Dynamic Strategy View */
                     <div className="space-y-6">
                       {/* Key Messages (Headline + Tagline) */}
-                      <div className="bg-gray-800/50 rounded-lg p-4">
-                        <h4 className="text-lg font-medium text-white mb-3 flex items-center">
-                          <span className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-sm mr-3">
-                            💬
-                          </span>
-                          {dict.productAnalysis.keyMessages}
-                        </h4>
-                        <div className="space-y-3 text-gray-300">
-                          {analysis?.commercialStrategy?.keyMessages ? (
-                            <>
-                              <div>
-                                <h5 className="text-sm font-semibold text-white mb-1">
-                                  {dict.productAnalysis.headline}
-                                </h5>
-                                <p className="text-red-400 font-medium">
-                                  "{analysis.commercialStrategy.keyMessages.headline}"
+                      <div className="bg-gray-800/50 rounded-lg overflow-hidden">
+                        <button
+                          onClick={() => toggleSection('keyMessages')}
+                          className="w-full p-4 text-left hover:bg-gray-700/50 transition-colors cursor-pointer"
+                        >
+                          <h4 className="text-lg font-medium text-white flex items-center justify-between">
+                            <div className="flex items-center">
+                              <span className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-sm mr-3">
+                                💬
+                              </span>
+                              {dict.productAnalysis.keyMessages}
+                            </div>
+                            <svg
+                              className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
+                                expandedSections.keyMessages ? 'rotate-180' : ''
+                              }`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            </svg>
+                          </h4>
+                        </button>
+                        {expandedSections.keyMessages && (
+                          <div className="px-4 pb-4">
+                            <div className="space-y-3 text-gray-300">
+                              {analysis?.commercialStrategy?.keyMessages ? (
+                                <>
+                                  <div>
+                                    <h5 className="text-sm font-semibold text-white mb-1">
+                                      {dict.productAnalysis.headline}
+                                    </h5>
+                                    <p className="text-red-400 font-medium">
+                                      "{analysis.commercialStrategy.keyMessages.headline}"
+                                    </p>
+                                  </div>
+                                  <div>
+                                    <h5 className="text-sm font-semibold text-white mb-1">
+                                      {dict.productAnalysis.tagline}
+                                    </h5>
+                                    <p className="text-red-300">
+                                      {analysis.commercialStrategy.keyMessages.tagline}
+                                    </p>
+                                  </div>
+                                </>
+                              ) : (
+                                <p className="text-gray-500">
+                                  {dict.productAnalysis.analyzingKeyMessages}
                                 </p>
-                              </div>
-                              <div>
-                                <h5 className="text-sm font-semibold text-white mb-1">
-                                  {dict.productAnalysis.tagline}
-                                </h5>
-                                <p className="text-red-300">
-                                  {analysis.commercialStrategy.keyMessages.tagline}
-                                </p>
-                              </div>
-                            </>
-                          ) : (
-                            <p className="text-gray-500">
-                              {dict.productAnalysis.analyzingKeyMessages}
-                            </p>
-                          )}
-                        </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       {/* Visual Style */}
-                      <div className="bg-gray-800/50 rounded-lg p-4">
-                        <h4 className="text-lg font-medium text-white mb-3 flex items-center">
-                          <span className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-sm mr-3">
-                            🎨
-                          </span>
-                          {dict.productAnalysis.visualStyle}
-                        </h4>
-                        <div className="space-y-2 text-gray-300">
-                          {analysis?.visualPreferences ? (
-                            <>
-                              <div className="flex items-start">
-                                <span className="text-purple-400 mr-2">•</span>
-                                <div>
-                                  <span className="font-medium">{dict.productAnalysis.style} </span>
-                                  <span className="capitalize">
-                                    {analysis.visualPreferences.overallStyle}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-start">
-                                <span className="text-purple-400 mr-2">•</span>
-                                <div>
-                                  <span className="font-medium">{dict.productAnalysis.mood} </span>
-                                  <span className="capitalize">
-                                    {analysis.visualPreferences.mood}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-start">
-                                <span className="text-purple-400 mr-2">•</span>
-                                <div>
-                                  <span className="font-medium">
-                                    {dict.productAnalysis.lighting}{" "}
-                                  </span>
-                                  <span className="capitalize">
-                                    {analysis.visualPreferences.lighting}
-                                  </span>
-                                </div>
-                              </div>
-                            </>
-                          ) : (
-                            <p className="text-gray-500">
-                              {dict.productAnalysis.analyzingVisualStyle}
-                            </p>
-                          )}
-                        </div>
+                      <div className="bg-gray-800/50 rounded-lg overflow-hidden">
+                        <button
+                          onClick={() => toggleSection('visualStyle')}
+                          className="w-full p-4 text-left hover:bg-gray-700/50 transition-colors cursor-pointer"
+                        >
+                          <h4 className="text-lg font-medium text-white flex items-center justify-between">
+                            <div className="flex items-center">
+                              <span className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-sm mr-3">
+                                🎨
+                              </span>
+                              {dict.productAnalysis.visualStyle}
+                            </div>
+                            <svg
+                              className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
+                                expandedSections.visualStyle ? 'rotate-180' : ''
+                              }`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            </svg>
+                          </h4>
+                        </button>
+                        {expandedSections.visualStyle && (
+                          <div className="px-4 pb-4">
+                            <div className="space-y-2 text-gray-300">
+                              {analysis?.visualPreferences ? (
+                                <>
+                                  <div className="flex items-start">
+                                    <span className="text-purple-400 mr-2">•</span>
+                                    <div>
+                                      <span className="font-medium">{dict.productAnalysis.style} </span>
+                                      <span className="capitalize">
+                                        {analysis.visualPreferences.overallStyle}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start">
+                                    <span className="text-purple-400 mr-2">•</span>
+                                    <div>
+                                      <span className="font-medium">{dict.productAnalysis.mood} </span>
+                                      <span className="capitalize">
+                                        {analysis.visualPreferences.mood}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start">
+                                    <span className="text-purple-400 mr-2">•</span>
+                                    <div>
+                                      <span className="font-medium">
+                                        {dict.productAnalysis.lighting}{" "}
+                                      </span>
+                                      <span className="capitalize">
+                                        {analysis.visualPreferences.lighting}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </>
+                              ) : (
+                                <p className="text-gray-500">
+                                  {dict.productAnalysis.analyzingVisualStyle}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       {/* Narrative Structure */}
-                      <div className="bg-gray-800/50 rounded-lg p-4">
-                        <h4 className="text-lg font-medium text-white mb-3 flex items-center">
-                          <span className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-sm mr-3">
-                            📝
-                          </span>
-                          {dict.productAnalysis.narrativeStructure}
-                        </h4>
-                        <div className="space-y-2 text-gray-300">
-                          {analysis?.commercialStrategy?.storytelling ? (
-                            <>
-                              <div className="flex items-start">
-                                <span className="text-blue-400 mr-2">•</span>
-                                <div>
-                                  <span className="font-medium">
-                                    {dict.productAnalysis.narrative}{" "}
-                                  </span>
-                                  <span>{analysis.commercialStrategy.storytelling.narrative}</span>
-                                </div>
-                              </div>
-                              <div className="flex items-start">
-                                <span className="text-blue-400 mr-2">•</span>
-                                <div>
-                                  <span className="font-medium">
-                                    {dict.productAnalysis.conflict}{" "}
-                                  </span>
-                                  <span>{analysis.commercialStrategy.storytelling.conflict}</span>
-                                </div>
-                              </div>
-                              <div className="flex items-start">
-                                <span className="text-blue-400 mr-2">•</span>
-                                <div>
-                                  <span className="font-medium">
-                                    {dict.productAnalysis.resolution}{" "}
-                                  </span>
-                                  <span>{analysis.commercialStrategy.storytelling.resolution}</span>
-                                </div>
-                              </div>
-                            </>
-                          ) : (
-                            <p className="text-gray-500">
-                              {dict.productAnalysis.analyzingNarrativeStructure}
-                            </p>
-                          )}
-                        </div>
+                      <div className="bg-gray-800/50 rounded-lg overflow-hidden">
+                        <button
+                          onClick={() => toggleSection('narrativeStructure')}
+                          className="w-full p-4 text-left hover:bg-gray-700/50 transition-colors cursor-pointer"
+                        >
+                          <h4 className="text-lg font-medium text-white flex items-center justify-between">
+                            <div className="flex items-center">
+                              <span className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-sm mr-3">
+                                📝
+                              </span>
+                              {dict.productAnalysis.narrativeStructure}
+                            </div>
+                            <svg
+                              className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
+                                expandedSections.narrativeStructure ? 'rotate-180' : ''
+                              }`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            </svg>
+                          </h4>
+                        </button>
+                        {expandedSections.narrativeStructure && (
+                          <div className="px-4 pb-4">
+                            <div className="space-y-2 text-gray-300">
+                              {analysis?.commercialStrategy?.storytelling ? (
+                                <>
+                                  <div className="flex items-start">
+                                    <span className="text-blue-400 mr-2">•</span>
+                                    <div>
+                                      <span className="font-medium">
+                                        {dict.productAnalysis.narrative}{" "}
+                                      </span>
+                                      <span>{analysis.commercialStrategy.storytelling.narrative}</span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start">
+                                    <span className="text-blue-400 mr-2">•</span>
+                                    <div>
+                                      <span className="font-medium">
+                                        {dict.productAnalysis.conflict}{" "}
+                                      </span>
+                                      <span>{analysis.commercialStrategy.storytelling.conflict}</span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start">
+                                    <span className="text-blue-400 mr-2">•</span>
+                                    <div>
+                                      <span className="font-medium">
+                                        {dict.productAnalysis.resolution}{" "}
+                                      </span>
+                                      <span>{analysis.commercialStrategy.storytelling.resolution}</span>
+                                    </div>
+                                  </div>
+                                </>
+                              ) : (
+                                <p className="text-gray-500">
+                                  {dict.productAnalysis.analyzingNarrativeStructure}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       {/* Key Scenes */}
-                      <div className="bg-gray-800/50 rounded-lg p-4">
-                        <h4 className="text-lg font-medium text-white mb-3 flex items-center">
-                          <span className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-sm mr-3">
-                            📍
-                          </span>
-                          {dict.productAnalysis.keyScenes}
-                        </h4>
-                        <div className="space-y-2 text-gray-300">
-                          {analysis?.commercialStrategy?.keyScenes ? (
-                            <>
-                              <div className="flex items-start">
-                                <span className="text-green-400 mr-2">•</span>
-                                <div>
-                                  <span className="font-medium">
-                                    {dict.productAnalysis.opening}{" "}
-                                  </span>
-                                  <span>{analysis.commercialStrategy.keyScenes.opening}</span>
-                                </div>
-                              </div>
-                              <div className="flex items-start">
-                                <span className="text-green-400 mr-2">•</span>
-                                <div>
-                                  <span className="font-medium">
-                                    {dict.productAnalysis.showcase}{" "}
-                                  </span>
-                                  <span>
-                                    {analysis.commercialStrategy.keyScenes.productShowcase}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-start">
-                                <span className="text-green-400 mr-2">•</span>
-                                <div>
-                                  <span className="font-medium">
-                                    {dict.productAnalysis.solution}{" "}
-                                  </span>
-                                  <span>
-                                    {analysis.commercialStrategy.keyScenes.problemSolution}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-start">
-                                <span className="text-green-400 mr-2">•</span>
-                                <div>
-                                  <span className="font-medium">
-                                    {dict.productAnalysis.emotion}{" "}
-                                  </span>
-                                  <span>
-                                    {analysis.commercialStrategy.keyScenes.emotionalMoment}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-start">
-                                <span className="text-green-400 mr-2">•</span>
-                                <div>
-                                  <span className="font-medium">
-                                    {dict.productAnalysis.callToAction}{" "}
-                                  </span>
-                                  <span>{analysis.commercialStrategy.keyScenes.callToAction}</span>
-                                </div>
-                              </div>
-                            </>
-                          ) : (
-                            <p className="text-gray-500">
-                              {dict.productAnalysis.analyzingKeyScenes}
-                            </p>
-                          )}
-                        </div>
+                      <div className="bg-gray-800/50 rounded-lg overflow-hidden">
+                        <button
+                          onClick={() => toggleSection('keyScenes')}
+                          className="w-full p-4 text-left hover:bg-gray-700/50 transition-colors cursor-pointer"
+                        >
+                          <h4 className="text-lg font-medium text-white flex items-center justify-between">
+                            <div className="flex items-center">
+                              <span className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-sm mr-3">
+                                📍
+                              </span>
+                              {dict.productAnalysis.keyScenes}
+                            </div>
+                            <svg
+                              className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
+                                expandedSections.keyScenes ? 'rotate-180' : ''
+                              }`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            </svg>
+                          </h4>
+                        </button>
+                        {expandedSections.keyScenes && (
+                          <div className="px-4 pb-4">
+                            <div className="space-y-2 text-gray-300">
+                              {analysis?.commercialStrategy?.keyScenes ? (
+                                <>
+                                  <div className="flex items-start">
+                                    <span className="text-green-400 mr-2">•</span>
+                                    <div>
+                                      <span className="font-medium">
+                                        {dict.productAnalysis.opening}{" "}
+                                      </span>
+                                      <span>{analysis.commercialStrategy.keyScenes.opening}</span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start">
+                                    <span className="text-green-400 mr-2">•</span>
+                                    <div>
+                                      <span className="font-medium">
+                                        {dict.productAnalysis.showcase}{" "}
+                                      </span>
+                                      <span>
+                                        {analysis.commercialStrategy.keyScenes.productShowcase}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start">
+                                    <span className="text-green-400 mr-2">•</span>
+                                    <div>
+                                      <span className="font-medium">
+                                        {dict.productAnalysis.solution}{" "}
+                                      </span>
+                                      <span>
+                                        {analysis.commercialStrategy.keyScenes.problemSolution}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start">
+                                    <span className="text-green-400 mr-2">•</span>
+                                    <div>
+                                      <span className="font-medium">
+                                        {dict.productAnalysis.emotion}{" "}
+                                      </span>
+                                      <span>
+                                        {analysis.commercialStrategy.keyScenes.emotionalMoment}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start">
+                                    <span className="text-green-400 mr-2">•</span>
+                                    <div>
+                                      <span className="font-medium">
+                                        {dict.productAnalysis.callToAction}{" "}
+                                      </span>
+                                      <span>{analysis.commercialStrategy.keyScenes.callToAction}</span>
+                                    </div>
+                                  </div>
+                                </>
+                              ) : (
+                                <p className="text-gray-500">
+                                  {dict.productAnalysis.analyzingKeyScenes}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       {/* Music & Tone */}
-                      <div className="bg-gray-800/50 rounded-lg p-4">
-                        <h4 className="text-lg font-medium text-white mb-3 flex items-center">
-                          <span className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-sm mr-3">
-                            🎵
-                          </span>
-                          {dict.productAnalysis.musicTone}
-                        </h4>
-                        <div className="space-y-2 text-gray-300">
-                          {analysis?.visualPreferences ? (
-                            <>
-                              <div className="flex items-start">
-                                <span className="text-yellow-400 mr-2">•</span>
-                                <div>
-                                  <span className="font-medium">{dict.productAnalysis.mood} </span>
-                                  <span className="capitalize">
-                                    {analysis.visualPreferences.mood} atmosphere
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-start">
-                                <span className="text-yellow-400 mr-2">•</span>
-                                <div>
-                                  <span className="font-medium">
-                                    {dict.productAnalysis.composition}{" "}
-                                  </span>
-                                  <span className="capitalize">
-                                    {analysis.visualPreferences.composition} presentation
-                                  </span>
-                                </div>
-                              </div>
-                              {analysis.positioning?.brandPersonality && (
-                                <div className="flex items-start">
-                                  <span className="text-yellow-400 mr-2">•</span>
-                                  <div>
-                                    <span className="font-medium">
-                                      {dict.productAnalysis.brandTone}{" "}
-                                    </span>
-                                    <span className="capitalize">
-                                      {analysis.positioning.brandPersonality.tone}
-                                    </span>
+                      <div className="bg-gray-800/50 rounded-lg overflow-hidden">
+                        <button
+                          onClick={() => toggleSection('musicTone')}
+                          className="w-full p-4 text-left hover:bg-gray-700/50 transition-colors cursor-pointer"
+                        >
+                          <h4 className="text-lg font-medium text-white flex items-center justify-between">
+                            <div className="flex items-center">
+                              <span className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-sm mr-3">
+                                🎵
+                              </span>
+                              {dict.productAnalysis.musicTone}
+                            </div>
+                            <svg
+                              className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
+                                expandedSections.musicTone ? 'rotate-180' : ''
+                              }`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            </svg>
+                          </h4>
+                        </button>
+                        {expandedSections.musicTone && (
+                          <div className="px-4 pb-4">
+                            <div className="space-y-2 text-gray-300">
+                              {analysis?.visualPreferences ? (
+                                <>
+                                  <div className="flex items-start">
+                                    <span className="text-yellow-400 mr-2">•</span>
+                                    <div>
+                                      <span className="font-medium">{dict.productAnalysis.mood} </span>
+                                      <span className="capitalize">
+                                        {analysis.visualPreferences.mood} atmosphere
+                                      </span>
+                                    </div>
                                   </div>
-                                </div>
+                                  <div className="flex items-start">
+                                    <span className="text-yellow-400 mr-2">•</span>
+                                    <div>
+                                      <span className="font-medium">
+                                        {dict.productAnalysis.composition}{" "}
+                                      </span>
+                                      <span className="capitalize">
+                                        {analysis.visualPreferences.composition} presentation
+                                      </span>
+                                    </div>
+                                  </div>
+                                  {analysis.positioning?.brandPersonality && (
+                                    <div className="flex items-start">
+                                      <span className="text-yellow-400 mr-2">•</span>
+                                      <div>
+                                        <span className="font-medium">
+                                          {dict.productAnalysis.brandTone}{" "}
+                                        </span>
+                                        <span className="capitalize">
+                                          {analysis.positioning.brandPersonality.tone}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                <p className="text-gray-500">
+                                  {dict.productAnalysis.analyzingMusicTone}
+                                </p>
                               )}
-                            </>
-                          ) : (
-                            <p className="text-gray-500">
-                              {dict.productAnalysis.analyzingMusicTone}
-                            </p>
-                          )}
-                        </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
