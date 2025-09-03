@@ -260,6 +260,13 @@ Please provide a comprehensive analysis in the following JSON structure:
       "narrative": "story narrative",
       "conflict": "central conflict",
       "resolution": "story resolution"
+    },
+    "keyScenes": {
+      "opening": "opening scene description for commercial video",
+      "productShowcase": "product showcase scene description",
+      "problemSolution": "problem/solution scene description",
+      "emotionalMoment": "emotional moment scene description",
+      "callToAction": "final call to action scene description"
     }
   },
   "visualPreferences": {
