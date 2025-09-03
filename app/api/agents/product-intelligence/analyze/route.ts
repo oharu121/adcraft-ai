@@ -6,6 +6,30 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+
+// Locale-specific constants for analyze route
+const ANALYZE_MESSAGES = {
+  en: {
+    productName: 'Smartphone',
+    productDescription: 'High-performance smartphone',
+    keyFeatures: ['High-resolution camera', 'Long battery life', 'Fast processor'],
+    commercialStrategy: {
+      headline: 'The Smartphone for Professionals',
+      tagline: 'Performance, Style, Reliability',
+      callToAction: 'Experience Now'
+    }
+  },
+  ja: {
+    productName: 'スマートフォン',
+    productDescription: '高性能なスマートフォン',
+    keyFeatures: ['高画質カメラ', '長時間バッテリー', '高速プロセッサー'],
+    commercialStrategy: {
+      headline: 'プロフェッショナルのためのスマートフォン',
+      tagline: '性能、スタイル、信頼性',
+      callToAction: '今すぐ体験'
+    }
+  }
+} as const;
 import { z } from 'zod';
 import { 
   ApiResponse, 
@@ -227,13 +251,9 @@ async function performProductAnalysis(params: {
       id: params.sessionId,
       category: 'electronics',
       subcategory: 'smartphone',
-      name: params.locale === 'ja' ? 'スマートフォン' : 'Smartphone',
-      description: params.description || (params.locale === 'ja' 
-        ? '高性能なスマートフォン' 
-        : 'High-performance smartphone'),
-      keyFeatures: params.locale === 'ja' 
-        ? ['高画質カメラ', '長時間バッテリー', '高速プロセッサー']
-        : ['High-resolution camera', 'Long battery life', 'Fast processor'],
+      name: ANALYZE_MESSAGES[params.locale].productName,
+      description: params.description || ANALYZE_MESSAGES[params.locale].productDescription,
+      keyFeatures: ANALYZE_MESSAGES[params.locale].keyFeatures,
       materials: ['aluminum', 'glass'],
       colors: [
         { name: 'black', hex: '#000000', role: 'primary' },
@@ -290,8 +310,8 @@ async function performProductAnalysis(params: {
     },
     commercialStrategy: {
       keyMessages: {
-        headline: params.locale === 'ja' ? 'プロフェッショナルのためのスマートフォン' : 'The Smartphone for Professionals',
-        tagline: params.locale === 'ja' ? '性能、スタイル、信頼性' : 'Performance, Style, Reliability',
+        headline: ANALYZE_MESSAGES[params.locale].commercialStrategy.headline,
+        tagline: ANALYZE_MESSAGES[params.locale].commercialStrategy.tagline,
         supportingMessages: params.locale === 'ja' 
           ? ['最高の写真品質', '一日中持続するバッテリー', 'プレミアムデザイン']
           : ['Exceptional photo quality', 'All-day battery life', 'Premium design']
@@ -311,7 +331,7 @@ async function performProductAnalysis(params: {
         ]
       },
       callToAction: {
-        primary: params.locale === 'ja' ? '今すぐ体験' : 'Experience Now',
+        primary: ANALYZE_MESSAGES[params.locale].commercialStrategy.callToAction,
         secondary: params.locale === 'ja' ? ['詳細を見る', '比較する'] : ['Learn More', 'Compare Models']
       },
       storytelling: {

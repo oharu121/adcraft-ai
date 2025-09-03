@@ -232,6 +232,12 @@ Current Uncertainties: ${context.uncertainties.join('; ') || 'None'}
     return contextPrompt;
   }
 
+  // Locale-specific constants for chat labels
+  private static readonly CHAT_LABELS = {
+    en: { userLabel: 'User' },
+    ja: { userLabel: 'ユーザー' }
+  } as const;
+
   /**
    * Format conversation history for context
    */
@@ -240,7 +246,7 @@ Current Uncertainties: ${context.uncertainties.join('; ') || 'None'}
     const recentMessages = messages.slice(-10);
     
     return recentMessages.map(msg => {
-      const speaker = msg.type === 'user' ? (locale === 'ja' ? 'ユーザー' : 'User') : 'Agent';
+      const speaker = msg.type === 'user' ? GeminiChatService.CHAT_LABELS[locale].userLabel : 'Agent';
       return `${speaker}: ${msg.content}`;
     }).join('\n');
   }

@@ -8,6 +8,104 @@ import { GeminiChatService } from '@/lib/services/product-intelligence/gemini-ch
 import { AppModeConfig } from '@/lib/config/app-mode';
 import { TopicStatus } from '@/types/product-intelligence/enums';
 
+// Locale-specific response constants
+const LOCALE_MESSAGES = {
+  en: {
+    productNameRequired: 'Product name is required for generating realistic commercial strategies.',
+    analysisComplete: 'I\'ve analyzed your product description: "{description}"\n\nAsk me anything about target audience, positioning, or marketing strategy!',
+    imageAnalysisComplete: 'Product image analysis complete! You can now view detailed product insights, target audience analysis, and marketing strategies. Feel free to ask me any questions!',
+    imageUploadError: 'There\'s an issue processing the image data. Please try uploading the image again.',
+    aiServiceError: 'The AI analysis service is temporarily experiencing issues.',
+    systemError: 'A system error occurred.',
+    analysisFailedMessage: 'Sorry, {error}\n\nYour options:\n• Switch to demo mode to experience the full workflow\n• Wait a moment and retry\n• Try text-based analysis instead\n\nNote: You cannot proceed to the next agent without a successful analysis.',
+    chatFallback: 'There was an issue with AI processing, but I can still help. What would you like to explore about your product?',
+    handoffMessage: 'Analysis complete. Handing off to Creative Director Agent.',
+    demoAnalysisComplete: 'Product analysis complete! I\'ve generated comprehensive market insights and commercial strategy for premium wireless headphones. The target audience is professionals aged 25-45 who value premium quality. Let\'s discuss your product strategy!',
+    chatFallbackGeneric: 'That\'s a great question! Based on the product analysis, I can provide detailed insights about target audience, positioning, competitive advantages, and visual strategy. Which area would you like to explore further?',
+    chatFallbackFollowUps: ['Target audience insights', 'Positioning strategy', 'Visual concepts', 'Proceed to Creative Director'],
+    demoProduct: {
+      name: 'Premium Wireless Headphones',
+      description: 'Professional wireless headphones featuring premium sound quality, long battery life, and exceptional comfort',
+      keyFeatures: ['Active Noise Cancellation', '30-hour Battery', 'Premium Sound', 'Comfortable Fit'],
+      usageContext: ['professional work', 'music enjoyment', 'commuting', 'focused tasks'],
+      positioning: {
+        primaryBenefit: 'Perfect audio experience for professionals',
+        supportingBenefits: ['All-day comfort', 'Superior noise cancellation', 'Extended battery life'],
+        differentiators: ['Professional-grade sound', 'Ergonomic design', 'Premium materials']
+      },
+      commercialStrategy: {
+        headline: 'Premium Sound for Professionals',
+        tagline: 'Quality, Comfort, Performance',
+        supportingMessages: ['All-day comfort', 'Supreme quality', 'Professional grade'],
+        emotionalTrigger: 'Professional achievement and success',
+        confidenceTrigger: 'Confidence in quality choice',
+        callToAction: 'Experience Now',
+        secondaryActions: ['Learn More', 'Compare Models'],
+        narrative: 'Reliable tool empowering professional success',
+        conflict: 'Cannot afford failure in crucial moments',
+        resolution: 'Peace of mind with superior performance'
+      }
+    },
+    demoChat: {
+      targetAudienceResponse: "Based on my analysis, your primary target audience is professionals aged 25-45 with premium income levels. They're tech-savvy, quality-focused individuals who value productivity and premium audio experiences. They typically work in urban environments and are willing to invest in tools that enhance their professional performance. Would you like me to dive deeper into their specific behaviors and preferences?",
+      targetAudienceFollowUps: ["Tell me about their shopping habits", "What motivates them to buy?", "How do they make purchasing decisions?"],
+      positioningResponse: "Your positioning should focus on 'Premium Audio for Professionals' - emphasizing superior sound quality, all-day comfort, and reliability for critical work situations. Key differentiators include the 30-hour battery life, advanced noise cancellation, and premium materials. You're positioned as a challenger in the premium segment, competing on professional-grade quality rather than consumer lifestyle features.",
+      positioningFollowUps: ["What's our competitive advantage?", "How do we stand out?", "What's our value proposition?"],
+      creativeResponse: "Perfect! Based on the analysis, I recommend a modern professional visual style with a sophisticated color palette of deep navy, silver gray, and electric blue accents. The mood should be confident and sophisticated, with clean minimal composition and natural lighting in professional workspace settings. Ready to hand off to our Creative Director Agent to develop the actual commercial concept?",
+      creativeFollowUps: ["Yes, let's proceed to creative", "Tell me more about the visual style", "What kind of commercial works best?"],
+      priceResponse: "Given the premium positioning and target audience of professionals willing to invest in quality tools, this product should be priced in the premium tier - likely $200-350 range. The target customers prioritize quality over price and view this as a professional investment rather than a consumer purchase. They're research-driven buyers who focus on value and long-term benefits.",
+      priceFollowUps: ["What justifies the premium price?", "How price-sensitive are they?", "What's the sweet spot?"]
+    }
+  },
+  ja: {
+    productNameRequired: '商品名は必須です。リアルなCM戦略生成のために必要です。',
+    analysisComplete: '商品の説明を分析しました：「{description}」\n\nターゲット層、ポジショニング、マーケティング戦略について何でもお聞きください！',
+    imageAnalysisComplete: '商品画像の分析が完了しました！詳細な商品情報、ターゲット層、マーケティング戦略を確認できます。何かご質問があればお気軽にお聞きください！',
+    imageUploadError: '画像データの処理に問題があります。画像を再度アップロードしてお試しください。',
+    aiServiceError: 'AI分析サービスに一時的な問題が発生しています。',
+    systemError: 'システムエラーが発生しました。',
+    analysisFailedMessage: '申し訳ございません。{error}\n\n以下のオプションがあります：\n• デモモードに切り替えて体験する\n• しばらく待ってから再試行する\n• テキスト説明での分析を試す\n\n注意：現在の分析結果なしに次のエージェントには進めません。',
+    chatFallback: 'AI分析に問題が発生しましたが、引き続きサポートします。どのような点について詳しく知りたいですか？',
+    handoffMessage: '分析が完了しました。Creative Directorエージェントに引き継ぎます。',
+    demoAnalysisComplete: '商品分析が完了しました！高品質なワイヤレスヘッドフォンの詳細な市場分析と商用戦略を生成しました。ターゲット層は25-45歳のプロフェッショナルで、プレミアム品質を重視する方々です。商品戦略について何でもご相談ください！',
+    chatFallbackGeneric: 'とても興味深い質問ですね！商品の分析結果を基に、ターゲット層、ポジショニング、競合優位性、ビジュアル戦略について詳しくご相談できます。どの分野について詳しく知りたいですか？',
+    chatFallbackFollowUps: ['ターゲット層について', 'ポジショニング戦略', 'ビジュアルコンセプト', 'Creative Directorへ進む'],
+    demoProduct: {
+      name: 'プレミアム ワイヤレス ヘッドフォン',
+      description: '高品質なサウンド、長時間バッテリー、快適な装着感を実現したプロフェッショナル向けワイヤレスヘッドフォン',
+      keyFeatures: ['アクティブノイズキャンセリング', '30時間バッテリー', 'プレミアムサウンド', '快適フィット'],
+      usageContext: ['プロフェッショナル作業', '音楽鑑賞', '通勤・移動', '集中作業'],
+      positioning: {
+        primaryBenefit: 'プロフェッショナルのための完璧なオーディオ体験',
+        supportingBenefits: ['一日中快適な装着感', '卓越したノイズキャンセリング', '長時間バッテリー'],
+        differentiators: ['プロ仕様のサウンド品質', '人間工学デザイン', 'プレミアム素材']
+      },
+      commercialStrategy: {
+        headline: 'プロフェッショナルのためのプレミアムサウンド',
+        tagline: '品質、快適性、パフォーマンス',
+        supportingMessages: ['一日中快適', '最高音質', 'プロ仕様'],
+        emotionalTrigger: 'プロフェッショナルとしての達成感',
+        confidenceTrigger: '品質への自信',
+        callToAction: '今すぐ体験',
+        secondaryActions: ['詳細を見る', '比較する'],
+        narrative: 'プロフェッショナルの成功を支える信頼できるツール',
+        conflict: '重要な場面で失敗できない',
+        resolution: '最高品質で安心のパフォーマンス'
+      }
+    },
+    demoChat: {
+      targetAudienceResponse: "分析結果によると、主要ターゲット層は25-45歳のプロフェッショナルで、プレミアム収入層の方々です。テクノロジーに精通し、品質を重視する方で、生産性とプレミアムなオーディオ体験を大切にしています。都市部で働き、仕事のパフォーマンスを向上させるツールに投資することを惜しまない方々です。具体的な行動パターンや好みについて詳しく知りたいですか？",
+      targetAudienceFollowUps: ["購買行動について教えて", "何が購入動機になる？", "どのように購入を決める？"],
+      positioningResponse: "ポジショニングは「プロフェッショナルのためのプレミアムオーディオ」に焦点を当て、優れた音質、一日中の快適さ、重要な仕事での信頼性を強調すべきです。主要な差別化要因は30時間のバッテリー寿命、高度なノイズキャンセリング、プレミアム素材です。プレミアムセグメントでチャレンジャーとしてポジショニングし、コンシューマー向けライフスタイル機能ではなく、プロフェッショナル向け品質で競争します。",
+      positioningFollowUps: ["競合優位性は何？", "どのように差別化する？", "価値提案は何？"],
+      creativeResponse: "素晴らしい！分析に基づき、深いネイビー、シルバーグレー、エレクトリックブルーのアクセントを使った洗練されたカラーパレットで、モダンプロフェッショナルなビジュアルスタイルをお勧めします。ムードは自信に満ち洗練されており、クリーンでミニマルな構成と、プロフェッショナルなワークスペース設定での自然光照明が良いでしょう。実際のコマーシャルコンセプトを開発するために、Creative Directorエージェントに引き継ぐ準備はできていますか？",
+      creativeFollowUps: ["はい、クリエイティブに進みましょう", "ビジュアルスタイルについてもっと教えて", "どんなコマーシャルが最適？"],
+      priceResponse: "プレミアムポジショニングと品質ツールに投資を惜しまないプロフェッショナルというターゲット層を考慮すると、この商品はプレミアム価格帯（おそらく200-350ドル範囲）で価格設定すべきです。ターゲット顧客は価格よりも品質を優先し、これをコンシューマー購入ではなく専門的投資として捉えています。彼らは研究主導の購入者で、価値と長期的メリットに焦点を当てます。",
+      priceFollowUps: ["プレミアム価格の根拠は？", "価格感度はどの程度？", "最適価格帯は？"]
+    }
+  }
+} as const;
+
 // Simple request interface for now
 interface SimpleRequest {
   sessionId: string;
@@ -65,9 +163,7 @@ export async function POST(request: NextRequest) {
         error: {
           code: 'VALIDATION_ERROR',
           message: 'Product name is required for analysis',
-          userMessage: body.locale === 'ja' 
-            ? '商品名は必須です。リアルなCM戦略生成のために必要です。'
-            : 'Product name is required for generating realistic commercial strategies.'
+          userMessage: LOCALE_MESSAGES[body.locale || 'en'].productNameRequired
         },
         timestamp,
         requestId
@@ -142,9 +238,7 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
     if (inputType === 'text') {
       // For text analysis, create a simple structured response
       cost = 0.15;
-      agentResponse = locale === 'ja' 
-        ? `商品の説明を分析しました：「${description.substring(0, 50)}${description.length > 50 ? '...' : ''}」\n\nターゲット層、ポジショニング、マーケティング戦略について何でもお聞きください！`
-        : `I've analyzed your product description: "${description.substring(0, 50)}${description.length > 50 ? '...' : ''}"\n\nAsk me anything about target audience, positioning, or marketing strategy!`;
+      agentResponse = LOCALE_MESSAGES[locale].analysisComplete.replace('{description}', description.substring(0, 50) + (description.length > 50 ? '...' : ''));
     } else {
       // For image analysis, use real Gemini Vision API
       const geminiVision = GeminiVisionService.getInstance();
@@ -173,9 +267,7 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
       }, { forceMode: appMode });
       
       cost = analysisResult.cost;
-      agentResponse = locale === 'ja' 
-        ? '商品画像の分析が完了しました！詳細な商品情報、ターゲット層、マーケティング戦略を確認できます。何かご質問があればお気軽にお聞きください！'
-        : 'Product image analysis complete! You can now view detailed product insights, target audience analysis, and marketing strategies. Feel free to ask me any questions!';
+      agentResponse = LOCALE_MESSAGES[locale].imageAnalysisComplete;
     }
     
     const processingTime = Date.now() - startTime;
@@ -202,25 +294,17 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
     
     if (error instanceof Error && (error.message.includes('No image data provided') || error.message.includes('base64'))) {
       errorType = 'image_upload';
-      userErrorMessage = locale === 'ja' 
-        ? '画像データの処理に問題があります。画像を再度アップロードしてお試しください。'
-        : 'There\'s an issue processing the image data. Please try uploading the image again.';
+      userErrorMessage = LOCALE_MESSAGES[locale].imageUploadError;
     } else if (error instanceof Error && (error.message.includes('Vertex AI') || error.message.includes('Gemini'))) {
       errorType = 'ai_service';
-      userErrorMessage = locale === 'ja' 
-        ? 'AI分析サービスに一時的な問題が発生しています。'
-        : 'The AI analysis service is temporarily experiencing issues.';
+      userErrorMessage = LOCALE_MESSAGES[locale].aiServiceError;
     } else {
       errorType = 'system';
-      userErrorMessage = locale === 'ja' 
-        ? 'システムエラーが発生しました。'
-        : 'A system error occurred.';
+      userErrorMessage = LOCALE_MESSAGES[locale].systemError;
     }
     
     const cost = 0.01;
-    const agentResponse = locale === 'ja' 
-      ? `申し訳ございません。${userErrorMessage}\n\n以下のオプションがあります：\n• デモモードに切り替えて体験する\n• しばらく待ってから再試行する\n• テキスト説明での分析を試す\n\n注意：現在の分析結果なしに次のエージェントには進めません。`
-      : `Sorry, ${userErrorMessage}\n\nYour options:\n• Switch to demo mode to experience the full workflow\n• Wait a moment and retry\n• Try text-based analysis instead\n\nNote: You cannot proceed to the next agent without a successful analysis.`;
+    const agentResponse = LOCALE_MESSAGES[locale].analysisFailedMessage.replace('{error}', userErrorMessage);
     
     return {
       sessionId: request.sessionId,
@@ -259,21 +343,15 @@ async function handleDemoAnalysis(request: SimpleRequest, startTime: number) {
       id: sessionId,
       category: 'electronics',
       subcategory: 'headphones',
-      name: locale === 'ja' ? 'プレミアム ワイヤレス ヘッドフォン' : 'Premium Wireless Headphones',
-      description: locale === 'ja' 
-        ? '高品質なサウンド、長時間バッテリー、快適な装着感を実現したプロフェッショナル向けワイヤレスヘッドフォン'
-        : 'Professional wireless headphones featuring premium sound quality, long battery life, and exceptional comfort',
-      keyFeatures: locale === 'ja' 
-        ? ['アクティブノイズキャンセリング', '30時間バッテリー', 'プレミアムサウンド', '快適フィット']
-        : ['Active Noise Cancellation', '30-hour Battery', 'Premium Sound', 'Comfortable Fit'],
+      name: LOCALE_MESSAGES[locale].demoProduct.name,
+      description: LOCALE_MESSAGES[locale].demoProduct.description,
+      keyFeatures: LOCALE_MESSAGES[locale].demoProduct.keyFeatures,
       materials: ['premium aluminum', 'soft leather', 'memory foam'],
       colors: [
         { name: 'matte black', hex: '#2D2D2D', role: 'primary' },
         { name: 'silver', hex: '#C0C0C0', role: 'secondary' }
       ],
-      usageContext: locale === 'ja' 
-        ? ['プロフェッショナル作業', '音楽鑑賞', '通勤・移動', '集中作業']
-        : ['professional work', 'music enjoyment', 'commuting', 'focused tasks']
+      usageContext: LOCALE_MESSAGES[locale].demoProduct.usageContext
     },
     targetAudience: {
       primary: {
@@ -305,13 +383,9 @@ async function handleDemoAnalysis(request: SimpleRequest, startTime: number) {
         voice: 'authoritative yet approachable'
       },
       valueProposition: {
-        primaryBenefit: locale === 'ja' ? 'プロフェッショナルのための完璧なオーディオ体験' : 'Perfect audio experience for professionals',
-        supportingBenefits: locale === 'ja' 
-          ? ['一日中快適な装着感', '卓越したノイズキャンセリング', '長時間バッテリー']
-          : ['All-day comfort', 'Superior noise cancellation', 'Extended battery life'],
-        differentiators: locale === 'ja' 
-          ? ['プロ仕様のサウンド品質', '人間工学デザイン', 'プレミアム素材']
-          : ['Professional-grade sound', 'Ergonomic design', 'Premium materials']
+        primaryBenefit: LOCALE_MESSAGES[locale].demoProduct.positioning.primaryBenefit,
+        supportingBenefits: LOCALE_MESSAGES[locale].demoProduct.positioning.supportingBenefits,
+        differentiators: LOCALE_MESSAGES[locale].demoProduct.positioning.differentiators
       },
       competitiveAdvantages: {
         functional: ['superior sound quality', '30-hour battery', 'advanced noise cancellation'],
@@ -326,34 +400,32 @@ async function handleDemoAnalysis(request: SimpleRequest, startTime: number) {
     },
     commercialStrategy: {
       keyMessages: {
-        headline: locale === 'ja' ? 'プロフェッショナルのためのプレミアムサウンド' : 'Premium Sound for Professionals',
-        tagline: locale === 'ja' ? '品質、快適性、パフォーマンス' : 'Quality, Comfort, Performance',
-        supportingMessages: locale === 'ja' 
-          ? ['一日中快適', '最高音質', 'プロ仕様']
-          : ['All-day comfort', 'Supreme quality', 'Professional grade']
+        headline: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.headline,
+        tagline: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.tagline,
+        supportingMessages: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.supportingMessages
       },
       emotionalTriggers: {
         primary: {
           type: 'achievement',
-          description: locale === 'ja' ? 'プロフェッショナルとしての達成感' : 'Professional achievement and success',
+          description: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.emotionalTrigger,
           intensity: 'strong'
         },
         secondary: [
           {
             type: 'confidence',
-            description: locale === 'ja' ? '品質への自信' : 'Confidence in quality choice',
+            description: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.confidenceTrigger,
             intensity: 'moderate'
           }
         ]
       },
       callToAction: {
-        primary: locale === 'ja' ? '今すぐ体験' : 'Experience Now',
-        secondary: locale === 'ja' ? ['詳細を見る', '比較する'] : ['Learn More', 'Compare Models']
+        primary: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.callToAction,
+        secondary: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.secondaryActions
       },
       storytelling: {
-        narrative: locale === 'ja' ? 'プロフェッショナルの成功を支える信頼できるツール' : 'Reliable tool empowering professional success',
-        conflict: locale === 'ja' ? '重要な場面で失敗できない' : 'Cannot afford failure in crucial moments',
-        resolution: locale === 'ja' ? '最高品質で安心のパフォーマンス' : 'Peace of mind with superior performance'
+        narrative: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.narrative,
+        conflict: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.conflict,
+        resolution: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.resolution
       }
     },
     visualPreferences: {
@@ -389,9 +461,7 @@ async function handleDemoAnalysis(request: SimpleRequest, startTime: number) {
     }
   };
   
-  const agentResponse = locale === 'ja' 
-    ? '商品分析が完了しました！高品質なワイヤレスヘッドフォンの詳細な市場分析と商用戦略を生成しました。ターゲット層は25-45歳のプロフェッショナルで、プレミアム品質を重視する方々です。商品戦略について何でもご相談ください！'
-    : 'Product analysis complete! I\'ve generated comprehensive market insights and commercial strategy for premium wireless headphones. The target audience is professionals aged 25-45 who value premium quality. Let\'s discuss your product strategy!';
+  const agentResponse = LOCALE_MESSAGES[locale].demoAnalysisComplete;
   
   const processingTime = Date.now() - startTime;
   
@@ -477,9 +547,7 @@ async function handleChatRequest(request: SimpleRequest) {
     
     // Fallback to basic response if AI fails
     const cost = 0.01;
-    const agentResponse = locale === 'ja' 
-      ? 'AI分析に問題が発生しましたが、引き続きサポートします。どのような点について詳しく知りたいですか？'
-      : 'There was an issue with AI processing, but I can still help. What would you like to explore about your product?';
+    const agentResponse = LOCALE_MESSAGES[locale].chatFallback;
     
     return {
       sessionId: request.sessionId,
@@ -514,45 +582,45 @@ async function handleDemoChat(request: SimpleRequest) {
     en: [
       {
         triggers: [/target.*audience/i, /who.*buy/i, /customer/i, /demographic/i],
-        response: "Based on my analysis, your primary target audience is professionals aged 25-45 with premium income levels. They're tech-savvy, quality-focused individuals who value productivity and premium audio experiences. They typically work in urban environments and are willing to invest in tools that enhance their professional performance. Would you like me to dive deeper into their specific behaviors and preferences?",
-        followUps: ["Tell me about their shopping habits", "What motivates them to buy?", "How do they make purchasing decisions?"]
+        response: LOCALE_MESSAGES.en.demoChat.targetAudienceResponse,
+        followUps: LOCALE_MESSAGES.en.demoChat.targetAudienceFollowUps
       },
       {
         triggers: [/position/i, /competitor/i, /different/i, /advantage/i],
-        response: "Your positioning should focus on 'Premium Audio for Professionals' - emphasizing superior sound quality, all-day comfort, and reliability for critical work situations. Key differentiators include the 30-hour battery life, advanced noise cancellation, and premium materials. You're positioned as a challenger in the premium segment, competing on professional-grade quality rather than consumer lifestyle features.",
-        followUps: ["What's our competitive advantage?", "How do we stand out?", "What's our value proposition?"]
+        response: LOCALE_MESSAGES.en.demoChat.positioningResponse,
+        followUps: LOCALE_MESSAGES.en.demoChat.positioningFollowUps
       },
       {
         triggers: [/creative/i, /video/i, /commercial/i, /visual/i, /style/i],
-        response: "Perfect! Based on the analysis, I recommend a modern professional visual style with a sophisticated color palette of deep navy, silver gray, and electric blue accents. The mood should be confident and sophisticated, with clean minimal composition and natural lighting in professional workspace settings. Ready to hand off to our Creative Director Agent to develop the actual commercial concept?",
-        followUps: ["Yes, let's proceed to creative", "Tell me more about the visual style", "What kind of commercial works best?"]
+        response: LOCALE_MESSAGES.en.demoChat.creativeResponse,
+        followUps: LOCALE_MESSAGES.en.demoChat.creativeFollowUps
       },
       {
         triggers: [/price/i, /cost/i, /budget/i, /expensive/i, /cheap/i],
-        response: "Given the premium positioning and target audience of professionals willing to invest in quality tools, this product should be priced in the premium tier - likely $200-350 range. The target customers prioritize quality over price and view this as a professional investment rather than a consumer purchase. They're research-driven buyers who focus on value and long-term benefits.",
-        followUps: ["What justifies the premium price?", "How price-sensitive are they?", "What's the sweet spot?"]
+        response: LOCALE_MESSAGES.en.demoChat.priceResponse,
+        followUps: LOCALE_MESSAGES.en.demoChat.priceFollowUps
       }
     ],
     ja: [
       {
         triggers: [/ターゲット/i, /顧客/i, /ユーザー/i, /年齢層/i],
-        response: "分析結果によると、主要ターゲット層は25-45歳のプロフェッショナルで、プレミアム収入層の方々です。テクノロジーに精通し、品質を重視する方で、生産性とプレミアムなオーディオ体験を大切にしています。都市部で働き、仕事のパフォーマンスを向上させるツールに投資することを惜しまない方々です。具体的な行動パターンや好みについて詳しく知りたいですか？",
-        followUps: ["購買行動について教えて", "何が購入動機になる？", "どのように購入を決める？"]
+        response: LOCALE_MESSAGES.ja.demoChat.targetAudienceResponse,
+        followUps: LOCALE_MESSAGES.ja.demoChat.targetAudienceFollowUps
       },
       {
         triggers: [/ポジション/i, /競合/i, /違い/i, /優位/i],
-        response: "ポジショニングは「プロフェッショナルのためのプレミアムオーディオ」に焦点を当て、優れた音質、一日中の快適さ、重要な仕事での信頼性を強調すべきです。主要な差別化要因は30時間のバッテリー寿命、高度なノイズキャンセリング、プレミアム素材です。プレミアムセグメントでチャレンジャーとしてポジショニングし、コンシューマー向けライフスタイル機能ではなく、プロフェッショナル向け品質で競争します。",
-        followUps: ["競合優位性は何？", "どのように差別化する？", "価値提案は何？"]
+        response: LOCALE_MESSAGES.ja.demoChat.positioningResponse,
+        followUps: LOCALE_MESSAGES.ja.demoChat.positioningFollowUps
       },
       {
         triggers: [/クリエイティブ/i, /動画/i, /コマーシャル/i, /ビジュアル/i, /スタイル/i],
-        response: "素晴らしい！分析に基づき、深いネイビー、シルバーグレー、エレクトリックブルーのアクセントを使った洗練されたカラーパレットで、モダンプロフェッショナルなビジュアルスタイルをお勧めします。ムードは自信に満ち洗練されており、クリーンでミニマルな構成と、プロフェッショナルなワークスペース設定での自然光照明が良いでしょう。実際のコマーシャルコンセプトを開発するために、Creative Directorエージェントに引き継ぐ準備はできていますか？",
-        followUps: ["はい、クリエイティブに進みましょう", "ビジュアルスタイルについてもっと教えて", "どんなコマーシャルが最適？"]
+        response: LOCALE_MESSAGES.ja.demoChat.creativeResponse,
+        followUps: LOCALE_MESSAGES.ja.demoChat.creativeFollowUps
       },
       {
         triggers: [/価格/i, /値段/i, /コスト/i, /予算/i, /高い/i, /安い/i],
-        response: "プレミアムポジショニングと品質ツールに投資を惜しまないプロフェッショナルというターゲット層を考慮すると、この商品はプレミアム価格帯（おそらく200-350ドル範囲）で価格設定すべきです。ターゲット顧客は価格よりも品質を優先し、これをコンシューマー購入ではなく専門的投資として捉えています。彼らは研究主導の購入者で、価値と長期的メリットに焦点を当てます。",
-        followUps: ["プレミアム価格の根拠は？", "価格感度はどの程度？", "最適価格帯は？"]
+        response: LOCALE_MESSAGES.ja.demoChat.priceResponse,
+        followUps: LOCALE_MESSAGES.ja.demoChat.priceFollowUps
       }
     ]
   };
@@ -571,12 +639,8 @@ async function handleDemoChat(request: SimpleRequest) {
   // Default response if no pattern matches
   if (!selectedResponse) {
     selectedResponse = {
-      response: locale === 'ja' 
-        ? 'とても興味深い質問ですね！商品の分析結果を基に、ターゲット層、ポジショニング、競合優位性、ビジュアル戦略について詳しくご相談できます。どの分野について詳しく知りたいですか？'
-        : 'That\'s a great question! Based on the product analysis, I can provide detailed insights about target audience, positioning, competitive advantages, and visual strategy. Which area would you like to explore further?',
-      followUps: locale === 'ja' 
-        ? ['ターゲット層について', 'ポジショニング戦略', 'ビジュアルコンセプト', 'Creative Directorへ進む']
-        : ['Target audience insights', 'Positioning strategy', 'Visual concepts', 'Proceed to Creative Director']
+      response: LOCALE_MESSAGES[locale].chatFallbackGeneric,
+      followUps: LOCALE_MESSAGES[locale].chatFallbackFollowUps
     };
   }
   
@@ -604,9 +668,7 @@ async function handleHandoffRequest(request: SimpleRequest) {
   
   try {
     const cost = 0.01;
-    const agentResponse = locale === 'ja' 
-      ? '分析が完了しました。Creative Directorエージェントに引き継ぎます。'
-      : 'Analysis complete. Handing off to Creative Director Agent.';
+    const agentResponse = LOCALE_MESSAGES[locale].handoffMessage;
     
     return {
       sessionId: request.sessionId,

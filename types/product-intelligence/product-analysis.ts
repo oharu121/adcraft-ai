@@ -137,7 +137,7 @@ export interface Positioning {
 export interface KeyMessages {
   headline: string;
   tagline: string;
-  supportingMessages: string[];
+  supportingMessages: readonly string[];
 }
 
 // Emotional trigger definition
@@ -156,7 +156,7 @@ export interface EmotionalTriggers {
 // Call to action options
 export interface CallToAction {
   primary: string;
-  secondary: string[];
+  secondary: readonly string[];
 }
 
 // Storytelling structure for commercials

@@ -22,22 +22,37 @@ export function renderWithProviders(
 ): RenderResult {
   const { locale = 'en', ...renderOptions } = options
 
-  // Mock dictionary for testing
-  const mockDictionary = {
-    common: {
-      loading: locale === 'ja' ? '読み込み中...' : 'Loading...',
-      error: locale === 'ja' ? 'エラー' : 'Error',
-      cancel: locale === 'ja' ? 'キャンセル' : 'Cancel',
-      submit: locale === 'ja' ? '送信' : 'Submit',
+  // Mock dictionary for testing - structured by locale
+  const mockDictionaries = {
+    ja: {
+      common: {
+        loading: '読み込み中...',
+        error: 'エラー',
+        cancel: 'キャンセル',
+        submit: '送信',
+      },
+      videoGenerator: {
+        title: 'AI動画ジェネレーター',
+        promptPlaceholder: 'どのような動画を作成したいかを説明してください...',
+        generateButton: '動画を生成',
+      }
     },
-    videoGenerator: {
-      title: locale === 'ja' ? 'AI動画ジェネレーター' : 'AI Video Generator',
-      promptPlaceholder: locale === 'ja' ? 
-        'どのような動画を作成したいかを説明してください...' : 
-        'Describe what kind of video you want to create...',
-      generateButton: locale === 'ja' ? '動画を生成' : 'Generate Video',
+    en: {
+      common: {
+        loading: 'Loading...',
+        error: 'Error',
+        cancel: 'Cancel',
+        submit: 'Submit',
+      },
+      videoGenerator: {
+        title: 'AI Video Generator',
+        promptPlaceholder: 'Describe what kind of video you want to create...',
+        generateButton: 'Generate Video',
+      }
     }
   }
+
+  const mockDictionary = mockDictionaries[locale]
 
   // Wrapper component that provides necessary context
   function AllTheProviders({ children }: { children: ReactNode }) {

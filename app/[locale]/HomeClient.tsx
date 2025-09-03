@@ -2,10 +2,7 @@
 
 import { useCallback, useState, useRef } from "react";
 import { Card } from "@/components/ui";
-import {
-  ImageUploadArea,
-  ChatContainer,
-} from "@/components/product-intelligence";
+import { ImageUploadArea, ChatContainer } from "@/components/product-intelligence";
 import { ModeIndicator, ModeToggle } from "@/components/debug/ModeIndicator";
 import { AppModeConfig } from "@/lib/config/app-mode";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
@@ -17,15 +14,15 @@ const fileToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
-      if (typeof reader.result === 'string') {
+      if (typeof reader.result === "string") {
         // Extract base64 data after the data URL prefix (data:image/jpeg;base64,)
-        const base64Data = reader.result.split(',')[1];
+        const base64Data = reader.result.split(",")[1];
         resolve(base64Data);
       } else {
-        reject(new Error('Failed to convert file to base64'));
+        reject(new Error("Failed to convert file to base64"));
       }
     };
-    reader.onerror = () => reject(new Error('Error reading file'));
+    reader.onerror = () => reject(new Error("Error reading file"));
     reader.readAsDataURL(file);
   });
 };
@@ -55,9 +52,11 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showCommercialChat, setShowCommercialChat] = useState<boolean>(false);
-  const [chatInputMessage, setChatInputMessage] = useState<string>('');
+  const [chatInputMessage, setChatInputMessage] = useState<string>("");
   const [showImageModal, setShowImageModal] = useState<boolean>(false);
-  const [analysisError, setAnalysisError] = useState<{type: string, canProceed: boolean} | null>(null);
+  const [analysisError, setAnalysisError] = useState<{ type: string; canProceed: boolean } | null>(
+    null
+  );
   const [showErrorToast, setShowErrorToast] = useState<boolean>(false);
 
   // Ref for tracking analysis start time for progress calculation
@@ -83,11 +82,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     async (file: File) => {
       // Validate product name is provided
       if (!productName.trim()) {
-        setErrorMessage(
-          locale === "ja"
-            ? "商品名を入力してください。リアルなCM戦略生成のために必要です。"
-            : "Please enter a product name. This is required for generating realistic commercial strategies."
-        );
+        setErrorMessage(dict.productIntelligence.productNameRequired);
         return;
       }
 
@@ -154,13 +149,13 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           setElapsedTime(Date.now() - analysisStartRef.current);
 
           // Check if analysis had errors or limitations
-          if (result.data?.canProceed === false || result.data?.nextAction === 'error_recovery') {
+          if (result.data?.canProceed === false || result.data?.nextAction === "error_recovery") {
             setAnalysisError({
-              type: result.data?.errorType || 'unknown',
-              canProceed: false
+              type: result.data?.errorType || "unknown",
+              canProceed: false,
             });
             setSessionStatus(SessionStatus.ERROR);
-            
+
             // Show error toast
             setShowErrorToast(true);
             setTimeout(() => setShowErrorToast(false), 5000); // Hide after 5 seconds
@@ -176,11 +171,9 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           const analysisMessage: ChatMessage = {
             id: `msg-${Date.now()}`,
             type: result.data?.canProceed === false ? "system" : "agent",
-            content: result.data?.agentResponse || (locale === "ja"
-              ? `商品画像の分析が完了しました！\n何か調整したいことがあれば、お気軽にお聞きください！`
-              : `Product analysis complete!\nFeel free to talk to me if you want to adjust anything!`),
+            content: result.data?.agentResponse || dict.productIntelligence.productAnalysisComplete,
             timestamp: Date.now(),
-            agentName: "Product Intelligence Agent",
+            agentName: dict.agent.productIntelligenceAgent,
           };
 
           setMessages([analysisMessage]);
@@ -203,11 +196,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
   const handleTextSubmit = useCallback(async () => {
     // Validate product name is provided
     if (!productName.trim()) {
-      setErrorMessage(
-        locale === "ja"
-          ? "商品名を入力してください。リアルなCM戦略生成のために必要です。"
-          : "Please enter a product name. This is required for generating realistic commercial strategies."
-      );
+      setErrorMessage(dict.productIntelligence.productNameRequired);
       return;
     }
 
@@ -269,13 +258,13 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         setElapsedTime(Date.now() - analysisStartRef.current);
 
         // Check if analysis had errors or limitations
-        if (result.data?.canProceed === false || result.data?.nextAction === 'error_recovery') {
+        if (result.data?.canProceed === false || result.data?.nextAction === "error_recovery") {
           setAnalysisError({
-            type: result.data?.errorType || 'unknown',
-            canProceed: false
+            type: result.data?.errorType || "unknown",
+            canProceed: false,
           });
           setSessionStatus(SessionStatus.ERROR);
-          
+
           // Show error toast
           setShowErrorToast(true);
           setTimeout(() => setShowErrorToast(false), 5000); // Hide after 5 seconds
@@ -291,13 +280,9 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         const systemMessage: ChatMessage = {
           id: `msg-${Date.now()}`,
           type: result.data?.canProceed === false ? "system" : "agent",
-          content:
-            result.data?.agentResponse ||
-            (locale === "ja"
-              ? "テキスト分析が完了しました。何でもお聞きください！"
-              : "Text analysis complete. Ask me anything about your product!"),
+          content: result.data?.agentResponse || dict.productIntelligence.textAnalysisComplete,
           timestamp: Date.now(),
-          agentName: "Product Intelligence Agent",
+          agentName: dict.agent.productIntelligenceAgent,
         };
 
         setMessages([systemMessage]);
@@ -351,13 +336,9 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           const agentMessage: ChatMessage = {
             id: `msg-${Date.now()}-agent`,
             type: "agent",
-            content:
-              result.data?.agentResponse ||
-              (locale === "ja"
-                ? "ありがとうございます。詳しく教えていただけますか？"
-                : "Thank you for your question. Could you tell me more?"),
+            content: result.data?.agentResponse || dict.productIntelligence.thankYouTellMore,
             timestamp: Date.now(),
-            agentName: "Product Intelligence Agent",
+            agentName: dict.agent.productIntelligenceAgent,
             metadata: {
               processingTime: result.data?.processingTime || 0,
               cost: result.data?.cost?.current || 0,
@@ -374,12 +355,9 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         const errorMessage: ChatMessage = {
           id: `msg-${Date.now()}-error`,
           type: "system",
-          content:
-            locale === "ja"
-              ? "メッセージの送信に失敗しました。もう一度お試しください。"
-              : "Failed to send message. Please try again.",
+          content: dict.productIntelligence.failedToSendMessage,
           timestamp: Date.now(),
-          agentName: "System",
+          agentName: dict.agent.systemAgent,
         };
 
         setMessages((prev) => [...prev, errorMessage]);
@@ -407,7 +385,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     setElapsedTime(0);
     setErrorMessage("");
     setShowCommercialChat(false);
-    setChatInputMessage('');
+    setChatInputMessage("");
     setAnalysisError(null);
     setShowErrorToast(false);
     analysisStartRef.current = 0;
@@ -437,7 +415,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           <div className="absolute top-4 right-4">
             <ModeIndicator />
           </div>
-          
+
           <div className="inline-block mb-6 md:mb-8">
             <div className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 md:mb-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center animate-pulse">
               <svg
@@ -457,19 +435,15 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           </div>
 
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 md:mb-8 magical-text">
-            {locale === "ja" ? "AI Product AdCraft" : "AI Product AdCraft"}
+            {dict.productIntelligence.title}
           </h1>
 
           <p className="text-xl sm:text-2xl md:text-3xl text-gray-300 mb-4 md:mb-6 max-w-4xl mx-auto leading-relaxed">
-            {locale === "ja"
-              ? "商品画像から、プロフェッショナルなコマーシャル動画を自動生成"
-              : "Transform product images into professional commercial videos with AI agents"}
+            {dict.productIntelligence.subtitle}
           </p>
 
           <p className="text-lg md:text-xl text-gray-400 mb-8 md:mb-12 max-w-3xl mx-auto">
-            {locale === "ja"
-              ? "3つの専門AIエージェントがリアルタイムで対話しながら、最適なマーケティング戦略とビジュアルコンテンツを提案・制作します"
-              : "Three specialized AI agents collaborate in real-time to analyze, design, and produce your perfect marketing video"}
+            {dict.productIntelligence.description}
           </p>
 
           {/* Call to Action Button */}
@@ -485,7 +459,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                 d="M13 10V3L4 14h7v7l9-11h-7z"
               />
             </svg>
-            {locale === "ja" ? "今すぐ始める" : "Get Started Now"}
+            {dict.productIntelligence.getStarted}
           </button>
 
           {/* Scroll Indicator */}
@@ -513,19 +487,13 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           {/* Section Header */}
           <div className="text-center mb-12 md:mb-16">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 magical-text">
-              {locale === "ja"
-                ? "プロダクト・インテリジェンス・エージェント"
-                : "Product Intelligence Agent"}
+              {dict.productIntelligence.agentSection}
             </h2>
             <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-3 md:mb-4 max-w-3xl mx-auto leading-relaxed">
-              {locale === "ja"
-                ? "商品を分析し、ターゲット、ポジショニング、マーケティング戦略について詳しく相談できるAIエージェント"
-                : "Analyze your product and chat with our AI about target audience, positioning, and marketing strategy"}
+              {dict.productIntelligence.agentDescription}
             </p>
             <p className="text-sm md:text-base text-gray-400 mb-6 md:mb-8">
-              {locale === "ja"
-                ? "分析費用: $0.20-0.40 | チャット: $0.05/メッセージ"
-                : "Analysis: $0.20-0.40 | Chat: $0.05/message"}
+              {dict.productIntelligence.costInfo}
             </p>
           </div>
 
@@ -538,14 +506,10 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                 <Card variant="magical" glow className="p-6">
                   <div className="mb-6">
                     <h2 className="text-xl font-semibold text-white mb-2">
-                      {locale === "ja"
-                        ? "ステップ 1: 商品情報を入力"
-                        : "Step 1: Enter Product Information"}
+                      {dict.productIntelligence.stepEnterInfo}
                     </h2>
                     <p className="text-gray-300 text-sm">
-                      {locale === "ja"
-                        ? "商品画像をアップロード、またはテキストで商品を説明してください"
-                        : "Upload a product image or describe your product with text"}
+                      {dict.productIntelligence.stepDescription}
                     </p>
                   </div>
 
@@ -573,7 +537,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                             d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                           />
                         </svg>
-                        {locale === "ja" ? "画像から広告へ" : "Image to Commercial"}
+                        {dict.productIntelligence.uploadMethods.imageToCommercial}
                       </button>
                       <button
                         onClick={() => {
@@ -602,7 +566,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                             d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                           />
                         </svg>
-                        {locale === "ja" ? "テキストから広告へ" : "Text to Commercial"}
+                        {dict.productIntelligence.uploadMethods.textToCommercial}
                       </button>
                     </div>
                   </div>
@@ -610,47 +574,69 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                   {/* Required Product Name Input */}
                   <div className="space-y-2">
                     <label className="flex items-center text-sm font-medium text-white">
-                      <svg className="w-4 h-4 mr-2 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                      <svg
+                        className="w-4 h-4 mr-2 text-red-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                        />
                       </svg>
-                      {locale === "ja" ? "商品名" : "Product Name"}
+                      {dict.productIntelligence.productName}
                       <span className="text-red-400 ml-1">*</span>
                     </label>
                     <input
                       type="text"
                       value={productName}
                       onChange={(e) => setProductName(e.target.value)}
-                      placeholder={
-                        locale === "ja"
-                          ? "商品名を入力してください (例: iPhone 15 Pro, Nike Air Max)"
-                          : "Enter your product name (e.g., iPhone 15 Pro, Nike Air Max)"
-                      }
+                      placeholder={dict.productIntelligence.productNameExample}
                       className={`w-full px-4 py-3 bg-gray-800 border rounded-lg text-white placeholder-gray-400 transition-colors ${
-                        productName.trim() === '' && sessionStatus === SessionStatus.ANALYZING
-                          ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500'
-                          : 'border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                        productName.trim() === "" && sessionStatus === SessionStatus.ANALYZING
+                          ? "border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       }`}
                       disabled={sessionStatus === SessionStatus.ANALYZING}
                       maxLength={100}
                       required
                     />
-                    {productName.trim() === '' && (
+                    {productName.trim() === "" && (
                       <p className="text-xs text-red-400 flex items-center">
-                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <svg
+                          className="w-3 h-3 mr-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
                         </svg>
-                        {locale === "ja"
-                          ? "商品名は必須です。リアルなCM戦略生成のために必要です。"
-                          : "Product name is required for generating realistic commercial strategies."}
+                        {dict.productIntelligence.productNameRequiredShort}
                       </p>
                     )}
                     <p className="text-xs text-gray-400 flex items-center">
-                      <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg
+                        className="w-3 h-3 mr-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                       </svg>
-                      {locale === "ja"
-                        ? "実際の商品名を入力することで、より具体的で実用的なマーケティング戦略を生成します"
-                        : "Enter the actual product name to generate specific and actionable marketing strategies"}
+                      {dict.productIntelligence.actualProductName}
                     </p>
                   </div>
 
@@ -671,11 +657,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                           ref={textInputRef}
                           value={productDescription}
                           onChange={(e) => setProductDescription(e.target.value)}
-                          placeholder={
-                            locale === "ja"
-                              ? "商品の詳細な説明を入力してください（例：高品質なオーガニックコーヒー豆、エチオピア産、フルーティーな香り...）"
-                              : "Describe your product in detail (e.g., Premium organic coffee beans from Ethiopia, fruity aroma, medium roast...)"
-                          }
+                          placeholder={dict.productIntelligence.productDescriptionExample}
                           className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 resize-none transition-colors"
                           rows={6}
                           disabled={sessionStatus === SessionStatus.ANALYZING}
@@ -698,23 +680,23 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                               d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                             />
                           </svg>
-                          {locale === "ja"
-                            ? "詳しく書くほど精度が上がります"
-                            : "More details = better analysis"}
+                          {dict.productIntelligence.moreDetails}
                         </div>
                       </div>
 
                       <button
                         onClick={handleTextSubmit}
                         disabled={
-                          !productDescription.trim() || !productName.trim() || sessionStatus === SessionStatus.ANALYZING
+                          !productDescription.trim() ||
+                          !productName.trim() ||
+                          sessionStatus === SessionStatus.ANALYZING
                         }
                         className="cursor-pointer w-full px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg font-medium hover:from-yellow-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105"
                       >
                         {sessionStatus === SessionStatus.ANALYZING ? (
                           <div className="flex items-center justify-center">
                             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                            {locale === "ja" ? "分析中..." : "Analyzing..."}
+                            {dict.productIntelligence.analyzing}
                           </div>
                         ) : (
                           <>
@@ -731,7 +713,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                                 d="M13 10V3L4 14h7v7l9-11h-7z"
                               />
                             </svg>
-                            {locale === "ja" ? "分析開始" : "Start Analysis"}
+                            {dict.productIntelligence.startAnalysis}
                           </>
                         )}
                       </button>
@@ -761,12 +743,8 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                     </div>
                     <h3 className="text-lg font-semibold text-white mb-4">
                       {inputMode === "image"
-                        ? locale === "ja"
-                          ? "画像を分析中..."
-                          : "Analyzing Image..."
-                        : locale === "ja"
-                          ? "商品を分析中..."
-                          : "Analyzing Product..."}
+                        ? dict.productIntelligence.imageAnalysis
+                        : dict.productIntelligence.productAnalysis}
                     </h3>
 
                     {/* Progress Bar */}
@@ -784,9 +762,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                     </div>
 
                     <p className="text-gray-300 text-sm">
-                      {locale === "ja"
-                        ? "AIが商品の特徴、ターゲット層、市場ポジションを分析しています"
-                        : "AI is analyzing product features, target audience, and market positioning"}
+                      {dict.productIntelligence.analysisInProgress}
                     </p>
 
                     {/* Error Display */}
@@ -797,7 +773,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                           onClick={() => window.location.reload()}
                           className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
                         >
-                          {locale === "ja" ? "再試行" : "Retry"}
+                          {dict.productIntelligence.retry}
                         </button>
                       </div>
                     )}
@@ -812,13 +788,12 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                     <div className="mb-6">
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-xl font-semibold text-white">
-                          {analysis?.product?.name ? (
-                            locale === "ja" 
-                              ? `📦 プロダクト分析: ${analysis.product.name}`
-                              : `📦 Product Analysis: ${analysis.product.name}`
-                          ) : (
-                            locale === "ja" ? "📦 プロダクト分析" : "📦 Product Analysis"
-                          )}
+                          {analysis?.product?.name
+                            ? dict.productAnalysis.titleWithName.replace(
+                                "{name}",
+                                analysis.product.name
+                              )
+                            : dict.productAnalysis.title}
                         </h3>
                         {sessionId && (
                           <span className="px-2 py-1 bg-gray-700/50 text-gray-400 text-xs rounded border border-gray-600 font-mono">
@@ -826,11 +801,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                           </span>
                         )}
                       </div>
-                      <p className="text-gray-300 text-sm">
-                        {locale === "ja"
-                          ? "AI分析に基づいた商品の洞察"
-                          : "AI-powered product insights"}
-                      </p>
+                      <p className="text-gray-300 text-sm">{dict.productAnalysis.subtitle}</p>
                     </div>
 
                     <div className="space-y-4">
@@ -888,7 +859,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                   />
                                 </svg>
-                                {locale === "ja" ? "商品説明" : "Product Description"}
+                                {dict.productAnalysis.productDescription}
                               </h4>
                             </div>
                             <p className="text-gray-400 text-sm leading-relaxed">
@@ -907,9 +878,13 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                           <div className="absolute top-3 right-3">
                             <div className="flex items-center gap-1 bg-green-500/20 text-green-400 px-2 py-1 rounded text-xs font-medium border border-green-500/30">
                               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                <path
+                                  fillRule="evenodd"
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                  clipRule="evenodd"
+                                />
                               </svg>
-                              {Math.round((analysis.metadata.confidenceScore) * 100)}%
+                              {Math.round(analysis.metadata.confidenceScore * 100)}%
                             </div>
                           </div>
                         )}
@@ -921,15 +896,12 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                               <span className="w-4 h-4 bg-gray-600 rounded-full flex items-center justify-center text-xs mr-2">
                                 🏷️
                               </span>
-                              {locale === "ja" ? "商品概要" : "Product Summary"}
+                              {dict.productAnalysis.productSummary}
                             </h4>
                             <p className="text-xs text-gray-400 leading-relaxed">
-                              {analysis?.product ? 
-                                `${analysis.product.name} - ${analysis.product.description}` :
-                                (locale === "ja"
-                                  ? "商品分析を実行中..."
-                                  : "Analyzing product...")
-                              }
+                              {analysis?.product
+                                ? `${analysis.product.name} - ${analysis.product.description}`
+                                : dict.productAnalysis.analyzingFeatures}
                             </p>
                           </div>
 
@@ -939,25 +911,28 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                               <span className="w-4 h-4 bg-gray-600 rounded-full flex items-center justify-center text-xs mr-2">
                                 ✨
                               </span>
-                              {locale === "ja" ? "主要機能" : "Key Features"}
+                              {dict.productAnalysis.keyFeatures}
                             </h4>
                             <div className="text-xs text-gray-400 leading-relaxed">
                               {analysis?.product?.keyFeatures ? (
                                 <ul className="space-y-1">
-                                  {analysis.product.keyFeatures.slice(0, 3).map((feature, index) => (
-                                    <li key={index} className="flex items-start">
-                                      <span className="text-blue-400 mr-2 mt-0.5">•</span>
-                                      {feature}
-                                    </li>
-                                  ))}
+                                  {analysis.product.keyFeatures
+                                    .slice(0, 3)
+                                    .map((feature, index) => (
+                                      <li key={index} className="flex items-start">
+                                        <span className="text-blue-400 mr-2 mt-0.5">•</span>
+                                        {feature}
+                                      </li>
+                                    ))}
                                   {analysis.product.keyFeatures.length > 3 && (
                                     <li className="text-gray-500 ml-4">
-                                      +{analysis.product.keyFeatures.length - 3} {locale === "ja" ? "その他の機能" : "more features"}
+                                      +{analysis.product.keyFeatures.length - 3}{" "}
+                                      {dict.productAnalysis.moreFeatures}
                                     </li>
                                   )}
                                 </ul>
                               ) : (
-                                <span>{locale === "ja" ? "機能を分析中..." : "Analyzing features..."}</span>
+                                <span>{dict.productAnalysis.analyzingFeatures}</span>
                               )}
                             </div>
                           </div>
@@ -968,13 +943,12 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                               <span className="w-4 h-4 bg-gray-600 rounded-full flex items-center justify-center text-xs mr-2">
                                 🎯
                               </span>
-                              {locale === "ja" ? "ターゲット層" : "Target Audience"}
+                              {dict.productAnalysis.targetAudience}
                             </h4>
                             <p className="text-xs text-gray-400 leading-relaxed">
-                              {analysis?.targetAudience?.primary ? 
-                                `${analysis.targetAudience.primary.demographics.ageRange}, ${analysis.targetAudience.primary.demographics.lifestyle?.join(", ")}` :
-                                (locale === "ja" ? "ターゲット分析中..." : "Analyzing target audience...")
-                              }
+                              {analysis?.targetAudience?.primary
+                                ? `${analysis.targetAudience.primary.demographics.ageRange}, ${analysis.targetAudience.primary.demographics.lifestyle?.join(", ")}`
+                                : dict.productAnalysis.analyzingTargetAudience}
                             </p>
                           </div>
 
@@ -984,13 +958,12 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                               <span className="w-4 h-4 bg-gray-600 rounded-full flex items-center justify-center text-xs mr-2">
                                 📈
                               </span>
-                              {locale === "ja" ? "マーケティング" : "Marketing"}
+                              {dict.productAnalysis.marketing}
                             </h4>
                             <p className="text-xs text-gray-400 leading-relaxed">
-                              {analysis?.positioning?.valueProposition ? 
-                                analysis.positioning.valueProposition.primaryBenefit :
-                                (locale === "ja" ? "マーケティング戦略分析中..." : "Analyzing marketing strategy...")
-                              }
+                              {analysis?.positioning?.valueProposition
+                                ? analysis.positioning.valueProposition.primaryBenefit
+                                : dict.productAnalysis.analyzingMarketingStrategy}
                             </p>
                           </div>
                         </div>
@@ -998,8 +971,6 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                     </div>
                   </Card>
                 )}
-
-
             </div>
 
             {/* Right Column - Analysis Results */}
@@ -1012,33 +983,23 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                       <div>
                         <h3 className="text-xl font-semibold text-white mb-2">
                           {showCommercialChat
-                            ? (analysis?.product?.name ? (
-                                locale === "ja"
-                                  ? `💬 ${analysis.product.name} 戦略についてチャット`
-                                  : `💬 Chat About ${analysis.product.name} Strategy`
-                              ) : (
-                                locale === "ja"
-                                  ? "💬 戦略についてチャット"
-                                  : "💬 Chat About Strategy"
-                              ))
-                            : (analysis?.product?.name ? (
-                                locale === "ja"
-                                  ? `🎬 ${analysis.product.name} コマーシャル戦略`
-                                  : `🎬 ${analysis.product.name} Commercial Strategy`
-                              ) : (
-                                locale === "ja"
-                                  ? "🎬 コマーシャル戦略"
-                                  : "🎬 Commercial Strategy"
-                              ))}
+                            ? analysis?.product?.name
+                              ? dict.productIntelligence.chatAboutStrategyWithProduct.replace(
+                                  "{productName}",
+                                  analysis.product.name
+                                )
+                              : dict.productIntelligence.chatAboutStrategyGeneric
+                            : analysis?.product?.name
+                              ? dict.productIntelligence.commercialStrategyWithProduct.replace(
+                                  "{productName}",
+                                  analysis.product.name
+                                )
+                              : dict.productIntelligence.commercialStrategy}
                         </h3>
                         <p className="text-gray-300 text-sm">
                           {showCommercialChat
-                            ? locale === "ja"
-                              ? "戦略について質問や改善提案をしてください"
-                              : "Ask questions or suggest improvements to the strategy"
-                            : locale === "ja"
-                              ? "AI分析に基づいた撮影・制作の提案"
-                              : "AI-powered filming and production recommendations"}
+                            ? dict.productIntelligence.askQuestionsStrategy
+                            : dict.productIntelligence.aiPoweredRecommendations}
                         </p>
                       </div>
 
@@ -1066,7 +1027,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                                 d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                               />
                             </svg>
-                            {locale === "ja" ? "戦略表示" : "Show Strategy"}
+                            {dict.productIntelligence.showStrategy}
                           </>
                         ) : (
                           <>
@@ -1083,7 +1044,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                               />
                             </svg>
-                            {locale === "ja" ? "AIチャット" : "Chat with AI"}
+                            {dict.productIntelligence.chatWithAI}
                           </>
                         )}
                       </button>
@@ -1115,14 +1076,14 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                           <span className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-sm mr-3">
                             💬
                           </span>
-                          {locale === "ja" ? "キーメッセージ" : "Key Messages"}
+                          {dict.productAnalysis.keyMessages}
                         </h4>
                         <div className="space-y-3 text-gray-300">
                           {analysis?.commercialStrategy?.keyMessages ? (
                             <>
                               <div>
                                 <h5 className="text-sm font-semibold text-white mb-1">
-                                  {locale === "ja" ? "ヘッドライン:" : "Headline:"}
+                                  {dict.productAnalysis.headline}
                                 </h5>
                                 <p className="text-red-400 font-medium">
                                   "{analysis.commercialStrategy.keyMessages.headline}"
@@ -1130,7 +1091,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                               </div>
                               <div>
                                 <h5 className="text-sm font-semibold text-white mb-1">
-                                  {locale === "ja" ? "タグライン:" : "Tagline:"}
+                                  {dict.productAnalysis.tagline}
                                 </h5>
                                 <p className="text-red-300">
                                   {analysis.commercialStrategy.keyMessages.tagline}
@@ -1139,7 +1100,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                             </>
                           ) : (
                             <p className="text-gray-500">
-                              {locale === "ja" ? "メッセージを分析中..." : "Analyzing key messages..."}
+                              {dict.productAnalysis.analyzingKeyMessages}
                             </p>
                           )}
                         </div>
@@ -1151,7 +1112,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                           <span className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-sm mr-3">
                             🎨
                           </span>
-                          {locale === "ja" ? "ビジュアルスタイル" : "Visual Style"}
+                          {dict.productAnalysis.visualStyle}
                         </h4>
                         <div className="space-y-2 text-gray-300">
                           {analysis?.visualPreferences ? (
@@ -1159,28 +1120,36 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                               <div className="flex items-start">
                                 <span className="text-purple-400 mr-2">•</span>
                                 <div>
-                                  <span className="font-medium">{locale === "ja" ? "スタイル:" : "Style:"} </span>
-                                  <span className="capitalize">{analysis.visualPreferences.overallStyle}</span>
+                                  <span className="font-medium">{dict.productAnalysis.style} </span>
+                                  <span className="capitalize">
+                                    {analysis.visualPreferences.overallStyle}
+                                  </span>
                                 </div>
                               </div>
                               <div className="flex items-start">
                                 <span className="text-purple-400 mr-2">•</span>
                                 <div>
-                                  <span className="font-medium">{locale === "ja" ? "ムード:" : "Mood:"} </span>
-                                  <span className="capitalize">{analysis.visualPreferences.mood}</span>
+                                  <span className="font-medium">{dict.productAnalysis.mood} </span>
+                                  <span className="capitalize">
+                                    {analysis.visualPreferences.mood}
+                                  </span>
                                 </div>
                               </div>
                               <div className="flex items-start">
                                 <span className="text-purple-400 mr-2">•</span>
                                 <div>
-                                  <span className="font-medium">{locale === "ja" ? "照明:" : "Lighting:"} </span>
-                                  <span className="capitalize">{analysis.visualPreferences.lighting}</span>
+                                  <span className="font-medium">
+                                    {dict.productAnalysis.lighting}{" "}
+                                  </span>
+                                  <span className="capitalize">
+                                    {analysis.visualPreferences.lighting}
+                                  </span>
                                 </div>
                               </div>
                             </>
                           ) : (
                             <p className="text-gray-500">
-                              {locale === "ja" ? "ビジュアルスタイルを分析中..." : "Analyzing visual style..."}
+                              {dict.productAnalysis.analyzingVisualStyle}
                             </p>
                           )}
                         </div>
@@ -1192,7 +1161,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                           <span className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-sm mr-3">
                             📝
                           </span>
-                          {locale === "ja" ? "ナラティブ構造" : "Narrative Structure"}
+                          {dict.productAnalysis.narrativeStructure}
                         </h4>
                         <div className="space-y-2 text-gray-300">
                           {analysis?.commercialStrategy?.storytelling ? (
@@ -1200,28 +1169,34 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                               <div className="flex items-start">
                                 <span className="text-blue-400 mr-2">•</span>
                                 <div>
-                                  <span className="font-medium">{locale === "ja" ? "物語:" : "Narrative:"} </span>
+                                  <span className="font-medium">
+                                    {dict.productAnalysis.narrative}{" "}
+                                  </span>
                                   <span>{analysis.commercialStrategy.storytelling.narrative}</span>
                                 </div>
                               </div>
                               <div className="flex items-start">
                                 <span className="text-blue-400 mr-2">•</span>
                                 <div>
-                                  <span className="font-medium">{locale === "ja" ? "課題:" : "Conflict:"} </span>
+                                  <span className="font-medium">
+                                    {dict.productAnalysis.conflict}{" "}
+                                  </span>
                                   <span>{analysis.commercialStrategy.storytelling.conflict}</span>
                                 </div>
                               </div>
                               <div className="flex items-start">
                                 <span className="text-blue-400 mr-2">•</span>
                                 <div>
-                                  <span className="font-medium">{locale === "ja" ? "解決:" : "Resolution:"} </span>
+                                  <span className="font-medium">
+                                    {dict.productAnalysis.resolution}{" "}
+                                  </span>
                                   <span>{analysis.commercialStrategy.storytelling.resolution}</span>
                                 </div>
                               </div>
                             </>
                           ) : (
                             <p className="text-gray-500">
-                              {locale === "ja" ? "ナラティブ構造を分析中..." : "Analyzing narrative structure..."}
+                              {dict.productAnalysis.analyzingNarrativeStructure}
                             </p>
                           )}
                         </div>
@@ -1233,7 +1208,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                           <span className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-sm mr-3">
                             📍
                           </span>
-                          {locale === "ja" ? "重要シーン" : "Key Scenes"}
+                          {dict.productAnalysis.keyScenes}
                         </h4>
                         <div className="space-y-2 text-gray-300">
                           {analysis?.commercialStrategy?.keyScenes ? (
@@ -1241,42 +1216,58 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                               <div className="flex items-start">
                                 <span className="text-green-400 mr-2">•</span>
                                 <div>
-                                  <span className="font-medium">{locale === "ja" ? "オープニング:" : "Opening:"} </span>
+                                  <span className="font-medium">
+                                    {dict.productAnalysis.opening}{" "}
+                                  </span>
                                   <span>{analysis.commercialStrategy.keyScenes.opening}</span>
                                 </div>
                               </div>
                               <div className="flex items-start">
                                 <span className="text-green-400 mr-2">•</span>
                                 <div>
-                                  <span className="font-medium">{locale === "ja" ? "商品紹介:" : "Showcase:"} </span>
-                                  <span>{analysis.commercialStrategy.keyScenes.productShowcase}</span>
+                                  <span className="font-medium">
+                                    {dict.productAnalysis.showcase}{" "}
+                                  </span>
+                                  <span>
+                                    {analysis.commercialStrategy.keyScenes.productShowcase}
+                                  </span>
                                 </div>
                               </div>
                               <div className="flex items-start">
                                 <span className="text-green-400 mr-2">•</span>
                                 <div>
-                                  <span className="font-medium">{locale === "ja" ? "問題解決:" : "Solution:"} </span>
-                                  <span>{analysis.commercialStrategy.keyScenes.problemSolution}</span>
+                                  <span className="font-medium">
+                                    {dict.productAnalysis.solution}{" "}
+                                  </span>
+                                  <span>
+                                    {analysis.commercialStrategy.keyScenes.problemSolution}
+                                  </span>
                                 </div>
                               </div>
                               <div className="flex items-start">
                                 <span className="text-green-400 mr-2">•</span>
                                 <div>
-                                  <span className="font-medium">{locale === "ja" ? "感情的瞬間:" : "Emotion:"} </span>
-                                  <span>{analysis.commercialStrategy.keyScenes.emotionalMoment}</span>
+                                  <span className="font-medium">
+                                    {dict.productAnalysis.emotion}{" "}
+                                  </span>
+                                  <span>
+                                    {analysis.commercialStrategy.keyScenes.emotionalMoment}
+                                  </span>
                                 </div>
                               </div>
                               <div className="flex items-start">
                                 <span className="text-green-400 mr-2">•</span>
                                 <div>
-                                  <span className="font-medium">{locale === "ja" ? "行動喚起:" : "Call to Action:"} </span>
+                                  <span className="font-medium">
+                                    {dict.productAnalysis.callToAction}{" "}
+                                  </span>
                                   <span>{analysis.commercialStrategy.keyScenes.callToAction}</span>
                                 </div>
                               </div>
                             </>
                           ) : (
                             <p className="text-gray-500">
-                              {locale === "ja" ? "重要シーンを分析中..." : "Analyzing key scenes..."}
+                              {dict.productAnalysis.analyzingKeyScenes}
                             </p>
                           )}
                         </div>
@@ -1288,7 +1279,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                           <span className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-sm mr-3">
                             🎵
                           </span>
-                          {locale === "ja" ? "音楽・トーン" : "Music & Tone"}
+                          {dict.productAnalysis.musicTone}
                         </h4>
                         <div className="space-y-2 text-gray-300">
                           {analysis?.visualPreferences ? (
@@ -1296,30 +1287,40 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                               <div className="flex items-start">
                                 <span className="text-yellow-400 mr-2">•</span>
                                 <div>
-                                  <span className="font-medium">{locale === "ja" ? "ムード:" : "Mood:"} </span>
-                                  <span className="capitalize">{analysis.visualPreferences.mood} atmosphere</span>
+                                  <span className="font-medium">{dict.productAnalysis.mood} </span>
+                                  <span className="capitalize">
+                                    {analysis.visualPreferences.mood} atmosphere
+                                  </span>
                                 </div>
                               </div>
                               <div className="flex items-start">
                                 <span className="text-yellow-400 mr-2">•</span>
                                 <div>
-                                  <span className="font-medium">{locale === "ja" ? "構成:" : "Composition:"} </span>
-                                  <span className="capitalize">{analysis.visualPreferences.composition} presentation</span>
+                                  <span className="font-medium">
+                                    {dict.productAnalysis.composition}{" "}
+                                  </span>
+                                  <span className="capitalize">
+                                    {analysis.visualPreferences.composition} presentation
+                                  </span>
                                 </div>
                               </div>
                               {analysis.positioning?.brandPersonality && (
                                 <div className="flex items-start">
                                   <span className="text-yellow-400 mr-2">•</span>
                                   <div>
-                                    <span className="font-medium">{locale === "ja" ? "トーン:" : "Brand Tone:"} </span>
-                                    <span className="capitalize">{analysis.positioning.brandPersonality.tone}</span>
+                                    <span className="font-medium">
+                                      {dict.productAnalysis.brandTone}{" "}
+                                    </span>
+                                    <span className="capitalize">
+                                      {analysis.positioning.brandPersonality.tone}
+                                    </span>
                                   </div>
                                 </div>
                               )}
                             </>
                           ) : (
                             <p className="text-gray-500">
-                              {locale === "ja" ? "音楽・トーンを分析中..." : "Analyzing music & tone..."}
+                              {dict.productAnalysis.analyzingMusicTone}
                             </p>
                           )}
                         </div>
@@ -1334,38 +1335,42 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                       {analysisError?.canProceed === false && (
                         <div className="flex items-center justify-center">
                           <div className="flex items-center gap-2 text-red-400 text-sm font-medium bg-red-900/20 px-4 py-2 rounded-lg border border-red-500/30">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z" />
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z"
+                              />
                             </svg>
-                            <span>
-                              {locale === "ja" 
-                                ? "分析エラーのため次のエージェントに進めません" 
-                                : "Cannot proceed to next agent due to analysis error"}
-                            </span>
+                            <span>{dict.productIntelligence.cannotProceed}</span>
                           </div>
                         </div>
                       )}
-                      
+
                       {/* Action Buttons */}
                       <div className="flex items-center justify-center gap-4">
                         <button
                           onClick={handleReset}
                           className="cursor-pointer px-6 py-3 border-2 border-gray-600 text-gray-300 rounded-lg font-medium hover:border-gray-500 hover:text-white transition-colors"
                         >
-                          {locale === "ja" ? "やり直す" : "Start Over"}
+                          {dict.productIntelligence.startOver}
                         </button>
                         <button
                           onClick={() => setCurrentStep("handoff")}
                           disabled={analysisError?.canProceed === false}
                           className={`px-8 py-3 rounded-lg font-medium transition-all duration-200 ${
                             analysisError?.canProceed === false
-                              ? 'bg-gray-500 text-gray-300 cursor-not-allowed opacity-50'
-                              : 'cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 transform hover:scale-105'
+                              ? "bg-gray-500 text-gray-300 cursor-not-allowed opacity-50"
+                              : "cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 transform hover:scale-105"
                           }`}
                         >
-                          {locale === "ja"
-                            ? "Creative Directorエージェントへ進む"
-                            : "Proceed to Creative Director"}
+                          {dict.productIntelligence.proceedToCreativeDirector}
                         </button>
                       </div>
                     </div>
@@ -1393,15 +1398,13 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                       </svg>
                     </div>
                     <h3 className="text-lg font-semibold text-white mb-2">
-                      {locale === "ja" ? "分析完了！" : "Analysis Complete!"}
+                      {dict.productIntelligence.analysisComplete}
                     </h3>
                     <p className="text-gray-300 text-sm mb-4">
-                      {locale === "ja"
-                        ? "Creative Directorエージェントに引き継いでコマーシャル制作に進みますか？"
-                        : "Ready to hand off to Creative Director Agent for commercial creation?"}
+                      {dict.productIntelligence.handoffToCreativeDirector}
                     </p>
                     <button className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:scale-105 transition-transform">
-                      {locale === "ja" ? "次のエージェントへ" : "Proceed to Next Agent"}
+                      {dict.productIntelligence.proceedToNextAgent}
                     </button>
                   </div>
                 </Card>
@@ -1411,48 +1414,32 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
               {currentStep === "upload" && (
                 <Card className="p-6 bg-gray-800/30 border border-gray-700">
                   <h3 className="text-lg font-semibold text-white mb-3">
-                    {locale === "ja" ? "使い方" : "How it works"}
+                    {dict.productIntelligence.howItWorks}
                   </h3>
                   <div className="space-y-3 text-sm text-gray-300">
                     <div className="flex items-start gap-3">
                       <span className="flex-shrink-0 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-xs text-white">
                         1
                       </span>
-                      <p>
-                        {locale === "ja"
-                          ? "商品画像をアップロードまたはテキストを入力します"
-                          : "Upload your product image or type in text"}
-                      </p>
+                      <p>{dict.productIntelligence.stepInstructions1}</p>
                     </div>
                     <div className="flex items-start gap-3">
                       <span className="flex-shrink-0 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-xs text-white">
                         2
                       </span>
-                      <p>
-                        {locale === "ja"
-                          ? "AIが自動で商品を分析します"
-                          : "AI automatically analyzes your product"}
-                      </p>
+                      <p>{dict.productIntelligence.stepInstructions2}</p>
                     </div>
                     <div className="flex items-start gap-3">
                       <span className="flex-shrink-0 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-xs text-white">
                         3
                       </span>
-                      <p>
-                        {locale === "ja"
-                          ? "エージェントとチャットで詳細を相談します"
-                          : "Chat with the agent to refine insights"}
-                      </p>
+                      <p>{dict.productIntelligence.stepInstructions3}</p>
                     </div>
                     <div className="flex items-start gap-3">
                       <span className="flex-shrink-0 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-xs text-white">
                         4
                       </span>
-                      <p>
-                        {locale === "ja"
-                          ? "Creative Directorエージェントへ引き継ぎます"
-                          : "Hand off to Creative Director Agent"}
-                      </p>
+                      <p>{dict.productIntelligence.stepInstructions4}</p>
                     </div>
                   </div>
                 </Card>
@@ -1485,13 +1472,15 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
             </button>
             <img
               src={URL.createObjectURL(uploadedImage)}
-              alt="Product - Full Size"
+              alt={dict.productIntelligence.productFullSize}
               className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             />
             <div className="absolute bottom-4 left-4 bg-black/70 rounded px-3 py-2">
               <span className="text-white text-sm font-medium">{uploadedImage.name}</span>
-              <span className="text-gray-300 text-xs ml-2">Click outside to close</span>
+              <span className="text-gray-300 text-xs ml-2">
+                {dict.productIntelligence.clickOutsideToClose}
+              </span>
             </div>
           </div>
         </div>
@@ -1502,17 +1491,23 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-slide-down">
           <div className="bg-red-600 text-white px-6 py-4 rounded-lg shadow-lg border border-red-500 max-w-md">
             <div className="flex items-center gap-3">
-              <svg className="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                className="w-6 h-6 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               <div>
-                <div className="font-semibold">
-                  {locale === "ja" ? "分析エラー" : "Analysis Error"}
-                </div>
+                <div className="font-semibold">{dict.productIntelligence.analysisError}</div>
                 <div className="text-sm opacity-90">
-                  {locale === "ja" 
-                    ? "AI分析が失敗しました。デモモードに切り替えるか、やり直してください。"
-                    : "AI analysis failed. Switch to demo mode or try again."}
+                  {dict.productIntelligence.analysisFailedDemo}
                 </div>
               </div>
               <button
@@ -1520,7 +1515,12 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                 className="ml-2 text-white hover:text-red-200 transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>

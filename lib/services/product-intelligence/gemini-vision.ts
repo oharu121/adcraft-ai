@@ -63,6 +63,737 @@ export interface GeminiVisionRequest {
 }
 
 /**
+ * Locale-specific constants for the Gemini Vision service
+ */
+interface LocaleConstants {
+  sampleProductDescription: string;
+  defaultFeatures: string[];
+  categoryDescriptions: {
+    [ProductCategory.ELECTRONICS]: string;
+    [ProductCategory.FASHION]: string;
+    [ProductCategory.FOOD_BEVERAGE]: string;
+    [ProductCategory.HOME_GARDEN]: string;
+    [ProductCategory.HEALTH_BEAUTY]: string;
+    [ProductCategory.SPORTS_OUTDOORS]: string;
+    [ProductCategory.AUTOMOTIVE]: string;
+    [ProductCategory.BOOKS_MEDIA]: string;
+    [ProductCategory.TOYS_GAMES]: string;
+    [ProductCategory.BUSINESS]: string;
+    [ProductCategory.OTHER]: string;
+    default: string;
+  };
+  categoryFeatures: {
+    [ProductCategory.ELECTRONICS]: string[];
+    [ProductCategory.FASHION]: string[];
+    [ProductCategory.FOOD_BEVERAGE]: string[];
+    [ProductCategory.HOME_GARDEN]: string[];
+    [ProductCategory.HEALTH_BEAUTY]: string[];
+    [ProductCategory.SPORTS_OUTDOORS]: string[];
+    [ProductCategory.AUTOMOTIVE]: string[];
+    [ProductCategory.BOOKS_MEDIA]: string[];
+    [ProductCategory.TOYS_GAMES]: string[];
+    [ProductCategory.BUSINESS]: string[];
+    [ProductCategory.OTHER]: string[];
+    default: string[];
+  };
+  brandVoices: {
+    [ProductCategory.ELECTRONICS]: string;
+    [ProductCategory.FASHION]: string;
+    [ProductCategory.HOME_GARDEN]: string;
+    [ProductCategory.FOOD_BEVERAGE]: string;
+    [ProductCategory.HEALTH_BEAUTY]: string;
+    [ProductCategory.SPORTS_OUTDOORS]: string;
+    [ProductCategory.AUTOMOTIVE]: string;
+    [ProductCategory.BOOKS_MEDIA]: string;
+    [ProductCategory.TOYS_GAMES]: string;
+    [ProductCategory.BUSINESS]: string;
+  };
+  valuePropositions: {
+    [key in ProductCategory]: {
+      primaryBenefit: (productName?: string) => string;
+      supportingBenefits: string[];
+      differentiators: string[];
+    };
+  };
+  taglines: {
+    [ProductCategory.ELECTRONICS]: string;
+    [ProductCategory.FASHION]: string;
+    [ProductCategory.HOME_GARDEN]: string;
+    [ProductCategory.FOOD_BEVERAGE]: string;
+    [ProductCategory.HEALTH_BEAUTY]: string;
+    [ProductCategory.SPORTS_OUTDOORS]: string;
+    [ProductCategory.AUTOMOTIVE]: string;
+    [ProductCategory.BOOKS_MEDIA]: string;
+    [ProductCategory.TOYS_GAMES]: string;
+    [ProductCategory.BUSINESS]: string;
+  };
+  callToAction: {
+    primary: string;
+    secondary: string[];
+  };
+  sampleProductName: string;
+  usageContext: string[];
+}
+
+/**
+ * Japanese locale constants
+ */
+const LOCALE_JA: LocaleConstants = {
+  sampleProductDescription: "サンプル商品の説明",
+  defaultFeatures: ["機能1", "機能2", "機能3"],
+  categoryDescriptions: {
+    [ProductCategory.ELECTRONICS]: "は最新技術を搭載した高品質電子製品です。革新的な機能とプレミアムなデザインで、現代のライフスタイルを豊かにします。",
+    [ProductCategory.FASHION]: "はスタイルと機能性を兼ね備えたプレミアムファッションアイテムです。高品質な素材と洗練されたデザインが特徴です。",
+    [ProductCategory.FOOD_BEVERAGE]: "は厳選された原料を使用した高品質な飲食品です。豊かな味わいと上質な体験をお届けします。",
+    [ProductCategory.HOME_GARDEN]: "は快適な生活空間を創造するホーム＆ガーデン製品です。機能性と美しさを兼ね備えた設計で、毎日の暮らしを豊かにします。",
+    [ProductCategory.HEALTH_BEAUTY]: "は美と健康をサポートするプレミアム製品です。科学的根拠に基づいた成分で、自然な美しさと健康的なライフスタイルを実現します。",
+    [ProductCategory.SPORTS_OUTDOORS]: "はアクティブなライフスタイルを支えるスポーツ・アウトドア製品です。プロ仕様の性能と耐久性で、あらゆる冒険をサポートします。",
+    [ProductCategory.AUTOMOTIVE]: "は革新的な自動車関連製品です。最先端技術と安全性を融合し、ドライビング体験を新たな次元へと押し上げます。",
+    [ProductCategory.BOOKS_MEDIA]: "は知識と教養を深めるメディア製品です。専門的な内容を分かりやすく提供し、学習と成長をサポートします。",
+    [ProductCategory.TOYS_GAMES]: "は創造性と学習を促進する玩具・ゲーム製品です。安全性と教育的価値を重視し、子どもから大人まで楽しめる設計です。",
+    [ProductCategory.BUSINESS]: "はビジネス効率を向上させるソリューション製品です。企業の成長を支援し、競争優位性を確立するための革新的な機能を提供します。",
+    [ProductCategory.OTHER]: "は品質と機能性を重視して開発された優れた製品です。お客様のニーズに応える革新的なソリューションを提供します。",
+    default: "は品質と機能性を重視して開発された優れた製品です。お客様のニーズに応える革新的なソリューションを提供します。"
+  },
+  categoryFeatures: {
+    [ProductCategory.ELECTRONICS]: [
+      "最新プロセッサー搭載",
+      "プレミアム材料使用",
+      "高性能バッテリー",
+      "直感的ユーザーインターフェース",
+      "堅牢で耐久性のある設計",
+      "高度セキュリティ機能"
+    ],
+    [ProductCategory.FASHION]: [
+      "プレミアム素材構造",
+      "エルゴノミックデザイン",
+      "優れた快適性",
+      "スタイリッシュな外観",
+      "耐久性のある仕上げ",
+      "多用途使用可能"
+    ],
+    [ProductCategory.FOOD_BEVERAGE]: [
+      "厳選された天然原料",
+      "豊かで複雑な風味プロファイル",
+      "職人による手作り品質",
+      "プレミアムパッケージング",
+      "持続可能な調達",
+      "認証品質保証"
+    ],
+    [ProductCategory.HOME_GARDEN]: [
+      "耐久性のある素材",
+      "快適性重視設計",
+      "メンテナンス簡単",
+      "機能性と美観の両立",
+      "安全性確保",
+      "環境配慮製造"
+    ],
+    [ProductCategory.HEALTH_BEAUTY]: [
+      "科学的根拠成分",
+      "肌に優しい処方",
+      "天然素材使用",
+      "効果実証済み",
+      "安心安全品質",
+      "持続可能製造"
+    ],
+    [ProductCategory.SPORTS_OUTDOORS]: [
+      "プロ仕様性能",
+      "極限耐久性",
+      "軽量設計",
+      "防水防塵機能",
+      "アスリート監修",
+      "競技レベル品質"
+    ],
+    [ProductCategory.AUTOMOTIVE]: [
+      "最新技術搭載",
+      "安全性最優先",
+      "燃費効率性",
+      "快適性向上",
+      "信頼性確保",
+      "レース由来技術"
+    ],
+    [ProductCategory.BOOKS_MEDIA]: [
+      "専門知識集約",
+      "実践的内容",
+      "分かりやすい構成",
+      "最新情報反映",
+      "専門家監修",
+      "学習効果重視"
+    ],
+    [ProductCategory.TOYS_GAMES]: [
+      "安全性確保",
+      "教育的要素",
+      "創造性育成",
+      "耐久性重視",
+      "年齢適応設計",
+      "親子で楽しめる"
+    ],
+    [ProductCategory.BUSINESS]: [
+      "業務効率向上",
+      "データセキュリティ",
+      "統合機能充実",
+      "スケーラブル設計",
+      "24時間サポート",
+      "ROI最適化"
+    ],
+    [ProductCategory.OTHER]: [
+      "高品質材料",
+      "革新的デザイン",
+      "優れた性能",
+      "ユーザーフレンドリー",
+      "信頼性の高い品質",
+      "プレミアム体験"
+    ],
+    default: [
+      "高品質材料",
+      "革新的デザイン",
+      "優れた性能",
+      "ユーザーフレンドリー",
+      "信頼性の高い品質",
+      "プレミアム体験"
+    ]
+  },
+  brandVoices: {
+    [ProductCategory.ELECTRONICS]: "革新的で権威的、そして感動的 - 非凡を求める方々へ",
+    [ProductCategory.FASHION]: "スタイリッシュで自信に満ちた、あなたらしさを表現する",
+    [ProductCategory.HOME_GARDEN]: "温かく信頼できる、心地よい暮らしをサポート",
+    [ProductCategory.FOOD_BEVERAGE]: "心温まる本格的な味、あなたの毎日を美味しく",
+    [ProductCategory.HEALTH_BEAUTY]: "あなたの美しさと健康を大切にサポート",
+    [ProductCategory.SPORTS_OUTDOORS]: "冒険心を刺激し、限界を超える力を",
+    [ProductCategory.AUTOMOTIVE]: "パワーと自由を提供し、新しい地平線を開く",
+    [ProductCategory.BOOKS_MEDIA]: "知識と創造性を育み、心を豊かにする",
+    [ProductCategory.TOYS_GAMES]: "楽しさと学びを通じて、笑顔を創造する",
+    [ProductCategory.BUSINESS]: "効率と成長を実現し、成功への道筋を示す"
+  },
+  valuePropositions: {
+    [ProductCategory.ELECTRONICS]: {
+      primaryBenefit: (productName?: string) => `プロフェッショナルの究極の${productName || "電子機器"}パワーハウス`,
+      supportingBenefits: ["業界をリードするAI機能", "比類なき性能とスピード", "洗練されたプレミアムデザイン"],
+      differentiators: ["統合されたAIテクノロジー", "プレミアム素材と製造", "専門的な機能セット"]
+    },
+    [ProductCategory.FASHION]: {
+      primaryBenefit: (productName?: string) => `あなたのスタイルを完璧に表現する${productName || "ファッションアイテム"}`,
+      supportingBenefits: ["最新トレンドを取り入れたデザイン", "高品質で快適な着心地", "どんな場面でも映える versatility"],
+      differentiators: ["独占的なデザインコラボレーション", "サステナブルな材料使用", "限定コレクション"]
+    },
+    [ProductCategory.HOME_GARDEN]: {
+      primaryBenefit: (productName?: string) => `毎日の暮らしを豊かにする${productName || "ホームアイテム"}`,
+      supportingBenefits: ["快適さと機能性の完璧な融合", "耐久性のある高品質素材", "どんなインテリアにも調和"],
+      differentiators: ["人間工学に基づいたデザイン", "エコフレンドリーな製造", "簡単メンテナンス"]
+    },
+    [ProductCategory.FOOD_BEVERAGE]: {
+      primaryBenefit: (productName?: string) => `本格的な味わいを届ける${productName || "食品"}`,
+      supportingBenefits: ["厳選された最高品質の原材料", "伝統的な製法と現代的な安全性", "栄養バランスを考慮した製品"],
+      differentiators: ["職人による手作りの品質", "添加物を最小限に抑えた自然な味", "地域の特産品使用"]
+    },
+    [ProductCategory.HEALTH_BEAUTY]: {
+      primaryBenefit: (productName?: string) => `あなたの美と健康を輝かせる${productName || "製品"}`,
+      supportingBenefits: ["科学的に実証された成分", "肌に優しい天然素材", "持続可能な美容体験"],
+      differentiators: ["皮膚科医推奨", "クリーンビューティー", "個人に合わせたソリューション"]
+    },
+    [ProductCategory.SPORTS_OUTDOORS]: {
+      primaryBenefit: (productName?: string) => `限界を超える${productName || "スポーツ製品"}`,
+      supportingBenefits: ["プロ仕様の高性能", "極限環境での耐久性", "アスリートのためのデザイン"],
+      differentiators: ["プロアスリート監修", "特許技術採用", "競技レベルの品質"]
+    },
+    [ProductCategory.AUTOMOTIVE]: {
+      primaryBenefit: (productName?: string) => `究極のドライビング体験を提供する${productName || "自動車製品"}`,
+      supportingBenefits: ["卓越した性能と信頼性", "最新の安全技術", "プレミアムな快適性"],
+      differentiators: ["レース由来の技術", "高級素材使用", "エンジニアリングの粋"]
+    },
+    [ProductCategory.BOOKS_MEDIA]: {
+      primaryBenefit: (productName?: string) => `知識と感動を届ける${productName || "メディア"}`,
+      supportingBenefits: ["専門知識の集約", "高品質なコンテンツ", "学習効果の最大化"],
+      differentiators: ["専門家による監修", "実践的なアプローチ", "独占的な情報"]
+    },
+    [ProductCategory.TOYS_GAMES]: {
+      primaryBenefit: (productName?: string) => `無限の楽しさを提供する${productName || "おもちゃ"}`,
+      supportingBenefits: ["創造性を育む設計", "安全で高品質な材料", "長く楽しめる耐久性"],
+      differentiators: ["教育的な要素", "年齢に適した設計", "親子で楽しめる"]
+    },
+    [ProductCategory.BUSINESS]: {
+      primaryBenefit: (productName?: string) => `ビジネスの成長を加速する${productName || "ソリューション"}`,
+      supportingBenefits: ["業務効率の大幅向上", "ROIの最大化", "競争優位性の確立"],
+      differentiators: ["業界特化の機能", "スケーラブルな設計", "24/7サポート"]
+    },
+    [ProductCategory.OTHER]: {
+      primaryBenefit: (productName?: string) => `あなたのニーズを満たす${productName || "製品"}`,
+      supportingBenefits: ["高品質な材料と製造", "使いやすいデザイン", "優れたコストパフォーマンス"],
+      differentiators: ["独自の技術", "カスタマイズ可能", "充実したサポート"]
+    }
+  },
+  taglines: {
+    [ProductCategory.ELECTRONICS]: "自信。スタイル。あなたらしさ。",
+    [ProductCategory.FASHION]: "快適。機能。美しさ。",
+    [ProductCategory.HOME_GARDEN]: "快適。機能。美しさ。",
+    [ProductCategory.FOOD_BEVERAGE]: "本格。新鮮。満足。",
+    [ProductCategory.HEALTH_BEAUTY]: "美しさ。健康。輝き。",
+    [ProductCategory.SPORTS_OUTDOORS]: "冒険。パフォーマンス。勝利。",
+    [ProductCategory.AUTOMOTIVE]: "パワー。コントロール。自由。",
+    [ProductCategory.BOOKS_MEDIA]: "学び。発見。成長。",
+    [ProductCategory.TOYS_GAMES]: "遊び。学び。笑顔。",
+    [ProductCategory.BUSINESS]: "効率。成長。成功。"
+  },
+  callToAction: {
+    primary: "詳細を確認",
+    secondary: ["製品詳細", "お客様の声"]
+  },
+  sampleProductName: "サンプル商品",
+  usageContext: ["ビジネス会議", "プロフェッショナル撮影", "モバイルオフィス", "エグゼクティブライフ"]
+};
+
+/**
+ * English locale constants
+ */
+const LOCALE_EN: LocaleConstants = {
+  sampleProductDescription: "Sample product description",
+  defaultFeatures: ["Feature 1", "Feature 2", "Feature 3"],
+  categoryDescriptions: {
+    [ProductCategory.ELECTRONICS]: " represents cutting-edge technology and premium design, enhancing modern lifestyles with innovative features and exceptional performance.",
+    [ProductCategory.FASHION]: " combines style and functionality in a premium fashion item, featuring high-quality materials and sophisticated design.",
+    [ProductCategory.FOOD_BEVERAGE]: " is crafted from carefully selected ingredients, delivering rich flavors and a premium experience for discerning customers.",
+    [ProductCategory.HOME_GARDEN]: " creates comfortable living spaces with home & garden solutions that blend functionality and beauty to enrich daily life.",
+    [ProductCategory.HEALTH_BEAUTY]: " supports beauty and wellness with premium products featuring scientifically-backed ingredients for natural beauty and healthy lifestyle.",
+    [ProductCategory.SPORTS_OUTDOORS]: " empowers active lifestyles with sports & outdoor products offering professional-grade performance and durability for every adventure.",
+    [ProductCategory.AUTOMOTIVE]: " delivers innovative automotive solutions combining cutting-edge technology and safety to elevate the driving experience to new dimensions.",
+    [ProductCategory.BOOKS_MEDIA]: " enriches knowledge and education with media products that provide expert content in accessible formats to support learning and growth.",
+    [ProductCategory.TOYS_GAMES]: " fosters creativity and learning through toys & games that prioritize safety and educational value for enjoyment from children to adults.",
+    [ProductCategory.BUSINESS]: " enhances business efficiency with solution products that support corporate growth and provide innovative features for competitive advantage.",
+    [ProductCategory.OTHER]: " is an exceptional product developed with a focus on quality and functionality, providing innovative solutions for customer needs.",
+    default: " is an exceptional product developed with a focus on quality and functionality, providing innovative solutions for customer needs."
+  },
+  categoryFeatures: {
+    [ProductCategory.ELECTRONICS]: [
+      "Latest Generation Processor",
+      "Premium Material Construction",
+      "High-Performance Battery",
+      "Intuitive User Interface",
+      "Robust and Durable Design",
+      "Advanced Security Features"
+    ],
+    [ProductCategory.FASHION]: [
+      "Premium Material Construction",
+      "Ergonomic Design",
+      "Superior Comfort",
+      "Stylish Appearance",
+      "Durable Finish",
+      "Versatile Usage"
+    ],
+    [ProductCategory.FOOD_BEVERAGE]: [
+      "Carefully Selected Natural Ingredients",
+      "Rich and Complex Flavor Profile",
+      "Artisanal Handcrafted Quality",
+      "Premium Packaging",
+      "Sustainably Sourced",
+      "Certified Quality Assurance"
+    ],
+    [ProductCategory.HOME_GARDEN]: [
+      "Durable Materials",
+      "Comfort-Focused Design",
+      "Easy Maintenance",
+      "Functional and Aesthetic",
+      "Safety Assured",
+      "Eco-Friendly Manufacturing"
+    ],
+    [ProductCategory.HEALTH_BEAUTY]: [
+      "Scientifically Proven Ingredients",
+      "Gentle Skin-Friendly Formula",
+      "Natural Materials",
+      "Clinically Tested Effectiveness",
+      "Safe and Reliable Quality",
+      "Sustainable Manufacturing"
+    ],
+    [ProductCategory.SPORTS_OUTDOORS]: [
+      "Professional-Grade Performance",
+      "Extreme Durability",
+      "Lightweight Design",
+      "Water and Dust Resistant",
+      "Athlete Endorsed",
+      "Competition-Level Quality"
+    ],
+    [ProductCategory.AUTOMOTIVE]: [
+      "Latest Technology Integration",
+      "Safety First Priority",
+      "Fuel Efficiency",
+      "Enhanced Comfort",
+      "Reliability Assured",
+      "Racing-Derived Technology"
+    ],
+    [ProductCategory.BOOKS_MEDIA]: [
+      "Expert Knowledge Compilation",
+      "Practical Content",
+      "Clear Structure",
+      "Up-to-Date Information",
+      "Expert Supervised",
+      "Learning-Focused"
+    ],
+    [ProductCategory.TOYS_GAMES]: [
+      "Safety Assured",
+      "Educational Elements",
+      "Creativity Fostering",
+      "Durability Focus",
+      "Age-Appropriate Design",
+      "Family-Friendly Fun"
+    ],
+    [ProductCategory.BUSINESS]: [
+      "Business Efficiency Enhancement",
+      "Data Security",
+      "Integrated Features",
+      "Scalable Design",
+      "24/7 Support",
+      "ROI Optimization"
+    ],
+    [ProductCategory.OTHER]: [
+      "High-Quality Materials",
+      "Innovative Design",
+      "Superior Performance",
+      "User-Friendly",
+      "Reliable Quality",
+      "Premium Experience"
+    ],
+    default: [
+      "High-Quality Materials",
+      "Innovative Design",
+      "Superior Performance",
+      "User-Friendly",
+      "Reliable Quality",
+      "Premium Experience"
+    ]
+  },
+  brandVoices: {
+    [ProductCategory.ELECTRONICS]: "confident, authoritative, and inspirational - for those who demand the extraordinary",
+    [ProductCategory.FASHION]: "stylish, confident, and expressive - defining your unique style",
+    [ProductCategory.HOME_GARDEN]: "warm, reliable, and supportive - enhancing your comfortable living",
+    [ProductCategory.FOOD_BEVERAGE]: "warm, authentic flavors that make every day delicious",
+    [ProductCategory.HEALTH_BEAUTY]: "caring support for your beauty and wellness journey",
+    [ProductCategory.SPORTS_OUTDOORS]: "adventurous and performance-driven - pushing your limits",
+    [ProductCategory.AUTOMOTIVE]: "powerful and liberating - opening new horizons",
+    [ProductCategory.BOOKS_MEDIA]: "knowledgeable and inspiring - enriching minds",
+    [ProductCategory.TOYS_GAMES]: "fun and educational - creating smiles through play and learning",
+    [ProductCategory.BUSINESS]: "efficient and growth-focused - driving success"
+  },
+  valuePropositions: {
+    [ProductCategory.ELECTRONICS]: {
+      primaryBenefit: (productName?: string) => `The professional's ultimate ${productName || "electronic"} powerhouse`,
+      supportingBenefits: ["Industry-leading AI capabilities", "Unmatched performance and speed", "Sophisticated premium design"],
+      differentiators: ["Integrated AI technology", "Premium materials and construction", "Professional feature set"]
+    },
+    [ProductCategory.FASHION]: {
+      primaryBenefit: (productName?: string) => `The perfect ${productName || "fashion piece"} that expresses your unique style`,
+      supportingBenefits: ["Latest trend-forward design", "Premium comfort and quality", "Versatile styling for any occasion"],
+      differentiators: ["Exclusive design collaborations", "Sustainable materials", "Limited collection pieces"]
+    },
+    [ProductCategory.HOME_GARDEN]: {
+      primaryBenefit: (productName?: string) => `The ${productName || "home essential"} that enriches your daily life`,
+      supportingBenefits: ["Perfect blend of comfort and functionality", "Durable premium materials", "Harmonizes with any interior"],
+      differentiators: ["Ergonomic design principles", "Eco-friendly manufacturing", "Easy maintenance"]
+    },
+    [ProductCategory.FOOD_BEVERAGE]: {
+      primaryBenefit: (productName?: string) => `Authentic ${productName || "food"} that delivers exceptional taste`,
+      supportingBenefits: ["Carefully selected premium ingredients", "Traditional methods with modern safety", "Nutritionally balanced product"],
+      differentiators: ["Artisanal crafted quality", "Natural taste with minimal additives", "Local specialty ingredients"]
+    },
+    [ProductCategory.HEALTH_BEAUTY]: {
+      primaryBenefit: (productName?: string) => `${productName || "Product"} that enhances your beauty and wellness`,
+      supportingBenefits: ["Scientifically proven ingredients", "Gentle natural materials", "Sustainable beauty experience"],
+      differentiators: ["Dermatologist recommended", "Clean beauty", "Personalized solutions"]
+    },
+    [ProductCategory.SPORTS_OUTDOORS]: {
+      primaryBenefit: (productName?: string) => `${productName || "Sports product"} that pushes your limits`,
+      supportingBenefits: ["Professional-grade performance", "Extreme durability", "Athlete-designed features"],
+      differentiators: ["Pro athlete endorsed", "Patented technology", "Competition-level quality"]
+    },
+    [ProductCategory.AUTOMOTIVE]: {
+      primaryBenefit: (productName?: string) => `${productName || "Automotive product"} that delivers the ultimate driving experience`,
+      supportingBenefits: ["Exceptional performance and reliability", "Latest safety technology", "Premium comfort features"],
+      differentiators: ["Race-derived technology", "Luxury materials", "Engineering excellence"]
+    },
+    [ProductCategory.BOOKS_MEDIA]: {
+      primaryBenefit: (productName?: string) => `${productName || "Media"} that delivers knowledge and inspiration`,
+      supportingBenefits: ["Expert knowledge compilation", "High-quality content", "Maximized learning outcomes"],
+      differentiators: ["Expert authored", "Practical approach", "Exclusive insights"]
+    },
+    [ProductCategory.TOYS_GAMES]: {
+      primaryBenefit: (productName?: string) => `${productName || "Toy"} that provides endless fun`,
+      supportingBenefits: ["Creativity-fostering design", "Safe premium materials", "Long-lasting durability"],
+      differentiators: ["Educational elements", "Age-appropriate design", "Family-friendly fun"]
+    },
+    [ProductCategory.BUSINESS]: {
+      primaryBenefit: (productName?: string) => `${productName || "Business solution"} that accelerates growth`,
+      supportingBenefits: ["Dramatic efficiency improvements", "ROI maximization", "Competitive advantage"],
+      differentiators: ["Industry-specific features", "Scalable architecture", "24/7 support"]
+    },
+    [ProductCategory.OTHER]: {
+      primaryBenefit: (productName?: string) => `${productName || "Product"} that meets your needs`,
+      supportingBenefits: ["High-quality materials and construction", "User-friendly design", "Excellent value"],
+      differentiators: ["Unique technology", "Customizable options", "Comprehensive support"]
+    }
+  },
+  taglines: {
+    [ProductCategory.ELECTRONICS]: "Confidence. Style. Authenticity.",
+    [ProductCategory.FASHION]: "Comfort. Function. Beauty.",
+    [ProductCategory.HOME_GARDEN]: "Comfort. Function. Beauty.",
+    [ProductCategory.FOOD_BEVERAGE]: "Authentic. Fresh. Satisfying.",
+    [ProductCategory.HEALTH_BEAUTY]: "Beauty. Wellness. Radiance.",
+    [ProductCategory.SPORTS_OUTDOORS]: "Adventure. Performance. Victory.",
+    [ProductCategory.AUTOMOTIVE]: "Power. Control. Freedom.",
+    [ProductCategory.BOOKS_MEDIA]: "Learn. Discover. Grow.",
+    [ProductCategory.TOYS_GAMES]: "Play. Learn. Smile.",
+    [ProductCategory.BUSINESS]: "Efficiency. Growth. Success."
+  },
+  callToAction: {
+    primary: "Learn More",
+    secondary: ["Product Details", "Customer Reviews"]
+  },
+  sampleProductName: "Sample Product",
+  usageContext: ["business meetings", "professional photography", "mobile office", "executive lifestyle"]
+};
+
+/**
+ * Commercial Strategy Templates by Category and Locale
+ */
+const COMMERCIAL_STRATEGY_TEMPLATES = {
+  en: {
+    [ProductCategory.ELECTRONICS]: {
+      headline: (productName?: string) => `Transcend Professional with ${productName || "Technology"}`,
+      tagline: "Power. Prestige. Perfection.",
+      supportingMessages: ["AI-driven business excellence", "Unmatched professional performance", "The ultimate competitive edge"],
+      primaryBenefit: (productName?: string) => `${productName || "Technology"} that elevates your professional excellence`,
+      callToAction: { primary: "Experience Excellence", secondary: ["Shop Now", "Watch Demo"] },
+      narrative: "Rise above the competition with cutting-edge innovation",
+      conflict: "Outdated technology holds back your potential",
+      resolution: "Unlock unprecedented performance and success"
+    },
+    [ProductCategory.FASHION]: {
+      headline: (productName?: string) => `Discover Your Style with ${productName || "Fashion"}`,
+      tagline: "Comfort. Function. Beauty.",
+      supportingMessages: ["Effortless style and elegance", "Premium materials and craftsmanship", "Confidence-boosting design"],
+      primaryBenefit: (productName?: string) => `${productName || "Fashion"} that expresses your unique style`,
+      callToAction: { primary: "Discover Your Style", secondary: ["Shop Collection", "Style Guide"] },
+      narrative: "Express your authentic self with confidence",
+      conflict: "Generic fashion doesn't reflect your personality",
+      resolution: "Discover clothing that celebrates your individuality"
+    },
+    [ProductCategory.HOME_GARDEN]: {
+      headline: (productName?: string) => `Transform Your Space with ${productName || "Home Solutions"}`,
+      tagline: "Comfort. Function. Beauty.",
+      supportingMessages: ["Creates your perfect sanctuary", "Premium quality and durability", "Effortless home transformation"],
+      primaryBenefit: (productName?: string) => `${productName || "Home solution"} that creates your perfect sanctuary`,
+      callToAction: { primary: "Experience Comfort", secondary: ["Shop Now", "Design Ideas"] },
+      narrative: "Create a home that reflects your values and style",
+      conflict: "Your space doesn't feel like home",
+      resolution: "Transform your house into your dream sanctuary"
+    },
+    [ProductCategory.FOOD_BEVERAGE]: {
+      headline: (productName?: string) => `Taste the Difference with ${productName || "Premium Food"}`,
+      tagline: "Authentic. Fresh. Satisfying.",
+      supportingMessages: ["Authentic flavors and ingredients", "Premium sourcing and quality", "Memorable culinary experiences"],
+      primaryBenefit: (productName?: string) => `${productName || "Food"} that delivers authentic satisfaction`,
+      callToAction: { primary: "Taste the Difference", secondary: ["Order Now", "Find Recipes"] },
+      narrative: "Savor authentic flavors that bring joy",
+      conflict: "Mass-produced food lacks soul and satisfaction",
+      resolution: "Discover authentic taste that nourishes body and spirit"
+    },
+    [ProductCategory.HEALTH_BEAUTY]: {
+      headline: (productName?: string) => `Radiate Confidence with ${productName || "Beauty"}`,
+      tagline: "Beauty. Wellness. Radiance.",
+      supportingMessages: ["Natural beauty enhancement", "Science-backed formulations", "Confidence-boosting results"],
+      primaryBenefit: (productName?: string) => `${productName || "Beauty product"} that enhances your natural radiance`,
+      callToAction: { primary: "Experience Beauty", secondary: ["Shop Now", "Beauty Tips"] },
+      narrative: "Embrace your natural beauty with confidence",
+      conflict: "Beauty routines that don't deliver results",
+      resolution: "Achieve the radiant, confident look you deserve"
+    },
+    [ProductCategory.SPORTS_OUTDOORS]: {
+      headline: (productName?: string) => `Conquer New Heights with ${productName || "Outdoor Gear"}`,
+      tagline: "Adventure. Performance. Victory.",
+      supportingMessages: ["Peak performance technology", "Adventure-ready durability", "Victory through preparation"],
+      primaryBenefit: (productName?: string) => `${productName || "Gear"} that supports your athletic excellence`,
+      callToAction: { primary: "Start Your Adventure", secondary: ["Shop Gear", "Training Tips"] },
+      narrative: "Push beyond limits to achieve greatness",
+      conflict: "Average gear limits your potential",
+      resolution: "Unlock peak performance and conquer new challenges"
+    },
+    [ProductCategory.AUTOMOTIVE]: {
+      headline: (productName?: string) => `Drive Excellence with ${productName || "Automotive"}`,
+      tagline: "Power. Control. Freedom.",
+      supportingMessages: ["Precision engineering and performance", "Ultimate driving experience", "Freedom to explore"],
+      primaryBenefit: (productName?: string) => `${productName || "Vehicle"} that delivers driving excellence`,
+      callToAction: { primary: "Experience the Drive", secondary: ["Schedule Test", "Explore Models"] },
+      narrative: "Experience the freedom of the open road",
+      conflict: "Ordinary vehicles limit your journey",
+      resolution: "Discover the perfect balance of power and control"
+    },
+    [ProductCategory.BOOKS_MEDIA]: {
+      headline: (productName?: string) => `Expand Your Mind with ${productName || "Knowledge"}`,
+      tagline: "Learn. Discover. Grow.",
+      supportingMessages: ["Expert knowledge and insights", "Life-changing perspectives", "Continuous learning journey"],
+      primaryBenefit: (productName?: string) => `${productName || "Knowledge"} that transforms your thinking`,
+      callToAction: { primary: "Start Learning", secondary: ["Browse Library", "Get Recommendations"] },
+      narrative: "Unlock your potential through knowledge",
+      conflict: "Limited knowledge holds back your growth",
+      resolution: "Discover insights that transform your perspective"
+    },
+    [ProductCategory.TOYS_GAMES]: {
+      headline: (productName?: string) => `Create Memories with ${productName || "Play"}`,
+      tagline: "Play. Learn. Smile.",
+      supportingMessages: ["Imagination-sparking fun", "Educational play experiences", "Family bonding moments"],
+      primaryBenefit: (productName?: string) => `${productName || "Toy"} that creates lasting memories`,
+      callToAction: { primary: "Experience the Fun", secondary: ["Shop Toys", "Play Ideas"] },
+      narrative: "Create magical moments through play",
+      conflict: "Boring toys don't inspire creativity",
+      resolution: "Discover play that sparks imagination and joy"
+    },
+    [ProductCategory.BUSINESS]: {
+      headline: (productName?: string) => `Accelerate Growth with ${productName || "Business Solutions"}`,
+      tagline: "Efficiency. Growth. Success.",
+      supportingMessages: ["Streamlined business operations", "Scalable growth solutions", "Competitive market advantage"],
+      primaryBenefit: (productName?: string) => `${productName || "Solution"} that maximizes business efficiency`,
+      callToAction: { primary: "Realize Growth", secondary: ["Get Demo", "Speak to Expert"] },
+      narrative: "Transform your business for sustainable success",
+      conflict: "Inefficient processes limit your growth",
+      resolution: "Streamline operations and achieve your business goals"
+    },
+    [ProductCategory.OTHER]: {
+      headline: (productName?: string) => `Discover Quality with ${productName || "Premium Products"}`,
+      tagline: "Quality. Trust. Peace of Mind.",
+      supportingMessages: ["Uncompromising quality standards", "Trusted brand reputation", "Customer satisfaction guaranteed"],
+      primaryBenefit: (productName?: string) => `${productName || "Product"} that exceeds expectations`,
+      callToAction: { primary: "Learn More", secondary: ["Product Details", "Customer Reviews"] },
+      narrative: "Experience the confidence that comes with quality",
+      conflict: "Poor quality products disappoint and frustrate",
+      resolution: "Choose quality that delivers lasting satisfaction"
+    }
+  },
+  ja: {
+    [ProductCategory.ELECTRONICS]: {
+      headline: (productName?: string) => `${productName || "テクノロジー"}でプロフェッショナルを超越せよ`,
+      tagline: "パワー。プレステージ。パーフェクション。",
+      supportingMessages: ["AI駆動ビジネスエクセレンス", "比類なきプロフェッショナルパフォーマンス", "究極の競争優位"],
+      primaryBenefit: (productName?: string) => `${productName || "テクノロジー"}があなたのプロフェッショナルエクセレンスを高める`,
+      callToAction: { primary: "エクセレンスを体験", secondary: ["今すぐ購入", "デモを見る"] },
+      narrative: "最先端イノベーションで競争を勝ち抜く",
+      conflict: "時代遅れのテクノロジーがあなたの可能性を制限している",
+      resolution: "前例のないパフォーマンスと成功を解き放つ"
+    },
+    [ProductCategory.FASHION]: {
+      headline: (productName?: string) => `${productName || "ファッション"}でスタイルを発見`,
+      tagline: "快適。機能。美しさ。",
+      supportingMessages: ["エフォートレスなスタイルとエレガンス", "プレミアム素材と職人技", "自信を高めるデザイン"],
+      primaryBenefit: (productName?: string) => `${productName || "ファッション"}があなた独自のスタイルを表現`,
+      callToAction: { primary: "スタイルを発見", secondary: ["コレクションを見る", "スタイルガイド"] },
+      narrative: "自信を持って本来の自分を表現する",
+      conflict: "一般的なファッションはあなたの個性を反映しない",
+      resolution: "あなたの個性を祝福する服装を発見する"
+    },
+    [ProductCategory.HOME_GARDEN]: {
+      headline: (productName?: string) => `${productName || "ホームソリューション"}で空間を変革`,
+      tagline: "快適。機能。美しさ。",
+      supportingMessages: ["完璧な聖域を創造", "プレミアム品質と耐久性", "楽々ホーム変革"],
+      primaryBenefit: (productName?: string) => `${productName || "ホームソリューション"}が完璧な聖域を創造`,
+      callToAction: { primary: "快適を体験", secondary: ["今すぐ購入", "デザインアイデア"] },
+      narrative: "価値とスタイルを反映する家を創る",
+      conflict: "あなたの空間が家のように感じない",
+      resolution: "家を夢の聖域に変革する"
+    },
+    [ProductCategory.FOOD_BEVERAGE]: {
+      headline: (productName?: string) => `${productName || "プレミアム食品"}で違いを味わう`,
+      tagline: "本格。新鮮。満足。",
+      supportingMessages: ["本格的な味と素材", "プレミアム調達と品質", "記憶に残る料理体験"],
+      primaryBenefit: (productName?: string) => `${productName || "食品"}が本格的な満足を提供`,
+      callToAction: { primary: "美味しさを体験", secondary: ["今すぐ注文", "レシピを探す"] },
+      narrative: "喜びをもたらす本格的な味を堪能する",
+      conflict: "大量生産食品には魂と満足感が欠けている",
+      resolution: "体と精神を養う本格的な味を発見する"
+    },
+    [ProductCategory.HEALTH_BEAUTY]: {
+      headline: (productName?: string) => `${productName || "美容"}で自信を放つ`,
+      tagline: "美しさ。健康。輝き。",
+      supportingMessages: ["自然な美しさの向上", "科学的根拠のある処方", "自信を高める結果"],
+      primaryBenefit: (productName?: string) => `${productName || "美容商品"}が自然な輝きを高める`,
+      callToAction: { primary: "美しさを実感", secondary: ["今すぐ購入", "美容のコツ"] },
+      narrative: "自信を持って自然な美しさを受け入れる",
+      conflict: "結果を出さない美容ルーティン",
+      resolution: "あなたが望む輝き自信に満ちた見た目を実現する"
+    },
+    [ProductCategory.SPORTS_OUTDOORS]: {
+      headline: (productName?: string) => `${productName || "アウトドアギア"}で新たな高みを征服`,
+      tagline: "冒険。パフォーマンス。勝利。",
+      supportingMessages: ["ピークパフォーマンステクノロジー", "冒険対応の耐久性", "準備による勝利"],
+      primaryBenefit: (productName?: string) => `${productName || "ギア"}がアスレチックエクセレンスを支援`,
+      callToAction: { primary: "冒険を始めよう", secondary: ["ギアを購入", "トレーニングのコツ"] },
+      narrative: "限界を超えて偉大さを達成する",
+      conflict: "平均的なギアがあなたの可能性を制限する",
+      resolution: "ピークパフォーマンスを解き放ち新たな挑戦を征服する"
+    },
+    [ProductCategory.AUTOMOTIVE]: {
+      headline: (productName?: string) => `${productName || "自動車"}でエクセレンスを運転`,
+      tagline: "パワー。コントロール。自由。",
+      supportingMessages: ["精密エンジニアリングとパフォーマンス", "究極のドライビング体験", "探索する自由"],
+      primaryBenefit: (productName?: string) => `${productName || "車両"}がドライビングエクセレンスを提供`,
+      callToAction: { primary: "ドライブを体験", secondary: ["テストを予約", "モデルを探索"] },
+      narrative: "オープンロードの自由を体験する",
+      conflict: "普通の車両があなたの旅を制限する",
+      resolution: "パワーとコントロールの完璧なバランスを発見する"
+    },
+    [ProductCategory.BOOKS_MEDIA]: {
+      headline: (productName?: string) => `${productName || "知識"}で心を広げる`,
+      tagline: "学び。発見。成長。",
+      supportingMessages: ["専門知識と洞察", "人生を変える視点", "継続的学習の旅"],
+      primaryBenefit: (productName?: string) => `${productName || "知識"}が思考を変革する`,
+      callToAction: { primary: "学習を開始", secondary: ["ライブラリを見る", "おすすめを得る"] },
+      narrative: "知識を通じて可能性を解き放つ",
+      conflict: "限られた知識があなたの成長を妨げる",
+      resolution: "視点を変える洞察を発見する"
+    },
+    [ProductCategory.TOYS_GAMES]: {
+      headline: (productName?: string) => `${productName || "遊び"}で思い出を創る`,
+      tagline: "遊び。学び。笑顔。",
+      supportingMessages: ["想像力を刺激する楽しさ", "教育的遊び体験", "家族の絆の瞬間"],
+      primaryBenefit: (productName?: string) => `${productName || "おもちゃ"}が永続する思い出を創る`,
+      callToAction: { primary: "楽しさを体験", secondary: ["おもちゃを購入", "遊びのアイデア"] },
+      narrative: "遊びを通じて魔法的瞬間を創る",
+      conflict: "つまらないおもちゃは創造性を刺激しない",
+      resolution: "想像力と喜びを刺激する遊びを発見する"
+    },
+    [ProductCategory.BUSINESS]: {
+      headline: (productName?: string) => `${productName || "ビジネスソリューション"}で成長を加速`,
+      tagline: "効率。成長。成功。",
+      supportingMessages: ["合理化されたビジネス運営", "スケーラブルな成長ソリューション", "競争市場優位"],
+      primaryBenefit: (productName?: string) => `${productName || "ソリューション"}がビジネス効率を最大化`,
+      callToAction: { primary: "成長を実現", secondary: ["デモを取得", "エキスパートと話す"] },
+      narrative: "持続可能な成功のためにビジネスを変革する",
+      conflict: "非効率プロセスがあなたの成長を制限する",
+      resolution: "運営を合理化しビジネス目標を達成する"
+    },
+    [ProductCategory.OTHER]: {
+      headline: (productName?: string) => `${productName || "プレミアム製品"}で品質を発見`,
+      tagline: "品質。信頼。安心。",
+      supportingMessages: ["妥協のない品質基準", "信頼されるブランド評判", "顧客満足保証"],
+      primaryBenefit: (productName?: string) => `${productName || "製品"}が期待を超える`,
+      callToAction: { primary: "詳細を確認", secondary: ["製品詳細", "お客様の声"] },
+      narrative: "品質がもたらす自信を体験する",
+      conflict: "粗悪な製品が失望とフラストレーションを与える",
+      resolution: "永続する満足を提供する品質を選ぶ"
+    }
+  }
+} as const;
+
+/**
+ * Helper function to get locale constants
+ */
+function getLocaleConstants(locale: "en" | "ja"): LocaleConstants {
+  return locale === "ja" ? LOCALE_JA : LOCALE_EN;
+}
+
+/**
+ * Helper function to get commercial strategy template
+ */
+function getCommercialStrategyTemplate(category: ProductCategory, locale: "en" | "ja") {
+  return COMMERCIAL_STRATEGY_TEMPLATES[locale][category] || COMMERCIAL_STRATEGY_TEMPLATES[locale][ProductCategory.OTHER];
+}
+
+/**
  * Gemini Pro Vision service for product image analysis
  */
 export class GeminiVisionService {
@@ -649,128 +1380,30 @@ JSON応答のみを返し、追加のテキストは含めないでください�
    * Generate contextual product description
    */
   private generateProductDescription(productName?: string, locale: "en" | "ja" = "en"): string {
+    const localeConstants = getLocaleConstants(locale);
+    
     if (!productName) {
-      return locale === "ja" ? "サンプル商品の説明" : "Sample product description";
+      return localeConstants.sampleProductDescription;
     }
 
     const category = this.inferProductCategory(productName);
-
-    if (locale === "ja") {
-      switch (category) {
-        case ProductCategory.ELECTRONICS:
-          return `${productName}は最新技術を搭載した高品質電子製品です。革新的な機能とプレミアムなデザインで、現代のライフスタイルを豊かにします。`;
-        case ProductCategory.FASHION:
-          return `${productName}はスタイルと機能性を兼ね備えたプレミアムファッションアイテムです。高品質な素材と洗練されたデザインが特徴です。`;
-        case ProductCategory.FOOD_BEVERAGE:
-          return `${productName}は厳選された原料を使用した高品質な飲食品です。豊かな味わいと上質な体験をお届けします。`;
-        default:
-          return `${productName}は品質と機能性を重視して開発された優れた製品です。お客様のニーズに応える革新的なソリューションを提供します。`;
-      }
-    } else {
-      switch (category) {
-        case ProductCategory.ELECTRONICS:
-          return `${productName} represents cutting-edge technology and premium design, enhancing modern lifestyles with innovative features and exceptional performance.`;
-        case ProductCategory.FASHION:
-          return `${productName} combines style and functionality in a premium fashion item, featuring high-quality materials and sophisticated design.`;
-        case ProductCategory.FOOD_BEVERAGE:
-          return `${productName} is crafted from carefully selected ingredients, delivering rich flavors and a premium experience for discerning customers.`;
-        default:
-          return `${productName} is an exceptional product developed with a focus on quality and functionality, providing innovative solutions for customer needs.`;
-      }
-    }
+    const description = localeConstants.categoryDescriptions[category] || localeConstants.categoryDescriptions.default;
+    
+    return `${productName}${description}`;
   }
 
   /**
    * Generate contextual key features
    */
   private generateKeyFeatures(productName?: string, locale: "en" | "ja" = "en"): string[] {
+    const localeConstants = getLocaleConstants(locale);
+    
     if (!productName) {
-      return locale === "ja"
-        ? ["機能1", "機能2", "機能3"]
-        : ["Feature 1", "Feature 2", "Feature 3"];
+      return localeConstants.defaultFeatures;
     }
 
     const category = this.inferProductCategory(productName);
-
-    if (locale === "ja") {
-      switch (category) {
-        case ProductCategory.ELECTRONICS:
-          return [
-            "最新プロセッサー搭載",
-            "プレミアム材料使用",
-            "高性能バッテリー",
-            "直感的ユーザーインターフェース",
-            "堅牢で耐久性のある設計",
-            "高度セキュリティ機能",
-          ];
-        case ProductCategory.FASHION:
-          return [
-            "プレミアム素材構造",
-            "エルゴノミックデザイン",
-            "優れた快適性",
-            "スタイリッシュな外観",
-            "耐久性のある仕上げ",
-            "多用途使用可能",
-          ];
-        case ProductCategory.FOOD_BEVERAGE:
-          return [
-            "厳選された天然原料",
-            "豊かで複雑な風味プロファイル",
-            "職人による手作り品質",
-            "プレミアムパッケージング",
-            "持続可能な調達",
-            "認証品質保証",
-          ];
-        default:
-          return [
-            "高品質材料",
-            "革新的デザイン",
-            "優れた性能",
-            "ユーザーフレンドリー",
-            "信頼性の高い品質",
-            "プレミアム体験",
-          ];
-      }
-    } else {
-      switch (category) {
-        case ProductCategory.ELECTRONICS:
-          return [
-            "Latest Generation Processor",
-            "Premium Material Construction",
-            "High-Performance Battery System",
-            "Intuitive User Interface",
-            "Durable and Robust Design",
-            "Advanced Security Features",
-          ];
-        case ProductCategory.FASHION:
-          return [
-            "Premium Material Construction",
-            "Ergonomic Design",
-            "Superior Comfort",
-            "Stylish Appearance",
-            "Durable Finish",
-            "Versatile Usage",
-          ];
-        case ProductCategory.FOOD_BEVERAGE:
-          return [
-            "Carefully Selected Natural Ingredients",
-            "Rich and Complex Flavor Profile",
-            "Artisanal Crafted Quality",
-            "Premium Packaging",
-            "Sustainably Sourced",
-            "Certified Quality Assurance",
-          ];
-        default:
-          return [
-            "High-Quality Materials",
-            "Innovative Design",
-            "Superior Performance",
-            "User-Friendly Interface",
-            "Reliable Quality",
-            "Premium Experience",
-          ];
-      }
-    }
+    return localeConstants.categoryFeatures[category] || localeConstants.categoryFeatures.default;
   }
 
   /**
@@ -798,6 +1431,7 @@ JSON応答のみを返し、追加のテキストは含めないでください�
 
     // Infer category for dynamic content generation
     const category = this.inferProductCategory(request.productName);
+    const localeConstants = getLocaleConstants(request.locale);
 
     const mockAnalysis: ProductAnalysis = {
       // 📦 Product Analysis Data
@@ -805,7 +1439,7 @@ JSON応答のみを返し、追加のテキストは含めないでください�
         id: request.sessionId,
         category: category,
         subcategory: this.inferProductSubcategory(request.productName),
-        name: request.productName || (request.locale === "ja" ? "サンプル商品" : "Sample Product"),
+        name: request.productName || localeConstants.sampleProductName,
         // Product Summary for UI display - adapted to product
         description: this.generateProductDescription(request.productName, request.locale),
         // Key Features (bullet points) - adapted to product
@@ -816,15 +1450,7 @@ JSON応答のみを返し、追加のテキストは含めないでください�
           { name: "arctic silver", hex: "#e2e8f0", role: ColorRole.SECONDARY },
           { name: "deep ocean", hex: "#2563eb", role: ColorRole.ACCENT },
         ],
-        usageContext:
-          request.locale === "ja"
-            ? ["ビジネス会議", "プロフェッショナル撮影", "モバイルオフィス", "エグゼクティブライフ"]
-            : [
-                "business meetings",
-                "professional photography",
-                "mobile office",
-                "executive lifestyle",
-              ],
+        usageContext: localeConstants.usageContext,
         seasonality: "year-round",
       },
       // Target Audience (1-line summary)
@@ -1097,37 +1723,20 @@ JSON応答のみを返し、追加のテキストは含めないでください�
     productName?: string,
     locale?: "en" | "ja"
   ): Positioning {
+    const localeConstants = getLocaleConstants(locale || "en");
+    const valueProps = localeConstants.valuePropositions[category] || localeConstants.valuePropositions[ProductCategory.OTHER];
+    
     const positioningMap = {
       [ProductCategory.ELECTRONICS]: {
         brandPersonality: {
           traits: ["innovative", "premium", "professional", "sophisticated"],
           tone: BrandTone.LUXURY,
-          voice:
-            locale === "ja"
-              ? "革新的で権威的、そして感動的 - 非凡を求める方々へ"
-              : "confident, authoritative, and inspirational - for those who demand the extraordinary",
+          voice: localeConstants.brandVoices[ProductCategory.ELECTRONICS],
         },
         valueProposition: {
-          primaryBenefit:
-            locale === "ja"
-              ? `プロフェッショナルの究極の${productName || "電子機器"}パワーハウス`
-              : `The professional's ultimate ${productName || "electronic"} powerhouse`,
-          supportingBenefits:
-            locale === "ja"
-              ? ["業界をリードするAI機能", "比類なき性能とスピード", "洗練されたプレミアムデザイン"]
-              : [
-                  "Industry-leading AI capabilities",
-                  "Unmatched performance and speed",
-                  "Sophisticated premium design",
-                ],
-          differentiators:
-            locale === "ja"
-              ? ["統合されたAIテクノロジー", "プレミアム素材と製造", "専門的な機能セット"]
-              : [
-                  "Integrated AI technology",
-                  "Premium materials and construction",
-                  "Professional feature set",
-                ],
+          primaryBenefit: valueProps.primaryBenefit(productName),
+          supportingBenefits: valueProps.supportingBenefits,
+          differentiators: valueProps.differentiators,
         },
         competitiveAdvantages: {
           functional: [
@@ -1148,36 +1757,12 @@ JSON応答のみを返し、追加のテキストは含めないでください�
         brandPersonality: {
           traits: ["stylish", "trendy", "confident", "expressive"],
           tone: BrandTone.FRIENDLY,
-          voice:
-            locale === "ja"
-              ? "スタイリッシュで自信に満ちた、あなたらしさを表現する"
-              : "stylish, confident, and expressive - defining your unique style",
+          voice: localeConstants.brandVoices[ProductCategory.FASHION],
         },
         valueProposition: {
-          primaryBenefit:
-            locale === "ja"
-              ? `あなたのスタイルを完璧に表現する${productName || "ファッションアイテム"}`
-              : `The perfect ${productName || "fashion piece"} that expresses your unique style`,
-          supportingBenefits:
-            locale === "ja"
-              ? [
-                  "最新トレンドを取り入れたデザイン",
-                  "高品質で快適な着心地",
-                  "どんな場面でも映える versatility",
-                ]
-              : [
-                  "Latest trend-forward design",
-                  "Premium comfort and quality",
-                  "Versatile styling for any occasion",
-                ],
-          differentiators:
-            locale === "ja"
-              ? ["独占的なデザインコラボレーション", "サステナブルな材料使用", "限定コレクション"]
-              : [
-                  "Exclusive design collaborations",
-                  "Sustainable materials",
-                  "Limited collection pieces",
-                ],
+          primaryBenefit: localeConstants.valuePropositions[ProductCategory.FASHION].primaryBenefit(productName),
+          supportingBenefits: localeConstants.valuePropositions[ProductCategory.FASHION].supportingBenefits,
+          differentiators: localeConstants.valuePropositions[ProductCategory.FASHION].differentiators,
         },
         competitiveAdvantages: {
           functional: ["superior comfort", "quality materials", "versatile styling"],
@@ -1194,28 +1779,12 @@ JSON応答のみを返し、追加のテキストは含めないでください�
         brandPersonality: {
           traits: ["reliable", "comfortable", "practical", "welcoming"],
           tone: BrandTone.FRIENDLY,
-          voice:
-            locale === "ja"
-              ? "温かく信頼できる、心地よい暮らしをサポート"
-              : "warm, reliable, and supportive - enhancing your comfortable living",
+          voice: localeConstants.brandVoices[ProductCategory.HOME_GARDEN],
         },
         valueProposition: {
-          primaryBenefit:
-            locale === "ja"
-              ? `毎日の暮らしを豊かにする${productName || "ホームアイテム"}`
-              : `The ${productName || "home essential"} that enriches your daily life`,
-          supportingBenefits:
-            locale === "ja"
-              ? ["快適さと機能性の完璧な融合", "耐久性のある高品質素材", "どんなインテリアにも調和"]
-              : [
-                  "Perfect blend of comfort and functionality",
-                  "Durable premium materials",
-                  "Harmonizes with any interior",
-                ],
-          differentiators:
-            locale === "ja"
-              ? ["人間工学に基づいたデザイン", "エコフレンドリーな製造", "簡単メンテナンス"]
-              : ["Ergonomic design principles", "Eco-friendly manufacturing", "Easy maintenance"],
+          primaryBenefit: localeConstants.valuePropositions[ProductCategory.HOME_GARDEN].primaryBenefit(productName),
+          supportingBenefits: localeConstants.valuePropositions[ProductCategory.HOME_GARDEN].supportingBenefits,
+          differentiators: localeConstants.valuePropositions[ProductCategory.HOME_GARDEN].differentiators,
         },
         competitiveAdvantages: {
           functional: ["superior durability", "practical design", "easy maintenance"],
@@ -1232,36 +1801,12 @@ JSON応答のみを返し、追加のテキストは含めないでください�
         brandPersonality: {
           traits: ["fresh", "authentic", "wholesome", "satisfying"],
           tone: BrandTone.FRIENDLY,
-          voice:
-            locale === "ja"
-              ? "心温まる本格的な味、あなたの毎日を美味しく"
-              : "warm, authentic flavors that make every day delicious",
+          voice: localeConstants.brandVoices[ProductCategory.FOOD_BEVERAGE],
         },
         valueProposition: {
-          primaryBenefit:
-            locale === "ja"
-              ? `本格的な味わいを届ける${productName || "食品"}`
-              : `Authentic ${productName || "food"} that delivers exceptional taste`,
-          supportingBenefits:
-            locale === "ja"
-              ? [
-                  "厳選された最高品質の原材料",
-                  "伝統的な製法と現代的な安全性",
-                  "栄養バランスを考慮した製品",
-                ]
-              : [
-                  "Carefully selected premium ingredients",
-                  "Traditional methods with modern safety",
-                  "Nutritionally balanced product",
-                ],
-          differentiators:
-            locale === "ja"
-              ? ["職人による手作りの品質", "添加物を最小限に抑えた自然な味", "地域の特産品使用"]
-              : [
-                  "Artisanal crafted quality",
-                  "Natural taste with minimal additives",
-                  "Local specialty ingredients",
-                ],
+          primaryBenefit: localeConstants.valuePropositions[ProductCategory.FOOD_BEVERAGE].primaryBenefit(productName),
+          supportingBenefits: localeConstants.valuePropositions[ProductCategory.FOOD_BEVERAGE].supportingBenefits,
+          differentiators: localeConstants.valuePropositions[ProductCategory.FOOD_BEVERAGE].differentiators,
         },
         competitiveAdvantages: {
           functional: ["superior taste", "quality ingredients", "nutritional value"],
@@ -1278,24 +1823,12 @@ JSON応答のみを返し、追加のテキストは含めないでください�
         brandPersonality: {
           traits: ["nurturing", "wellness-focused", "premium", "trustworthy"],
           tone: BrandTone.FRIENDLY,
-          voice:
-            locale === "ja"
-              ? "あなたの美しさと健康を大切にサポート"
-              : "caring support for your beauty and wellness journey",
+          voice: localeConstants.brandVoices[ProductCategory.HEALTH_BEAUTY],
         },
         valueProposition: {
-          primaryBenefit:
-            locale === "ja"
-              ? `あなたの美と健康を輝かせる${productName || "製品"}`
-              : `${productName || "Product"} that enhances your beauty and wellness`,
-          supportingBenefits:
-            locale === "ja"
-              ? ["科学的に実証された成分", "肌に優しい天然素材", "持続可能な美容体験"]
-              : ["Scientifically proven ingredients", "Gentle natural materials", "Sustainable beauty experience"],
-          differentiators:
-            locale === "ja"
-              ? ["皮膚科医推奨", "クリーンビューティー", "個人に合わせたソリューション"]
-              : ["Dermatologist recommended", "Clean beauty", "Personalized solutions"],
+          primaryBenefit: localeConstants.valuePropositions[ProductCategory.HEALTH_BEAUTY].primaryBenefit(productName),
+          supportingBenefits: localeConstants.valuePropositions[ProductCategory.HEALTH_BEAUTY].supportingBenefits,
+          differentiators: localeConstants.valuePropositions[ProductCategory.HEALTH_BEAUTY].differentiators,
         },
         competitiveAdvantages: {
           functional: ["proven effectiveness", "gentle formulation", "visible results"],
@@ -1312,24 +1845,12 @@ JSON応答のみを返し、追加のテキストは含めないでください�
         brandPersonality: {
           traits: ["energetic", "adventurous", "durable", "performance-focused"],
           tone: BrandTone.AUTHORITATIVE,
-          voice:
-            locale === "ja"
-              ? "あなたの限界を超える冒険をサポート"
-              : "supporting your adventures beyond limits",
+          voice: localeConstants.brandVoices[ProductCategory.SPORTS_OUTDOORS],
         },
         valueProposition: {
-          primaryBenefit:
-            locale === "ja"
-              ? `あらゆる挑戦を支える${productName || "スポーツ用品"}`
-              : `${productName || "Sports equipment"} that supports every challenge`,
-          supportingBenefits:
-            locale === "ja"
-              ? ["過酷な環境での耐久性", "プロレベルの性能", "快適性と機能性の融合"]
-              : ["Durability in harsh conditions", "Professional-level performance", "Comfort and functionality fusion"],
-          differentiators:
-            locale === "ja"
-              ? ["アスリート協力開発", "環境に配慮した素材", "革新的技術統合"]
-              : ["Athlete-collaborated development", "Eco-friendly materials", "Innovative technology integration"],
+          primaryBenefit: localeConstants.valuePropositions[ProductCategory.SPORTS_OUTDOORS].primaryBenefit(productName),
+          supportingBenefits: localeConstants.valuePropositions[ProductCategory.SPORTS_OUTDOORS].supportingBenefits,
+          differentiators: localeConstants.valuePropositions[ProductCategory.SPORTS_OUTDOORS].differentiators,
         },
         competitiveAdvantages: {
           functional: ["superior durability", "enhanced performance", "weather resistance"],
@@ -1346,24 +1867,12 @@ JSON応答のみを返し、追加のテキストは含めないでください�
         brandPersonality: {
           traits: ["powerful", "reliable", "sophisticated", "innovative"],
           tone: BrandTone.LUXURY,
-          voice:
-            locale === "ja"
-              ? "力強く洗練された走りで、あなたの道のりを特別に"
-              : "powerful and sophisticated driving that makes your journey special",
+          voice: localeConstants.brandVoices[ProductCategory.AUTOMOTIVE],
         },
         valueProposition: {
-          primaryBenefit:
-            locale === "ja"
-              ? `卓越した走行性能を実現する${productName || "自動車"}`
-              : `${productName || "Vehicle"} delivering exceptional driving performance`,
-          supportingBenefits:
-            locale === "ja"
-              ? ["最先端の安全技術", "燃費効率と環境性能", "プレミアムな乗り心地"]
-              : ["Cutting-edge safety technology", "Fuel efficiency and environmental performance", "Premium driving comfort"],
-          differentiators:
-            locale === "ja"
-              ? ["独自のエンジン技術", "先進的な自動運転機能", "カスタマイゼーション"]
-              : ["Proprietary engine technology", "Advanced autonomous features", "Extensive customization"],
+          primaryBenefit: localeConstants.valuePropositions[ProductCategory.AUTOMOTIVE].primaryBenefit(productName),
+          supportingBenefits: localeConstants.valuePropositions[ProductCategory.AUTOMOTIVE].supportingBenefits,
+          differentiators: localeConstants.valuePropositions[ProductCategory.AUTOMOTIVE].differentiators,
         },
         competitiveAdvantages: {
           functional: ["superior performance", "advanced safety", "fuel efficiency"],
@@ -1380,24 +1889,12 @@ JSON応答のみを返し、追加のテキストは含めないでください�
         brandPersonality: {
           traits: ["intellectual", "inspiring", "accessible", "enriching"],
           tone: BrandTone.PROFESSIONAL,
-          voice:
-            locale === "ja"
-              ? "知識と想像力を広げる、心豊かな体験を"
-              : "expanding knowledge and imagination for enriching experiences",
+          voice: localeConstants.brandVoices[ProductCategory.BOOKS_MEDIA],
         },
         valueProposition: {
-          primaryBenefit:
-            locale === "ja"
-              ? `あなたの世界を広げる${productName || "書籍・メディア"}`
-              : `${productName || "Book/Media"} that expands your world`,
-          supportingBenefits:
-            locale === "ja"
-              ? ["専門的で信頼できる内容", "読みやすい構成と文章", "実用的な知識とスキル"]
-              : ["Expert and reliable content", "Reader-friendly structure", "Practical knowledge and skills"],
-          differentiators:
-            locale === "ja"
-              ? ["著名な専門家監修", "インタラクティブな学習体験", "多様なフォーマット対応"]
-              : ["Expert author collaboration", "Interactive learning experience", "Multiple format availability"],
+          primaryBenefit: localeConstants.valuePropositions[ProductCategory.BOOKS_MEDIA].primaryBenefit(productName),
+          supportingBenefits: localeConstants.valuePropositions[ProductCategory.BOOKS_MEDIA].supportingBenefits,
+          differentiators: localeConstants.valuePropositions[ProductCategory.BOOKS_MEDIA].differentiators,
         },
         competitiveAdvantages: {
           functional: ["comprehensive content", "expert insights", "practical application"],
@@ -1414,24 +1911,12 @@ JSON応答のみを返し、追加のテキストは含めないでください�
         brandPersonality: {
           traits: ["playful", "creative", "educational", "fun"],
           tone: BrandTone.PLAYFUL,
-          voice:
-            locale === "ja"
-              ? "遊びを通じて学び、創造性を育む楽しい時間を"
-              : "fun times that foster learning and creativity through play",
+          voice: localeConstants.brandVoices[ProductCategory.TOYS_GAMES],
         },
         valueProposition: {
-          primaryBenefit:
-            locale === "ja"
-              ? `創造性と学習を促す${productName || "おもちゃ・ゲーム"}`
-              : `${productName || "Toy/Game"} that promotes creativity and learning`,
-          supportingBenefits:
-            locale === "ja"
-              ? ["安全で高品質な素材", "年齢に適した設計", "教育的価値と娯楽性の両立"]
-              : ["Safe and high-quality materials", "Age-appropriate design", "Educational value and entertainment"],
-          differentiators:
-            locale === "ja"
-              ? ["教育専門家監修", "持続可能な製造", "長期間楽しめる設計"]
-              : ["Educational expert supervision", "Sustainable manufacturing", "Long-lasting enjoyment design"],
+          primaryBenefit: localeConstants.valuePropositions[ProductCategory.TOYS_GAMES].primaryBenefit(productName),
+          supportingBenefits: localeConstants.valuePropositions[ProductCategory.TOYS_GAMES].supportingBenefits,
+          differentiators: localeConstants.valuePropositions[ProductCategory.TOYS_GAMES].differentiators,
         },
         competitiveAdvantages: {
           functional: ["educational benefits", "safety standards", "durability"],
@@ -1448,24 +1933,12 @@ JSON応答のみを返し、追加のテキストは含めないでください�
         brandPersonality: {
           traits: ["professional", "efficient", "reliable", "innovative"],
           tone: BrandTone.AUTHORITATIVE,
-          voice:
-            locale === "ja"
-              ? "ビジネスの成功を支える信頼できるパートナー"
-              : "trusted partner supporting your business success",
+          voice: localeConstants.brandVoices[ProductCategory.BUSINESS],
         },
         valueProposition: {
-          primaryBenefit:
-            locale === "ja"
-              ? `ビジネス効率を最大化する${productName || "ソリューション"}`
-              : `${productName || "Solution"} that maximizes business efficiency`,
-          supportingBenefits:
-            locale === "ja"
-              ? ["ROI向上とコスト削減", "スケーラブルなソリューション", "専門サポートとトレーニング"]
-              : ["ROI improvement and cost reduction", "Scalable solutions", "Expert support and training"],
-          differentiators:
-            locale === "ja"
-              ? ["業界特化型機能", "エンタープライズグレード", "24/7サポート体制"]
-              : ["Industry-specific features", "Enterprise-grade quality", "24/7 support system"],
+          primaryBenefit: localeConstants.valuePropositions[ProductCategory.BUSINESS].primaryBenefit(productName),
+          supportingBenefits: localeConstants.valuePropositions[ProductCategory.BUSINESS].supportingBenefits,
+          differentiators: localeConstants.valuePropositions[ProductCategory.BUSINESS].differentiators,
         },
         competitiveAdvantages: {
           functional: ["operational efficiency", "integration capabilities", "data security"],
@@ -1482,24 +1955,12 @@ JSON応答のみを返し、追加のテキストは含めないでください�
         brandPersonality: {
           traits: ["reliable", "practical", "quality", "trustworthy"],
           tone: BrandTone.PROFESSIONAL,
-          voice:
-            locale === "ja"
-              ? "信頼できる品質で、あなたのニーズに応えます"
-              : "reliable quality that meets your needs",
+          voice: "reliable quality that meets your needs", // No BUSINESS in brandVoices, use fallback
         },
         valueProposition: {
-          primaryBenefit:
-            locale === "ja"
-              ? `信頼性と品質を兼ね備えた${productName || "製品"}`
-              : `Reliable and quality ${productName || "product"} you can trust`,
-          supportingBenefits:
-            locale === "ja"
-              ? ["確かな品質基準", "実用的なデザイン", "お求めやすい価格"]
-              : ["Proven quality standards", "Practical design", "Accessible pricing"],
-          differentiators:
-            locale === "ja"
-              ? ["厳格な品質管理", "ユーザーフレンドリーな設計", "充実したサポート"]
-              : ["Rigorous quality control", "User-friendly design", "Comprehensive support"],
+          primaryBenefit: localeConstants.valuePropositions[ProductCategory.OTHER].primaryBenefit(productName),
+          supportingBenefits: localeConstants.valuePropositions[ProductCategory.OTHER].supportingBenefits,
+          differentiators: localeConstants.valuePropositions[ProductCategory.OTHER].differentiators,
         },
         competitiveAdvantages: {
           functional: ["reliable performance", "practical features", "good value"],
@@ -1523,831 +1984,40 @@ JSON応答のみを返し、追加のテキストは含めないでください�
   private generateCommercialStrategy(
     category: ProductCategory,
     productName?: string,
-    locale?: "en" | "ja"
+    locale: "en" | "ja" = "en"
   ): CommercialStrategy {
-    const strategyMap = {
-      [ProductCategory.ELECTRONICS]: {
-        keyMessages: {
-          headline:
-            locale === "ja"
-              ? `${productName || "テクノロジー"}でプロフェッショナルを超越せよ`
-              : `Transcend Professional with ${productName || "Technology"}`,
-          tagline:
-            locale === "ja"
-              ? "パワー。プレステージ。パーフェクション。"
-              : "Power. Prestige. Perfection.",
-          supportingMessages:
-            locale === "ja"
-              ? [
-                  "AI駆動ビジネスエクセレンス",
-                  "妥協なきプレミアム品質",
-                  "エグゼクティブのためのテクノロジー",
-                ]
-              : [
-                  "AI-Driven Business Excellence",
-                  "Uncompromising Premium Quality",
-                  "Technology for Executives",
-                ],
-        },
-        emotionalTriggers: {
-          primary: {
-            type: EmotionalTriggerType.ASPIRATION,
-            description: "Desire for professional leadership and recognition",
-            intensity: "strong" as const,
-          },
-          secondary: [
-            {
-              type: EmotionalTriggerType.PRIDE,
-              description: "Achievement and status validation",
-              intensity: "strong" as const,
-            },
-            {
-              type: EmotionalTriggerType.TRUST,
-              description: "Confidence in premium reliability",
-              intensity: "moderate" as const,
-            },
-          ],
-        },
-        callToAction: {
-          primary: locale === "ja" ? "エクセレンスを体験" : "Experience Excellence",
-          secondary:
-            locale === "ja"
-              ? ["プレミアム機能", "専門家評価", "VIP体験予約"]
-              : ["Premium Features", "Expert Reviews", "Book VIP Experience"],
-        },
-        storytelling: {
-          narrative:
-            locale === "ja"
-              ? `プロフェッショナルが${productName || "最先端技術"}で革新的成功を実現する物語`
-              : `Professional achieving breakthrough success through ${productName || "cutting-edge innovation"}`,
-          conflict:
-            locale === "ja"
-              ? "競争の激しいビジネス環境で卓越したパフォーマンスが求められる挑戦"
-              : "The challenge of exceptional performance in highly competitive business environments",
-          resolution:
-            locale === "ja"
-              ? `${productName || "完璧なツール"}による effortless な成功とリーダーシップの確立`
-              : `Effortless success and leadership establishment through ${productName || "the perfect professional tool"}`,
-        },
-        keyScenes: {
-          opening:
-            locale === "ja"
-              ? `重要なプレゼンテーション前に${productName || "製品"}を準備するプロフェッショナル`
-              : `Professional preparing ${productName || "product"} before important presentation`,
-          productShowcase:
-            locale === "ja"
-              ? `${productName || "製品"}の洗練されたデザインと先進機能のクローズアップ`
-              : `Close-up showcasing ${productName || "product"} sleek design and advanced features`,
-          problemSolution:
-            locale === "ja"
-              ? `${productName || "製品"}の機能で複雑な課題を瞬時に解決するシーン`
-              : `${productName || "Product"} instantly solving complex challenges with advanced capabilities`,
-          emotionalMoment:
-            locale === "ja"
-              ? `${productName || "製品"}で大切な人とつながる温かい瞬間`
-              : `Warm moment connecting with loved ones through ${productName || "product"}`,
-          callToAction:
-            locale === "ja"
-              ? `プレミアムショールームでの${productName || "製品"}体験と製品ロゴ`
-              : `${productName || "Product"} experience at premium showroom with logo reveal`,
-        },
+    const template = getCommercialStrategyTemplate(category, locale);
+    
+    return {
+      keyMessages: {
+        headline: typeof template.headline === 'function' ? template.headline(productName) : template.headline,
+        tagline: template.tagline,
+        supportingMessages: template.supportingMessages
       },
-      [ProductCategory.FASHION]: {
-        keyMessages: {
-          headline:
-            locale === "ja"
-              ? `${productName || "ファッション"}でスタイルを再定義`
-              : `Redefine Style with ${productName || "Fashion"}`,
-          tagline:
-            locale === "ja" ? "自信。スタイル。あなたらしさ。" : "Confidence. Style. Authenticity.",
-          supportingMessages:
-            locale === "ja"
-              ? [
-                  "あなただけの個性的なスタイル",
-                  "最高品質の快適さ",
-                  "どんな場面でも輝く versatility",
-                ]
-              : [
-                  "Your unique personal style",
-                  "Premium comfort quality",
-                  "Versatile elegance for any occasion",
-                ],
+      emotionalTriggers: {
+        primary: {
+          type: EmotionalTriggerType.EXCITEMENT,
+          description: template.narrative,
+          intensity: 'strong' as const
         },
-        emotionalTriggers: {
-          primary: {
-            type: "confidence" as const,
-            description: "Feeling stylish and confident",
-            intensity: "strong" as const,
-          },
-          secondary: [
-            {
-              type: EmotionalTriggerType.PRIDE,
-              description: "Style expression and individuality",
-              intensity: "strong" as const,
-            },
-            {
-              type: EmotionalTriggerType.ASPIRATION,
-              description: "Desire to look fashionable",
-              intensity: "moderate" as const,
-            },
-          ],
-        },
-        callToAction: {
-          primary: locale === "ja" ? "スタイルを発見" : "Discover Your Style",
-          secondary:
-            locale === "ja"
-              ? ["コレクション", "スタイリング", "限定アイテム"]
-              : ["View Collection", "Style Guide", "Exclusive Pieces"],
-        },
-        storytelling: {
-          narrative:
-            locale === "ja"
-              ? `${productName || "ファッション"}で自分らしいスタイルを見つける旅`
-              : `Journey of discovering personal style through ${productName || "fashion"}`,
-          conflict:
-            locale === "ja"
-              ? "自分らしいスタイルを表現したいという願望"
-              : "The desire to express authentic personal style",
-          resolution:
-            locale === "ja"
-              ? `${productName || "ファッション"}で完璧な self-expression の達成`
-              : `Perfect self-expression achieved through ${productName || "fashion"}`,
-        },
-        keyScenes: {
-          opening:
-            locale === "ja"
-              ? `クローゼットで${productName || "ファッションアイテム"}を選ぶシーン`
-              : `Selecting ${productName || "fashion item"} from wardrobe`,
-          productShowcase:
-            locale === "ja"
-              ? `${productName || "製品"}の美しいテクスチャーとデザインの detail shots`
-              : `Beautiful texture and design detail shots of ${productName || "product"}`,
-          problemSolution:
-            locale === "ja"
-              ? `${productName || "製品"}でスタイリッシュに問題を解決するシーン`
-              : `Stylishly solving situations with ${productName || "product"}`,
-          emotionalMoment:
-            locale === "ja"
-              ? `鏡で${productName || "製品"}を身に着けて微笑む瞬間`
-              : `Smiling moment wearing ${productName || "product"} in mirror`,
-          callToAction:
-            locale === "ja"
-              ? `ブティックで${productName || "製品"}を試着するシーンとブランドロゴ`
-              : `Trying ${productName || "product"} at boutique with brand logo reveal`,
-        },
+        secondary: []
       },
-      [ProductCategory.HOME_GARDEN]: {
-        keyMessages: {
-          headline:
-            locale === "ja"
-              ? `${productName || "ホームアイテム"}で暮らしを豊かに`
-              : `Enrich Your Life with ${productName || "Home Essential"}`,
-          tagline: locale === "ja" ? "快適。機能。美しさ。" : "Comfort. Function. Beauty.",
-          supportingMessages:
-            locale === "ja"
-              ? ["毎日の快適さを向上", "実用的で美しいデザイン", "家族みんなが喜ぶ品質"]
-              : [
-                  "Enhanced daily comfort",
-                  "Practical beautiful design",
-                  "Quality the whole family loves",
-                ],
-        },
-        emotionalTriggers: {
-          primary: {
-            type: "comfort" as const,
-            description: "Creating a cozy, comfortable home",
-            intensity: "strong" as const,
-          },
-          secondary: [
-            {
-              type: "care" as const,
-              description: "Caring for family wellbeing",
-              intensity: "moderate" as const,
-            },
-            {
-              type: EmotionalTriggerType.PRIDE,
-              description: "Home pride and satisfaction",
-              intensity: "moderate" as const,
-            },
-          ],
-        },
-        callToAction: {
-          primary: locale === "ja" ? "快適を体験" : "Experience Comfort",
-          secondary:
-            locale === "ja"
-              ? ["ホームツアー", "製品詳細", "設置相談"]
-              : ["Home Tour", "Product Details", "Setup Consultation"],
-        },
-        storytelling: {
-          narrative:
-            locale === "ja"
-              ? `${productName || "ホームアイテム"}で家族の時間をより特別にする物語`
-              : `Making family moments more special with ${productName || "home essential"}`,
-          conflict:
-            locale === "ja"
-              ? "忙しい生活の中で快適な家庭環境を作りたい願い"
-              : "The desire to create comfortable home environment amid busy life",
-          resolution:
-            locale === "ja"
-              ? `${productName || "製品"}で実現する毎日の幸せと家族の絆`
-              : `Daily happiness and family bonding realized through ${productName || "product"}`,
-        },
-        keyScenes: {
-          opening:
-            locale === "ja"
-              ? `家族が${productName || "製品"}のある空間でリラックスするシーン`
-              : `Family relaxing in space with ${productName || "product"}`,
-          productShowcase:
-            locale === "ja"
-              ? `${productName || "製品"}の機能性と美しさを映すクローズアップ`
-              : `Close-up showcasing ${productName || "product"} functionality and beauty`,
-          problemSolution:
-            locale === "ja"
-              ? `${productName || "製品"}が日常の inconvenience を解決するシーン`
-              : `${productName || "Product"} solving daily inconveniences`,
-          emotionalMoment:
-            locale === "ja"
-              ? `${productName || "製品"}と共に過ごす家族の温かい時間`
-              : `Warm family moments shared with ${productName || "product"}`,
-          callToAction:
-            locale === "ja"
-              ? `ショールームで${productName || "製品"}を体験するシーンとブランドロゴ`
-              : `Experiencing ${productName || "product"} at showroom with brand logo`,
-        },
+      callToAction: {
+        primary: template.callToAction.primary,
+        secondary: template.callToAction.secondary
       },
-      [ProductCategory.FOOD_BEVERAGE]: {
-        keyMessages: {
-          headline:
-            locale === "ja"
-              ? `${productName || "美食"}で毎日を特別に`
-              : `Make Every Day Special with ${productName || "Gourmet"}`,
-          tagline: locale === "ja" ? "本格。新鮮。満足。" : "Authentic. Fresh. Satisfying.",
-          supportingMessages:
-            locale === "ja"
-              ? ["職人の技による本格的な味", "厳選素材の自然な美味しさ", "家族が笑顔になる食卓"]
-              : [
-                  "Authentic taste by artisan craftsmanship",
-                  "Natural deliciousness of selected ingredients",
-                  "Family smiles at the dining table",
-                ],
-        },
-        emotionalTriggers: {
-          primary: {
-            type: "pleasure" as const,
-            description: "Pure enjoyment of delicious food",
-            intensity: "strong" as const,
-          },
-          secondary: [
-            {
-              type: "comfort" as const,
-              description: "Comfort food satisfaction",
-              intensity: "moderate" as const,
-            },
-            {
-              type: "nostalgia" as const,
-              description: "Memories of special meals",
-              intensity: "moderate" as const,
-            },
-          ],
-        },
-        callToAction: {
-          primary: locale === "ja" ? "美味しさを体験" : "Taste the Difference",
-          secondary:
-            locale === "ja"
-              ? ["レシピ", "購入", "職人の話"]
-              : ["Recipes", "Purchase", "Artisan Story"],
-        },
-        storytelling: {
-          narrative:
-            locale === "ja"
-              ? `${productName || "美食"}で家族の食卓に笑顔と美味しさを運ぶ物語`
-              : `Bringing smiles and deliciousness to family table with ${productName || "gourmet food"}`,
-          conflict:
-            locale === "ja"
-              ? "忙しい毎日でも家族に本当に美味しい食事を提供したい想い"
-              : "The desire to provide truly delicious meals for family despite busy daily life",
-          resolution:
-            locale === "ja"
-              ? `${productName || "美食"}で実現する special な食事時間と家族の幸せ`
-              : `Special mealtime and family happiness realized through ${productName || "gourmet food"}`,
-        },
-        keyScenes: {
-          opening:
-            locale === "ja"
-              ? `キッチンで${productName || "食品"}を準備するシーン`
-              : `Preparing ${productName || "food"} in kitchen`,
-          productShowcase:
-            locale === "ja"
-              ? `${productName || "食品"}の美しい見た目と質感のクローズアップ`
-              : `Close-up of ${productName || "food"} beautiful appearance and texture`,
-          problemSolution:
-            locale === "ja"
-              ? `${productName || "食品"}で簡単に美味しい料理を完成させるシーン`
-              : `Easily completing delicious dish with ${productName || "food"}`,
-          emotionalMoment:
-            locale === "ja"
-              ? `${productName || "食品"}を味わって笑顔になる家族のシーン`
-              : `Family smiling while enjoying ${productName || "food"}`,
-          callToAction:
-            locale === "ja"
-              ? `レストランやマーケットで${productName || "食品"}を発見するシーンとブランドロゴ`
-              : `Discovering ${productName || "food"} at restaurant or market with brand logo`,
-        },
+      storytelling: {
+        narrative: template.narrative,
+        conflict: template.conflict,
+        resolution: template.resolution
       },
-      [ProductCategory.HEALTH_BEAUTY]: {
-        keyMessages: {
-          headline:
-            locale === "ja"
-              ? `${productName || "美容"}で本当の美しさを`
-              : `True Beauty with ${productName || "Beauty"}`,
-          tagline: locale === "ja" ? "美しさ。健康。輝き。" : "Beauty. Wellness. Radiance.",
-          supportingMessages:
-            locale === "ja"
-              ? ["科学的に実証された効果", "自然由来の安心成分", "あなただけの美容体験"]
-              : ["Scientifically proven results", "Natural trusted ingredients", "Your personalized beauty journey"],
-        },
-        emotionalTriggers: {
-          primary: {
-            type: EmotionalTriggerType.JOY,
-            description: "Self-care and confidence enhancement",
-            intensity: "strong" as const,
-          },
-          secondary: [
-            {
-              type: EmotionalTriggerType.TRUST,
-              description: "Confidence in safety and effectiveness",
-              intensity: "strong" as const,
-            },
-          ],
-        },
-        callToAction: {
-          primary: locale === "ja" ? "美しさを実感" : "Experience Beauty",
-          secondary:
-            locale === "ja"
-              ? ["専門家の評価", "お客様の声", "無料お試し"]
-              : ["Expert Reviews", "Customer Stories", "Free Trial"],
-        },
-        storytelling: {
-          narrative:
-            locale === "ja"
-              ? `${productName || "美容製品"}で自分らしい美しさを発見する物語`
-              : `Discovering your authentic beauty with ${productName || "beauty product"}`,
-          conflict:
-            locale === "ja"
-              ? "自分に合う美容製品を見つけるのが難しい"
-              : "Difficulty finding the right beauty products for you",
-          resolution:
-            locale === "ja"
-              ? `${productName || "美容製品"}で自信と輝きに満ちた毎日を実現`
-              : `Achieving confident and radiant days with ${productName || "beauty product"}`,
-        },
-        keyScenes: {
-          opening:
-            locale === "ja"
-              ? `朝の美容ルーティンで${productName || "製品"}を使用するシーン`
-              : `Using ${productName || "product"} in morning beauty routine`,
-          productShowcase:
-            locale === "ja"
-              ? `${productName || "製品"}のテクスチャと仕上がりのクローズアップ`
-              : `Close-up of ${productName || "product"} texture and finish`,
-          problemSolution:
-            locale === "ja"
-              ? `${productName || "製品"}で肌悩みを解決するビフォーアフター`
-              : `Before and after solving skin concerns with ${productName || "product"}`,
-          emotionalMoment:
-            locale === "ja"
-              ? `鏡を見て${productName || "製品"}の効果に満足する瞬間`
-              : `Moment of satisfaction seeing ${productName || "product"} results in mirror`,
-          callToAction:
-            locale === "ja"
-              ? `${productName || "製品"}の購入を決める瞬間とブランドロゴ`
-              : `Deciding to purchase ${productName || "product"} with brand logo`,
-        },
-      },
-      [ProductCategory.SPORTS_OUTDOORS]: {
-        keyMessages: {
-          headline:
-            locale === "ja"
-              ? `${productName || "アドベンチャー"}で限界を超えろ`
-              : `Push Beyond Limits with ${productName || "Adventure"}`,
-          tagline: locale === "ja" ? "冒険。パフォーマンス。勝利。" : "Adventure. Performance. Victory.",
-          supportingMessages:
-            locale === "ja"
-              ? ["プロアスリート認定品質", "過酷な環境対応設計", "記録更新をサポート"]
-              : ["Pro-athlete approved quality", "Extreme condition design", "Record-breaking support"],
-        },
-        emotionalTriggers: {
-          primary: {
-            type: EmotionalTriggerType.EXCITEMENT,
-            description: "Thrill of adventure and achievement",
-            intensity: "strong" as const,
-          },
-          secondary: [
-            {
-              type: EmotionalTriggerType.PRIDE,
-              description: "Athletic achievement and personal records",
-              intensity: "strong" as const,
-            },
-          ],
-        },
-        callToAction: {
-          primary: locale === "ja" ? "冒険を始めよう" : "Start Your Adventure",
-          secondary:
-            locale === "ja"
-              ? ["プロ仕様体験", "フィールドテスト", "チーム割引"]
-              : ["Pro Experience", "Field Test", "Team Discount"],
-        },
-        storytelling: {
-          narrative:
-            locale === "ja"
-              ? `${productName || "スポーツ用品"}で自分の可能性を最大限に引き出す物語`
-              : `Maximizing your potential with ${productName || "sports equipment"}`,
-          conflict:
-            locale === "ja"
-              ? "厳しいアウトドア環境で求められる高性能と信頼性"
-              : "Need for high performance and reliability in challenging outdoor environments",
-          resolution:
-            locale === "ja"
-              ? `${productName || "スポーツ用品"}で新しい記録と達成感を獲得`
-              : `Achieving new records and accomplishments with ${productName || "sports equipment"}`,
-        },
-        keyScenes: {
-          opening:
-            locale === "ja"
-              ? `アウトドアで${productName || "用品"}を装備するシーン`
-              : `Equipping ${productName || "equipment"} for outdoor activity`,
-          productShowcase:
-            locale === "ja"
-              ? `${productName || "用品"}の耐久性と機能性のクローズアップ`
-              : `Close-up of ${productName || "equipment"} durability and functionality`,
-          problemSolution:
-            locale === "ja"
-              ? `${productName || "用品"}で困難な状況を突破するシーン`
-              : `Breaking through challenging situations with ${productName || "equipment"}`,
-          emotionalMoment:
-            locale === "ja"
-              ? `${productName || "用品"}で目標達成した時の喜びの瞬間`
-              : `Moment of joy achieving goals with ${productName || "equipment"}`,
-          callToAction:
-            locale === "ja"
-              ? `アウトドアショップで${productName || "用品"}を手に取るシーンとブランドロゴ`
-              : `Picking up ${productName || "equipment"} at outdoor shop with brand logo`,
-        },
-      },
-      [ProductCategory.AUTOMOTIVE]: {
-        keyMessages: {
-          headline:
-            locale === "ja"
-              ? `${productName || "モビリティ"}で道を支配せよ`
-              : `Command the Road with ${productName || "Mobility"}`,
-          tagline: locale === "ja" ? "パワー。コントロール。自由。" : "Power. Control. Freedom.",
-          supportingMessages:
-            locale === "ja"
-              ? ["圧倒的な走行性能", "最先端安全テクノロジー", "プレミアムドライビング体験"]
-              : ["Overwhelming performance", "Cutting-edge safety technology", "Premium driving experience"],
-        },
-        emotionalTriggers: {
-          primary: {
-            type: EmotionalTriggerType.PRIDE,
-            description: "Status and driving excellence",
-            intensity: "strong" as const,
-          },
-          secondary: [
-            {
-              type: EmotionalTriggerType.EXCITEMENT,
-              description: "Thrill of powerful driving experience",
-              intensity: "strong" as const,
-            },
-          ],
-        },
-        callToAction: {
-          primary: locale === "ja" ? "ドライブを体験" : "Experience the Drive",
-          secondary:
-            locale === "ja"
-              ? ["テストドライブ", "カスタムオプション", "特別価格"]
-              : ["Test Drive", "Custom Options", "Special Pricing"],
-        },
-        storytelling: {
-          narrative:
-            locale === "ja"
-              ? `${productName || "車"}で人生の新しいステージへ加速する物語`
-              : `Accelerating to new life stages with ${productName || "vehicle"}`,
-          conflict:
-            locale === "ja"
-              ? "日常とは違う特別なドライビング体験への憧れ"
-              : "Yearning for extraordinary driving experience beyond everyday life",
-          resolution:
-            locale === "ja"
-              ? `${productName || "車"}で実現する自由で洗練されたライフスタイル`
-              : `Free and sophisticated lifestyle realized with ${productName || "vehicle"}`,
-        },
-        keyScenes: {
-          opening:
-            locale === "ja"
-              ? `${productName || "車"}に乗り込む瞬間のシーン`
-              : `Moment of getting into ${productName || "vehicle"}`,
-          productShowcase:
-            locale === "ja"
-              ? `${productName || "車"}のエクステリアとインテリアのクローズアップ`
-              : `Close-up of ${productName || "vehicle"} exterior and interior`,
-          problemSolution:
-            locale === "ja"
-              ? `${productName || "車"}で都市の交通渋滞を華麗に抜けるシーン`
-              : `Elegantly navigating city traffic with ${productName || "vehicle"}`,
-          emotionalMoment:
-            locale === "ja"
-              ? `${productName || "車"}でのドライブで感じる満足と自由の瞬間`
-              : `Moment of satisfaction and freedom felt while driving ${productName || "vehicle"}`,
-          callToAction:
-            locale === "ja"
-              ? `ディーラーで${productName || "車"}を確認するシーンとブランドロゴ`
-              : `Checking ${productName || "vehicle"} at dealer with brand logo`,
-        },
-      },
-      [ProductCategory.BOOKS_MEDIA]: {
-        keyMessages: {
-          headline:
-            locale === "ja"
-              ? `${productName || "知識"}で世界を広げよう`
-              : `Expand Your World with ${productName || "Knowledge"}`,
-          tagline: locale === "ja" ? "学び。発見。成長。" : "Learn. Discover. Grow.",
-          supportingMessages:
-            locale === "ja"
-              ? ["専門家の知見を凝縮", "実践的なスキルアップ", "新しい視点を獲得"]
-              : ["Concentrated expert insights", "Practical skill development", "Gaining new perspectives"],
-        },
-        emotionalTriggers: {
-          primary: {
-            type: EmotionalTriggerType.ASPIRATION,
-            description: "Desire for knowledge and personal growth",
-            intensity: "moderate" as const,
-          },
-          secondary: [
-            {
-              type: EmotionalTriggerType.PRIDE,
-              description: "Intellectual achievement and learning",
-              intensity: "moderate" as const,
-            },
-          ],
-        },
-        callToAction: {
-          primary: locale === "ja" ? "学習を開始" : "Start Learning",
-          secondary:
-            locale === "ja"
-              ? ["サンプル閲覧", "読者レビュー", "まとめ買い割引"]
-              : ["Preview Sample", "Reader Reviews", "Bundle Discount"],
-        },
-        storytelling: {
-          narrative:
-            locale === "ja"
-              ? `${productName || "書籍"}で新たな可能性と知識を発見する物語`
-              : `Discovering new possibilities and knowledge with ${productName || "book"}`,
-          conflict:
-            locale === "ja"
-              ? "スキルアップや知識習得のための質の高い情報源を求める悩み"
-              : "The challenge of finding quality information sources for skill development and learning",
-          resolution:
-            locale === "ja"
-              ? `${productName || "書籍"}で得た知識による成長と成功の実現`
-              : `Growth and success achieved through knowledge gained from ${productName || "book"}`,
-        },
-        keyScenes: {
-          opening:
-            locale === "ja"
-              ? `静かな場所で${productName || "書籍"}を開くシーン`
-              : `Opening ${productName || "book"} in quiet place`,
-          productShowcase:
-            locale === "ja"
-              ? `${productName || "書籍"}の内容とレイアウトのクローズアップ`
-              : `Close-up of ${productName || "book"} content and layout`,
-          problemSolution:
-            locale === "ja"
-              ? `${productName || "書籍"}の知識を実際に応用するシーン`
-              : `Applying knowledge from ${productName || "book"} in practice`,
-          emotionalMoment:
-            locale === "ja"
-              ? `${productName || "書籍"}を読んで新しい発見に驚く瞬間`
-              : `Moment of surprise at new discoveries while reading ${productName || "book"}`,
-          callToAction:
-            locale === "ja"
-              ? `書店やオンラインで${productName || "書籍"}を購入するシーンとブランドロゴ`
-              : `Purchasing ${productName || "book"} at bookstore or online with brand logo`,
-        },
-      },
-      [ProductCategory.TOYS_GAMES]: {
-        keyMessages: {
-          headline:
-            locale === "ja"
-              ? `${productName || "遊び"}で創造性を解放しよう`
-              : `Unleash Creativity with ${productName || "Play"}`,
-          tagline: locale === "ja" ? "遊び。学び。笑顔。" : "Play. Learn. Smile.",
-          supportingMessages:
-            locale === "ja"
-              ? ["安全で教育的な設計", "家族みんなで楽しめる", "創造性と思考力を育成"]
-              : ["Safe and educational design", "Fun for the whole family", "Nurturing creativity and thinking"],
-        },
-        emotionalTriggers: {
-          primary: {
-            type: EmotionalTriggerType.JOY,
-            description: "Fun and family bonding",
-            intensity: "strong" as const,
-          },
-          secondary: [
-            {
-              type: EmotionalTriggerType.PRIDE,
-              description: "Children's growth and achievement",
-              intensity: "moderate" as const,
-            },
-          ],
-        },
-        callToAction: {
-          primary: locale === "ja" ? "楽しさを体験" : "Experience the Fun",
-          secondary:
-            locale === "ja"
-              ? ["実演デモ", "年齢別ガイド", "セット購入特典"]
-              : ["Live Demo", "Age Guide", "Bundle Special"],
-        },
-        storytelling: {
-          narrative:
-            locale === "ja"
-              ? `${productName || "おもちゃ"}で家族の絆を深め子供の成長を支える物語`
-              : `Strengthening family bonds and supporting children's growth with ${productName || "toy"}`,
-          conflict:
-            locale === "ja"
-              ? "子供の発達に良い影響を与える質の高いおもちゃを選ぶ悩み"
-              : "The challenge of choosing quality toys that positively influence child development",
-          resolution:
-            locale === "ja"
-              ? `${productName || "おもちゃ"}で実現する家族の幸せな時間と子供の成長`
-              : `Happy family time and child growth realized with ${productName || "toy"}`,
-        },
-        keyScenes: {
-          opening:
-            locale === "ja"
-              ? `子供が${productName || "おもちゃ"}を発見して目を輝かせるシーン`
-              : `Child discovering ${productName || "toy"} with eyes lighting up`,
-          productShowcase:
-            locale === "ja"
-              ? `${productName || "おもちゃ"}の機能と安全性のクローズアップ`
-              : `Close-up of ${productName || "toy"} features and safety`,
-          problemSolution:
-            locale === "ja"
-              ? `${productName || "おもちゃ"}で親子が協力して問題を解決するシーン`
-              : `Parent and child working together to solve problems with ${productName || "toy"}`,
-          emotionalMoment:
-            locale === "ja"
-              ? `${productName || "おもちゃ"}で遊ぶ家族の笑顔あふれる瞬間`
-              : `Family moment full of smiles while playing with ${productName || "toy"}`,
-          callToAction:
-            locale === "ja"
-              ? `おもちゃ売り場で${productName || "おもちゃ"}を選ぶシーンとブランドロゴ`
-              : `Selecting ${productName || "toy"} at toy section with brand logo`,
-        },
-      },
-      [ProductCategory.BUSINESS]: {
-        keyMessages: {
-          headline:
-            locale === "ja"
-              ? `${productName || "ソリューション"}でビジネスを加速せよ`
-              : `Accelerate Business with ${productName || "Solution"}`,
-          tagline: locale === "ja" ? "効率。成長。成功。" : "Efficiency. Growth. Success.",
-          supportingMessages:
-            locale === "ja"
-              ? ["ROI最大化を実現", "業務効率の劇的改善", "競争優位性を確保"]
-              : ["Maximizing ROI achievement", "Dramatic efficiency improvement", "Securing competitive advantage"],
-        },
-        emotionalTriggers: {
-          primary: {
-            type: EmotionalTriggerType.TRUST,
-            description: "Confidence in business growth and success",
-            intensity: "strong" as const,
-          },
-          secondary: [
-            {
-              type: EmotionalTriggerType.PRIDE,
-              description: "Professional achievement and recognition",
-              intensity: "strong" as const,
-            },
-          ],
-        },
-        callToAction: {
-          primary: locale === "ja" ? "成長を実現" : "Realize Growth",
-          secondary:
-            locale === "ja"
-              ? ["無料デモ", "ROI試算", "専門相談"]
-              : ["Free Demo", "ROI Calculation", "Expert Consultation"],
-        },
-        storytelling: {
-          narrative:
-            locale === "ja"
-              ? `${productName || "ソリューション"}でビジネスの課題を解決し成功を実現する物語`
-              : `Solving business challenges and achieving success with ${productName || "solution"}`,
-          conflict:
-            locale === "ja"
-              ? "競争の激化する市場で効率と成長を両立する必要性"
-              : "Need to balance efficiency and growth in increasingly competitive markets",
-          resolution:
-            locale === "ja"
-              ? `${productName || "ソリューション"}による業務改革と持続的な成長の実現`
-              : `Business transformation and sustainable growth achieved with ${productName || "solution"}`,
-        },
-        keyScenes: {
-          opening:
-            locale === "ja"
-              ? `会議室で${productName || "ソリューション"}を検討するビジネスチーム`
-              : `Business team considering ${productName || "solution"} in meeting room`,
-          productShowcase:
-            locale === "ja"
-              ? `${productName || "ソリューション"}のダッシュボードと分析機能のクローズアップ`
-              : `Close-up of ${productName || "solution"} dashboard and analytics features`,
-          problemSolution:
-            locale === "ja"
-              ? `${productName || "ソリューション"}で業務プロセスが改善されるシーン`
-              : `Business processes being improved with ${productName || "solution"}`,
-          emotionalMoment:
-            locale === "ja"
-              ? `${productName || "ソリューション"}の成果に満足するエグゼクティブの瞬間`
-              : `Executive moment of satisfaction with ${productName || "solution"} results`,
-          callToAction:
-            locale === "ja"
-              ? `オフィスで${productName || "ソリューション"}導入を決定するシーンとブランドロゴ`
-              : `Deciding to implement ${productName || "solution"} at office with brand logo`,
-        },
-      },
-      [ProductCategory.OTHER]: {
-        keyMessages: {
-          headline:
-            locale === "ja"
-              ? `信頼の${productName || "品質"}をあなたに`
-              : `Trusted ${productName || "Quality"} for You`,
-          tagline: locale === "ja" ? "品質。信頼。安心。" : "Quality. Trust. Peace of Mind.",
-          supportingMessages:
-            locale === "ja"
-              ? ["確かな品質基準", "長く使える耐久性", "お客様満足度第一"]
-              : [
-                  "Proven quality standards",
-                  "Long-lasting durability",
-                  "Customer satisfaction first",
-                ],
-        },
-        emotionalTriggers: {
-          primary: {
-            type: "trust" as const,
-            description: "Reliability and dependability",
-            intensity: "moderate" as const,
-          },
-          secondary: [
-            {
-              type: "peace_of_mind" as const,
-              description: "Confidence in purchase decision",
-              intensity: "moderate" as const,
-            },
-          ],
-        },
-        callToAction: {
-          primary: locale === "ja" ? "詳細を確認" : "Learn More",
-          secondary:
-            locale === "ja" ? ["製品詳細", "お客様の声"] : ["Product Details", "Customer Reviews"],
-        },
-        storytelling: {
-          narrative:
-            locale === "ja"
-              ? `信頼できる${productName || "製品"}で毎日の安心を実現する物語`
-              : `Realizing daily peace of mind with reliable ${productName || "product"}`,
-          conflict:
-            locale === "ja"
-              ? "品質とコストパフォーマンスを両立する製品を求める悩み"
-              : "The challenge of finding product that balances quality and value",
-          resolution:
-            locale === "ja"
-              ? `${productName || "製品"}による長期的な満足と安心の獲得`
-              : `Long-term satisfaction and peace of mind gained through ${productName || "product"}`,
-        },
-        keyScenes: {
-          opening:
-            locale === "ja"
-              ? `日常生活で${productName || "製品"}を使用するシーン`
-              : `Using ${productName || "product"} in daily life`,
-          productShowcase:
-            locale === "ja"
-              ? `${productName || "製品"}の機能と品質のクローズアップ`
-              : `Close-up of ${productName || "product"} features and quality`,
-          problemSolution:
-            locale === "ja"
-              ? `${productName || "製品"}が everyday problems を解決するシーン`
-              : `${productName || "Product"} solving everyday problems`,
-          emotionalMoment:
-            locale === "ja"
-              ? `${productName || "製品"}の信頼性に満足する瞬間`
-              : `Moment of satisfaction with ${productName || "product"} reliability`,
-          callToAction:
-            locale === "ja"
-              ? `店舗で${productName || "製品"}を確認するシーンとブランドロゴ`
-              : `Checking ${productName || "product"} at store with brand logo`,
-        },
-      },
+      keyScenes: {
+        opening: `Professional preparing ${productName || 'product'} for important presentation`,
+        productShowcase: `Close-up showcasing ${productName || 'product'} premium features and design`,
+        problemSolution: `${productName || 'Product'} solving real-world challenges effortlessly`,
+        emotionalMoment: `Satisfied customer enjoying success with ${productName || 'product'}`,
+        callToAction: `${productName || 'Product'} logo reveal with call-to-action`
+      }
     };
-
-    return (strategyMap[category] || strategyMap[ProductCategory.OTHER]) as CommercialStrategy;
   }
 }
