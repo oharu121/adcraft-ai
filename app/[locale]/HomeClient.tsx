@@ -58,6 +58,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     null
   );
   const [showErrorToast, setShowErrorToast] = useState<boolean>(false);
+  const [showAllFeatures, setShowAllFeatures] = useState<boolean>(false);
 
   // Ref for tracking analysis start time for progress calculation
   const analysisStartRef = useRef<number>(0);
@@ -922,7 +923,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                               {analysis?.product?.keyFeatures ? (
                                 <ul className="space-y-1">
                                   {analysis.product.keyFeatures
-                                    .slice(0, 3)
+                                    .slice(0, showAllFeatures ? undefined : 3)
                                     .map((feature, index) => (
                                       <li key={index} className="flex items-start">
                                         <span className="text-blue-400 mr-2 mt-0.5">•</span>
@@ -930,9 +931,48 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                                       </li>
                                     ))}
                                   {analysis.product.keyFeatures.length > 3 && (
-                                    <li className="text-gray-500 ml-4">
-                                      +{analysis.product.keyFeatures.length - 3}{" "}
-                                      {dict.productAnalysis.moreFeatures}
+                                    <li className="ml-4">
+                                      <button
+                                        onClick={() => setShowAllFeatures(!showAllFeatures)}
+                                        className="text-gray-500 hover:text-gray-300 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+                                      >
+                                        {showAllFeatures ? (
+                                          <>
+                                            <svg
+                                              className="w-3 h-3"
+                                              fill="none"
+                                              stroke="currentColor"
+                                              viewBox="0 0 24 24"
+                                            >
+                                              <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M5 15l7-7 7 7"
+                                              />
+                                            </svg>
+                                            {dict.productAnalysis.showLess}
+                                          </>
+                                        ) : (
+                                          <>
+                                            +{analysis.product.keyFeatures.length - 3}{" "}
+                                            {dict.productAnalysis.moreFeatures}
+                                            <svg
+                                              className="w-3 h-3"
+                                              fill="none"
+                                              stroke="currentColor"
+                                              viewBox="0 0 24 24"
+                                            >
+                                              <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M19 9l-7 7-7-7"
+                                              />
+                                            </svg>
+                                          </>
+                                        )}
+                                      </button>
                                     </li>
                                   )}
                                 </ul>
