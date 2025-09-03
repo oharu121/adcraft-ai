@@ -289,10 +289,10 @@
   },
   "productAnalysis": {
     "title": "📦 Product Analysis",
-    "titleWithName": "📦 Product Analysis: {name}",
     "subtitle": "AI-powered product insights",
     "chatAboutStrategy": "💬 Chat About Strategy",
     "productDescription": "Product Description",
+    "productName": "Product Name",
     "productSummary": "Product Summary",
     "keyFeatures": "Key Features",
     "moreFeatures": "more features",

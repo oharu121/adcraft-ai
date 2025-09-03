@@ -289,10 +289,10 @@
   },
   "productAnalysis": {
     "title": "📦 プロダクト分析",
-    "titleWithName": "📦 プロダクト分析: {name}",
     "subtitle": "AI分析に基づいた商品の洞察",
     "chatAboutStrategy": "💬 戦略についてチャット",
     "productDescription": "商品説明",
+    "productName": "商品名",
     "productSummary": "商品概要",
     "keyFeatures": "主要機能",
     "moreFeatures": "その他の機能",

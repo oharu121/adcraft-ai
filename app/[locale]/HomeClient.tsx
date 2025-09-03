@@ -110,7 +110,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
         // Start progress simulation
         const progressInterval = setInterval(() => {
-          setAnalysisProgress((prev) => Math.min(prev + Math.random() * 15, 90));
+          setAnalysisProgress((prev) => Math.round(Math.min(prev + Math.random() * 15, 90)));
           setElapsedTime(Date.now() - analysisStartRef.current);
         }, 500);
 
@@ -224,7 +224,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
       // Start progress simulation
       const progressInterval = setInterval(() => {
-        setAnalysisProgress((prev) => Math.min(prev + Math.random() * 15, 90));
+        setAnalysisProgress((prev) => Math.round(Math.min(prev + Math.random() * 15, 90)));
         setElapsedTime(Date.now() - analysisStartRef.current);
       }, 500);
 
@@ -788,12 +788,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                     <div className="mb-6">
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-xl font-semibold text-white">
-                          {analysis?.product?.name
-                            ? dict.productAnalysis.titleWithName.replace(
-                                "{name}",
-                                analysis.product.name
-                              )
-                            : dict.productAnalysis.title}
+                          {dict.productAnalysis.title}
                         </h3>
                         {sessionId && (
                           <span className="px-2 py-1 bg-gray-700/50 text-gray-400 text-xs rounded border border-gray-600 font-mono">
@@ -890,6 +885,16 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                         )}
 
                         <div className="space-y-3 pr-16">
+                          {/* Product Name */}
+                          <div>
+                            <h4 className="text-sm font-medium text-gray-300 mb-1 flex items-center">
+                              <span className="w-4 h-4 bg-gray-600 rounded-full flex items-center justify-center text-xs mr-2">
+                                ⚡
+                              </span>
+                              {dict.productAnalysis.productName} - {analysis?.product.name}
+                            </h4>
+                          </div>
+
                           {/* Product Summary */}
                           <div>
                             <h4 className="text-sm font-medium text-gray-300 mb-1 flex items-center">
@@ -900,7 +905,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                             </h4>
                             <p className="text-xs text-gray-400 leading-relaxed">
                               {analysis?.product
-                                ? `${analysis.product.name} - ${analysis.product.description}`
+                                ? analysis.product.description
                                 : dict.productAnalysis.analyzingFeatures}
                             </p>
                           </div>
@@ -983,18 +988,8 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                       <div>
                         <h3 className="text-xl font-semibold text-white mb-2">
                           {showCommercialChat
-                            ? analysis?.product?.name
-                              ? dict.productIntelligence.chatAboutStrategyWithProduct.replace(
-                                  "{productName}",
-                                  analysis.product.name
-                                )
-                              : dict.productIntelligence.chatAboutStrategyGeneric
-                            : analysis?.product?.name
-                              ? dict.productIntelligence.commercialStrategyWithProduct.replace(
-                                  "{productName}",
-                                  analysis.product.name
-                                )
-                              : dict.productIntelligence.commercialStrategy}
+                            ? dict.productIntelligence.chatAboutStrategyGeneric
+                            : dict.productIntelligence.commercialStrategy}
                         </h3>
                         <p className="text-gray-300 text-sm">
                           {showCommercialChat
