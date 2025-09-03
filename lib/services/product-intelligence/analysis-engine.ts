@@ -17,6 +17,7 @@ export interface ProductAnalysisEngineRequest {
     description?: string;
   };
   imageUrl?: string;
+  productName?: string;
   locale: 'en' | 'ja';
   options?: {
     detailLevel: 'basic' | 'detailed' | 'comprehensive';
@@ -129,8 +130,9 @@ export class ProductAnalysisEngine {
       
       const visionRequest: VisionAnalysisRequest = {
         sessionId: request.sessionId,
-        imageUrl,
+        imageData: imageUrl, // TODO: This should be base64 imageData, not imageUrl
         description: request.image?.description,
+        productName: request.productName,
         locale: request.locale,
         analysisOptions: {
           detailLevel: request.options?.detailLevel || 'detailed',

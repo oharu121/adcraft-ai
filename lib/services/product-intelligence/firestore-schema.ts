@@ -466,7 +466,10 @@ export class ProductIntelligenceFirestore {
             content: msg.content,
             timestamp: msg.timestamp.toDate().getTime(),
             agentName: msg.agentName,
-            metadata: msg.metadata
+            metadata: msg.metadata ? {
+              ...msg.metadata,
+              messageType: msg.metadata.messageType as any // Type assertion for enum compatibility
+            } : undefined
           }));
       }
 
@@ -488,7 +491,10 @@ export class ProductIntelligenceFirestore {
           content: data.content,
           timestamp: data.timestamp.toDate().getTime(),
           agentName: data.agentName,
-          metadata: data.metadata
+          metadata: data.metadata ? {
+            ...data.metadata,
+            messageType: data.metadata.messageType as any // Type assertion for enum compatibility
+          } : undefined
         };
       });
 

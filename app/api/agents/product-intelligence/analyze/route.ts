@@ -199,7 +199,7 @@ async function performProductAnalysis(params: {
     
     const analysisResult = await geminiVision.analyzeProductImage({
       sessionId: params.sessionId,
-      imageUrl: params.imageUrl,
+      imageData: params.imageUrl, // TODO: This should be base64 imageData, not imageUrl
       description: params.description,
       locale: params.locale,
       analysisOptions: {

@@ -6,12 +6,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GeminiVisionService } from '@/lib/services/product-intelligence/gemini-vision';
 import { GeminiChatService } from '@/lib/services/product-intelligence/gemini-chat';
 import { AppModeConfig } from '@/lib/config/app-mode';
+import { TopicStatus } from '@/types/product-intelligence/enums';
 
 // Simple request interface for now
 interface SimpleRequest {
   sessionId: string;
   action: 'analyze' | 'chat' | 'handoff';
   message?: string;
+  productName?: string; // Optional product name for better commercial generation
   locale?: 'en' | 'ja';
   appMode?: 'demo' | 'real'; // Client-sent mode override
   metadata?: any;
@@ -50,6 +52,22 @@ export async function POST(request: NextRequest) {
           code: 'VALIDATION_ERROR',
           message: 'Action is required',
           userMessage: 'Action is required'
+        },
+        timestamp,
+        requestId
+      }, { status: 400 });
+    }
+
+    // Validate product name for analyze actions
+    if (body.action === 'analyze' && !body.productName?.trim()) {
+      return NextResponse.json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Product name is required for analysis',
+          userMessage: body.locale === 'ja' 
+            ? '商品名は必須です。リアルなCM戦略生成のために必要です。'
+            : 'Product name is required for generating realistic commercial strategies.'
         },
         timestamp,
         requestId
@@ -144,6 +162,7 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
         sessionId,
         imageData, // Use base64 data instead of URL
         description,
+        productName: request.productName, // Include product name if provided
         locale,
         analysisOptions: {
           detailLevel: 'detailed',
@@ -181,12 +200,12 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
     let errorType = 'unknown';
     let userErrorMessage = '';
     
-    if (error.message.includes('No image data provided') || error.message.includes('base64')) {
+    if (error instanceof Error && (error.message.includes('No image data provided') || error.message.includes('base64'))) {
       errorType = 'image_upload';
       userErrorMessage = locale === 'ja' 
         ? '画像データの処理に問題があります。画像を再度アップロードしてお試しください。'
         : 'There\'s an issue processing the image data. Please try uploading the image again.';
-    } else if (error.message.includes('Vertex AI') || error.message.includes('Gemini')) {
+    } else if (error instanceof Error && (error.message.includes('Vertex AI') || error.message.includes('Gemini'))) {
       errorType = 'ai_service';
       userErrorMessage = locale === 'ja' 
         ? 'AI分析サービスに一時的な問題が発生しています。'
@@ -418,13 +437,15 @@ async function handleChatRequest(request: SimpleRequest) {
       conversationHistory: request.metadata?.conversationHistory || [],
       conversationContext: {
         topics: {
-          productFeatures: 'pending',
-          targetAudience: 'pending',
-          brandPositioning: 'pending',
-          visualPreferences: 'pending'
+          productFeatures: TopicStatus.PENDING,
+          targetAudience: TopicStatus.PENDING,
+          brandPositioning: TopicStatus.PENDING,
+          visualPreferences: TopicStatus.PENDING
         },
+        userIntent: '',
         keyInsights: [],
         uncertainties: [],
+        followUpQuestions: [],
         completionScore: 0.0
       },
       userPreferences: {}
@@ -541,7 +562,7 @@ async function handleDemoChat(request: SimpleRequest) {
   let selectedResponse = null;
   
   for (const responseOption of responses) {
-    if (responseOption.triggers.some(trigger => trigger.test(message))) {
+    if (message && responseOption.triggers.some(trigger => trigger.test(message))) {
       selectedResponse = responseOption;
       break;
     }
@@ -563,7 +584,7 @@ async function handleDemoChat(request: SimpleRequest) {
   
   return {
     sessionId: request.sessionId,
-    nextAction: /creative|director|proceed|進む|引き継/i.test(message) ? 'ready_for_handoff' : 'continue_chat',
+    nextAction: message && /creative|director|proceed|進む|引き継/i.test(message) ? 'ready_for_handoff' : 'continue_chat',
     cost: {
       current: cost,
       total: 0.30 + cost,

@@ -166,12 +166,22 @@ export interface Storytelling {
   resolution: string;
 }
 
+// Key scenes for commercial video
+export interface KeyScenes {
+  opening: string;
+  productShowcase: string;
+  problemSolution: string;
+  emotionalMoment: string;
+  callToAction: string;
+}
+
 // Commercial strategy insights
 export interface CommercialStrategy {
   keyMessages: KeyMessages;
   emotionalTriggers: EmotionalTriggers;
   callToAction: CallToAction;
   storytelling: Storytelling;
+  keyScenes: KeyScenes;
 }
 
 // Color palette for visual direction
