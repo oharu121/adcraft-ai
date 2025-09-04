@@ -222,7 +222,46 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
     const isDemoMode = appMode === 'demo' || (!appMode && AppModeConfig.isDemoMode);
     
     if (isDemoMode) {
-      return await handleDemoAnalysis(request, startTime);
+      // Use the updated GeminiVisionService for demo mode with key scenes
+      const geminiVision = GeminiVisionService.getInstance();
+      
+      const visionRequest = {
+        sessionId,
+        locale: locale as "en" | "ja",
+        productName: request.productName,
+        imageData: request.metadata?.imageData || "",
+        analysisOptions: {
+          detailLevel: "comprehensive" as const,
+          includeTargetAudience: true,
+          includePositioning: true,
+          includeVisualPreferences: true
+        }
+      };
+      
+      const visionResult = await geminiVision.analyzeProductImage(visionRequest, { forceMode: "demo" });
+      
+      return {
+        analysis: visionResult.analysis,
+        agentResponse: LOCALE_MESSAGES[locale].analysisComplete.replace(
+          '{description}', 
+          visionResult.analysis.product.description.substring(0, 50) + '...'
+        ),
+        processingTime: visionResult.processingTime,
+        cost: {
+          current: visionResult.cost,
+          total: visionResult.cost,
+          breakdown: {
+            imageAnalysis: visionResult.cost,
+            chatInteractions: 0
+          },
+          remaining: 299.68,
+          budgetAlert: false
+        },
+        confidence: visionResult.confidence,
+        nextAction: 'chat_ready',
+        canProceed: true,
+        warnings: visionResult.warnings || []
+      };
     }
 
     // Real mode - determine if this is image or text analysis
@@ -323,161 +362,6 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
   }
 }
 
-/**
- * Handle demo mode analysis - perfect, pre-scripted responses
- */
-async function handleDemoAnalysis(request: SimpleRequest, startTime: number) {
-  const { sessionId, locale = 'en' } = request;
-  const inputType = request.metadata?.inputType || 'image';
-  
-  console.log(`[DEMO MODE] Processing ${inputType} analysis for session: ${sessionId}`);
-  
-  // Simulate realistic processing time (2-3 seconds)
-  await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 1000));
-  
-  const cost = inputType === 'text' ? 0.15 : 0.25;
-  
-  // Perfect demo analysis data
-  const demoAnalysis = {
-    product: {
-      id: sessionId,
-      category: 'electronics',
-      subcategory: 'headphones',
-      name: LOCALE_MESSAGES[locale].demoProduct.name,
-      description: LOCALE_MESSAGES[locale].demoProduct.description,
-      keyFeatures: LOCALE_MESSAGES[locale].demoProduct.keyFeatures,
-      materials: ['premium aluminum', 'soft leather', 'memory foam'],
-      colors: [
-        { name: 'matte black', hex: '#2D2D2D', role: 'primary' },
-        { name: 'silver', hex: '#C0C0C0', role: 'secondary' }
-      ],
-      usageContext: LOCALE_MESSAGES[locale].demoProduct.usageContext
-    },
-    targetAudience: {
-      primary: {
-        demographics: {
-          ageRange: '25-45',
-          gender: 'unisex',
-          incomeLevel: 'premium',
-          location: ['urban', 'suburban'],
-          lifestyle: ['tech-savvy', 'professional', 'quality-focused']
-        },
-        psychographics: {
-          values: ['quality', 'productivity', 'innovation', 'professional excellence'],
-          interests: ['technology', 'music', 'productivity tools', 'professional development'],
-          personalityTraits: ['detail-oriented', 'ambitious', 'quality-conscious'],
-          motivations: ['work efficiency', 'audio quality', 'professional image', 'comfort']
-        },
-        behaviors: {
-          shoppingHabits: ['research-driven', 'brand-conscious', 'quality-over-price'],
-          mediaConsumption: ['digital-first', 'professional networks', 'tech reviews'],
-          brandLoyalty: 'high',
-          decisionFactors: ['sound quality', 'brand reputation', 'professional reviews', 'battery life']
-        }
-      }
-    },
-    positioning: {
-      brandPersonality: {
-        traits: ['professional', 'innovative', 'reliable', 'premium'],
-        tone: 'confident and knowledgeable',
-        voice: 'authoritative yet approachable'
-      },
-      valueProposition: {
-        primaryBenefit: LOCALE_MESSAGES[locale].demoProduct.positioning.primaryBenefit,
-        supportingBenefits: LOCALE_MESSAGES[locale].demoProduct.positioning.supportingBenefits,
-        differentiators: LOCALE_MESSAGES[locale].demoProduct.positioning.differentiators
-      },
-      competitiveAdvantages: {
-        functional: ['superior sound quality', '30-hour battery', 'advanced noise cancellation'],
-        emotional: ['professional confidence', 'pride of ownership', 'productivity boost'],
-        experiential: ['seamless connectivity', 'intuitive controls', 'premium feel']
-      },
-      marketPosition: {
-        tier: 'premium',
-        niche: 'professional audio',
-        marketShare: 'challenger'
-      }
-    },
-    commercialStrategy: {
-      keyMessages: {
-        headline: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.headline,
-        tagline: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.tagline,
-        supportingMessages: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.supportingMessages
-      },
-      emotionalTriggers: {
-        primary: {
-          type: 'achievement',
-          description: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.emotionalTrigger,
-          intensity: 'strong'
-        },
-        secondary: [
-          {
-            type: 'confidence',
-            description: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.confidenceTrigger,
-            intensity: 'moderate'
-          }
-        ]
-      },
-      callToAction: {
-        primary: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.callToAction,
-        secondary: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.secondaryActions
-      },
-      storytelling: {
-        narrative: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.narrative,
-        conflict: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.conflict,
-        resolution: LOCALE_MESSAGES[locale].demoProduct.commercialStrategy.resolution
-      }
-    },
-    visualPreferences: {
-      overallStyle: 'modern professional',
-      colorPalette: {
-        primary: [{ name: 'deep navy', hex: '#1a365d', role: 'primary' }],
-        secondary: [{ name: 'silver gray', hex: '#718096', role: 'secondary' }],
-        accent: [{ name: 'electric blue', hex: '#3182ce', role: 'accent' }]
-      },
-      mood: 'sophisticated and confident',
-      composition: 'clean and minimal',
-      lighting: 'natural with professional accents',
-      environment: ['modern office', 'professional workspace', 'urban setting', 'minimal studio']
-    },
-    metadata: {
-      sessionId,
-      analysisVersion: '1.0.0',
-      confidenceScore: 0.95,
-      processingTime: 0,
-      cost: {
-        current: cost,
-        total: cost,
-        breakdown: {
-          imageAnalysis: cost * 0.8,
-          contextAnalysis: cost * 0.2
-        },
-        remaining: 300 - cost,
-        budgetAlert: false
-      },
-      locale,
-      timestamp: new Date().toISOString(),
-      agentInteractions: 1
-    }
-  };
-  
-  const agentResponse = LOCALE_MESSAGES[locale].demoAnalysisComplete;
-  
-  const processingTime = Date.now() - startTime;
-  
-  return {
-    sessionId: request.sessionId,
-    nextAction: 'continue_chat',
-    cost: {
-      current: cost,
-      total: cost,
-      remaining: 300 - cost
-    },
-    processingTime: Math.round(processingTime),
-    agentResponse,
-    analysis: demoAnalysis
-  };
-}
 
 /**
  * Handle chat conversation requests
