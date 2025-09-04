@@ -62,6 +62,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     null
   );
   const [showAllFeatures, setShowAllFeatures] = useState<boolean>(false);
+  const [showProductNameError, setShowProductNameError] = useState<boolean>(false);
   const [expandedSections, setExpandedSections] = useState<{
     keyMessages: boolean;
     visualStyle: boolean;
@@ -80,6 +81,8 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
   const analysisStartRef = useRef<number>(0);
   // Ref for text input auto-focus
   const textInputRef = useRef<HTMLTextAreaElement>(null);
+  // Ref for product name input focus
+  const productNameInputRef = useRef<HTMLInputElement>(null);
 
   // Toggle accordion sections
   const toggleSection = useCallback((section: keyof typeof expandedSections) => {
@@ -108,12 +111,17 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
       // Validate product name is provided
       if (!productName.trim()) {
         setErrorMessage(dict.productIntelligence.productNameRequired);
+        setShowProductNameError(true);
+        productNameInputRef.current?.focus();
         showErrorToast(
           dict.productIntelligence.productNameRequired,
           dict.productIntelligence.validationError || "Validation Error"
         );
         return;
       }
+      
+      // Clear error state if validation passes
+      setShowProductNameError(false);
 
       setUploadedImage(file);
 
@@ -228,12 +236,17 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     // Validate product name is provided
     if (!productName.trim()) {
       setErrorMessage(dict.productIntelligence.productNameRequired);
+      setShowProductNameError(true);
+      productNameInputRef.current?.focus();
       showErrorToast(
         dict.productIntelligence.productNameRequired,
         dict.productIntelligence.validationError || "Validation Error"
       );
       return;
     }
+    
+    // Clear error state if validation passes
+    setShowProductNameError(false);
 
     if (!productDescription.trim()) return;
 
@@ -424,6 +437,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     setShowCommercialChat(false);
     setChatInputMessage("");
     setAnalysisError(null);
+    setShowProductNameError(false);
     setShowAllFeatures(false);
     setExpandedSections({
       keyMessages: false,
@@ -635,12 +649,21 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                       <span className="text-red-400 ml-1">*</span>
                     </label>
                     <input
+                      ref={productNameInputRef}
                       type="text"
                       value={productName}
-                      onChange={(e) => setProductName(e.target.value)}
+                      onChange={(e) => {
+                        setProductName(e.target.value);
+                        // Clear error state when user starts typing
+                        if (showProductNameError) {
+                          setShowProductNameError(false);
+                        }
+                      }}
                       placeholder={dict.productIntelligence.productNameExample}
                       className={`w-full px-4 py-3 bg-gray-800 border rounded-lg text-white placeholder-gray-400 transition-all duration-200 ${
-                        productName.trim().length > 0
+                        showProductNameError
+                          ? "border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-red-900/10"
+                          : productName.trim().length > 0
                           ? "border-green-500/70 focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-green-900/10"
                           : "border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       }`}
@@ -648,8 +671,25 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                       maxLength={100}
                       required
                     />
-                    {productName.trim().length > 0 && (
-                      <p className="text-xs text-green-400 flex items-center">
+                    {showProductNameError ? (
+                      <p className="text-xs text-red-400 flex items-center mt-1">
+                        <svg
+                          className="w-3 h-3 mr-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        {dict.productIntelligence.productNameRequiredShort}
+                      </p>
+                    ) : productName.trim().length > 0 ? (
+                      <p className="text-xs text-green-400 flex items-center mt-1">
                         <svg
                           className="w-3 h-3 mr-1"
                           fill="none"
@@ -665,7 +705,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                         </svg>
                         {dict.productIntelligence.productNameReady}
                       </p>
-                    )}
+                    ) : null}
                     <p className="text-xs text-gray-400 flex items-center">
                       <svg
                         className="w-3 h-3 mr-1"
@@ -692,6 +732,8 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                       locale={locale}
                       productName={productName}
                       onValidationError={(message) => {
+                        setShowProductNameError(true);
+                        productNameInputRef.current?.focus();
                         showErrorToast(
                           message,
                           dict.productIntelligence.validationError || "Validation Error"
