@@ -1,0 +1,289 @@
+"use client";
+
+import { useRef } from "react";
+import { Card } from "@/components/ui";
+import { ImageUploadArea } from "@/components/product-intelligence";
+import { useProductIntelligenceStore } from "@/lib/stores/product-intelligence-store";
+import { SessionStatus } from "@/types/product-intelligence";
+import type { Dictionary, Locale } from "@/lib/dictionaries";
+
+interface ProductInputFormProps {
+  dict: Dictionary;
+  locale: Locale;
+  onImageUpload: (file: File) => void;
+  onTextSubmit: () => void;
+  onValidationError: (message: string) => void;
+}
+
+export default function ProductInputForm({ 
+  dict, 
+  locale, 
+  onImageUpload, 
+  onTextSubmit,
+  onValidationError 
+}: ProductInputFormProps) {
+  // Zustand store
+  const {
+    productName,
+    productDescription,
+    inputMode,
+    sessionStatus,
+    showProductNameError,
+    setProductName,
+    setProductDescription,
+    setInputMode,
+    setShowProductNameError,
+  } = useProductIntelligenceStore();
+
+  // Refs
+  const textInputRef = useRef<HTMLTextAreaElement>(null);
+  const productNameInputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <Card variant="magical" glow className="p-6">
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold text-white mb-2">
+          {dict.productIntelligence.stepEnterInfo}
+        </h2>
+        <p className="text-gray-300 text-sm">
+          {dict.productIntelligence.stepDescription}
+        </p>
+      </div>
+
+      {/* Input Mode Toggle */}
+      <div className="mb-6">
+        <div className="flex rounded-lg bg-gray-800 p-1 max-w-md mx-auto">
+          <button
+            onClick={() => setInputMode("image")}
+            className={`cursor-pointer flex-1 flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+              inputMode === "image"
+                ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md"
+                : "text-gray-300 hover:text-white"
+            }`}
+          >
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+            {dict.productIntelligence.uploadMethods.imageToCommercial}
+          </button>
+          <button
+            onClick={() => {
+              setInputMode("text");
+              // Auto-focus the textarea after a small delay
+              setTimeout(() => {
+                textInputRef.current?.focus();
+              }, 100);
+            }}
+            className={`cursor-pointer flex-1 flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+              inputMode === "text"
+                ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-md"
+                : "text-gray-300 hover:text-white"
+            }`}
+          >
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
+            </svg>
+            {dict.productIntelligence.uploadMethods.textToCommercial}
+          </button>
+        </div>
+      </div>
+
+      {/* Required Product Name Input */}
+      <div className="space-y-2">
+        <label className="flex items-center text-sm font-medium text-white">
+          <svg
+            className="w-4 h-4 mr-2 text-red-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+            />
+          </svg>
+          {dict.productIntelligence.productName}
+          <span className="text-red-400 ml-1">*</span>
+        </label>
+        <input
+          ref={productNameInputRef}
+          type="text"
+          value={productName}
+          onChange={(e) => {
+            setProductName(e.target.value);
+            // Clear error state when user starts typing
+            if (showProductNameError) {
+              setShowProductNameError(false);
+            }
+          }}
+          placeholder={dict.productIntelligence.productNameExample}
+          className={`w-full px-4 py-3 bg-gray-800 border rounded-lg text-white placeholder-gray-400 transition-all duration-200 ${
+            showProductNameError
+              ? "border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-red-900/10"
+              : productName.trim().length > 0
+              ? "border-green-500/70 focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-green-900/10"
+              : "border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          }`}
+          disabled={sessionStatus === SessionStatus.ANALYZING}
+          maxLength={100}
+          required
+        />
+        {showProductNameError ? (
+          <p className="text-xs text-red-400 flex items-center mt-1">
+            <svg
+              className="w-3 h-3 mr-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            {dict.productIntelligence.productNameRequiredShort}
+          </p>
+        ) : productName.trim().length > 0 ? (
+          <p className="text-xs text-green-400 flex items-center mt-1">
+            <svg
+              className="w-3 h-3 mr-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            {dict.productIntelligence.productNameReady}
+          </p>
+        ) : null}
+        <p className="text-xs text-gray-400 flex items-center">
+          <svg
+            className="w-3 h-3 mr-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          {dict.productIntelligence.actualProductName}
+        </p>
+      </div>
+
+      {/* Image Upload Mode */}
+      {inputMode === "image" && (
+        <ImageUploadArea
+          onImageUpload={onImageUpload}
+          isUploading={sessionStatus === SessionStatus.ANALYZING}
+          locale={locale}
+          productName={productName}
+          onValidationError={onValidationError}
+        />
+      )}
+
+      {/* Text Input Mode */}
+      {inputMode === "text" && (
+        <div className="space-y-4">
+          <div className="relative">
+            <textarea
+              ref={textInputRef}
+              value={productDescription}
+              onChange={(e) => setProductDescription(e.target.value)}
+              placeholder={dict.productIntelligence.productDescriptionExample}
+              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 resize-none transition-colors"
+              rows={6}
+              disabled={sessionStatus === SessionStatus.ANALYZING}
+            />
+          </div>
+
+          <div className="flex justify-between items-center text-sm text-gray-400">
+            <span>{productDescription.length}/1000</span>
+            <div className="flex items-center">
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              {dict.productIntelligence.moreDetails}
+            </div>
+          </div>
+
+          <button
+            onClick={onTextSubmit}
+            disabled={
+              !productDescription.trim() ||
+              !productName.trim() ||
+              sessionStatus === SessionStatus.ANALYZING
+            }
+            className="cursor-pointer w-full px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg font-medium hover:from-yellow-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105"
+          >
+            {sessionStatus === SessionStatus.ANALYZING ? (
+              <div className="flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                {dict.productIntelligence.analyzing}
+              </div>
+            ) : (
+              <>
+                <svg
+                  className="w-5 h-5 inline mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
+                {dict.productIntelligence.startAnalysis}
+              </>
+            )}
+          </button>
+        </div>
+      )}
+    </Card>
+  );
+}
