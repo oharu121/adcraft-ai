@@ -169,9 +169,10 @@ export const Toast: React.FC<ToastProps> = ({
           <div className="mt-3 -mb-1 -mx-6">
             <div className="h-1 bg-white/30 rounded-b-lg overflow-hidden">
               <div 
-                className="h-full bg-white/60 w-full origin-left transform scale-x-100 transition-transform ease-linear"
+                className="h-full bg-white/60 w-full"
                 style={{
-                  animation: `toast-progress ${duration}ms linear forwards`
+                  transformOrigin: 'center',
+                  animation: `toast-progress-center ${duration}ms linear forwards`
                 }}
               />
             </div>

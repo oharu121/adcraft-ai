@@ -54,6 +54,17 @@
   }
 }
 
+@keyframes toast-progress-center {
+  from {
+    transform: scaleX(1);
+    transform-origin: center;
+  }
+  to {
+    transform: scaleX(0);
+    transform-origin: center;
+  }
+}
+
 .animate-slide-down {
   animation: toast-slide-down 0.3s ease-out;
 }
