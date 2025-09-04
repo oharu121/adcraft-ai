@@ -1,13 +1,14 @@
 "use client";
 
-import { useCallback, useState, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { Card, ToastContainer } from "@/components/ui";
 import { ImageUploadArea, ChatContainer } from "@/components/product-intelligence";
 import { ModeIndicator, ModeToggle } from "@/components/debug/ModeIndicator";
 import { AppModeConfig } from "@/lib/config/app-mode";
 import { useToast } from "@/hooks/useToast";
+import { useProductIntelligenceStore } from "@/lib/stores/product-intelligence-store";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
-import type { ChatMessage, ProductAnalysis, SessionState } from "@/types/product-intelligence";
+import type { ChatMessage, ProductAnalysis } from "@/types/product-intelligence";
 import { SessionStatus } from "@/types/product-intelligence";
 
 // Utility function to convert File to base64
@@ -37,45 +38,33 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
   // Toast system
   const { toasts, showErrorToast, hideToast } = useToast();
   
-  // Product Intelligence Agent State
-  const [sessionId, setSessionId] = useState<string>("");
-  const [sessionStatus, setSessionStatus] = useState<SessionStatus>(SessionStatus.INITIALIZING);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [analysis, setAnalysis] = useState<ProductAnalysis | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [isAgentTyping, setIsAgentTyping] = useState(false);
-  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
-  const [currentStep, setCurrentStep] = useState<"upload" | "analyze" | "chat" | "handoff">(
-    "upload"
-  );
-  const [inputMode, setInputMode] = useState<"image" | "text">("image");
-  const [productDescription, setProductDescription] = useState<string>("");
-  const [productName, setProductName] = useState<string>("");
-  const [analysisProgress, setAnalysisProgress] = useState<number>(0);
-  const [analysisStartTime, setAnalysisStartTime] = useState<number>(0);
-  const [elapsedTime, setElapsedTime] = useState<number>(0);
-  const [errorMessage, setErrorMessage] = useState<string>("");
-  const [showCommercialChat, setShowCommercialChat] = useState<boolean>(false);
-  const [chatInputMessage, setChatInputMessage] = useState<string>("");
-  const [showImageModal, setShowImageModal] = useState<boolean>(false);
-  const [analysisError, setAnalysisError] = useState<{ type: string; canProceed: boolean } | null>(
-    null
-  );
-  const [showAllFeatures, setShowAllFeatures] = useState<boolean>(false);
-  const [showProductNameError, setShowProductNameError] = useState<boolean>(false);
-  const [expandedSections, setExpandedSections] = useState<{
-    keyMessages: boolean;
-    visualStyle: boolean;
-    narrativeStructure: boolean;
-    keyScenes: boolean;
-    musicTone: boolean;
-  }>({
-    keyMessages: false,
-    visualStyle: false,
-    narrativeStructure: false,
-    keyScenes: false,
-    musicTone: false,
-  });
+  // 🚀 ZUSTAND POWER! All state in one beautiful store
+  const {
+    // Session state
+    sessionId, sessionStatus, isConnected, isAgentTyping,
+    setSessionId, setSessionStatus, setIsConnected, setIsAgentTyping,
+    
+    // Product input state
+    uploadedImage, productName, productDescription, inputMode,
+    setUploadedImage, setProductName, setProductDescription, setInputMode,
+    
+    // UI flow state
+    currentStep, showCommercialChat, showImageModal, showAllFeatures, showProductNameError,
+    setCurrentStep, setShowCommercialChat, setShowImageModal, setShowAllFeatures, setShowProductNameError,
+    
+    // Analysis state
+    messages, analysis, analysisProgress, analysisStartTime, elapsedTime, errorMessage, analysisError,
+    setMessages, addMessage, setAnalysis, setAnalysisProgress, setAnalysisStartTime, setElapsedTime, setErrorMessage, setAnalysisError,
+    
+    // 🎯 THE HERO: Chat state that PERSISTS!
+    chatInputMessage, setChatInputMessage,
+    
+    // Accordion state
+    expandedSections, toggleSection,
+    
+    // Complex actions
+    resetSession, startAnalysis, completeAnalysis
+  } = useProductIntelligenceStore();
 
   // Ref for tracking analysis start time for progress calculation
   const analysisStartRef = useRef<number>(0);
@@ -84,13 +73,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
   // Ref for product name input focus
   const productNameInputRef = useRef<HTMLInputElement>(null);
 
-  // Toggle accordion sections
-  const toggleSection = useCallback((section: keyof typeof expandedSections) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
-  }, []);
+  // 🚀 Zustand magic - no useCallback needed!
 
   // Initialize session on component mount
   const initializeSession = useCallback(async () => {
@@ -103,7 +86,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
       console.error("Failed to initialize session:", error);
       setIsConnected(false);
     }
-  }, []);
+  }, [setSessionId, setIsConnected]);
 
   // Handle image upload
   const handleImageUpload = useCallback(
@@ -125,10 +108,8 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
       setUploadedImage(file);
 
-      // Reset progress and error states
-      setAnalysisProgress(0);
-      setElapsedTime(0);
-      setErrorMessage("");
+      // 🚀 Use our beautiful startAnalysis action!
+      startAnalysis();
       const startTime = Date.now();
       setAnalysisStartTime(startTime);
       analysisStartRef.current = startTime;
@@ -142,12 +123,12 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           setIsConnected(true);
         }
 
-        setSessionStatus(SessionStatus.ANALYZING);
-        setCurrentStep("analyze");
+        // Already handled by startAnalysis() action! 🎉
 
         // Start progress simulation
         const progressInterval = setInterval(() => {
-          setAnalysisProgress((prev) => Math.round(Math.min(prev + Math.random() * 15, 90)));
+          const currentProgress = useProductIntelligenceStore.getState().analysisProgress;
+          setAnalysisProgress(Math.round(Math.min(currentProgress + Math.random() * 15, 90)));
           setElapsedTime(Date.now() - analysisStartRef.current);
         }, 500);
 
@@ -250,10 +231,8 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
     if (!productDescription.trim()) return;
 
-    // Reset progress and error states
-    setAnalysisProgress(0);
-    setElapsedTime(0);
-    setErrorMessage("");
+    // 🚀 Use our beautiful startAnalysis action!
+    startAnalysis();
     const startTime = Date.now();
     setAnalysisStartTime(startTime);
     analysisStartRef.current = startTime;
@@ -267,12 +246,12 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         setIsConnected(true);
       }
 
-      setSessionStatus(SessionStatus.ANALYZING);
-      setCurrentStep("analyze");
+      // Already handled by startAnalysis()! 🎉
 
       // Start progress simulation
       const progressInterval = setInterval(() => {
-        setAnalysisProgress((prev) => Math.round(Math.min(prev + Math.random() * 15, 90)));
+        const currentProgress = useProductIntelligenceStore.getState().analysisProgress;
+        setAnalysisProgress(Math.round(Math.min(currentProgress + Math.random() * 15, 90)));
         setElapsedTime(Date.now() - analysisStartRef.current);
       }, 500);
 
@@ -301,8 +280,8 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
       if (analysisResponse.ok) {
         const result = await analysisResponse.json();
 
-        // Complete progress
-        setAnalysisProgress(100);
+        // 🎉 Complete analysis with our beautiful action
+        completeAnalysis();
         setElapsedTime(Date.now() - analysisStartRef.current);
 
         // Check if analysis had errors or limitations
@@ -320,7 +299,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           );
         } else {
           setAnalysisError(null);
-          setSessionStatus(SessionStatus.ACTIVE);
+          // completeAnalysis() already handled this! 🚀
         }
 
         // Store analysis results (if any)
@@ -336,7 +315,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         };
 
         setMessages([systemMessage]);
-        setCurrentStep("chat");
+        // currentStep already set by completeAnalysis()
       } else {
         throw new Error(
           `Analysis failed: ${analysisResponse.status} ${analysisResponse.statusText}`
@@ -362,7 +341,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         timestamp: Date.now(),
       };
 
-      setMessages((prev) => [...prev, userMessage]);
+      addMessage(userMessage);
       setIsAgentTyping(true);
 
       try {
@@ -395,7 +374,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
             },
           };
 
-          setMessages((prev) => [...prev, agentMessage]);
+          addMessage(agentMessage);
         } else {
           throw new Error("Chat message failed");
         }
@@ -410,7 +389,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           agentName: dict.agent.systemAgent,
         };
 
-        setMessages((prev) => [...prev, errorMessage]);
+        addMessage(errorMessage);
       } finally {
         setIsAgentTyping(false);
       }
@@ -418,36 +397,11 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     [sessionId, locale, productName]
   );
 
-  // Reset session
+  // 🚀 Reset session - ONE LINE with Zustand!
   const handleReset = useCallback(() => {
-    setSessionId("");
-    setSessionStatus(SessionStatus.INITIALIZING);
-    setMessages([]);
-    setAnalysis(null);
-    setUploadedImage(null);
-    setProductDescription("");
-    setProductName(""); // Reset product name
-    setCurrentStep("upload");
-    setIsConnected(false);
-    setIsAgentTyping(false);
-    setAnalysisProgress(0);
-    setAnalysisStartTime(0);
-    setElapsedTime(0);
-    setErrorMessage("");
-    setShowCommercialChat(false);
-    setChatInputMessage("");
-    setAnalysisError(null);
-    setShowProductNameError(false);
-    setShowAllFeatures(false);
-    setExpandedSections({
-      keyMessages: false,
-      visualStyle: false,
-      narrativeStructure: false,
-      keyScenes: false,
-      musicTone: false,
-    });
+    resetSession();
     analysisStartRef.current = 0;
-  }, []);
+  }, [resetSession]);
 
   // Scroll to product intelligence section
   const scrollToProductIntelligence = useCallback(() => {
