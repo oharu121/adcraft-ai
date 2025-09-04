@@ -1,10 +1,11 @@
 "use client";
 
 import { useCallback, useState, useRef } from "react";
-import { Card } from "@/components/ui";
+import { Card, ToastContainer } from "@/components/ui";
 import { ImageUploadArea, ChatContainer } from "@/components/product-intelligence";
 import { ModeIndicator, ModeToggle } from "@/components/debug/ModeIndicator";
 import { AppModeConfig } from "@/lib/config/app-mode";
+import { useToast } from "@/hooks/useToast";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
 import type { ChatMessage, ProductAnalysis, SessionState } from "@/types/product-intelligence";
 import { SessionStatus } from "@/types/product-intelligence";
@@ -33,6 +34,9 @@ interface HomeClientProps {
 }
 
 export default function HomeClient({ dict, locale }: HomeClientProps) {
+  // Toast system
+  const { toasts, showErrorToast, hideToast } = useToast();
+  
   // Product Intelligence Agent State
   const [sessionId, setSessionId] = useState<string>("");
   const [sessionStatus, setSessionStatus] = useState<SessionStatus>(SessionStatus.INITIALIZING);
@@ -57,7 +61,6 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
   const [analysisError, setAnalysisError] = useState<{ type: string; canProceed: boolean } | null>(
     null
   );
-  const [showErrorToast, setShowErrorToast] = useState<boolean>(false);
   const [showAllFeatures, setShowAllFeatures] = useState<boolean>(false);
   const [expandedSections, setExpandedSections] = useState<{
     keyMessages: boolean;
@@ -105,6 +108,10 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
       // Validate product name is provided
       if (!productName.trim()) {
         setErrorMessage(dict.productIntelligence.productNameRequired);
+        showErrorToast(
+          dict.productIntelligence.productNameRequired,
+          dict.productIntelligence.validationError || "Validation Error"
+        );
         return;
       }
 
@@ -179,8 +186,10 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
             setSessionStatus(SessionStatus.ERROR);
 
             // Show error toast
-            setShowErrorToast(true);
-            setTimeout(() => setShowErrorToast(false), 5000); // Hide after 5 seconds
+            showErrorToast(
+              dict.productIntelligence.analysisFailedDemo,
+              dict.productIntelligence.analysisError
+            );
           } else {
             setAnalysisError(null);
             setSessionStatus(SessionStatus.ACTIVE);
@@ -219,6 +228,10 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     // Validate product name is provided
     if (!productName.trim()) {
       setErrorMessage(dict.productIntelligence.productNameRequired);
+      showErrorToast(
+        dict.productIntelligence.productNameRequired,
+        dict.productIntelligence.validationError || "Validation Error"
+      );
       return;
     }
 
@@ -288,8 +301,10 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           setSessionStatus(SessionStatus.ERROR);
 
           // Show error toast
-          setShowErrorToast(true);
-          setTimeout(() => setShowErrorToast(false), 5000); // Hide after 5 seconds
+          showErrorToast(
+            dict.productIntelligence.analysisFailedDemo,
+            dict.productIntelligence.analysisError
+          );
         } else {
           setAnalysisError(null);
           setSessionStatus(SessionStatus.ACTIVE);
@@ -409,7 +424,6 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     setShowCommercialChat(false);
     setChatInputMessage("");
     setAnalysisError(null);
-    setShowErrorToast(false);
     setShowAllFeatures(false);
     setExpandedSections({
       keyMessages: false,
@@ -625,17 +639,17 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                       value={productName}
                       onChange={(e) => setProductName(e.target.value)}
                       placeholder={dict.productIntelligence.productNameExample}
-                      className={`w-full px-4 py-3 bg-gray-800 border rounded-lg text-white placeholder-gray-400 transition-colors ${
-                        productName.trim() === "" && sessionStatus === SessionStatus.ANALYZING
-                          ? "border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      className={`w-full px-4 py-3 bg-gray-800 border rounded-lg text-white placeholder-gray-400 transition-all duration-200 ${
+                        productName.trim().length > 0
+                          ? "border-green-500/70 focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-green-900/10"
                           : "border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       }`}
                       disabled={sessionStatus === SessionStatus.ANALYZING}
                       maxLength={100}
                       required
                     />
-                    {productName.trim() === "" && (
-                      <p className="text-xs text-red-400 flex items-center">
+                    {productName.trim().length > 0 && (
+                      <p className="text-xs text-green-400 flex items-center">
                         <svg
                           className="w-3 h-3 mr-1"
                           fill="none"
@@ -646,10 +660,10 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            d="M5 13l4 4L19 7"
                           />
                         </svg>
-                        {dict.productIntelligence.productNameRequiredShort}
+                        {dict.productIntelligence.productNameReady}
                       </p>
                     )}
                     <p className="text-xs text-gray-400 flex items-center">
@@ -676,6 +690,13 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                       onImageUpload={handleImageUpload}
                       isUploading={sessionStatus === SessionStatus.ANALYZING}
                       locale={locale}
+                      productName={productName}
+                      onValidationError={(message) => {
+                        showErrorToast(
+                          message,
+                          dict.productIntelligence.validationError || "Validation Error"
+                        );
+                      }}
                     />
                   )}
 
@@ -1680,47 +1701,8 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         </div>
       )}
 
-      {/* Error Toast */}
-      {showErrorToast && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-slide-down">
-          <div className="bg-red-600 text-white px-6 py-4 rounded-lg shadow-lg border border-red-500 max-w-md">
-            <div className="flex items-center gap-3">
-              <svg
-                className="w-6 h-6 flex-shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <div>
-                <div className="font-semibold">{dict.productIntelligence.analysisError}</div>
-                <div className="text-sm opacity-90">
-                  {dict.productIntelligence.analysisFailedDemo}
-                </div>
-              </div>
-              <button
-                onClick={() => setShowErrorToast(false)}
-                className="ml-2 text-white hover:text-red-200 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemoveToast={hideToast} position="top-center" />
 
       {/* Development Mode Toggle */}
       <ModeToggle />

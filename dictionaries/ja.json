@@ -279,6 +279,8 @@
     "failedToSendMessage": "メッセージの送信に失敗しました。もう一度お試しください。",
     "thankYouTellMore": "ありがとうございます。詳しく教えていただけますか？",
     "analysisFailedDemo": "AI分析が失敗しました。デモモードに切り替えるか、やり直してください。",
+    "validationError": "バリデーションエラー",
+    "productNameReady": "商品名を入力済み",
     "stepInstructions1": "商品画像をアップロードまたはテキストを入力します",
     "stepInstructions2": "AIが自動で商品を分析します",
     "stepInstructions3": "エージェントとチャットで詳細を相談します",

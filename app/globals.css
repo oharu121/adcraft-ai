@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Toast Animation */
+/* Toast Animations */
 @keyframes slide-down {
   from {
     transform: translate(-50%, -100%);
@@ -12,8 +12,36 @@
   }
 }
 
+@keyframes slide-up {
+  from {
+    transform: translate(-50%, 100%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0%);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
 .animate-slide-down {
   animation: slide-down 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+.animate-shrink {
+  animation: toast-progress var(--duration, 5000ms) linear forwards;
 }
 
 /* Magical Design System - Color Variables */

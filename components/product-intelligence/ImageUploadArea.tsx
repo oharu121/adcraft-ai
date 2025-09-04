@@ -19,6 +19,8 @@ export interface ImageUploadProps {
   acceptedFormats?: string[];
   locale?: 'en' | 'ja';
   className?: string;
+  productName?: string;
+  onValidationError?: (message: string) => void;
 }
 
 export interface UploadedImage {
@@ -35,7 +37,9 @@ const ImageUploadArea: React.FC<ImageUploadProps> = ({
   maxFileSize = 10 * 1024 * 1024, // 10MB
   acceptedFormats = ['image/jpeg', 'image/png', 'image/webp'],
   locale = 'en',
-  className = ''
+  className = '',
+  productName = '',
+  onValidationError
 }) => {
   const [uploadedImage, setUploadedImage] = useState<UploadedImage | null>(null);
   const [dragActive, setDragActive] = useState(false);
@@ -59,7 +63,8 @@ const ImageUploadArea: React.FC<ImageUploadProps> = ({
       unsupportedFormat: 'Unsupported file format',
       uploadFailed: 'Failed to upload image',
       analyzing: 'Analyzing product image...',
-      retryUpload: 'Retry Upload'
+      retryUpload: 'Retry Upload',
+      productNameRequired: 'Product name is required before uploading'
     },
     ja: {
       title: '商品画像をアップロード',
@@ -76,7 +81,8 @@ const ImageUploadArea: React.FC<ImageUploadProps> = ({
       unsupportedFormat: 'サポートされていないファイル形式です',
       uploadFailed: '画像のアップロードに失敗しました',
       analyzing: '商品画像を分析中...',
-      retryUpload: 'アップロードを再試行'
+      retryUpload: 'アップロードを再試行',
+      productNameRequired: '画像をアップロードする前に商品名が必要です'
     }
   };
 
@@ -152,6 +158,14 @@ const ImageUploadArea: React.FC<ImageUploadProps> = ({
 
     if (isUploading) return;
 
+    // Check if product name is provided before processing dropped files
+    if (!productName.trim()) {
+      const errorMsg = t.productNameRequired;
+      setValidationError(errorMsg);
+      onValidationError?.(errorMsg);
+      return;
+    }
+
     const files = Array.from(e.dataTransfer.files);
     
     if (files.length > 0) {
@@ -160,12 +174,20 @@ const ImageUploadArea: React.FC<ImageUploadProps> = ({
         handleFileUpload(file);
       }
     }
-  }, [handleFileUpload, isUploading]);
+  }, [handleFileUpload, isUploading, productName, t, onValidationError]);
 
   // Handle file input click
   const handleFileInputClick = useCallback(() => {
+    // Check if product name is provided before opening file dialog
+    if (!productName.trim()) {
+      const errorMsg = t.productNameRequired;
+      setValidationError(errorMsg);
+      onValidationError?.(errorMsg);
+      return;
+    }
+    
     fileInputRef.current?.click();
-  }, []);
+  }, [productName, t, onValidationError]);
 
   const handleFileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;

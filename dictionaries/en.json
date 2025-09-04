@@ -279,6 +279,8 @@
     "failedToSendMessage": "Failed to send message. Please try again.",
     "thankYouTellMore": "Thank you for your question. Could you tell me more?",
     "analysisFailedDemo": "AI analysis failed. Switch to demo mode or try again.",
+    "validationError": "Validation Error",
+    "productNameReady": "Product name ready",
     "stepInstructions1": "Upload your product image or type in text",
     "stepInstructions2": "AI automatically analyzes your product",
     "stepInstructions3": "Chat with the agent to refine insights",
