@@ -89,24 +89,26 @@ export const Toast: React.FC<ToastProps> = ({
   };
 
   const positionStyles = {
-    'top-right': 'top-4 right-4',
-    'top-center': 'top-4 left-1/2 transform -translate-x-1/2',
-    'top-left': 'top-4 left-4',
-    'bottom-right': 'bottom-4 right-4',
-    'bottom-center': 'bottom-4 left-1/2 transform -translate-x-1/2',
-    'bottom-left': 'bottom-4 left-4'
+    'top-right': 'top-4 right-0',
+    'top-center': 'top-4 left-1/2 -translate-x-1/2',
+    'top-left': 'top-4 left-0',
+    'bottom-right': 'bottom-4 right-0',
+    'bottom-center': 'bottom-4 left-1/2 -translate-x-1/2',
+    'bottom-left': 'bottom-4 left-0'
   };
 
-  const animationClasses = position.includes('top') 
-    ? (isExiting ? 'animate-slide-up' : 'animate-slide-down')
-    : (isExiting ? 'animate-slide-down' : 'animate-slide-up');
+  const animationClasses = isExiting 
+    ? 'animate-fade-out'
+    : position.includes('top') 
+      ? 'animate-slide-down' 
+      : 'animate-slide-up';
 
   const currentStyle = typeStyles[type];
 
   return (
     <div
       className={cn(
-        'fixed z-50 max-w-md w-full mx-4',
+        'fixed z-50 max-w-md mx-4',
         positionStyles[position],
         animationClasses
       )}
@@ -165,13 +167,13 @@ export const Toast: React.FC<ToastProps> = ({
         {/* Progress Bar */}
         {duration > 0 && (
           <div className="mt-3 -mb-1 -mx-6">
-            <div
-              className="h-1 bg-white/30 rounded-b-lg overflow-hidden"
-              style={{
-                animation: `toast-progress ${duration}ms linear forwards`
-              }}
-            >
-              <div className="h-full bg-white/50 w-full origin-left animate-shrink" />
+            <div className="h-1 bg-white/30 rounded-b-lg overflow-hidden">
+              <div 
+                className="h-full bg-white/60 w-full origin-left transform scale-x-100 transition-transform ease-linear"
+                style={{
+                  animation: `toast-progress ${duration}ms linear forwards`
+                }}
+              />
             </div>
           </div>
         )}

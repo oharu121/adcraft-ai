@@ -1,25 +1,47 @@
 @import "tailwindcss";
 
 /* Toast Animations */
-@keyframes slide-down {
+@keyframes toast-slide-down {
   from {
-    transform: translate(-50%, -100%);
+    transform: translateY(-100%);
     opacity: 0;
   }
   to {
-    transform: translate(-50%, 0%);
+    transform: translateY(0);
     opacity: 1;
   }
 }
 
-@keyframes slide-up {
+@keyframes toast-slide-up {
   from {
-    transform: translate(-50%, 100%);
+    transform: translateY(100%);
     opacity: 0;
   }
   to {
-    transform: translate(-50%, 0%);
+    transform: translateY(0);
     opacity: 1;
+  }
+}
+
+@keyframes toast-fade-up {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+}
+
+@keyframes toast-fade-down {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(20px);
+    opacity: 0;
   }
 }
 
@@ -33,15 +55,26 @@
 }
 
 .animate-slide-down {
-  animation: slide-down 0.3s ease-out;
+  animation: toast-slide-down 0.3s ease-out;
 }
 
 .animate-slide-up {
-  animation: slide-up 0.3s ease-out;
+  animation: toast-slide-up 0.3s ease-out;
 }
 
-.animate-shrink {
-  animation: toast-progress var(--duration, 5000ms) linear forwards;
+.animate-fade-out {
+  animation: toast-fade-out 0.3s ease-out forwards;
+}
+
+@keyframes toast-fade-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
 }
 
 /* Magical Design System - Color Variables */
