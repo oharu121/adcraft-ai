@@ -11,9 +11,11 @@ import React, { useState, useCallback, useRef, DragEvent } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import type { Dictionary } from '@/lib/dictionaries';
 
 export interface ImageUploadProps {
   onImageUpload: (file: File) => Promise<void>;
+  dict: Dictionary;
   isUploading?: boolean;
   maxFileSize?: number; // in bytes
   acceptedFormats?: string[];
@@ -33,6 +35,7 @@ export interface UploadedImage {
 
 const ImageUploadArea: React.FC<ImageUploadProps> = ({
   onImageUpload,
+  dict,
   isUploading = false,
   maxFileSize = 10 * 1024 * 1024, // 10MB
   acceptedFormats = ['image/jpeg', 'image/png', 'image/webp'],
@@ -46,47 +49,8 @@ const ImageUploadArea: React.FC<ImageUploadProps> = ({
   const [validationError, setValidationError] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Localized text
-  const text = {
-    en: {
-      title: 'Upload Product Image',
-      description: 'Drag and drop your product image here, or click to select',
-      supportedFormats: 'Supported formats: JPEG, PNG, WebP',
-      maxFileSize: `Maximum file size: ${Math.round(maxFileSize / (1024 * 1024))}MB`,
-      dragActive: 'Drop your image here',
-      selectFile: 'Select Image',
-      uploading: 'Uploading...',
-      uploadSuccess: 'Image uploaded successfully',
-      uploadAnother: 'Upload Different Image',
-      errorTitle: 'Upload Error',
-      fileTooLarge: 'File size exceeds maximum limit',
-      unsupportedFormat: 'Unsupported file format',
-      uploadFailed: 'Failed to upload image',
-      analyzing: 'Analyzing product image...',
-      retryUpload: 'Retry Upload',
-      productNameRequired: 'Product name is required before uploading'
-    },
-    ja: {
-      title: '商品画像をアップロード',
-      description: '商品画像をここにドラッグ＆ドロップするか、クリックして選択してください',
-      supportedFormats: '対応フォーマット: JPEG, PNG, WebP',
-      maxFileSize: `最大ファイルサイズ: ${Math.round(maxFileSize / (1024 * 1024))}MB`,
-      dragActive: '画像をここにドロップしてください',
-      selectFile: '画像を選択',
-      uploading: 'アップロード中...',
-      uploadSuccess: '画像が正常にアップロードされました',
-      uploadAnother: '別の画像をアップロード',
-      errorTitle: 'アップロードエラー',
-      fileTooLarge: 'ファイルサイズが上限を超えています',
-      unsupportedFormat: 'サポートされていないファイル形式です',
-      uploadFailed: '画像のアップロードに失敗しました',
-      analyzing: '商品画像を分析中...',
-      retryUpload: 'アップロードを再試行',
-      productNameRequired: '画像をアップロードする前に商品名が必要です'
-    }
-  };
-
-  const t = text[locale];
+  // Use dictionary for localized text
+  const t = dict.productIntelligence.imageUpload;
 
   // Validate file before upload
   const validateFile = useCallback((file: File): string | null => {
@@ -405,7 +369,7 @@ const ImageUploadArea: React.FC<ImageUploadProps> = ({
         {!uploadedImage && (
           <div className="mt-4 text-center text-xs text-gray-500 space-y-1">
             <p>{t.supportedFormats}</p>
-            <p>{t.maxFileSize}</p>
+            <p>{t.maxFileSize} {Math.round(maxFileSize / (1024 * 1024))}MB</p>
           </div>
         )}
       </Card>

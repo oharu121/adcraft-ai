@@ -104,7 +104,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         productNameInputRef.current?.focus();
         showErrorToast(
           dict.productIntelligence.productNameRequired,
-          dict.productIntelligence.validationError || "Validation Error"
+          dict.productIntelligence.validationError
         );
         return;
       }

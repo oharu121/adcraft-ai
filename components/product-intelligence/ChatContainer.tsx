@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ChatMessage, AgentMessage, UserMessage } from '@/types/product-intelligence';
+import type { Dictionary } from '@/lib/dictionaries';
 
 export interface ChatContainerProps {
   sessionId: string;
@@ -19,6 +20,7 @@ export interface ChatContainerProps {
   isConnected: boolean;
   isAgentTyping: boolean;
   onSendMessage: (message: string) => Promise<void>;
+  dict: Dictionary;
   locale?: 'en' | 'ja';
   className?: string;
   inputMessage?: string;
@@ -31,6 +33,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   isConnected,
   isAgentTyping,
   onSendMessage,
+  dict,
   locale = 'en',
   className = '',
   inputMessage = '',
@@ -43,51 +46,8 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Localized text
-  const text = {
-    en: {
-      title: 'Product Intelligence Agent',
-      placeholder: 'Ask questions or request adjustments...',
-      send: 'Send',
-      connecting: 'Connecting...',
-      connected: 'Connected',
-      disconnected: 'Disconnected',
-      agentTyping: 'Agent is thinking...',
-      userTyping: 'You are typing...',
-      retry: 'Retry',
-      errorSending: 'Failed to send message',
-      welcomeMessage: 'Commercial strategy has been generated based on your product analysis. Feel free to ask questions or request adjustments!',
-      suggestionPrefix: 'You might want to ask:',
-      suggestions: [
-        'Who is my target audience?',
-        'What are the key selling points?',
-        'How should I position this product?',
-        'What visual style works best?'
-      ]
-    },
-    ja: {
-      title: 'プロダクト・インテリジェンス・エージェント',
-      placeholder: '質問や調整をお聞かせください...',
-      send: '送信',
-      connecting: '接続中...',
-      connected: '接続済み',
-      disconnected: '接続切断',
-      agentTyping: 'エージェントが考えています...',
-      userTyping: '入力中...',
-      retry: '再試行',
-      errorSending: 'メッセージの送信に失敗しました',
-      welcomeMessage: '商品分析に基づいてコマーシャル戦略を作成しました。質問や調整があればお聞かせください！',
-      suggestionPrefix: 'こんな質問はいかがですか：',
-      suggestions: [
-        'ターゲットオーディエンスは誰ですか？',
-        'キーセリングポイントは何ですか？',
-        'この商品をどのようにポジショニングすべきですか？',
-        'どのビジュアルスタイルが最適ですか？'
-      ]
-    }
-  };
-
-  const t = text[locale];
+  // Use dictionary for localized text
+  const t = dict.productIntelligence.chatContainer;
 
   // Auto-focus input when component mounts (chat opens)
   useEffect(() => {

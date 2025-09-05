@@ -11,9 +11,11 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { CollapsibleSection } from '@/components/ui/CollapsibleSection';
 import { ProductAnalysis } from '@/types/product-intelligence';
+import type { Dictionary } from '@/lib/dictionaries';
 
 export interface ProductAnalysisCardProps {
   analysis: ProductAnalysis;
+  dict: Dictionary;
   locale?: 'en' | 'ja';
   className?: string;
   onRefineRequest?: (topic: string, question: string) => void;
@@ -21,136 +23,14 @@ export interface ProductAnalysisCardProps {
 
 const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
   analysis,
+  dict,
   locale = 'en',
   className = '',
   onRefineRequest
 }) => {
 
-  // Localized text
-  const text = {
-    en: {
-      title: 'Product Analysis Results',
-      confidence: 'Confidence Score',
-      productInfo: 'Product Information',
-      targetAudience: 'Target Audience',
-      positioning: 'Brand Positioning',
-      commercialStrategy: 'Commercial Strategy',
-      visualPreferences: 'Visual Preferences',
-      category: 'Category',
-      features: 'Key Features',
-      materials: 'Materials',
-      colors: 'Colors',
-      usage: 'Usage Context',
-      demographics: 'Demographics',
-      psychographics: 'Psychographics',
-      behaviors: 'Shopping Behaviors',
-      ageRange: 'Age Range',
-      gender: 'Gender',
-      income: 'Income Level',
-      location: 'Location',
-      lifestyle: 'Lifestyle',
-      values: 'Values',
-      interests: 'Interests',
-      personality: 'Personality Traits',
-      motivations: 'Motivations',
-      shoppingHabits: 'Shopping Habits',
-      mediaConsumption: 'Media Consumption',
-      brandLoyalty: 'Brand Loyalty',
-      decisionFactors: 'Decision Factors',
-      brandPersonality: 'Brand Personality',
-      valueProposition: 'Value Proposition',
-      competitiveAdvantages: 'Competitive Advantages',
-      marketPosition: 'Market Position',
-      keyMessages: 'Key Messages',
-      emotionalTriggers: 'Emotional Triggers',
-      callToAction: 'Call to Action',
-      storytelling: 'Storytelling',
-      overallStyle: 'Overall Style',
-      mood: 'Mood',
-      composition: 'Composition',
-      lighting: 'Lighting',
-      environment: 'Environment',
-      refineThis: 'Ask for more details',
-      processingTime: 'Processing Time',
-      cost: 'Analysis Cost',
-      primary: 'Primary',
-      secondary: 'Secondary',
-      headline: 'Headline',
-      tagline: 'Tagline',
-      supportingMessages: 'Supporting Messages',
-      primaryBenefit: 'Primary Benefit',
-      supportingBenefits: 'Supporting Benefits',
-      differentiators: 'Differentiators',
-      functional: 'Functional',
-      emotional: 'Emotional',
-      experiential: 'Experiential',
-      narrative: 'Narrative',
-      conflict: 'Conflict',
-      resolution: 'Resolution'
-    },
-    ja: {
-      title: '商品分析結果',
-      confidence: '信頼度スコア',
-      productInfo: '商品情報',
-      targetAudience: 'ターゲットオーディエンス',
-      positioning: 'ブランドポジショニング',
-      commercialStrategy: 'コマーシャル戦略',
-      visualPreferences: 'ビジュアル設定',
-      category: 'カテゴリー',
-      features: '主要機能',
-      materials: '素材',
-      colors: '色',
-      usage: '使用場面',
-      demographics: '人口統計',
-      psychographics: '心理統計',
-      behaviors: 'ショッピング行動',
-      ageRange: '年齢層',
-      gender: '性別',
-      income: '所得レベル',
-      location: '地域',
-      lifestyle: 'ライフスタイル',
-      values: '価値観',
-      interests: '興味・関心',
-      personality: '性格的特徴',
-      motivations: '動機',
-      shoppingHabits: 'ショッピング習慣',
-      mediaConsumption: 'メディア消費',
-      brandLoyalty: 'ブランドロイヤリティ',
-      decisionFactors: '決定要因',
-      brandPersonality: 'ブランドパーソナリティ',
-      valueProposition: '価値提案',
-      competitiveAdvantages: '競合優位性',
-      marketPosition: 'マーケットポジション',
-      keyMessages: 'キーメッセージ',
-      emotionalTriggers: '感情的トリガー',
-      callToAction: 'コール・トゥ・アクション',
-      storytelling: 'ストーリーテリング',
-      overallStyle: '全体的なスタイル',
-      mood: 'ムード',
-      composition: 'コンポジション',
-      lighting: 'ライティング',
-      environment: '環境',
-      refineThis: '詳細を聞く',
-      processingTime: '処理時間',
-      cost: '分析コスト',
-      primary: 'プライマリー',
-      secondary: 'セカンダリー',
-      headline: 'ヘッドライン',
-      tagline: 'タグライン',
-      supportingMessages: 'サポートメッセージ',
-      primaryBenefit: '主要なメリット',
-      supportingBenefits: 'サポートするメリット',
-      differentiators: '差別化要因',
-      functional: '機能的',
-      emotional: '感情的',
-      experiential: '体験的',
-      narrative: '物語',
-      conflict: '葛藤',
-      resolution: '解決'
-    }
-  };
-
-  const t = text[locale];
+  // Use dictionary for localized text
+  const t = dict.productIntelligence.productAnalysisCard;
 
 
   // Handle refine request

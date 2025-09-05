@@ -110,6 +110,7 @@ export default function CommercialStrategyCard({
             isConnected={isConnected}
             isAgentTyping={isAgentTyping}
             onSendMessage={onSendMessage}
+            dict={dict}
             locale={locale}
             className="h-full"
             inputMessage={chatInputMessage}

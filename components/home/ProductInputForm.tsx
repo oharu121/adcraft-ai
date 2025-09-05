@@ -181,6 +181,7 @@ export default function ProductInputForm({
       {inputMode === "image" && (
         <ImageUploadArea
           onImageUpload={onImageUpload}
+          dict={dict}
           isUploading={sessionStatus === SessionStatus.ANALYZING}
           locale={locale}
           productName={productName}
