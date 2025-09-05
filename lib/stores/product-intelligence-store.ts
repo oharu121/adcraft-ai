@@ -90,58 +90,58 @@ interface ProductIntelligenceStore {
 
 export const useProductIntelligenceStore = create<ProductIntelligenceStore>((set, get) => ({
   // Initial state - exactly matching your current useState calls
-  sessionId: '',
+  sessionId: "",
   sessionStatus: SessionStatus.INITIALIZING,
   isConnected: false,
   isAgentTyping: false,
-  
+
   uploadedImage: null,
-  productName: '',
-  productDescription: '',
-  inputMode: 'image',
-  
-  currentStep: 'upload',
+  productName: "",
+  productDescription: "",
+  inputMode: "image",
+
+  currentStep: "upload",
   showCommercialChat: false,
   showImageModal: false,
   showAllFeatures: false,
   showProductNameError: false,
-  
+
   messages: [],
   analysis: null,
   analysisProgress: 0,
   analysisStartTime: 0,
   elapsedTime: 0,
-  errorMessage: '',
+  errorMessage: "",
   analysisError: null,
-  
+
   // 🎯 THE CRITICAL CHAT STATE - persists across component unmounts!
-  chatInputMessage: '',
-  
+  chatInputMessage: "",
+
   expandedSections: {
-    keyMessages: false,
-    visualStyle: false,
-    narrativeStructure: false,
-    keyScenes: false,
-    musicTone: false,
+    keyMessages: true,
+    visualStyle: true,
+    narrativeStructure: true,
+    keyScenes: true,
+    musicTone: true,
   },
-  
+
   // Simple setters
   setSessionId: (id) => set({ sessionId: id }),
   setSessionStatus: (status) => set({ sessionStatus: status }),
   setIsConnected: (connected) => set({ isConnected: connected }),
   setIsAgentTyping: (typing) => set({ isAgentTyping: typing }),
-  
+
   setUploadedImage: (file) => set({ uploadedImage: file }),
   setProductName: (name) => set({ productName: name }),
   setProductDescription: (description) => set({ productDescription: description }),
   setInputMode: (mode) => set({ inputMode: mode }),
-  
+
   setCurrentStep: (step) => set({ currentStep: step }),
   setShowCommercialChat: (show) => set({ showCommercialChat: show }),
   setShowImageModal: (show) => set({ showImageModal: show }),
   setShowAllFeatures: (show) => set({ showAllFeatures: show }),
   setShowProductNameError: (show) => set({ showProductNameError: show }),
-  
+
   setMessages: (messages) => set({ messages }),
   addMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),
   setAnalysis: (analysis) => set({ analysis }),
@@ -150,60 +150,64 @@ export const useProductIntelligenceStore = create<ProductIntelligenceStore>((set
   setElapsedTime: (time) => set({ elapsedTime: time }),
   setErrorMessage: (message) => set({ errorMessage: message }),
   setAnalysisError: (error) => set({ analysisError: error }),
-  
+
   // 🚀 THE HERO METHOD - no more lost chat messages!
   setChatInputMessage: (message) => set({ chatInputMessage: message }),
-  
+
   // Toggle accordion sections
-  toggleSection: (section) => set((state) => ({
-    expandedSections: {
-      ...state.expandedSections,
-      [section]: !state.expandedSections[section]
-    }
-  })),
-  
+  toggleSection: (section) =>
+    set((state) => ({
+      expandedSections: {
+        ...state.expandedSections,
+        [section]: !state.expandedSections[section],
+      },
+    })),
+
   // Complex actions that handle multiple state updates
-  resetSession: () => set({
-    sessionId: '',
-    sessionStatus: SessionStatus.INITIALIZING,
-    messages: [],
-    analysis: null,
-    uploadedImage: null,
-    productDescription: '',
-    productName: '',
-    currentStep: 'upload',
-    isConnected: false,
-    isAgentTyping: false,
-    analysisProgress: 0,
-    analysisStartTime: 0,
-    elapsedTime: 0,
-    errorMessage: '',
-    showCommercialChat: false,
-    chatInputMessage: '', // Reset chat input on session reset
-    analysisError: null,
-    showProductNameError: false,
-    showAllFeatures: false,
-    expandedSections: {
-      keyMessages: false,
-      visualStyle: false,
-      narrativeStructure: false,
-      keyScenes: false,
-      musicTone: false,
-    },
-  }),
-  
-  startAnalysis: () => set({
-    sessionStatus: SessionStatus.ANALYZING,
-    currentStep: 'analyze',
-    analysisProgress: 0,
-    elapsedTime: 0,
-    errorMessage: '',
-    analysisStartTime: Date.now(),
-  }),
-  
-  completeAnalysis: () => set({
-    sessionStatus: SessionStatus.ACTIVE,
-    currentStep: 'chat',
-    analysisProgress: 100,
-  }),
+  resetSession: () =>
+    set({
+      sessionId: "",
+      sessionStatus: SessionStatus.INITIALIZING,
+      messages: [],
+      analysis: null,
+      uploadedImage: null,
+      productDescription: "",
+      productName: "",
+      currentStep: "upload",
+      isConnected: false,
+      isAgentTyping: false,
+      analysisProgress: 0,
+      analysisStartTime: 0,
+      elapsedTime: 0,
+      errorMessage: "",
+      showCommercialChat: false,
+      chatInputMessage: "", // Reset chat input on session reset
+      analysisError: null,
+      showProductNameError: false,
+      showAllFeatures: false,
+      expandedSections: {
+        keyMessages: false,
+        visualStyle: false,
+        narrativeStructure: false,
+        keyScenes: false,
+        musicTone: false,
+      },
+    }),
+
+  startAnalysis: () =>
+    set({
+      sessionStatus: SessionStatus.ANALYZING,
+      currentStep: "analyze",
+      analysisProgress: 0,
+      elapsedTime: 0,
+      errorMessage: "",
+      analysisStartTime: Date.now(),
+    }),
+
+  completeAnalysis: () =>
+    set({
+      sessionStatus: SessionStatus.ACTIVE,
+      currentStep: "chat",
+      analysisProgress: 100,
+    }),
 }));

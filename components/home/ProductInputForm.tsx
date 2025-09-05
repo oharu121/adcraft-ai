@@ -148,31 +148,33 @@ export default function ProductInputForm({
           maxLength={100}
           required
         />
-        {showProductNameError ? (
-          <p className="mb-3 text-xs text-red-400 flex items-center mt-1">
-            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            {dict.productIntelligence.productNameRequiredShort}
-          </p>
-        ) : productName.trim().length > 0 ? (
-          <p className="mb-3 text-xs text-green-400 flex items-center mt-1">
-            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-            {dict.productIntelligence.productNameReady}
-          </p>
-        ) : null}
+        <div className="mb-3">
+          {showProductNameError ? (
+            <p className="text-xs text-red-400 flex items-center mt-1">
+              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              {dict.productIntelligence.productNameRequiredShort}
+            </p>
+          ) : productName.trim().length > 0 ? (
+            <p className="text-xs text-green-400 flex items-center mt-1">
+              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              {dict.productIntelligence.productNameReady}
+            </p>
+          ) : null}
+        </div>
       </div>
 
       {/* Image Upload Mode */}

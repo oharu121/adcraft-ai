@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@utility scrollbar-hidden {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* Toast Animations */
 @keyframes toast-slide-down {
   from {

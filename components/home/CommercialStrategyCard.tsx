@@ -8,7 +8,7 @@ import type { Dictionary, Locale } from "@/lib/dictionaries";
 interface CommercialStrategyCardProps {
   dict: Dictionary;
   locale: Locale;
-  onSendMessage: (message: string) => void;
+  onSendMessage: (message: string) => Promise<void>;
   onReset: () => void;
   onProceedToHandoff: () => void;
 }
