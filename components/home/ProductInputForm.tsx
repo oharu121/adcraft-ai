@@ -10,19 +10,19 @@ import type { Dictionary, Locale } from "@/lib/dictionaries";
 interface ProductInputFormProps {
   dict: Dictionary;
   locale: Locale;
-  onImageUpload: (file: File) => void;
+  onImageUpload: (file: File) => Promise<void>;
   onTextSubmit: () => void;
   onValidationError: (message: string) => void;
-  productNameInputRef?: React.RefObject<HTMLInputElement>;
+  productNameInputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
-export default function ProductInputForm({ 
-  dict, 
-  locale, 
-  onImageUpload, 
+export default function ProductInputForm({
+  dict,
+  locale,
+  onImageUpload,
   onTextSubmit,
   onValidationError,
-  productNameInputRef
+  productNameInputRef,
 }: ProductInputFormProps) {
   // Zustand store
   const {
@@ -37,8 +37,13 @@ export default function ProductInputForm({
     setShowProductNameError,
   } = useProductIntelligenceStore();
 
-  // Refs
   const textInputRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleProductNameFocus = () => {
+    setTimeout(() => {
+      productNameInputRef?.current?.focus();
+    }, 100);
+  };
 
   return (
     <Card variant="magical" glow className="p-6">
@@ -46,28 +51,26 @@ export default function ProductInputForm({
         <h2 className="text-xl font-semibold text-white mb-2">
           {dict.productIntelligence.stepEnterInfo}
         </h2>
-        <p className="text-gray-300 text-sm">
-          {dict.productIntelligence.stepDescription}
-        </p>
+        <p className="text-gray-300 text-sm">{dict.productIntelligence.stepDescription}</p>
       </div>
 
       {/* Input Mode Toggle */}
       <div className="mb-6">
         <div className="flex rounded-lg bg-gray-800 p-1 max-w-md mx-auto">
           <button
-            onClick={() => setInputMode("image")}
+            onClick={() => {
+              setInputMode("image");
+              setTimeout(() => {
+                productNameInputRef?.current?.focus();
+              }, 100);
+            }}
             className={`cursor-pointer flex-1 flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
               inputMode === "image"
                 ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md"
                 : "text-gray-300 hover:text-white"
             }`}
           >
-            <svg
-              className="w-4 h-4 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -80,9 +83,8 @@ export default function ProductInputForm({
           <button
             onClick={() => {
               setInputMode("text");
-              // Auto-focus the textarea after a small delay
               setTimeout(() => {
-                textInputRef.current?.focus();
+                productName ? textInputRef.current?.focus() : productNameInputRef?.current?.focus();
               }, 100);
             }}
             className={`cursor-pointer flex-1 flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
@@ -91,12 +93,7 @@ export default function ProductInputForm({
                 : "text-gray-300 hover:text-white"
             }`}
           >
-            <svg
-              className="w-4 h-4 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -144,21 +141,16 @@ export default function ProductInputForm({
             showProductNameError
               ? "border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-red-900/10"
               : productName.trim().length > 0
-              ? "border-green-500/70 focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-green-900/10"
-              : "border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                ? "border-green-500/70 focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-green-900/10"
+                : "border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           }`}
           disabled={sessionStatus === SessionStatus.ANALYZING}
           maxLength={100}
           required
         />
         {showProductNameError ? (
-          <p className="text-xs text-red-400 flex items-center mt-1">
-            <svg
-              className="w-3 h-3 mr-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+          <p className="mb-3 text-xs text-red-400 flex items-center mt-1">
+            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -169,13 +161,8 @@ export default function ProductInputForm({
             {dict.productIntelligence.productNameRequiredShort}
           </p>
         ) : productName.trim().length > 0 ? (
-          <p className="text-xs text-green-400 flex items-center mt-1">
-            <svg
-              className="w-3 h-3 mr-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+          <p className="mb-3 text-xs text-green-400 flex items-center mt-1">
+            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -186,22 +173,6 @@ export default function ProductInputForm({
             {dict.productIntelligence.productNameReady}
           </p>
         ) : null}
-        <p className="text-xs text-gray-400 flex items-center">
-          <svg
-            className="w-3 h-3 mr-1"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          {dict.productIntelligence.actualProductName}
-        </p>
       </div>
 
       {/* Image Upload Mode */}
@@ -220,8 +191,8 @@ export default function ProductInputForm({
         <div className="space-y-4">
           <div className="relative">
             <textarea
-              ref={textInputRef}
               value={productDescription}
+              ref={textInputRef}
               onChange={(e) => setProductDescription(e.target.value)}
               placeholder={dict.productIntelligence.productDescriptionExample}
               className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 resize-none transition-colors"
@@ -233,12 +204,7 @@ export default function ProductInputForm({
           <div className="flex justify-between items-center text-sm text-gray-400">
             <span>{productDescription.length}/1000</span>
             <div className="flex items-center">
-              <svg
-                className="w-4 h-4 mr-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"

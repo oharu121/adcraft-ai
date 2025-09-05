@@ -76,8 +76,6 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
   // Ref for tracking analysis start time for progress calculation
   const analysisStartRef = useRef<number>(0);
-  // Ref for text input auto-focus
-  const textInputRef = useRef<HTMLTextAreaElement>(null);
   // Ref for product name input focus
   const productNameInputRef = useRef<HTMLInputElement>(null);
 

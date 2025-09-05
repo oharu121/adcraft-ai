@@ -261,7 +261,6 @@
     "stepDescription": "商品画像をアップロード、またはテキストで商品を説明してください",
     "productNameExample": "商品名を入力してください (例: iPhone 15 Pro, Nike Air Max)",
     "productDescriptionExample": "商品の詳細な説明を入力してください（例：高品質なオーガニックコーヒー豆、エチオピア産、フルーティーな香り...）",
-    "actualProductName": "実際の商品名を入力することで、より具体的で実用的なマーケティング戦略を生成します",
     "agentSection": "プロダクト・インテリジェンス・エージェント",
     "agentDescription": "商品を分析し、ターゲット、ポジショニング、マーケティング戦略について詳しく相談できるAIエージェント",
     "costInfo": "分析費用: $0.20-0.40 | チャット: $0.05/メッセージ",

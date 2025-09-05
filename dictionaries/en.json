@@ -261,7 +261,6 @@
     "stepDescription": "Upload a product image or describe your product with text",
     "productNameExample": "Enter your product name (e.g., iPhone 15 Pro, Nike Air Max)",
     "productDescriptionExample": "Describe your product in detail (e.g., Premium organic coffee beans from Ethiopia, fruity aroma, medium roast...)",
-    "actualProductName": "Enter the actual product name to generate specific and actionable marketing strategies",
     "agentSection": "Product Intelligence Agent",
     "agentDescription": "Analyze your product and chat with our AI about target audience, positioning, and marketing strategy",
     "costInfo": "Analysis: $0.20-0.40 | Chat: $0.05/message",
