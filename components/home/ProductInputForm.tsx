@@ -13,6 +13,7 @@ interface ProductInputFormProps {
   onImageUpload: (file: File) => void;
   onTextSubmit: () => void;
   onValidationError: (message: string) => void;
+  productNameInputRef?: React.RefObject<HTMLInputElement>;
 }
 
 export default function ProductInputForm({ 
@@ -20,7 +21,8 @@ export default function ProductInputForm({
   locale, 
   onImageUpload, 
   onTextSubmit,
-  onValidationError 
+  onValidationError,
+  productNameInputRef
 }: ProductInputFormProps) {
   // Zustand store
   const {
@@ -37,7 +39,6 @@ export default function ProductInputForm({
 
   // Refs
   const textInputRef = useRef<HTMLTextAreaElement>(null);
-  const productNameInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <Card variant="magical" glow className="p-6">

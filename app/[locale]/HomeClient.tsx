@@ -419,12 +419,20 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     }
   }, []);
 
+  // Focus on product name input
+  const focusProductNameInput = useCallback(() => {
+    setTimeout(() => {
+      productNameInputRef.current?.focus();
+    }, 500); // Small delay to ensure scroll completes first
+  }, []);
+
   return (
     <div className="min-h-screen">
       {/* 🚀 Hero Section - Now a clean server component! */}
       <HeroSection 
         dict={dict} 
-        onScrollToSection={scrollToProductIntelligence} 
+        onScrollToSection={scrollToProductIntelligence}
+        onFocusProductName={focusProductNameInput}
       />
 
       {/* Product Intelligence Section */}
@@ -454,6 +462,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                   locale={locale}
                   onImageUpload={handleImageUpload}
                   onTextSubmit={handleTextSubmit}
+                  productNameInputRef={productNameInputRef}
                   onValidationError={(message) => {
                     setShowProductNameError(true);
                     productNameInputRef.current?.focus();
