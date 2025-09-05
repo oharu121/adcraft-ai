@@ -191,12 +191,12 @@ const ImageUploadArea: React.FC<ImageUploadProps> = ({
     <div className={`w-full ${className}`}>
       <Card className="p-6">
         <div className="text-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-lg font-semibold text-gray-300 mb-2">
             {t.title}
           </h3>
           
           {!uploadedImage && (
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-500 mb-4">
               {t.description}
             </p>
           )}
