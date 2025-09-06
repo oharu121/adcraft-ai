@@ -127,7 +127,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
     setVisibleContent((prev) => new Map(prev).set(messageId, ""));
 
     let charIndex = 0;
-    const typingSpeed = 40; // 40ms per character - fast but visible
+    const typingSpeed = 10; // 25ms per character - faster typing
 
     const interval = setInterval(() => {
       if (charIndex < fullContent.length) {
