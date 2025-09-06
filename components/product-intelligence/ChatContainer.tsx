@@ -48,6 +48,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   const [typingMessages, setTypingMessages] = useState<Set<string>>(new Set());
   const [visibleContent, setVisibleContent] = useState<Map<string, string>>(new Map());
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const typingIntervalsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
@@ -125,6 +126,16 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
           return newMap;
         });
         charIndex++;
+
+        // Scroll chat container every few characters during typing
+        if (charIndex % 10 === 0 || fullContent[charIndex - 1] === "\n") {
+          setTimeout(() => {
+            // Scroll only the chat container, not the whole page
+            if (messagesContainerRef.current) {
+              messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+            }
+          }, 10);
+        }
       } else {
         // Typing complete
         clearInterval(interval);
@@ -139,6 +150,14 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
           newMap.set(messageId, fullContent); // Ensure full content is shown
           return newMap;
         });
+
+        // Final scroll when typing is complete
+        setTimeout(() => {
+          // Scroll chat container to bottom
+          if (messagesContainerRef.current) {
+            messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+          }
+        }, 50);
       }
     }, typingSpeed);
 
@@ -350,7 +369,10 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-0 bg-white scrollbar-hidden">
+      <div
+        ref={messagesContainerRef}
+        className="flex-1 overflow-y-auto p-4 space-y-0 bg-white scrollbar-hidden"
+      >
         {renderSuggestions()}
 
         {messages.map(renderMessage)}
