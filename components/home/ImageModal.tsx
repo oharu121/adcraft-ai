@@ -26,7 +26,7 @@ export default function ImageModal({ dict }: ImageModalProps) {
       <div className="relative max-w-4xl max-h-full">
         <button
           onClick={() => setShowImageModal(false)}
-          className="absolute -top-4 -right-4 bg-gray-800 hover:bg-gray-700 text-white rounded-full p-2 transition-colors z-10"
+          className="cursor-pointer absolute -top-4 -right-4 bg-gray-800 hover:bg-gray-700 text-white rounded-full p-2 transition-colors z-10"
           title="Close"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
