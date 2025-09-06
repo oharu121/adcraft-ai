@@ -43,9 +43,12 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   // inputMessage is now controlled by parent component
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userTyping, setUserTyping] = useState(false);
+  const [typingMessages, setTypingMessages] = useState<Set<string>>(new Set());
+  const [visibleContent, setVisibleContent] = useState<Map<string, string>>(new Map());
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingIntervalsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   // Use dictionary for localized text
   const t = dict.productIntelligence.chatContainer;
@@ -86,6 +89,71 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
     };
   }, [inputMessage]);
 
+  // Typing effect for agent messages
+  const startTypingEffect = useCallback((message: ChatMessage) => {
+    if (message.type === 'user' || message.type === 'system') return;
+    
+    const messageId = message.id;
+    const fullContent = message.content;
+    
+    // Clear any existing typing for this message
+    const existingInterval = typingIntervalsRef.current.get(messageId);
+    if (existingInterval) {
+      clearInterval(existingInterval);
+    }
+    
+    // Start typing effect
+    setTypingMessages(prev => new Set(prev).add(messageId));
+    setVisibleContent(prev => new Map(prev).set(messageId, ''));
+    
+    let charIndex = 0;
+    const typingSpeed = 40; // 40ms per character - fast but visible
+    
+    const interval = setInterval(() => {
+      if (charIndex < fullContent.length) {
+        setVisibleContent(prev => {
+          const newMap = new Map(prev);
+          newMap.set(messageId, fullContent.slice(0, charIndex + 1));
+          return newMap;
+        });
+        charIndex++;
+      } else {
+        // Typing complete
+        clearInterval(interval);
+        typingIntervalsRef.current.delete(messageId);
+        setTypingMessages(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(messageId);
+          return newSet;
+        });
+        setVisibleContent(prev => {
+          const newMap = new Map(prev);
+          newMap.set(messageId, fullContent); // Ensure full content is shown
+          return newMap;
+        });
+      }
+    }, typingSpeed);
+    
+    typingIntervalsRef.current.set(messageId, interval);
+  }, []);
+
+  // Start typing effect for new agent messages
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && lastMessage.type === 'agent' && !typingMessages.has(lastMessage.id) && !visibleContent.has(lastMessage.id)) {
+      // Small delay to let the message render first
+      setTimeout(() => startTypingEffect(lastMessage), 100);
+    }
+  }, [messages, startTypingEffect, typingMessages, visibleContent]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      typingIntervalsRef.current.forEach(interval => clearInterval(interval));
+      typingIntervalsRef.current.clear();
+    };
+  }, []);
+
   // Handle message submission
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,10 +186,19 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
     }
   }, [handleSubmit]);
 
+  // Get avatar state for message
+  const getAvatarState = (message: ChatMessage): 'idle' | 'thinking' | 'speaking' => {
+    if (message.type !== 'agent') return 'idle';
+    if (typingMessages.has(message.id)) return 'speaking';
+    return 'idle';
+  };
+
   // Render individual message
   const renderMessage = (message: ChatMessage, index: number) => {
     const isUser = message.type === 'user';
     const isSystem = message.type === 'system';
+    const isTyping = typingMessages.has(message.id);
+    const displayContent = isTyping ? visibleContent.get(message.id) || '' : message.content;
     
     return (
       <div key={message.id} className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
@@ -130,7 +207,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
           {!isUser && (
             <div className="flex items-center mb-1">
               <div className="mr-2">
-                <AgentAvatar agent="maya" size="md" state="idle" />
+                <AgentAvatar agent="maya" size="md" state={getAvatarState(message)} />
               </div>
               <span className="text-xs text-gray-500">Maya</span>
             </div>
@@ -146,7 +223,10 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
                 : 'bg-white text-gray-800 border border-gray-200 rounded-bl-sm'
             }`}
           >
-            <p className="whitespace-pre-wrap break-words">{message.content}</p>
+            <p className="whitespace-pre-wrap break-words">
+              {displayContent}
+              {isTyping && <span className="animate-pulse">|</span>}
+            </p>
             
             {/* Message metadata */}
             {message.metadata && (
