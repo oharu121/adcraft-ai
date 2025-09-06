@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ChatMessage, AgentMessage, UserMessage } from '@/types/product-intelligence';
 import type { Dictionary } from '@/lib/dictionaries';
+import AgentAvatar from '@/components/ui/AgentAvatar';
 
 export interface ChatContainerProps {
   sessionId: string;
@@ -128,10 +129,10 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
           {/* Avatar */}
           {!isUser && (
             <div className="flex items-center mb-1">
-              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-semibold mr-2">
-                AI
+              <div className="mr-2">
+                <AgentAvatar agent="maya" size="md" state="idle" />
               </div>
-              <span className="text-xs text-gray-500">{message.agentName || 'Agent'}</span>
+              <span className="text-xs text-gray-500">Maya</span>
             </div>
           )}
           
@@ -185,8 +186,8 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
       <div className="flex justify-start mb-4">
         <div className="max-w-3xl">
           <div className="flex items-center mb-1">
-            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-semibold mr-2">
-              AI
+            <div className="mr-2">
+              <AgentAvatar agent="maya" size="md" state="thinking" />
             </div>
             <span className="text-xs text-gray-500">{t.agentTyping}</span>
           </div>
