@@ -65,14 +65,25 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
     return () => clearTimeout(timer);
   }, []);
 
-  // Scroll when new messages arrive
+  // Scroll when new messages arrive or agent starts thinking
   useEffect(() => {
-    if (!!onScrollRequest) {
-      // Scroll to chat section header (keeps strategy button visible)
-      onScrollRequest();
-    } else {
-      // Fallback: scroll to bottom of messages
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (isAgentTyping) {
+      // Agent is thinking - scroll chat container to show thinking indicator
+      setTimeout(() => {
+        if (messagesContainerRef.current) {
+          messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        }
+      }, 100); // Small delay to ensure thinking indicator is rendered
+    }
+    
+    if (messages.length > 0) {
+      if (!!onScrollRequest) {
+        // Scroll to chat section header (keeps strategy button visible)
+        onScrollRequest();
+      } else {
+        // Fallback: scroll to bottom of messages
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }
     }
   }, [messages, isAgentTyping, onScrollRequest]);
 
