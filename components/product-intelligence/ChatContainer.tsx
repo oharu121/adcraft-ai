@@ -1,19 +1,19 @@
 /**
  * Product Intelligence Agent - Chat Container
- * 
+ *
  * Main chat interface for real-time conversation with the Product Intelligence Agent,
  * including message history, typing indicators, and input controls.
  */
 
-'use client';
+"use client";
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { ChatMessage, AgentMessage, UserMessage } from '@/types/product-intelligence';
-import type { Dictionary } from '@/lib/dictionaries';
-import AgentAvatar from '@/components/ui/AgentAvatar';
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { ChatMessage, AgentMessage, UserMessage } from "@/types/product-intelligence";
+import type { Dictionary } from "@/lib/dictionaries";
+import AgentAvatar from "@/components/ui/AgentAvatar";
 
 export interface ChatContainerProps {
   sessionId: string;
@@ -22,10 +22,11 @@ export interface ChatContainerProps {
   isAgentTyping: boolean;
   onSendMessage: (message: string) => Promise<void>;
   dict: Dictionary;
-  locale?: 'en' | 'ja';
+  locale?: "en" | "ja";
   className?: string;
   inputMessage?: string;
   onInputMessageChange?: (message: string) => void;
+  onScrollRequest?: () => void;
 }
 
 const ChatContainer: React.FC<ChatContainerProps> = ({
@@ -35,10 +36,11 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   isAgentTyping,
   onSendMessage,
   dict,
-  locale = 'en',
-  className = '',
-  inputMessage = '',
-  onInputMessageChange
+  locale = "en",
+  className = "",
+  inputMessage = "",
+  onInputMessageChange,
+  onScrollRequest,
 }) => {
   // inputMessage is now controlled by parent component
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,14 +60,20 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
     const timer = setTimeout(() => {
       inputRef.current?.focus();
     }, 100); // Small delay to ensure component is fully rendered
-    
+
     return () => clearTimeout(timer);
   }, []);
 
-  // Scroll to bottom when new messages arrive
+  // Scroll when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isAgentTyping]);
+    if (!!onScrollRequest) {
+      // Scroll to chat section header (keeps strategy button visible)
+      onScrollRequest();
+    } else {
+      // Fallback: scroll to bottom of messages
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isAgentTyping, onScrollRequest]);
 
   // Handle user typing detection
   useEffect(() => {
@@ -91,27 +99,27 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
 
   // Typing effect for agent messages
   const startTypingEffect = useCallback((message: ChatMessage) => {
-    if (message.type === 'user' || message.type === 'system') return;
-    
+    if (message.type === "user" || message.type === "system") return;
+
     const messageId = message.id;
     const fullContent = message.content;
-    
+
     // Clear any existing typing for this message
     const existingInterval = typingIntervalsRef.current.get(messageId);
     if (existingInterval) {
       clearInterval(existingInterval);
     }
-    
+
     // Start typing effect
-    setTypingMessages(prev => new Set(prev).add(messageId));
-    setVisibleContent(prev => new Map(prev).set(messageId, ''));
-    
+    setTypingMessages((prev) => new Set(prev).add(messageId));
+    setVisibleContent((prev) => new Map(prev).set(messageId, ""));
+
     let charIndex = 0;
     const typingSpeed = 40; // 40ms per character - fast but visible
-    
+
     const interval = setInterval(() => {
       if (charIndex < fullContent.length) {
-        setVisibleContent(prev => {
+        setVisibleContent((prev) => {
           const newMap = new Map(prev);
           newMap.set(messageId, fullContent.slice(0, charIndex + 1));
           return newMap;
@@ -121,26 +129,31 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
         // Typing complete
         clearInterval(interval);
         typingIntervalsRef.current.delete(messageId);
-        setTypingMessages(prev => {
+        setTypingMessages((prev) => {
           const newSet = new Set(prev);
           newSet.delete(messageId);
           return newSet;
         });
-        setVisibleContent(prev => {
+        setVisibleContent((prev) => {
           const newMap = new Map(prev);
           newMap.set(messageId, fullContent); // Ensure full content is shown
           return newMap;
         });
       }
     }, typingSpeed);
-    
+
     typingIntervalsRef.current.set(messageId, interval);
   }, []);
 
   // Start typing effect for new agent messages
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
-    if (lastMessage && lastMessage.type === 'agent' && !typingMessages.has(lastMessage.id) && !visibleContent.has(lastMessage.id)) {
+    if (
+      lastMessage &&
+      lastMessage.type === "agent" &&
+      !typingMessages.has(lastMessage.id) &&
+      !visibleContent.has(lastMessage.id)
+    ) {
       // Small delay to let the message render first
       setTimeout(() => startTypingEffect(lastMessage), 100);
     }
@@ -149,60 +162,66 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      typingIntervalsRef.current.forEach(interval => clearInterval(interval));
+      typingIntervalsRef.current.forEach((interval) => clearInterval(interval));
       typingIntervalsRef.current.clear();
     };
   }, []);
 
   // Handle message submission
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!inputMessage.trim() || isSubmitting || !isConnected) {
-      return;
-    }
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
 
-    setIsSubmitting(true);
-    
-    try {
-      await onSendMessage(inputMessage.trim());
-      if (onInputMessageChange) {
-        onInputMessageChange('');
+      if (!inputMessage.trim() || isSubmitting || !isConnected) {
+        return;
       }
-      inputRef.current?.focus();
-    } catch (error) {
-      console.error('Failed to send message:', error);
-      // Error handling could be improved with toast notifications
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [inputMessage, isSubmitting, isConnected, onSendMessage]);
+
+      setIsSubmitting(true);
+
+      try {
+        await onSendMessage(inputMessage.trim());
+        if (onInputMessageChange) {
+          onInputMessageChange("");
+        }
+        inputRef.current?.focus();
+      } catch (error) {
+        console.error("Failed to send message:", error);
+        // Error handling could be improved with toast notifications
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [inputMessage, isSubmitting, isConnected, onSendMessage]
+  );
 
   // Handle keyboard shortcuts
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit(e as any);
-    }
-  }, [handleSubmit]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit(e as any);
+      }
+    },
+    [handleSubmit]
+  );
 
   // Get avatar state for message
-  const getAvatarState = (message: ChatMessage): 'idle' | 'thinking' | 'speaking' => {
-    if (message.type !== 'agent') return 'idle';
-    if (typingMessages.has(message.id)) return 'speaking';
-    return 'idle';
+  const getAvatarState = (message: ChatMessage): "idle" | "thinking" | "speaking" => {
+    if (message.type !== "agent") return "idle";
+    if (typingMessages.has(message.id)) return "speaking";
+    return "idle";
   };
 
   // Render individual message
   const renderMessage = (message: ChatMessage, index: number) => {
-    const isUser = message.type === 'user';
-    const isSystem = message.type === 'system';
+    const isUser = message.type === "user";
+    const isSystem = message.type === "system";
     const isTyping = typingMessages.has(message.id);
-    const displayContent = isTyping ? visibleContent.get(message.id) || '' : message.content;
-    
+    const displayContent = isTyping ? visibleContent.get(message.id) || "" : message.content;
+
     return (
-      <div key={message.id} className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
-        <div className={`max-w-[80%] ${isUser ? 'order-2' : 'order-1'}`}>
+      <div key={message.id} className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4`}>
+        <div className={`max-w-[80%] ${isUser ? "order-2" : "order-1"}`}>
           {/* Avatar */}
           {!isUser && (
             <div className="flex items-center mb-1">
@@ -212,25 +231,25 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
               <span className="text-xs text-gray-500">Maya</span>
             </div>
           )}
-          
+
           {/* Message bubble */}
           <div
             className={`px-4 py-3 rounded-lg ${
               isUser
-                ? 'bg-blue-600 text-white rounded-br-sm'
+                ? "bg-blue-600 text-white rounded-br-sm"
                 : isSystem
-                ? 'bg-gray-100 text-gray-700 border border-gray-200'
-                : 'bg-white text-gray-800 border border-gray-200 rounded-bl-sm'
+                  ? "bg-gray-100 text-gray-700 border border-gray-200"
+                  : "bg-white text-gray-800 border border-gray-200 rounded-bl-sm"
             }`}
           >
             <p className="whitespace-pre-wrap break-words">
               {displayContent}
               {isTyping && <span className="animate-pulse">|</span>}
             </p>
-            
+
             {/* Message metadata */}
             {message.metadata && (
-              <div className={`mt-2 text-xs ${isUser ? 'text-blue-100' : 'text-gray-500'}`}>
+              <div className={`mt-2 text-xs ${isUser ? "text-blue-100" : "text-gray-500"}`}>
                 {message.metadata.processingTime && (
                   <span>Processed in {(message.metadata.processingTime / 1000).toFixed(1)}s</span>
                 )}
@@ -245,12 +264,12 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
               </div>
             )}
           </div>
-          
+
           {/* Timestamp */}
-          <div className={`text-xs text-gray-400 mt-1 ${isUser ? 'text-right' : 'text-left'}`}>
+          <div className={`text-xs text-gray-400 mt-1 ${isUser ? "text-right" : "text-left"}`}>
             {new Date(message.timestamp).toLocaleTimeString(locale, {
-              hour: '2-digit',
-              minute: '2-digit'
+              hour: "2-digit",
+              minute: "2-digit",
             })}
           </div>
         </div>
@@ -261,7 +280,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   // Render typing indicator
   const renderTypingIndicator = () => {
     if (!isAgentTyping) return null;
-    
+
     return (
       <div className="flex justify-start mb-4">
         <div className="max-w-3xl">
@@ -271,12 +290,18 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
             </div>
             <span className="text-xs text-gray-500">{t.agentTyping}</span>
           </div>
-          
+
           <div className="bg-white border border-gray-200 px-4 py-3 rounded-lg rounded-bl-sm">
             <div className="flex space-x-1">
               <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              <div
+                className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                style={{ animationDelay: "0.1s" }}
+              ></div>
+              <div
+                className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                style={{ animationDelay: "0.2s" }}
+              ></div>
             </div>
           </div>
         </div>
@@ -287,7 +312,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   // Render quick suggestions
   const renderSuggestions = () => {
     if (messages.length > 0) return null;
-    
+
     return (
       <div className="mb-4 p-4 bg-blue-50 rounded-lg">
         <p className="text-blue-900 font-medium mb-2">{t.welcomeMessage}</p>

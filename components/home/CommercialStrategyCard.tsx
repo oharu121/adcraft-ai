@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { Card } from "@/components/ui";
 import { ChatContainer } from "@/components/product-intelligence";
 import { useProductIntelligenceStore } from "@/lib/stores/product-intelligence-store";
@@ -35,8 +36,17 @@ export default function CommercialStrategyCard({
     toggleSection,
   } = useProductIntelligenceStore();
 
+  // Scroll to chat section header instead of chat bottom
+  const scrollToChatSection = useCallback(() => {
+    const element = document.getElementById("product-intelligence-section");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+    // chatSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
   return (
-    <Card variant="magical" glow className="p-6">
+    <Card variant="magical" id="commercial-strategy-card" glow className="p-6">
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
@@ -54,7 +64,10 @@ export default function CommercialStrategyCard({
 
           {/* Toggle Button */}
           <button
-            onClick={() => setShowCommercialChat(!showCommercialChat)}
+            onClick={() => {
+              setShowCommercialChat(!showCommercialChat);
+              setTimeout(() => scrollToChatSection(), 100); // Small delay for state update
+            }}
             className={`cursor-pointer px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
               showCommercialChat
                 ? "bg-purple-500 text-white hover:bg-purple-600"
@@ -63,12 +76,7 @@ export default function CommercialStrategyCard({
           >
             {showCommercialChat ? (
               <>
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -80,12 +88,7 @@ export default function CommercialStrategyCard({
               </>
             ) : (
               <>
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -115,6 +118,7 @@ export default function CommercialStrategyCard({
             className="h-full"
             inputMessage={chatInputMessage}
             onInputMessageChange={setChatInputMessage}
+            onScrollRequest={scrollToChatSection}
           />
         </div>
       ) : (
@@ -123,7 +127,7 @@ export default function CommercialStrategyCard({
           {/* Key Messages (Headline + Tagline) */}
           <div className="bg-gray-800/50 rounded-lg overflow-hidden">
             <button
-              onClick={() => toggleSection('keyMessages')}
+              onClick={() => toggleSection("keyMessages")}
               className="w-full p-4 text-left hover:bg-gray-700/50 transition-colors cursor-pointer"
             >
               <h4 className="text-lg font-medium text-white flex items-center justify-between">
@@ -135,7 +139,7 @@ export default function CommercialStrategyCard({
                 </div>
                 <svg
                   className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
-                    expandedSections.keyMessages ? 'rotate-180' : ''
+                    expandedSections.keyMessages ? "rotate-180" : ""
                   }`}
                   fill="none"
                   stroke="currentColor"
@@ -173,9 +177,7 @@ export default function CommercialStrategyCard({
                       </div>
                     </>
                   ) : (
-                    <p className="text-gray-500">
-                      {dict.productAnalysis.analyzingKeyMessages}
-                    </p>
+                    <p className="text-gray-500">{dict.productAnalysis.analyzingKeyMessages}</p>
                   )}
                 </div>
               </div>
@@ -185,7 +187,7 @@ export default function CommercialStrategyCard({
           {/* Visual Style */}
           <div className="bg-gray-800/50 rounded-lg overflow-hidden">
             <button
-              onClick={() => toggleSection('visualStyle')}
+              onClick={() => toggleSection("visualStyle")}
               className="w-full p-4 text-left hover:bg-gray-700/50 transition-colors cursor-pointer"
             >
               <h4 className="text-lg font-medium text-white flex items-center justify-between">
@@ -197,7 +199,7 @@ export default function CommercialStrategyCard({
                 </div>
                 <svg
                   className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
-                    expandedSections.visualStyle ? 'rotate-180' : ''
+                    expandedSections.visualStyle ? "rotate-180" : ""
                   }`}
                   fill="none"
                   stroke="currentColor"
@@ -230,27 +232,19 @@ export default function CommercialStrategyCard({
                         <span className="text-purple-400 mr-2">•</span>
                         <div>
                           <span className="font-medium">{dict.productAnalysis.mood} </span>
-                          <span className="capitalize">
-                            {analysis.visualPreferences.mood}
-                          </span>
+                          <span className="capitalize">{analysis.visualPreferences.mood}</span>
                         </div>
                       </div>
                       <div className="flex items-start">
                         <span className="text-purple-400 mr-2">•</span>
                         <div>
-                          <span className="font-medium">
-                            {dict.productAnalysis.lighting}{" "}
-                          </span>
-                          <span className="capitalize">
-                            {analysis.visualPreferences.lighting}
-                          </span>
+                          <span className="font-medium">{dict.productAnalysis.lighting} </span>
+                          <span className="capitalize">{analysis.visualPreferences.lighting}</span>
                         </div>
                       </div>
                     </>
                   ) : (
-                    <p className="text-gray-500">
-                      {dict.productAnalysis.analyzingVisualStyle}
-                    </p>
+                    <p className="text-gray-500">{dict.productAnalysis.analyzingVisualStyle}</p>
                   )}
                 </div>
               </div>
@@ -260,7 +254,7 @@ export default function CommercialStrategyCard({
           {/* Narrative Structure */}
           <div className="bg-gray-800/50 rounded-lg overflow-hidden">
             <button
-              onClick={() => toggleSection('narrativeStructure')}
+              onClick={() => toggleSection("narrativeStructure")}
               className="w-full p-4 text-left hover:bg-gray-700/50 transition-colors cursor-pointer"
             >
               <h4 className="text-lg font-medium text-white flex items-center justify-between">
@@ -272,7 +266,7 @@ export default function CommercialStrategyCard({
                 </div>
                 <svg
                   className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
-                    expandedSections.narrativeStructure ? 'rotate-180' : ''
+                    expandedSections.narrativeStructure ? "rotate-180" : ""
                   }`}
                   fill="none"
                   stroke="currentColor"
@@ -295,27 +289,21 @@ export default function CommercialStrategyCard({
                       <div className="flex items-start">
                         <span className="text-blue-400 mr-2">•</span>
                         <div>
-                          <span className="font-medium">
-                            {dict.productAnalysis.narrative}{" "}
-                          </span>
+                          <span className="font-medium">{dict.productAnalysis.narrative} </span>
                           <span>{analysis.commercialStrategy.storytelling.narrative}</span>
                         </div>
                       </div>
                       <div className="flex items-start">
                         <span className="text-blue-400 mr-2">•</span>
                         <div>
-                          <span className="font-medium">
-                            {dict.productAnalysis.conflict}{" "}
-                          </span>
+                          <span className="font-medium">{dict.productAnalysis.conflict} </span>
                           <span>{analysis.commercialStrategy.storytelling.conflict}</span>
                         </div>
                       </div>
                       <div className="flex items-start">
                         <span className="text-blue-400 mr-2">•</span>
                         <div>
-                          <span className="font-medium">
-                            {dict.productAnalysis.resolution}{" "}
-                          </span>
+                          <span className="font-medium">{dict.productAnalysis.resolution} </span>
                           <span>{analysis.commercialStrategy.storytelling.resolution}</span>
                         </div>
                       </div>
@@ -333,7 +321,7 @@ export default function CommercialStrategyCard({
           {/* Key Scenes */}
           <div className="bg-gray-800/50 rounded-lg overflow-hidden">
             <button
-              onClick={() => toggleSection('keyScenes')}
+              onClick={() => toggleSection("keyScenes")}
               className="w-full p-4 text-left hover:bg-gray-700/50 transition-colors cursor-pointer"
             >
               <h4 className="text-lg font-medium text-white flex items-center justify-between">
@@ -345,7 +333,7 @@ export default function CommercialStrategyCard({
                 </div>
                 <svg
                   className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
-                    expandedSections.keyScenes ? 'rotate-180' : ''
+                    expandedSections.keyScenes ? "rotate-180" : ""
                   }`}
                   fill="none"
                   stroke="currentColor"
@@ -368,59 +356,41 @@ export default function CommercialStrategyCard({
                       <div className="flex items-start">
                         <span className="text-green-400 mr-2">•</span>
                         <div>
-                          <span className="font-medium">
-                            {dict.productAnalysis.opening}{" "}
-                          </span>
+                          <span className="font-medium">{dict.productAnalysis.opening} </span>
                           <span>{analysis.commercialStrategy.keyScenes.opening}</span>
                         </div>
                       </div>
                       <div className="flex items-start">
                         <span className="text-green-400 mr-2">•</span>
                         <div>
-                          <span className="font-medium">
-                            {dict.productAnalysis.showcase}{" "}
-                          </span>
-                          <span>
-                            {analysis.commercialStrategy.keyScenes.productShowcase}
-                          </span>
+                          <span className="font-medium">{dict.productAnalysis.showcase} </span>
+                          <span>{analysis.commercialStrategy.keyScenes.productShowcase}</span>
                         </div>
                       </div>
                       <div className="flex items-start">
                         <span className="text-green-400 mr-2">•</span>
                         <div>
-                          <span className="font-medium">
-                            {dict.productAnalysis.solution}{" "}
-                          </span>
-                          <span>
-                            {analysis.commercialStrategy.keyScenes.problemSolution}
-                          </span>
+                          <span className="font-medium">{dict.productAnalysis.solution} </span>
+                          <span>{analysis.commercialStrategy.keyScenes.problemSolution}</span>
                         </div>
                       </div>
                       <div className="flex items-start">
                         <span className="text-green-400 mr-2">•</span>
                         <div>
-                          <span className="font-medium">
-                            {dict.productAnalysis.emotion}{" "}
-                          </span>
-                          <span>
-                            {analysis.commercialStrategy.keyScenes.emotionalMoment}
-                          </span>
+                          <span className="font-medium">{dict.productAnalysis.emotion} </span>
+                          <span>{analysis.commercialStrategy.keyScenes.emotionalMoment}</span>
                         </div>
                       </div>
                       <div className="flex items-start">
                         <span className="text-green-400 mr-2">•</span>
                         <div>
-                          <span className="font-medium">
-                            {dict.productAnalysis.callToAction}{" "}
-                          </span>
+                          <span className="font-medium">{dict.productAnalysis.callToAction} </span>
                           <span>{analysis.commercialStrategy.keyScenes.callToAction}</span>
                         </div>
                       </div>
                     </>
                   ) : (
-                    <p className="text-gray-500">
-                      {dict.productAnalysis.analyzingKeyScenes}
-                    </p>
+                    <p className="text-gray-500">{dict.productAnalysis.analyzingKeyScenes}</p>
                   )}
                 </div>
               </div>
@@ -430,7 +400,7 @@ export default function CommercialStrategyCard({
           {/* Music & Tone */}
           <div className="bg-gray-800/50 rounded-lg overflow-hidden">
             <button
-              onClick={() => toggleSection('musicTone')}
+              onClick={() => toggleSection("musicTone")}
               className="w-full p-4 text-left hover:bg-gray-700/50 transition-colors cursor-pointer"
             >
               <h4 className="text-lg font-medium text-white flex items-center justify-between">
@@ -442,7 +412,7 @@ export default function CommercialStrategyCard({
                 </div>
                 <svg
                   className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
-                    expandedSections.musicTone ? 'rotate-180' : ''
+                    expandedSections.musicTone ? "rotate-180" : ""
                   }`}
                   fill="none"
                   stroke="currentColor"
@@ -474,9 +444,7 @@ export default function CommercialStrategyCard({
                       <div className="flex items-start">
                         <span className="text-yellow-400 mr-2">•</span>
                         <div>
-                          <span className="font-medium">
-                            {dict.productAnalysis.composition}{" "}
-                          </span>
+                          <span className="font-medium">{dict.productAnalysis.composition} </span>
                           <span className="capitalize">
                             {analysis.visualPreferences.composition} presentation
                           </span>
@@ -486,9 +454,7 @@ export default function CommercialStrategyCard({
                         <div className="flex items-start">
                           <span className="text-yellow-400 mr-2">•</span>
                           <div>
-                            <span className="font-medium">
-                              {dict.productAnalysis.brandTone}{" "}
-                            </span>
+                            <span className="font-medium">{dict.productAnalysis.brandTone} </span>
                             <span className="capitalize">
                               {analysis.positioning.brandPersonality.tone}
                             </span>
@@ -497,9 +463,7 @@ export default function CommercialStrategyCard({
                       )}
                     </>
                   ) : (
-                    <p className="text-gray-500">
-                      {dict.productAnalysis.analyzingMusicTone}
-                    </p>
+                    <p className="text-gray-500">{dict.productAnalysis.analyzingMusicTone}</p>
                   )}
                 </div>
               </div>
@@ -515,12 +479,7 @@ export default function CommercialStrategyCard({
           {analysisError?.canProceed === false && (
             <div className="flex items-center justify-center">
               <div className="flex items-center gap-2 text-red-400 text-sm font-medium bg-red-900/20 px-4 py-2 rounded-lg border border-red-500/30">
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
