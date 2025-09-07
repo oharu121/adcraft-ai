@@ -1732,7 +1732,7 @@ JSON応答のみを返し、追加のテキストは含めないでください�
       // Marketing positioning
       positioning: this.generatePositioning(category, request.productName, request.locale),
       // 🎬 Commercial Strategy Data
-      commercialStrategy: this.generateCommercialStrategy(
+      commercialStrategy: await this.generateCommercialStrategy(
         category,
         request.productName,
         request.locale
@@ -2278,11 +2278,11 @@ JSON応答のみを返し、追加のテキストは含めないでください�
   /**
    * Generate commercial strategy based on product category and name
    */
-  private generateCommercialStrategy(
+  private async generateCommercialStrategy(
     category: ProductCategory,
     productName?: string,
     locale: "en" | "ja" = "en"
-  ): CommercialStrategy {
+  ): Promise<CommercialStrategy> {
     const template = getCommercialStrategyTemplate(category, locale);
 
     return {
@@ -2311,7 +2311,7 @@ JSON応答のみを返し、追加のテキストは含めないでください�
         conflict: template.conflict,
         resolution: template.resolution,
       },
-      keyScenes: this.generateKeyScenes(category, productName, locale),
+      keyScenes: await this.generateFlexibleKeyScenes(category, productName, template, locale),
     };
   }
 
@@ -2476,6 +2476,151 @@ JSON応答のみを返し、追加のテキストは含めないでください�
             callToAction: `Experience quality - choose ${product}`,
           };
       }
+    }
+  }
+
+  /**
+   * Generate flexible key scenes using Gemini AI based on product context
+   */
+  private async generateFlexibleKeyScenes(
+    category: ProductCategory,
+    productName: string | undefined,
+    template: any,
+    locale: "en" | "ja" = "en"
+  ): Promise<KeyScenes> {
+    const product = productName || (locale === "ja" ? "商品" : "product");
+    
+    // Try to use real Gemini API if not in mock mode, fallback to rigid scenes if API fails
+    if (!this.isMockMode) {
+      try {
+        const prompt = locale === "ja" ? 
+          `商品「${product}」（カテゴリ: ${category}）のための魅力的な商業ビデオのシーンを4-5個作成してください。
+
+ブランドの方向性:
+- メッセージ: ${template.narrative}
+- 課題: ${template.conflict}  
+- 解決: ${template.resolution}
+- 主要訴求点: ${template.headline}
+
+以下のようなJSONフォーマットで返してください:
+{
+  "scenes": [
+    {
+      "id": "scene1",
+      "title": "シーン名",
+      "description": "シーンの詳細な描写",
+      "duration": "3-5秒",
+      "purpose": "視聴者の関心を引く"
+    }
+  ]
+}
+
+効果的なアプローチ例: ライフスタイル統合、変革ストーリー、社会的証拠、舞台裏、問題解決、憧れ、感情的つながりなど。商品の種類と対象顧客に最も適したアプローチを選んでください。`
+          :
+          `Create 4-5 compelling scenes for a commercial video about "${product}" (category: ${category}).
+
+Brand direction:
+- Message: ${template.narrative}
+- Conflict: ${template.conflict}
+- Resolution: ${template.resolution}
+- Key appeal: ${template.headline}
+
+Return in this JSON format:
+{
+  "scenes": [
+    {
+      "id": "scene1", 
+      "title": "Scene name",
+      "description": "Detailed scene description",
+      "duration": "3-5 seconds",
+      "purpose": "hook audience"
+    }
+  ]
+}
+
+Effective patterns to consider: lifestyle integration, transformation stories, social proof, behind-the-scenes, problem/solution, aspiration, emotional connection, etc. Choose the approach that best fits this product type and target audience.`;
+
+        const response = await this.callGeminiAPI(prompt);
+        
+        if (response && response.scenes && Array.isArray(response.scenes)) {
+          return {
+            scenes: response.scenes,
+            // Maintain backward compatibility by providing legacy fields
+            opening: response.scenes[0]?.description || "",
+            productShowcase: response.scenes.find((s: any) => s.purpose.includes("product") || s.purpose.includes("showcase"))?.description || response.scenes[1]?.description || "",
+            problemSolution: response.scenes.find((s: any) => s.purpose.includes("problem") || s.purpose.includes("solution"))?.description || response.scenes[2]?.description || "",
+            emotionalMoment: response.scenes.find((s: any) => s.purpose.includes("emotional") || s.purpose.includes("connection"))?.description || response.scenes[3]?.description || "",
+            callToAction: response.scenes[response.scenes.length - 1]?.description || ""
+          };
+        }
+      } catch (error) {
+        console.warn("Failed to generate flexible scenes with Gemini, falling back to rigid scenes:", error);
+      }
+    }
+    
+    // Fallback to original rigid method
+    const rigidScenes = this.generateKeyScenes(category, productName, locale);
+    return {
+      scenes: [
+        { id: "opening", title: "Opening", description: rigidScenes.opening, duration: "3-5 seconds", purpose: "hook audience" },
+        { id: "showcase", title: "Product Showcase", description: rigidScenes.productShowcase, duration: "5-8 seconds", purpose: "showcase product features" },
+        { id: "solution", title: "Problem Solution", description: rigidScenes.problemSolution, duration: "4-6 seconds", purpose: "demonstrate value" },
+        { id: "emotional", title: "Emotional Moment", description: rigidScenes.emotionalMoment, duration: "3-4 seconds", purpose: "emotional connection" },
+        { id: "cta", title: "Call to Action", description: rigidScenes.callToAction, duration: "2-3 seconds", purpose: "drive action" }
+      ],
+      // Keep legacy fields for backward compatibility
+      ...rigidScenes
+    };
+  }
+
+  /**
+   * Call Gemini API for text generation
+   */
+  private async callGeminiAPI(prompt: string): Promise<any> {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY not found");
+    }
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: prompt }]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 1000,
+          }
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Gemini API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const textContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    
+    if (!textContent) {
+      throw new Error("No content received from Gemini API");
+    }
+
+    // Try to parse JSON response
+    try {
+      return JSON.parse(textContent);
+    } catch (e) {
+      // If JSON parsing fails, return null to trigger fallback
+      console.warn("Failed to parse JSON from Gemini response:", textContent);
+      return null;
     }
   }
 }

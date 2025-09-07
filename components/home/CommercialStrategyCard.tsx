@@ -353,41 +353,69 @@ export default function CommercialStrategyCard({
                 <div className="space-y-2 text-gray-300">
                   {analysis?.commercialStrategy?.keyScenes ? (
                     <>
-                      <div className="flex items-start">
-                        <span className="text-green-400 mr-2">•</span>
-                        <div>
-                          <span className="font-medium">{dict.productAnalysis.opening} </span>
-                          <span>{analysis.commercialStrategy.keyScenes.opening}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-start">
-                        <span className="text-green-400 mr-2">•</span>
-                        <div>
-                          <span className="font-medium">{dict.productAnalysis.showcase} </span>
-                          <span>{analysis.commercialStrategy.keyScenes.productShowcase}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-start">
-                        <span className="text-green-400 mr-2">•</span>
-                        <div>
-                          <span className="font-medium">{dict.productAnalysis.solution} </span>
-                          <span>{analysis.commercialStrategy.keyScenes.problemSolution}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-start">
-                        <span className="text-green-400 mr-2">•</span>
-                        <div>
-                          <span className="font-medium">{dict.productAnalysis.emotion} </span>
-                          <span>{analysis.commercialStrategy.keyScenes.emotionalMoment}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-start">
-                        <span className="text-green-400 mr-2">•</span>
-                        <div>
-                          <span className="font-medium">{dict.productAnalysis.callToAction} </span>
-                          <span>{analysis.commercialStrategy.keyScenes.callToAction}</span>
-                        </div>
-                      </div>
+                      {/* Use new flexible scenes structure if available */}
+                      {analysis.commercialStrategy.keyScenes.scenes && 
+                       analysis.commercialStrategy.keyScenes.scenes.length > 0 ? (
+                        analysis.commercialStrategy.keyScenes.scenes.map((scene, index) => (
+                          <div key={scene.id || index} className="flex items-start">
+                            <span className="text-green-400 mr-2">•</span>
+                            <div>
+                              <span className="font-medium text-green-300">
+                                {scene.title}
+                                {scene.duration && (
+                                  <span className="text-xs text-gray-400 ml-1">({scene.duration})</span>
+                                )}
+                              </span>
+                              <br />
+                              <span>{scene.description}</span>
+                              {scene.purpose && (
+                                <div className="text-xs text-gray-400 mt-1 italic">
+                                  Purpose: {scene.purpose}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        /* Fallback to legacy structure */
+                        <>
+                          <div className="flex items-start">
+                            <span className="text-green-400 mr-2">•</span>
+                            <div>
+                              <span className="font-medium">{dict.productAnalysis.opening} </span>
+                              <span>{analysis.commercialStrategy.keyScenes.opening}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-start">
+                            <span className="text-green-400 mr-2">•</span>
+                            <div>
+                              <span className="font-medium">{dict.productAnalysis.showcase} </span>
+                              <span>{analysis.commercialStrategy.keyScenes.productShowcase}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-start">
+                            <span className="text-green-400 mr-2">•</span>
+                            <div>
+                              <span className="font-medium">{dict.productAnalysis.solution} </span>
+                              <span>{analysis.commercialStrategy.keyScenes.problemSolution}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-start">
+                            <span className="text-green-400 mr-2">•</span>
+                            <div>
+                              <span className="font-medium">{dict.productAnalysis.emotion} </span>
+                              <span>{analysis.commercialStrategy.keyScenes.emotionalMoment}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-start">
+                            <span className="text-green-400 mr-2">•</span>
+                            <div>
+                              <span className="font-medium">{dict.productAnalysis.callToAction} </span>
+                              <span>{analysis.commercialStrategy.keyScenes.callToAction}</span>
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </>
                   ) : (
                     <p className="text-gray-500">{dict.productAnalysis.analyzingKeyScenes}</p>

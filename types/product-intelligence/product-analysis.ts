@@ -168,6 +168,14 @@ export interface Storytelling {
 
 // Key scenes for commercial video
 export interface KeyScenes {
+  scenes?: Array<{
+    id: string;
+    title: string;
+    description: string;
+    duration?: string; // e.g., "3-5 seconds"
+    purpose: string; // e.g., "hook audience", "showcase product", "emotional connection"
+  }>;
+  // Legacy fields for backward compatibility
   opening: string;
   productShowcase: string;
   problemSolution: string;
