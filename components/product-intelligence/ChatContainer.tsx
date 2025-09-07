@@ -56,14 +56,19 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   // Use dictionary for localized text
   const t = dict.productIntelligence.chatContainer;
 
-  // Auto-focus input when component mounts (chat opens)
+  // Auto-focus input when component mounts (chat opens) and restore cursor position
   useEffect(() => {
     const timer = setTimeout(() => {
-      inputRef.current?.focus();
+      if (inputRef.current) {
+        inputRef.current.focus();
+        // Set cursor to end of text
+        const length = inputMessage.length;
+        inputRef.current.setSelectionRange(length, length);
+      }
     }, 100); // Small delay to ensure component is fully rendered
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [inputMessage.length]);
 
   // Scroll when new messages arrive or agent starts thinking
   useEffect(() => {
