@@ -407,7 +407,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
               onChange={(e) => onInputMessageChange && onInputMessageChange(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={t.placeholder}
-              disabled={!isConnected || isSubmitting}
+              disabled={!isConnected || isSubmitting || isAgentTyping || typingMessages.size > 0}
               className="scrollbar-hidden w-full px-3 py-2 border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 placeholder-gray-500"
               rows={1}
               style={{
@@ -421,7 +421,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
           <Button
             type="submit"
             variant="primary"
-            disabled={!inputMessage.trim() || !isConnected || isSubmitting}
+            disabled={!inputMessage.trim() || !isConnected || isSubmitting || isAgentTyping || typingMessages.size > 0}
             className="px-4 py-2 min-w-[80px]"
           >
             {isSubmitting ? <LoadingSpinner size="sm" /> : t.send}
