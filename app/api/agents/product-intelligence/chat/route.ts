@@ -10,7 +10,11 @@ import {
   ApiResponse,
   ChatMessageRequest,
   ChatMessageResponse,
+  ChatRequest,
 } from "@/lib/agents/product-intelligence/types";
+import { processMessage } from "@/lib/agents/product-intelligence/core/chat";
+import { PromptBuilder } from "@/lib/agents/product-intelligence/tools/prompt-builder";
+import { AppModeConfig } from "@/lib/config/app-mode";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -172,35 +176,53 @@ async function checkChatRateLimit(sessionId: string): Promise<{
 }
 
 /**
- * Process chat message with Gemini Pro
+ * Process chat message with Maya's intelligence
  */
 async function processChatMessage(request: ChatMessageRequest): Promise<ChatMessageResponse> {
   const messageId = crypto.randomUUID();
 
-  // TODO: Get session context from Firestore
+  // Get session context from Firestore
   const sessionContext = await getSessionContext(request.sessionId);
 
-  // TODO: Process message with Gemini Pro Chat API
-  const geminiResponse = await generateAgentResponse({
+  // Build Maya's chat request
+  const chatRequest: ChatRequest = {
+    sessionId: request.sessionId,
     message: request.message,
-    context: sessionContext,
     locale: request.locale,
-  });
+    context: {
+      productAnalysis: sessionContext.analysis, // Product analysis from previous steps
+      conversationHistory: sessionContext.messages || [],
+      conversationContext: {
+        topics: sessionContext.topics || {
+          productFeatures: "pending",
+          targetAudience: "pending", 
+          brandPositioning: "pending",
+          visualPreferences: "pending",
+        },
+        userIntent: "",
+        keyInsights: sessionContext.keyInsights || [],
+        uncertainties: sessionContext.uncertainties || [],
+        followUpQuestions: [],
+      },
+    },
+  };
 
-  // TODO: Determine next action based on conversation flow
-  const nextAction = determineNextAction(geminiResponse, sessionContext);
-
-  // TODO: Generate follow-up suggestions
-  const followUpSuggestions = generateFollowUpSuggestions(geminiResponse, request.locale);
+  // Process with Maya's intelligence - respect app mode configuration
+  const forceMode = AppModeConfig.isDemoMode ? "demo" : "real";
+  const mayaResponse = await processMessage(chatRequest, { forceMode });
 
   return {
     messageId,
-    agentResponse: geminiResponse.content,
-    processingTime: 0, // Will be set by caller
-    cost: geminiResponse.cost,
-    confidence: geminiResponse.confidence,
-    nextAction,
-    suggestedFollowUp: followUpSuggestions,
+    agentResponse: mayaResponse.response,
+    processingTime: mayaResponse.processingTime,
+    cost: mayaResponse.cost,
+    confidence: mayaResponse.confidence,
+    nextAction: mayaResponse.nextAction,
+    suggestedFollowUp: mayaResponse.suggestedFollowUps,
+    // Use Maya's follow-ups if available, otherwise generate quick actions
+    quickActions: mayaResponse.suggestedFollowUps && mayaResponse.suggestedFollowUps.length > 0 
+      ? mayaResponse.suggestedFollowUps 
+      : generateQuickActions(mayaResponse.response, request.locale),
   };
 }
 
@@ -209,72 +231,77 @@ async function processChatMessage(request: ChatMessageRequest): Promise<ChatMess
  */
 async function getSessionContext(sessionId: string): Promise<any> {
   // TODO: Retrieve conversation history and analysis state from Firestore
+  // For now, return mock data - you'll want to replace this with real Firestore calls
   return {
-    messages: [],
-    analysis: null,
+    messages: [], // Chat history
+    analysis: {
+      // Mock product analysis - replace with real data
+      product: {
+        name: "Premium Wireless Headphones",
+        category: "electronics",
+      },
+      commercialStrategy: {
+        keyMessages: {
+          headline: "Premium Sound for Professionals",
+          tagline: "Quality, Comfort, Performance",
+        },
+        keyScenes: {
+          scenes: [
+            { 
+              id: "opening",
+              title: "Opening Hook",
+              description: "Professional using headphones in office setting"
+            }
+          ]
+        }
+      },
+      targetAudience: {
+        primary: {
+          demographics: {
+            ageRange: "25-45",
+          }
+        }
+      },
+      positioning: {
+        valueProposition: {
+          primaryBenefit: "Perfect audio experience for professionals"
+        }
+      }
+    },
     topics: {
-      productFeatures: "pending",
+      productFeatures: "completed",
       targetAudience: "pending",
-      brandPositioning: "pending",
+      brandPositioning: "pending", 
       visualPreferences: "pending",
     },
+    keyInsights: [],
+    uncertainties: [],
   };
 }
 
 /**
- * Generate agent response using Gemini Pro
+ * Generate quick actions based on Maya's response
  */
-async function generateAgentResponse(params: {
-  message: string;
-  context: any;
-  locale: "en" | "ja";
-}): Promise<{
-  content: string;
-  cost: number;
-  confidence: number;
-}> {
-  // TODO: Implement actual Gemini Pro Chat API call
-
-  // Placeholder response based on locale
-  const responses = {
-    en: "Thank you for sharing that information. Could you tell me more about your target customers for this product?",
-    ja: "情報をお聞かせいただき、ありがとうございます。この商品のターゲット顧客についてもう少し詳しく教えていただけますか？",
-  };
-
-  return {
-    content: responses[params.locale],
-    cost: 0.05,
-    confidence: 0.85,
-  };
-}
-
-/**
- * Determine next action based on conversation state
- */
-function determineNextAction(response: any, context: any): "continue" | "complete" | "clarify" {
-  // TODO: Implement conversation flow logic
-  return "continue";
-}
-
-/**
- * Generate follow-up suggestions
- */
-function generateFollowUpSuggestions(response: any, locale: "en" | "ja"): string[] {
-  // TODO: Generate contextual follow-up suggestions
-  const suggestions = {
-    en: [
-      "Tell me about the target age group",
-      "Describe the main benefits",
-      "What makes it unique?",
-    ],
-    ja: [
-      "ターゲット年齢層について教えてください",
-      "主なメリットを説明してください",
-      "何が特別なのでしょうか？",
-    ],
-  };
-
-  return suggestions[locale];
+function generateQuickActions(response: string, locale: "en" | "ja"): string[] {
+  const lowerResponse = response.toLowerCase();
+  
+  // Determine which category is most relevant
+  if (lowerResponse.includes("headline") || lowerResponse.includes("tagline") || lowerResponse.includes("ヘッドライン") || lowerResponse.includes("タグライン")) {
+    return PromptBuilder.getQuickActions("headline", locale).slice(0, 3);
+  } else if (lowerResponse.includes("audience") || lowerResponse.includes("target") || lowerResponse.includes("ターゲット") || lowerResponse.includes("顧客")) {
+    return PromptBuilder.getQuickActions("audience", locale).slice(0, 3);
+  } else if (lowerResponse.includes("scene") || lowerResponse.includes("シーン") || lowerResponse.includes("video") || lowerResponse.includes("動画")) {
+    return PromptBuilder.getQuickActions("scenes", locale).slice(0, 3);
+  } else if (lowerResponse.includes("position") || lowerResponse.includes("ポジション") || lowerResponse.includes("brand") || lowerResponse.includes("ブランド")) {
+    return PromptBuilder.getQuickActions("positioning", locale).slice(0, 3);
+  }
+  
+  // Default to mixed quick actions
+  return [
+    ...PromptBuilder.getQuickActions("headline", locale).slice(0, 1),
+    ...PromptBuilder.getQuickActions("positioning", locale).slice(0, 1), 
+    ...PromptBuilder.getQuickActions("audience", locale).slice(0, 1),
+  ];
 }
 
 /**

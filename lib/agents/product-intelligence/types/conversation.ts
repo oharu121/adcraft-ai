@@ -20,6 +20,7 @@ export interface ChatMessage {
     cost?: number;
     confidence?: number;
     messageType?: MessageType;
+    quickActions?: string[];
   };
 }
 
@@ -137,12 +138,14 @@ export interface ChatRequest {
   sessionId: string;
   message: string;
   locale: "en" | "ja";
-  context: {
-    productAnalysis?: ProductAnalysis;
-    conversationHistory: ChatMessage[];
-    conversationContext: ConversationContext;
-    userPreferences?: any;
-  };
+  context: ChatContext;
+}
+
+export interface ChatContext {
+  productAnalysis?: ProductAnalysis;
+  conversationHistory: ChatMessage[];
+  conversationContext: ConversationContext;
+  userPreferences?: any;
 }
 
 export interface ChatResponse {

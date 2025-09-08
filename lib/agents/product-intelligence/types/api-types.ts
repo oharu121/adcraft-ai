@@ -117,8 +117,9 @@ export interface ChatMessageResponse {
   processingTime: number;
   cost: number;
   confidence?: number;
-  nextAction: "continue" | "complete" | "clarify";
+  nextAction: "continue" | "complete" | "clarify" | "handoff";
   suggestedFollowUp?: string[];
+  quickActions?: string[];
 }
 
 // Analysis request

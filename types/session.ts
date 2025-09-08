@@ -44,15 +44,15 @@ export interface SessionStats {
   averageSessionDuration: number; // in minutes
 }
 
-/**
- * Chat-related interfaces
- */
-export interface ChatContext {
-  sessionId: string;
-  messages: ChatMessage[];
-  lastActivity: Date;
-  totalMessages: number;
-}
+// /**
+//  * Chat-related interfaces
+//  */
+// export interface ChatContext {
+//   sessionId: string;
+//   messages: ChatMessage[];
+//   lastActivity: Date;
+//   totalMessages: number;
+// }
 
 export interface ChatSuggestion {
   type: 'prompt_improvement' | 'style_suggestion' | 'technical_tip';

@@ -6,6 +6,7 @@
  */
 
 import { VisionAnalysisRequest } from "../types";
+import { MAYA_PERSONA } from "@/lib/constants/maya-persona";
 
 /**
  * Prompt building options
@@ -32,7 +33,7 @@ export class PromptBuilder {
   }
 
   /**
-   * Get system prompt based on locale
+   * Get system prompt based on locale (legacy analysis prompt)
    */
   public static getSystemPrompt(locale: "en" | "ja"): string {
     if (locale === "ja") {
@@ -64,6 +65,73 @@ export class PromptBuilder {
   - Build on user responses to go deeper
   - Focus on insights valuable for commercial video creation
   - Keep responses concise but informative`;
+    }
+  }
+
+  /**
+   * Get Maya's chat system prompt for strategy refinement conversations
+   */
+  public static getMayaChatSystemPrompt(locale: "en" | "ja"): string {
+    const persona = MAYA_PERSONA;
+    
+    if (locale === "ja") {
+      return `あなたはMaya（マヤ）、プロダクト・インテリジェンス・アシスタントです。
+
+個性とキャラクター:
+- ${persona.personality.core.join("、")}
+- ${persona.personality.communicationStyle.join("、")}
+
+あなたの専門分野:
+- ${persona.personality.expertise.join("、")}
+
+役割: 生成された商業戦略について、ユーザーと対話しながら改善・調整を行う
+目標: 
+- ユーザーからの商業戦略に関するフィードバックを理解する
+- 戦略の特定部分（ヘッドライン、ターゲット層、シーン、ポジショニング）の改善提案を行う
+- JSON構造を維持しながら、戦略を洗練させる
+- ユーザーが十分満足したら、クリエイティブ・ディレクターエージェントへの引き継ぎを準備する
+
+対話スタイル:
+- 温かく親しみやすい挨拶から始める
+- ${persona.voiceExamples.analysis}のような分析的アプローチ
+- 戦略改善に焦点を当てた質問をする
+- ユーザーの意図を深く理解する努力をする
+- 成功した洞察には genuine excitement で反応する
+
+重要な制約:
+- 商業戦略の改善にのみ焦点を当てる
+- 関係のない話題には戻らない
+- JSON構造の整合性を保つ
+- 常に日本語で応答する`;
+    } else {
+      return `You are Maya, the Product Intelligence Assistant with these characteristics:
+
+Personality & Character:
+- ${persona.personality.core.join(", ")}
+- ${persona.personality.communicationStyle.join(", ")}
+
+Your Expertise:
+- ${persona.personality.expertise.join(", ")}
+
+Role: Engage with users to refine and improve generated commercial strategies
+Goals:
+- Understand user feedback on the commercial strategy
+- Provide improvement suggestions for specific strategy parts (headlines, audience, scenes, positioning)
+- Refine strategies while maintaining JSON structure integrity
+- When user is satisfied, prepare for handoff to Creative Director Agent
+
+Conversation Style:
+- Start with warm, welcoming greetings
+- Use ${persona.voiceExamples.analysis.substring(0, 50)}... analytical approach
+- Ask focused questions about strategy improvements
+- Show genuine interest in understanding user intent
+- Celebrate successful insights with authentic excitement
+
+Critical Constraints:
+- Focus ONLY on commercial strategy refinement
+- Do not engage with unrelated topics
+- Maintain JSON structure integrity
+- Keep responses concise yet insightful`;
     }
   }
 
@@ -138,6 +206,149 @@ export class PromptBuilder {
 
   public static getLocaleMessages(locale: "en" | "ja" = "en") {
     return LOCALE_MESSAGES[locale];
+  }
+
+  /**
+   * Get quick action suggestions for strategy refinement
+   */
+  public static getQuickActions(category: string, locale: "en" | "ja" = "en"): string[] {
+    const actions: Record<string, Record<"en" | "ja", string[]>> = {
+      headline: {
+        en: [
+          "Make the headline more emotional",
+          "Make it more direct and clear",
+          "Add urgency to the message",
+          "Focus on the main benefit"
+        ],
+        ja: [
+          "ヘッドラインをより感情的にする",
+          "より直接的で分かりやすくする", 
+          "メッセージに緊急性を加える",
+          "主要なメリットに焦点を当てる"
+        ]
+      },
+      audience: {
+        en: [
+          "Target younger audience (18-35)",
+          "Focus on professionals",
+          "Appeal to budget-conscious buyers",
+          "Target premium customers"
+        ],
+        ja: [
+          "より若い層をターゲットにする（18-35歳）",
+          "プロフェッショナルに焦点を当てる",
+          "価格重視の購入者にアピールする",
+          "プレミアム顧客をターゲットにする"
+        ]
+      },
+      positioning: {
+        en: [
+          "Make it more premium positioning", 
+          "Emphasize value/affordability",
+          "Highlight innovation/newness",
+          "Focus on reliability/trust"
+        ],
+        ja: [
+          "よりプレミアムなポジショニングにする",
+          "価値・手頃さを強調する",
+          "革新性・新しさを強調する",
+          "信頼性・信用に焦点を当てる"
+        ]
+      },
+      scenes: {
+        en: [
+          "Add a scene showing the product in use",
+          "Create more emotional moments", 
+          "Show the problem/solution dynamic",
+          "Add lifestyle context"
+        ],
+        ja: [
+          "商品の使用シーンを追加する",
+          "より感情的な瞬間を作る",
+          "問題/解決のダイナミクスを示す",
+          "ライフスタイルの文脈を追加する"
+        ]
+      },
+      visual: {
+        en: [
+          "Make it more modern and sleek",
+          "Add more warmth and personality",
+          "Create more dramatic lighting",
+          "Use more vibrant colors"
+        ],
+        ja: [
+          "よりモダンで洗練されたものにする",
+          "より温かみと個性を加える",
+          "よりドラマチックなライティングを作る",
+          "より鮮やかな色を使う"
+        ]
+      }
+    };
+
+    return actions[category]?.[locale] || [];
+  }
+
+  /**
+   * Build strategy refinement prompt with commercial strategy context
+   */
+  public static buildStrategyPrompt(
+    commercialStrategy: any,
+    userMessage: string,
+    conversationHistory: string,
+    locale: "en" | "ja" = "en"
+  ): string {
+    const systemPrompt = this.getMayaChatSystemPrompt(locale);
+    const persona = MAYA_PERSONA;
+
+    const strategyContext = locale === "ja" 
+      ? `現在の商業戦略:
+商品: ${commercialStrategy?.product?.name || "商品"}
+ヘッドライン: "${commercialStrategy?.commercialStrategy?.keyMessages?.headline || "未設定"}"
+タグライン: "${commercialStrategy?.commercialStrategy?.keyMessages?.tagline || "未設定"}"
+ターゲット層: ${commercialStrategy?.targetAudience?.primary?.demographics?.ageRange || "未設定"}
+主要メリット: ${commercialStrategy?.positioning?.valueProposition?.primaryBenefit || "未設定"}
+
+シーン構成:
+${commercialStrategy?.commercialStrategy?.keyScenes?.scenes?.map((scene: any, index: number) => 
+  `${index + 1}. ${scene.title}: ${scene.description}`
+).join("\n") || "シーン未設定"}`
+      : `Current Commercial Strategy:
+Product: ${commercialStrategy?.product?.name || "Product"}
+Headline: "${commercialStrategy?.commercialStrategy?.keyMessages?.headline || "Not set"}"
+Tagline: "${commercialStrategy?.commercialStrategy?.keyMessages?.tagline || "Not set"}"
+Target Audience: ${commercialStrategy?.targetAudience?.primary?.demographics?.ageRange || "Not set"}
+Primary Benefit: ${commercialStrategy?.positioning?.valueProposition?.primaryBenefit || "Not set"}
+
+Scene Structure:
+${commercialStrategy?.commercialStrategy?.keyScenes?.scenes?.map((scene: any, index: number) => 
+  `${index + 1}. ${scene.title}: ${scene.description}`
+).join("\n") || "No scenes defined"}`;
+
+    const instructions = locale === "ja"
+      ? `重要な指示:
+1. 上記の商業戦略に基づいて応答する
+2. ユーザーの改善要求を理解し、具体的な提案をする
+3. JSON構造を壊さない範囲で戦略を調整する
+4. Mayaの個性（${persona.personality.core[0]}、${persona.personality.core[1]}）を維持する
+5. 関係のない話題には応答しない`
+      : `Important Instructions:
+1. Respond based on the commercial strategy above
+2. Understand user improvement requests and provide specific suggestions
+3. Adjust strategy without breaking JSON structure
+4. Maintain Maya's personality (${persona.personality.core[0]}, ${persona.personality.core[1]})
+5. Do not engage with unrelated topics`;
+
+    return `${systemPrompt}
+
+${strategyContext}
+
+${instructions}
+
+${conversationHistory}
+
+USER MESSAGE: ${userMessage}
+
+Please respond as Maya, focusing on refining the commercial strategy based on the user's input.`;
   }
 
   /**

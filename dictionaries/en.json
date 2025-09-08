@@ -277,6 +277,7 @@
       "errorSending": "Failed to send message",
       "welcomeMessage": "Commercial strategy has been generated based on your product analysis. Feel free to ask questions or request adjustments!",
       "suggestionPrefix": "You might want to ask:",
+      "quickActionsTitle": "Try these suggestions:",
       "suggestions": [
         "Who is my target audience?",
         "What are the key selling points?",

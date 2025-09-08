@@ -198,6 +198,11 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
             content: result.data?.agentResponse || dict.productIntelligence.productAnalysisComplete,
             timestamp: Date.now(),
             agentName: dict.agent.productIntelligenceAgent,
+            metadata: {
+              processingTime: result.data?.processingTime || 0,
+              cost: result.data?.cost?.current || 0,
+              quickActions: result.data?.quickActions || [],
+            },
           };
 
           setMessages([analysisMessage]);
@@ -316,6 +321,11 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           content: result.data?.agentResponse || dict.productIntelligence.textAnalysisComplete,
           timestamp: Date.now(),
           agentName: dict.agent.productIntelligenceAgent,
+          metadata: {
+            processingTime: result.data?.processingTime || 0,
+            cost: result.data?.cost?.current || 0,
+            quickActions: result.data?.quickActions || [],
+          },
         };
 
         setMessages([systemMessage]);
@@ -375,6 +385,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
             metadata: {
               processingTime: result.data?.processingTime || 0,
               cost: result.data?.cost?.current || 0,
+              quickActions: result.data?.quickActions || [],
             },
           };
 

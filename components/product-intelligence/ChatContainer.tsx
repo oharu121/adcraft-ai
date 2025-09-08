@@ -253,6 +253,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
     const isSystem = message.type === "system";
     const isTyping = typingMessages.has(message.id);
     const displayContent = isTyping ? visibleContent.get(message.id) || "" : message.content;
+    const isLastMessage = index === messages.length - 1;
 
     return (
       <div key={message.id} className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4`}>
@@ -299,6 +300,22 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
               </div>
             )}
           </div>
+
+          {/* Quick Actions for Maya's messages */}
+          {!isUser && !isSystem && isLastMessage && !isTyping && message.metadata?.quickActions && (
+            <div className="mt-2 space-y-1">
+              <p className="text-xs text-gray-500 mb-2">{t.quickActionsTitle}</p>
+              {message.metadata.quickActions.map((action: string, actionIndex: number) => (
+                <button
+                  key={actionIndex}
+                  onClick={() => onInputMessageChange && onInputMessageChange(action)}
+                  className="cursor-pointer block w-full text-left px-3 py-2 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded hover:bg-blue-100 transition-colors"
+                >
+                  {action}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Timestamp */}
           <div className={`text-xs text-gray-400 mt-1 ${isUser ? "text-right" : "text-left"}`}>

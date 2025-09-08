@@ -7,7 +7,8 @@ import { analyzeProductImage } from "@/lib/agents/product-intelligence";
 import { processMessage } from "@/lib/agents/product-intelligence";
 import { PromptBuilder } from "@/lib/agents/product-intelligence/tools/prompt-builder";
 import { AppModeConfig } from "@/lib/config/app-mode";
-import { TopicStatus } from "@/lib/agents/product-intelligence/enums";
+import { ProductCategory, TopicStatus } from "@/lib/agents/product-intelligence/enums";
+import { ChatContext } from "@/lib/agents/product-intelligence/types";
 
 // Simple request interface for now
 interface SimpleRequest {
@@ -154,6 +155,13 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
         forceMode: "demo",
       });
 
+      // Generate initial quick actions for immediate user guidance
+      const initialQuickActions = [
+        ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 2),
+        ...PromptBuilder.getQuickActions("audience", locale || "en").slice(0, 1),
+        ...PromptBuilder.getQuickActions("positioning", locale || "en").slice(0, 1),
+      ];
+
       return {
         analysis: visionResult.analysis,
         agentResponse: PromptBuilder.getLocaleMessages(locale || "en").analysisComplete.replace(
@@ -175,6 +183,7 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
         nextAction: "chat_ready",
         canProceed: true,
         warnings: visionResult.warnings || [],
+        quickActions: initialQuickActions, // Add quick actions immediately after analysis
       };
     }
 
@@ -375,55 +384,176 @@ async function handleChatRequest(request: SimpleRequest) {
 }
 
 /**
- * Handle demo mode chat - scripted, contextual responses
+ * Handle demo mode chat - using Maya's intelligence system
  */
 async function handleDemoChat(request: SimpleRequest) {
   const { sessionId, message, locale = "en" } = request;
 
   console.log(`[DEMO MODE] Processing chat for session: ${sessionId}, message: "${message}"`);
 
-  // Simulate realistic thinking time (1-2 seconds)
-  await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 1000));
+  // Build mock context with product analysis (similar to our chat API)
+  const mockContext: ChatContext = {
+    productAnalysis: {
+      // Mock product analysis - this would come from session storage in real implementation
+      product: {
+        id: "demo-product-1",
+        name: "Premium Wireless Headphones",
+        category: ProductCategory.ELECTRONICS,
+        subcategory: "audio",
+        description: "Premium wireless headphones designed for professionals",
+        keyFeatures: ["noise cancellation", "premium sound", "long battery"],
+        materials: ["aluminum", "leather"],
+        colors: [{ name: "black", hex: "#000000", role: "primary" as any }],
+        usageContext: ["office", "travel"],
+        seasonality: "year-round" as any,
+      },
+      commercialStrategy: {
+        keyMessages: {
+          headline: "Premium Sound for Professionals",
+          tagline: "Quality, Comfort, Performance",
+          supportingMessages: ["Professional grade audio", "All day comfort"],
+        },
+        emotionalTriggers: {
+          primary: {
+            type: "confidence" as any,
+            description: "Feel confident in every meeting",
+            intensity: "strong" as any,
+          },
+          secondary: [],
+        },
+        callToAction: {
+          primary: "Experience Premium Sound",
+          secondary: ["Learn More", "Shop Now"],
+        },
+        storytelling: {
+          narrative: "Professional excellence through superior audio",
+          conflict: "Poor audio quality disrupts productivity",
+          resolution: "Premium headphones deliver clarity and focus",
+        },
+        keyScenes: {
+          scenes: [
+            {
+              id: "opening",
+              title: "Opening Hook",
+              description: "Professional using headphones in office setting",
+              duration: "3-5 seconds" as any,
+              purpose: "capture attention" as any,
+            },
+          ],
+        },
+      },
+      targetAudience: {
+        primary: {
+          demographics: {
+            ageRange: "25-45",
+            gender: "unisex" as any,
+            incomeLevel: "high" as any,
+            location: ["urban"],
+            lifestyle: ["professional"],
+          },
+          psychographics: {
+            values: ["quality", "performance"],
+            interests: ["technology", "music"],
+            personalityTraits: ["sophisticated"],
+            motivations: ["productivity", "quality"],
+          },
+          behaviors: {
+            shoppingHabits: ["premium" as any],
+            mediaConsumption: ["digital"],
+            brandLoyalty: "high" as any,
+            decisionFactors: ["quality", "brand"],
+          },
+        },
+      },
+      positioning: {
+        brandPersonality: {
+          traits: ["professional", "reliable"],
+          tone: "confident" as any,
+          voice: "expert" as any,
+        },
+        valueProposition: {
+          primaryBenefit: "Perfect audio experience for professionals",
+          supportingBenefits: ["noise cancellation", "premium design"],
+          differentiators: ["professional grade", "superior comfort"],
+        },
+        competitiveAdvantages: {
+          functional: ["advanced technology", "superior sound"],
+          emotional: ["confidence", "prestige"],
+          experiential: ["seamless experience", "luxury feel"],
+        },
+        marketPosition: {
+          tier: "premium" as any,
+          niche: "professional audio" as any,
+          marketShare: "challenger" as any,
+        },
+      },
+      visualPreferences: {
+        overallStyle: "modern" as any,
+        colorPalette: {
+          primary: [{ name: "executive midnight", hex: "#1e293b", role: "primary" as any }],
+          secondary: [{ name: "platinum white", hex: "#f8fafc", role: "secondary" as any }],
+          accent: [{ name: "innovation gold", hex: "#f59e0b", role: "accent" as any }],
+        },
+        mood: "sophisticated" as any,
+        composition: "clean" as any,
+        lighting: "natural" as any,
+        environment: ["executive boardroom", "modern skyline"],
+      },
+      metadata: {
+        sessionId: "demo-session",
+        analysisVersion: "2.0.0",
+        confidenceScore: 0.95,
+        processingTime: 2000,
+        cost: {
+          current: 0.3,
+          total: 0.3,
+          breakdown: { imageAnalysis: 0.3, chatInteractions: 0 },
+          remaining: 299.7,
+          budgetAlert: false,
+        },
+        locale: "en" as "en" | "ja",
+        timestamp: new Date().toISOString(),
+        agentInteractions: 1,
+      },
+    },
+    conversationHistory: [], // TODO: Could track this in session
+    conversationContext: {
+      topics: {
+        productFeatures: TopicStatus.COMPLETED,
+        targetAudience: TopicStatus.PENDING,
+        brandPositioning: TopicStatus.PENDING,
+        visualPreferences: TopicStatus.PENDING,
+      },
+      userIntent: "",
+      keyInsights: [],
+      uncertainties: [],
+      followUpQuestions: [],
+    },
+  };
 
-  const cost = 0.05;
+  // Use Maya's chat system for demo mode
+  const mayaResponse = await processMessage({
+    sessionId: sessionId || "demo-session",
+    message: message || "",
+    locale,
+    context: mockContext,
+  }, { forceMode: "demo" });
 
-  // Demo chat script with pattern matching
-
-  // Find matching response based on user message
-  const responses = PromptBuilder.getDemoResponse(locale);
-  let selectedResponse = null;
-
-  for (const responseOption of responses) {
-    if (message && responseOption.triggers.some((trigger) => trigger.test(message))) {
-      selectedResponse = responseOption;
-      break;
-    }
-  }
-
-  // Default response if no pattern matches
-  if (!selectedResponse) {
-    selectedResponse = {
-      response: PromptBuilder.getLocaleMessages(locale || "en").chatFallbackGeneric,
-      followUps: PromptBuilder.getLocaleMessages(locale || "en").chatFallbackFollowUps,
-    };
-  }
-
-  const processingTime = 1500 + Math.random() * 500; // 1.5-2 seconds
+  const cost = mayaResponse.cost || 0.05;
+  const processingTime = mayaResponse.processingTime || 1500 + Math.random() * 500;
 
   return {
     sessionId: request.sessionId,
-    nextAction:
-      message && /creative|director|proceed|進む|引き継/i.test(message)
-        ? "ready_for_handoff"
-        : "continue_chat",
+    nextAction: mayaResponse.nextAction === "handoff" ? "ready_for_handoff" : "continue_chat",
     cost: {
       current: cost,
       total: 0.3 + cost,
       remaining: 300 - (0.3 + cost),
     },
     processingTime: Math.round(processingTime),
-    agentResponse: selectedResponse.response,
-    suggestedFollowUps: selectedResponse.followUps,
+    agentResponse: mayaResponse.response,
+    suggestedFollowUps: mayaResponse.suggestedFollowUps || [],
+    quickActions: mayaResponse.suggestedFollowUps || [], // Maya's follow-ups as quick actions
   };
 }
 

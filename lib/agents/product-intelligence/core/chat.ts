@@ -14,6 +14,7 @@ import {
   GeminiChatRequest,
 } from "../types";
 import { PromptBuilder } from "../tools";
+import { MAYA_PERSONA } from "@/lib/constants/maya-persona";
 
 const MODEL_NAME = "gemini-1.5-pro";
 
@@ -89,12 +90,24 @@ export async function processMessage(
  */
 function generateConversationPrompt(request: ChatRequest): string {
   const locale = request.locale;
-  const systemPrompt = PromptBuilder.getSystemPrompt(locale);
-  const contextPrompt = buildContextPrompt(request);
   const conversationHistory = formatConversationHistory(
     request.context.conversationHistory,
     locale
   );
+
+  // Use Maya's strategy-focused prompt if we have product analysis
+  if (request.context.productAnalysis) {
+    return PromptBuilder.buildStrategyPrompt(
+      request.context.productAnalysis,
+      request.message,
+      `CONVERSATION HISTORY:\n${conversationHistory}`,
+      locale
+    );
+  }
+
+  // Fallback to original system prompt for initial analysis
+  const systemPrompt = PromptBuilder.getSystemPrompt(locale);
+  const contextPrompt = buildContextPrompt(request);
 
   return `${systemPrompt}
 
@@ -295,8 +308,44 @@ async function generateMockResponse(
   await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 2000));
 
   const locale = request.locale;
-  const responses = PromptBuilder.getMockResponse(locale);
+  
+  // Use Maya's greeting if this is the first CHAT message and we have product analysis
+  // Check if there are any chat messages in history (not including analysis)
+  const chatMessages = request.context.conversationHistory?.filter(msg => 
+    msg.type === "user" || msg.type === "agent"
+  ) || [];
+  
+  if (request.context.productAnalysis && chatMessages.length === 0) {
+    const persona = require("@/lib/constants/maya-persona").MAYA_PERSONA;
+    const mayaGreeting = locale === "ja" 
+      ? `こんにちは！私はMaya、あなたのプロダクト・インテリジェンス・アシスタントです。商品分析が完了しましたね！素晴らしい${request.context.productAnalysis.product.name}の戦略を見させていただきました。\n\n何か改善したい点や調整したい部分はありますか？`
+      : `${persona.voiceExamples.opening}\n\nI can see we have a great commercial strategy for ${request.context.productAnalysis.product.name}! What would you like to refine or improve?`;
+    
+    // Generate relevant quick actions based on the strategy
+    const quickActions = [
+      ...PromptBuilder.getQuickActions("headline", locale).slice(0, 2),
+      ...PromptBuilder.getQuickActions("audience", locale).slice(0, 1),
+      ...PromptBuilder.getQuickActions("positioning", locale).slice(0, 1),
+    ];
 
+    return {
+      messageId: `maya-greeting-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      response: mayaGreeting,
+      processingTime: Date.now() - startTime,
+      cost: 0.01,
+      confidence: 0.95,
+      nextAction: "continue",
+      suggestedFollowUps: quickActions.slice(0, 3),
+      topicProgress: {
+        currentTopic: "strategyRefinement",
+        completedTopics: ["productAnalysis"],
+        nextTopic: "strategyRefinement",
+      },
+    };
+  }
+
+  // Regular mock responses for ongoing conversation
+  const responses = PromptBuilder.getMockResponse(locale);
   const randomResponse = responses[Math.floor(Math.random() * responses.length)];
 
   const followUps = {
@@ -353,8 +402,33 @@ function assessHandoffReadiness(context: any): boolean {
  */
 function generateFollowUpSuggestions(request: ChatRequest, response: string): string[] {
   const locale = request.locale;
-  const context = request.context.conversationContext;
+  
+  // If we have product analysis, use strategy-focused quick actions
+  if (request.context.productAnalysis) {
+    // Analyze the response to determine which category is most relevant
+    const lowerResponse = response.toLowerCase();
+    
+    if (lowerResponse.includes("headline") || lowerResponse.includes("tagline") || lowerResponse.includes("ヘッドライン") || lowerResponse.includes("タグライン")) {
+      return PromptBuilder.getQuickActions("headline", locale).slice(0, 2);
+    } else if (lowerResponse.includes("audience") || lowerResponse.includes("target") || lowerResponse.includes("ターゲット") || lowerResponse.includes("顧客")) {
+      return PromptBuilder.getQuickActions("audience", locale).slice(0, 2);
+    } else if (lowerResponse.includes("scene") || lowerResponse.includes("シーン") || lowerResponse.includes("video") || lowerResponse.includes("動画")) {
+      return PromptBuilder.getQuickActions("scenes", locale).slice(0, 2);
+    } else if (lowerResponse.includes("position") || lowerResponse.includes("ポジション") || lowerResponse.includes("brand") || lowerResponse.includes("ブランド")) {
+      return PromptBuilder.getQuickActions("positioning", locale).slice(0, 2);
+    } else if (lowerResponse.includes("visual") || lowerResponse.includes("style") || lowerResponse.includes("ビジュアル") || lowerResponse.includes("スタイル")) {
+      return PromptBuilder.getQuickActions("visual", locale).slice(0, 2);
+    }
+    
+    // Default to mixed strategy actions
+    return [
+      ...PromptBuilder.getQuickActions("headline", locale).slice(0, 1),
+      ...PromptBuilder.getQuickActions("positioning", locale).slice(0, 1),
+    ];
+  }
 
+  // Legacy fallback for initial analysis conversations
+  const context = request.context.conversationContext;
   const suggestions = {
     en: {
       productFeatures: ["What makes this product unique?", "What's the main problem it solves?"],
