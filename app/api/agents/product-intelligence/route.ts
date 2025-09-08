@@ -9,6 +9,7 @@ import { PromptBuilder } from "@/lib/agents/product-intelligence/tools/prompt-bu
 import { AppModeConfig } from "@/lib/config/app-mode";
 import { ProductCategory, TopicStatus } from "@/lib/agents/product-intelligence/enums";
 import { ChatContext } from "@/lib/agents/product-intelligence/types";
+import { FirestoreService } from "@/lib/services/firestore";
 
 // Simple request interface for now
 interface SimpleRequest {
@@ -155,6 +156,12 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
         forceMode: "demo",
       });
 
+      // Store analysis in FirestoreService for future chat context
+      const firestoreService = FirestoreService.getInstance();
+      await firestoreService.createPISession(sessionId, locale, "demo");
+      await firestoreService.storePIAnalysis(sessionId, visionResult.analysis);
+      console.log(`[DEMO MODE] Stored analysis for session: ${sessionId}`);
+
       // Generate initial quick actions for immediate user guidance
       const initialQuickActions = [
         ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 2),
@@ -239,6 +246,14 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
     }
 
     const processingTime = Date.now() - startTime;
+
+    // Store analysis in FirestoreService for future chat context (real mode)
+    if (analysisResult?.analysis) {
+      const firestoreService = FirestoreService.getInstance();
+      await firestoreService.createPISession(sessionId, locale, "real");
+      await firestoreService.storePIAnalysis(sessionId, analysisResult.analysis);
+      console.log(`[REAL MODE] Stored analysis for session: ${sessionId}`);
+    }
 
     // Generate initial quick actions for user guidance (same as demo mode)
     const initialQuickActions = [
@@ -326,10 +341,20 @@ async function handleChatRequest(request: SimpleRequest) {
 
     console.log(`[REAL MODE] Processing chat for session: ${sessionId}`);
 
-    // Build context from session (in a real app, this would come from database)
+    // Retrieve session context from FirestoreService
+    const firestoreService = FirestoreService.getInstance();
+    const piSession = await firestoreService.getPISession(sessionId);
+    
+    if (!piSession) {
+      console.warn(`[REAL MODE] PI session not found: ${sessionId}. Creating new session.`);
+      // Create session if it doesn't exist
+      await firestoreService.createPISession(sessionId, locale, "real");
+    }
+
+    // Build context from session data (retrieved from database)
     const chatContext = {
-      productAnalysis: request.metadata?.productAnalysis || null,
-      conversationHistory: request.metadata?.conversationHistory || [],
+      productAnalysis: piSession?.productAnalysis || null,
+      conversationHistory: piSession?.conversationHistory || [],
       conversationContext: {
         topics: {
           productFeatures: TopicStatus.PENDING,
@@ -341,7 +366,6 @@ async function handleChatRequest(request: SimpleRequest) {
         keyInsights: [],
         uncertainties: [],
         followUpQuestions: [],
-        completionScore: 0.0,
       },
       userPreferences: {},
     };
@@ -407,9 +431,17 @@ async function handleDemoChat(request: SimpleRequest) {
 
   console.log(`[DEMO MODE] Processing chat for session: ${sessionId}, message: "${message}"`);
 
-  // Build mock context with product analysis (similar to our chat API)
+  // Retrieve session context from FirestoreService (same as real mode)
+  const firestoreService = FirestoreService.getInstance();
+  const piSession = await firestoreService.getPISession(sessionId);
+  
+  if (!piSession) {
+    console.warn(`[DEMO MODE] PI session not found: ${sessionId}. Using mock context.`);
+  }
+
+  // Build context with stored analysis or fallback to mock for demo
   const mockContext: ChatContext = {
-    productAnalysis: {
+    productAnalysis: piSession?.productAnalysis || {
       // Mock product analysis - this would come from session storage in real implementation
       product: {
         id: "demo-product-1",
@@ -532,7 +564,7 @@ async function handleDemoChat(request: SimpleRequest) {
         agentInteractions: 1,
       },
     },
-    conversationHistory: [], // TODO: Could track this in session
+    conversationHistory: piSession?.conversationHistory || [], // Use stored conversation history
     conversationContext: {
       topics: {
         productFeatures: TopicStatus.COMPLETED,

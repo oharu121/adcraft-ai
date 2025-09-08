@@ -1,4 +1,6 @@
 import { Firestore, CollectionReference, DocumentData, QuerySnapshot, FieldValue } from '@google-cloud/firestore';
+import { ProductAnalysis } from '@/lib/agents/product-intelligence/types/product-analysis';
+import { ChatMessage as PIChat } from '@/lib/agents/product-intelligence/types/conversation';
 
 export interface VideoSession {
   id: string;
@@ -46,6 +48,19 @@ export interface CostEntry {
   timestamp: Date;
 }
 
+export interface ProductIntelligenceSession {
+  id: string;
+  productAnalysis: ProductAnalysis | null;
+  conversationHistory: PIChat[];
+  status: 'active' | 'completed' | 'expired';
+  locale: 'en' | 'ja';
+  appMode: 'demo' | 'real';
+  totalCost: number;
+  createdAt: Date;
+  updatedAt: Date;
+  expiresAt: Date;
+}
+
 /**
  * Firestore service for managing sessions, jobs, and cost tracking
  * Handles all database operations with proper indexing and lifecycle management
@@ -57,12 +72,14 @@ export class FirestoreService {
   private sessionsCollection: CollectionReference<DocumentData> | null = null;
   private jobsCollection: CollectionReference<DocumentData> | null = null;
   private costsCollection: CollectionReference<DocumentData> | null = null;
+  private piSessionsCollection: CollectionReference<DocumentData> | null = null;
   private isMockMode: boolean;
   
   // Mock data stores for development (static to persist across instances)
   private static mockSessions: Map<string, VideoSession> = new Map();
   private static mockJobs: Map<string, VideoJob> = new Map();
   private static mockCosts: CostEntry[] = [];
+  private static mockPISessions: Map<string, ProductIntelligenceSession> = new Map();
 
   private constructor() {
     const projectId = process.env.GCP_PROJECT_ID;
@@ -86,6 +103,7 @@ export class FirestoreService {
       this.sessionsCollection = this.db.collection('sessions');
       this.jobsCollection = this.db.collection('videoJobs');
       this.costsCollection = this.db.collection('costs');
+      this.piSessionsCollection = this.db.collection('productIntelligenceSessions');
     }
   }
 
@@ -694,6 +712,211 @@ export class FirestoreService {
         totalJobs: 0,
         totalCosts: 0,
       };
+    }
+  }
+
+  // Product Intelligence Session Management
+
+  /**
+   * Create new product intelligence session
+   */
+  public async createPISession(
+    sessionId: string,
+    locale: 'en' | 'ja' = 'en',
+    appMode: 'demo' | 'real' = 'demo'
+  ): Promise<ProductIntelligenceSession> {
+    try {
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + 12 * 60 * 60 * 1000); // 12 hours
+
+      const sessionData: ProductIntelligenceSession = {
+        id: sessionId,
+        productAnalysis: null,
+        conversationHistory: [],
+        status: 'active',
+        locale,
+        appMode,
+        totalCost: 0,
+        createdAt: now,
+        updatedAt: now,
+        expiresAt,
+      };
+
+      if (this.isMockMode) {
+        FirestoreService.mockPISessions.set(sessionId, sessionData);
+        console.log(`[MOCK MODE] Created PI session: ${sessionId}`);
+        return sessionData;
+      }
+
+      if (!this.piSessionsCollection) {
+        throw new Error('Firestore not initialized');
+      }
+
+      // Filter out undefined values for Firestore
+      const firestoreData = Object.fromEntries(
+        Object.entries(sessionData).filter(([_, value]) => value !== undefined)
+      );
+
+      await this.piSessionsCollection.doc(sessionId).set(firestoreData);
+      console.log(`[FIRESTORE] Created PI session: ${sessionId}`);
+      
+      return sessionData;
+
+    } catch (error) {
+      console.error('Failed to create PI session:', error);
+      throw new Error(`Failed to create PI session: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Get product intelligence session by ID
+   */
+  public async getPISession(sessionId: string): Promise<ProductIntelligenceSession | null> {
+    try {
+      if (this.isMockMode) {
+        const session = FirestoreService.mockPISessions.get(sessionId);
+        if (session) {
+          console.log(`[MOCK MODE] Retrieved PI session: ${sessionId}`);
+          return session;
+        } else {
+          console.log(`[MOCK MODE] PI session not found: ${sessionId}`);
+          return null;
+        }
+      }
+
+      if (!this.piSessionsCollection) {
+        throw new Error('Firestore not initialized');
+      }
+
+      const doc = await this.piSessionsCollection.doc(sessionId).get();
+      
+      if (!doc.exists) {
+        console.log(`[FIRESTORE] PI session not found: ${sessionId}`);
+        return null;
+      }
+
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: data?.createdAt?.toDate() || new Date(),
+        updatedAt: data?.updatedAt?.toDate() || new Date(),
+        expiresAt: data?.expiresAt?.toDate() || new Date(),
+        conversationHistory: data?.conversationHistory || [],
+        productAnalysis: data?.productAnalysis || null,
+      } as ProductIntelligenceSession;
+
+    } catch (error) {
+      console.error('Failed to get PI session:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Store product analysis in session
+   */
+  public async storePIAnalysis(sessionId: string, analysis: ProductAnalysis): Promise<boolean> {
+    try {
+      const updateData = {
+        productAnalysis: analysis,
+        updatedAt: new Date(),
+      };
+
+      if (this.isMockMode) {
+        const existingSession = FirestoreService.mockPISessions.get(sessionId);
+        if (existingSession) {
+          FirestoreService.mockPISessions.set(sessionId, { ...existingSession, ...updateData });
+          console.log(`[MOCK MODE] Stored analysis for PI session: ${sessionId}`);
+          return true;
+        } else {
+          console.warn(`[MOCK MODE] PI session not found: ${sessionId}`);
+          return false;
+        }
+      }
+
+      if (!this.piSessionsCollection) {
+        throw new Error('Firestore not initialized');
+      }
+
+      await this.piSessionsCollection.doc(sessionId).update(updateData);
+      console.log(`[FIRESTORE] Stored analysis for PI session: ${sessionId}`);
+      return true;
+
+    } catch (error) {
+      console.error('Failed to store PI analysis:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Add chat message to PI session history
+   */
+  public async addPIChatMessage(sessionId: string, message: PIChat): Promise<boolean> {
+    try {
+      if (this.isMockMode) {
+        const existingSession = FirestoreService.mockPISessions.get(sessionId);
+        if (existingSession) {
+          existingSession.conversationHistory.push(message);
+          existingSession.updatedAt = new Date();
+          console.log(`[MOCK MODE] Added chat message to PI session: ${sessionId}`);
+          return true;
+        } else {
+          console.warn(`[MOCK MODE] PI session not found for chat message: ${sessionId}`);
+          return false;
+        }
+      }
+
+      if (!this.piSessionsCollection) {
+        throw new Error('Firestore not initialized');
+      }
+
+      await this.piSessionsCollection.doc(sessionId).update({
+        conversationHistory: FieldValue.arrayUnion(message),
+        updatedAt: new Date(),
+      });
+      console.log(`[FIRESTORE] Added chat message to PI session: ${sessionId}`);
+
+      return true;
+
+    } catch (error) {
+      console.error('Failed to add PI chat message:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Update PI session cost
+   */
+  public async updatePICost(sessionId: string, additionalCost: number): Promise<boolean> {
+    try {
+      if (this.isMockMode) {
+        const existingSession = FirestoreService.mockPISessions.get(sessionId);
+        if (existingSession) {
+          existingSession.totalCost += additionalCost;
+          existingSession.updatedAt = new Date();
+          console.log(`[MOCK MODE] Updated cost for PI session: ${sessionId} (+$${additionalCost})`);
+          return true;
+        } else {
+          console.warn(`[MOCK MODE] PI session not found for cost update: ${sessionId}`);
+          return false;
+        }
+      }
+
+      if (!this.piSessionsCollection) {
+        throw new Error('Firestore not initialized');
+      }
+
+      await this.piSessionsCollection.doc(sessionId).update({
+        totalCost: FieldValue.increment(additionalCost),
+        updatedAt: new Date(),
+      });
+      console.log(`[FIRESTORE] Updated cost for PI session: ${sessionId} (+$${additionalCost})`);
+
+      return true;
+
+    } catch (error) {
+      console.error('Failed to update PI cost:', error);
+      return false;
     }
   }
 }
