@@ -240,6 +240,13 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
 
     const processingTime = Date.now() - startTime;
 
+    // Generate initial quick actions for user guidance (same as demo mode)
+    const initialQuickActions = [
+      ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 2),
+      ...PromptBuilder.getQuickActions("audience", locale || "en").slice(0, 1),
+      ...PromptBuilder.getQuickActions("positioning", locale || "en").slice(0, 1),
+    ];
+
     return {
       sessionId: request.sessionId,
       nextAction: "continue_chat",
@@ -250,6 +257,7 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
       },
       processingTime: Math.round(processingTime),
       agentResponse,
+      quickActions: initialQuickActions, // Add quick actions for real mode too
       ...(analysisResult && { analysis: analysisResult.analysis }),
     };
   } catch (error) {
@@ -360,6 +368,7 @@ async function handleChatRequest(request: SimpleRequest) {
       processingTime: chatResponse.processingTime,
       agentResponse: chatResponse.response,
       suggestedFollowUps: chatResponse.suggestedFollowUps,
+      quickActions: chatResponse.suggestedFollowUps || [], // Add quick actions for real mode
     };
   } catch (error) {
     console.error(`Chat failed for session ${sessionId}:`, error);
@@ -367,6 +376,12 @@ async function handleChatRequest(request: SimpleRequest) {
     // Fallback to basic response if AI fails
     const cost = 0.01;
     const agentResponse = PromptBuilder.getLocaleMessages(locale || "en").chatFallback;
+
+    // Provide basic quick actions even in fallback
+    const fallbackQuickActions = [
+      ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 2),
+      ...PromptBuilder.getQuickActions("audience", locale || "en").slice(0, 1),
+    ];
 
     return {
       sessionId: request.sessionId,
@@ -378,6 +393,7 @@ async function handleChatRequest(request: SimpleRequest) {
       },
       processingTime: 1000,
       agentResponse,
+      quickActions: fallbackQuickActions, // Provide quick actions even in fallback
       warnings: ["AI chat temporarily unavailable"],
     };
   }

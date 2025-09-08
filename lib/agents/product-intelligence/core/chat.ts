@@ -6,6 +6,7 @@
  */
 
 import { VertexAIService } from "@/lib/services/vertex-ai";
+import { GeminiClient } from "@/lib/services/gemini";
 import {
   ChatMessage,
   ChatRequest,
@@ -183,70 +184,30 @@ async function callGeminiChat(prompt: string): Promise<{
   text: string;
   usage: { input_tokens: number; output_tokens: number };
 }> {
+  // Use GeminiClient which has fallback to AI Studio if Vertex AI fails
   const vertexAI = VertexAIService.getInstance();
-  const accessToken = await vertexAI.getAccessToken();
-  const baseUrl = vertexAI.getBaseUrl();
+  const geminiClient = new GeminiClient(vertexAI);
 
-  const request: GeminiChatRequest = {
-    contents: [
-      {
-        parts: [{ text: prompt }],
-        role: "user",
-      },
-    ],
-    generation_config: {
-      temperature: 0.7,
-      top_p: 0.9,
-      top_k: 40,
-      max_output_tokens: 1024,
-    },
-    safety_settings: [
-      {
-        category: "HARM_CATEGORY_HARASSMENT",
-        threshold: "BLOCK_MEDIUM_AND_ABOVE",
-      },
-      {
-        category: "HARM_CATEGORY_HATE_SPEECH",
-        threshold: "BLOCK_MEDIUM_AND_ABOVE",
-      },
-      {
-        category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-        threshold: "BLOCK_MEDIUM_AND_ABOVE",
-      },
-      {
-        category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-        threshold: "BLOCK_MEDIUM_AND_ABOVE",
-      },
-    ],
-  };
-
-  const response = await fetch(
-    `${baseUrl}/publishers/google/models/${MODEL_NAME}:generateContent`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(request),
-    }
-  );
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Gemini Chat API error: ${response.status} - ${errorText}`);
+  
+  try {
+    // Use generateTextOnly for chat (not vision)
+    const response = await geminiClient.generateTextOnly(prompt);
+    
+    return {
+      text: response.text,
+      usage: {
+        input_tokens: response.usage?.inputTokens || prompt.length / 4,
+        output_tokens: response.usage?.outputTokens || response.text.length / 4,
+      }
+    };
+  } catch (error) {
+    console.error("GeminiClient chat failed:", error);
+    
+    // If GeminiClient fails, throw the error for fallback handling
+    throw new Error(
+      `Gemini Chat API error: ${error instanceof Error ? error.message : "Unknown error"}`
+    );
   }
-
-  const result = await response.json();
-
-  if (!result.candidates || !result.candidates[0] || !result.candidates[0].content) {
-    throw new Error("Invalid response format from Gemini Chat API");
-  }
-
-  return {
-    text: result.candidates[0].content.parts[0].text,
-    usage: result.usage_metadata || { input_tokens: 800, output_tokens: 200 },
-  };
 }
 
 /**
