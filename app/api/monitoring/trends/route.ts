@@ -3,11 +3,11 @@
  * Provides time-series data for monitoring dashboard charts
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { MonitoringService } from '@/lib/services/monitoring';
-import { MetricsService } from '@/lib/services/metrics';
-import { CostTracker } from '@/lib/services/cost-tracker';
-import { Logger } from '@/lib/services/logger';
+import { NextRequest, NextResponse } from "next/server";
+import { MonitoringService } from "@/lib/monitor/monitoring";
+import { MetricsService } from "@/lib/monitor/metrics";
+import { CostTracker } from "@/lib/utils/cost-tracker";
+import { Logger } from "@/lib/utils/logger";
 
 /**
  * GET /api/monitoring/trends
@@ -19,18 +19,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now();
 
   // Extract client info and query parameters
-  const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-    request.headers.get('x-real-ip') || 
-    'unknown';
+  const clientIP =
+    request.headers.get("x-forwarded-for")?.split(",")[0] ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
   const searchParams = request.nextUrl.searchParams;
-  const timeRange = searchParams.get('timeRange') || '24h';
-  const metrics = searchParams.get('metrics')?.split(',') || ['performance', 'system', 'costs'];
-  const granularity = searchParams.get('granularity') || 'auto';
+  const timeRange = searchParams.get("timeRange") || "24h";
+  const metrics = searchParams.get("metrics")?.split(",") || ["performance", "system", "costs"];
+  const granularity = searchParams.get("granularity") || "auto";
 
-  logger.info('Trends data requested', {
+  logger.info("Trends data requested", {
     correlationId,
-    endpoint: '/api/monitoring/trends',
-    method: 'GET',
+    endpoint: "/api/monitoring/trends",
+    method: "GET",
     ip: clientIP,
     timeRange,
     metrics,
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const monitoringService = MonitoringService.getInstance();
     const metricsService = MetricsService.getInstance();
     const costTracker = CostTracker.getInstance();
-    
+
     // Get system trends from monitoring service
     const systemTrends = monitoringService.exportMonitoringData().trends;
 
@@ -59,12 +60,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     };
 
     // Add requested metrics
-    if (metrics.includes('performance')) {
-      const performanceMetrics = metricsService.getAPIMetrics({ 
-        timeRange, 
-        limit: 100 
+    if (metrics.includes("performance")) {
+      const performanceMetrics = metricsService.getAPIMetrics({
+        timeRange,
+        limit: 100,
       });
-      
+
       responseData.trends.performance = {
         responseTime: systemTrends.requestTrend.map((point, index) => ({
           timestamp: point.timestamp,
@@ -72,14 +73,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         })),
         errorRate: systemTrends.errorTrend,
         throughput: systemTrends.requestTrend,
-        requestVolume: performanceMetrics.metrics.map(metric => ({
+        requestVolume: performanceMetrics.metrics.map((metric) => ({
           timestamp: metric.timestamp,
           value: metric.responseTime, // Use responseTime as a proxy for request data
         })),
       };
     }
 
-    if (metrics.includes('system')) {
+    if (metrics.includes("system")) {
       responseData.trends.system = {
         cpu: systemTrends.cpuTrend,
         memory: systemTrends.memoryTrend,
@@ -87,7 +88,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       };
     }
 
-    if (metrics.includes('costs')) {
+    if (metrics.includes("costs")) {
       const costMetrics = await costTracker.getDetailedMetrics();
       responseData.trends.costs = {
         totalCost: systemTrends.costTrend,
@@ -96,25 +97,38 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           cost,
           timestamp: new Date(),
         })),
-        burnRate: [{
-          timestamp: new Date(),
-          value: costMetrics.projection.projectedDailySpend,
-        }],
+        burnRate: [
+          {
+            timestamp: new Date(),
+            value: costMetrics.projection.projectedDailySpend,
+          },
+        ],
       };
     }
 
-    if (metrics.includes('alerts')) {
+    if (metrics.includes("alerts")) {
       // Get alert trends (simplified)
       responseData.trends.alerts = {
-        total: [{
-          timestamp: new Date(),
-          value: (await monitoringService.getMonitoringDashboard()).alerts.total,
-        }],
+        total: [
+          {
+            timestamp: new Date(),
+            value: (await monitoringService.getMonitoringDashboard()).alerts.total,
+          },
+        ],
         bySeverity: [
-          { severity: 'critical', count: (await monitoringService.getMonitoringDashboard()).alerts.critical },
-          { severity: 'high', count: (await monitoringService.getMonitoringDashboard()).alerts.high },
-          { severity: 'medium', count: (await monitoringService.getMonitoringDashboard()).alerts.medium },
-          { severity: 'low', count: (await monitoringService.getMonitoringDashboard()).alerts.low },
+          {
+            severity: "critical",
+            count: (await monitoringService.getMonitoringDashboard()).alerts.critical,
+          },
+          {
+            severity: "high",
+            count: (await monitoringService.getMonitoringDashboard()).alerts.high,
+          },
+          {
+            severity: "medium",
+            count: (await monitoringService.getMonitoringDashboard()).alerts.medium,
+          },
+          { severity: "low", count: (await monitoringService.getMonitoringDashboard()).alerts.low },
         ],
       };
     }
@@ -123,15 +137,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     responseData.dataQuality = {
       completeness: calculateDataCompleteness(responseData.trends),
       freshness: calculateDataFreshness(responseData.trends),
-      accuracy: 'high', // Simplified
+      accuracy: "high", // Simplified
     };
 
     // Log successful response
     const duration = Date.now() - startTime;
-    logger.info('Trends data served', {
+    logger.info("Trends data served", {
       correlationId,
-      endpoint: '/api/monitoring/trends',
-      method: 'GET',
+      endpoint: "/api/monitoring/trends",
+      method: "GET",
       ip: clientIP,
       duration,
       metricsCount: metrics.length,
@@ -142,29 +156,32 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(responseData, {
       status: 200,
       headers: {
-        'Cache-Control': 'public, max-age=120, s-maxage=120', // Cache for 2 minutes
-        'X-Correlation-ID': correlationId,
+        "Cache-Control": "public, max-age=120, s-maxage=120", // Cache for 2 minutes
+        "X-Correlation-ID": correlationId,
       },
     });
-
   } catch (error) {
     const duration = Date.now() - startTime;
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
-    logger.error('Trends data retrieval error', {
-      correlationId,
-      endpoint: '/api/monitoring/trends',
-      method: 'GET',
-      ip: clientIP,
-      duration,
-    }, error instanceof Error ? error : new Error(errorMessage));
+    logger.error(
+      "Trends data retrieval error",
+      {
+        correlationId,
+        endpoint: "/api/monitoring/trends",
+        method: "GET",
+        ip: clientIP,
+        duration,
+      },
+      error instanceof Error ? error : new Error(errorMessage)
+    );
 
     return NextResponse.json(
       {
-        error: 'Trends data unavailable',
-        message: 'Failed to retrieve trends data',
+        error: "Trends data unavailable",
+        message: "Failed to retrieve trends data",
         correlationId,
-        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
+        details: process.env.NODE_ENV === "development" ? errorMessage : undefined,
         metadata: {
           correlationId,
           timestamp: new Date().toISOString(),
@@ -186,15 +203,15 @@ function calculateDataCompleteness(trends: any): number {
   Object.values(trends).forEach((trendData: any) => {
     if (Array.isArray(trendData)) {
       totalDataPoints += trendData.length;
-      completeDataPoints += trendData.filter((point: any) => 
-        point.value !== null && point.value !== undefined
+      completeDataPoints += trendData.filter(
+        (point: any) => point.value !== null && point.value !== undefined
       ).length;
-    } else if (typeof trendData === 'object') {
+    } else if (typeof trendData === "object") {
       Object.values(trendData).forEach((subData: any) => {
         if (Array.isArray(subData)) {
           totalDataPoints += subData.length;
-          completeDataPoints += subData.filter((point: any) => 
-            point.value !== null && point.value !== undefined
+          completeDataPoints += subData.filter(
+            (point: any) => point.value !== null && point.value !== undefined
           ).length;
         }
       });
@@ -216,15 +233,18 @@ function calculateDataFreshness(trends: any): number {
   Object.values(trends).forEach((trendData: any) => {
     if (Array.isArray(trendData)) {
       totalDataPoints += trendData.length;
-      freshDataPoints += trendData.filter((point: any) => 
-        point.timestamp && (now.getTime() - new Date(point.timestamp).getTime()) < freshThreshold
+      freshDataPoints += trendData.filter(
+        (point: any) =>
+          point.timestamp && now.getTime() - new Date(point.timestamp).getTime() < freshThreshold
       ).length;
-    } else if (typeof trendData === 'object') {
+    } else if (typeof trendData === "object") {
       Object.values(trendData).forEach((subData: any) => {
         if (Array.isArray(subData)) {
           totalDataPoints += subData.length;
-          freshDataPoints += subData.filter((point: any) => 
-            point.timestamp && (now.getTime() - new Date(point.timestamp).getTime()) < freshThreshold
+          freshDataPoints += subData.filter(
+            (point: any) =>
+              point.timestamp &&
+              now.getTime() - new Date(point.timestamp).getTime() < freshThreshold
           ).length;
         }
       });
@@ -242,9 +262,9 @@ export async function OPTIONS(): Promise<NextResponse> {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
     },
   });
 }

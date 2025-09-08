@@ -3,9 +3,9 @@
  * Provides budget and cost information for monitoring dashboard
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { CostTracker } from '@/lib/services/cost-tracker';
-import { Logger } from '@/lib/services/logger';
+import { NextRequest, NextResponse } from "next/server";
+import { CostTracker } from "@/lib/utils/cost-tracker";
+import { Logger } from "@/lib/utils/logger";
 
 /**
  * GET /api/monitoring/budget
@@ -17,18 +17,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now();
 
   // Extract client info and query parameters
-  const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-    request.headers.get('x-real-ip') || 
-    'unknown';
+  const clientIP =
+    request.headers.get("x-forwarded-for")?.split(",")[0] ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
   const searchParams = request.nextUrl.searchParams;
-  const includeTransactions = searchParams.get('transactions') === 'true';
-  const includeProjections = searchParams.get('projections') === 'true';
-  const timeRange = searchParams.get('timeRange') || '24h';
+  const includeTransactions = searchParams.get("transactions") === "true";
+  const includeProjections = searchParams.get("projections") === "true";
+  const timeRange = searchParams.get("timeRange") || "24h";
 
-  logger.info('Budget data requested', {
+  logger.info("Budget data requested", {
     correlationId,
-    endpoint: '/api/monitoring/budget',
-    method: 'GET',
+    endpoint: "/api/monitoring/budget",
+    method: "GET",
     ip: clientIP,
     includeTransactions,
     includeProjections,
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Get cost tracker instance
     const costTracker = CostTracker.getInstance();
-    
+
     // Get basic budget data
     const budgetStatus = await costTracker.getBudgetStatus();
     const detailedMetrics = await costTracker.getDetailedMetrics();
@@ -81,10 +82,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Log successful response
     const duration = Date.now() - startTime;
-    logger.info('Budget data served', {
+    logger.info("Budget data served", {
       correlationId,
-      endpoint: '/api/monitoring/budget',
-      method: 'GET',
+      endpoint: "/api/monitoring/budget",
+      method: "GET",
       ip: clientIP,
       duration,
       currentSpend: budgetStatus.currentSpend,
@@ -95,29 +96,32 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(responseData, {
       status: 200,
       headers: {
-        'Cache-Control': 'public, max-age=60, s-maxage=60', // Cache for 1 minute
-        'X-Correlation-ID': correlationId,
+        "Cache-Control": "public, max-age=60, s-maxage=60", // Cache for 1 minute
+        "X-Correlation-ID": correlationId,
       },
     });
-
   } catch (error) {
     const duration = Date.now() - startTime;
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
-    logger.error('Budget data retrieval error', {
-      correlationId,
-      endpoint: '/api/monitoring/budget',
-      method: 'GET',
-      ip: clientIP,
-      duration,
-    }, error instanceof Error ? error : new Error(errorMessage));
+    logger.error(
+      "Budget data retrieval error",
+      {
+        correlationId,
+        endpoint: "/api/monitoring/budget",
+        method: "GET",
+        ip: clientIP,
+        duration,
+      },
+      error instanceof Error ? error : new Error(errorMessage)
+    );
 
     return NextResponse.json(
       {
-        error: 'Budget data unavailable',
-        message: 'Failed to retrieve budget information',
+        error: "Budget data unavailable",
+        message: "Failed to retrieve budget information",
         correlationId,
-        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
+        details: process.env.NODE_ENV === "development" ? errorMessage : undefined,
         metadata: {
           correlationId,
           timestamp: new Date().toISOString(),
@@ -137,9 +141,9 @@ export async function OPTIONS(): Promise<NextResponse> {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
     },
   });
 }

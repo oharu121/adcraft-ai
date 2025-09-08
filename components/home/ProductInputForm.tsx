@@ -4,8 +4,8 @@ import { useRef } from "react";
 import { Card } from "@/components/ui";
 import { ImageUploadArea } from "@/components/product-intelligence";
 import { useProductIntelligenceStore } from "@/lib/stores/product-intelligence-store";
-import { SessionStatus } from "@/types/product-intelligence";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
+import { SessionStatus } from "@/lib/agents/product-intelligence/enums";
 
 interface ProductInputFormProps {
   dict: Dictionary;

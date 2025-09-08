@@ -10,8 +10,8 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { CollapsibleSection } from '@/components/ui/CollapsibleSection';
-import { ProductAnalysis } from '@/types/product-intelligence';
 import type { Dictionary } from '@/lib/dictionaries';
+import { ProductAnalysis } from '@/lib/agents/product-intelligence/types';
 
 export interface ProductAnalysisCardProps {
   analysis: ProductAnalysis;

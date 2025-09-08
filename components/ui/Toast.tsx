@@ -5,11 +5,17 @@ export interface ToastProps {
   id?: string;
   title?: string;
   message: string;
-  type?: 'success' | 'error' | 'warning' | 'info';
+  type?: "success" | "error" | "warning" | "info";
   duration?: number;
-  onClose?: (id?: string) => void;
+  onClose?: (id: string) => void;
   showCloseButton?: boolean;
-  position?: 'top-right' | 'top-center' | 'top-left' | 'bottom-right' | 'bottom-center' | 'bottom-left';
+  position?:
+    | "top-right"
+    | "top-center"
+    | "top-left"
+    | "bottom-right"
+    | "bottom-center"
+    | "bottom-left";
 }
 
 export const Toast: React.FC<ToastProps> = ({
@@ -39,7 +45,9 @@ export const Toast: React.FC<ToastProps> = ({
     setIsExiting(true);
     setTimeout(() => {
       setIsVisible(false);
-      onClose?.(id);
+      if (id) {
+        onClose?.(id);
+      }
     }, 300); // Animation duration
   };
 

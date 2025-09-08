@@ -5,15 +5,11 @@
  * including data validation, serialization, and pipeline coordination.
  */
 
+import { AgentType, ApiErrorCode } from '@/lib/agents/product-intelligence/enums';
+import { ApiResponse, HandoffResponse } from '@/lib/agents/product-intelligence/types';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { 
-  ApiResponse, 
-  HandoffRequest,
-  HandoffResponse,
-  ApiErrorCode
-} from '@/types/product-intelligence';
-import { AgentType } from '@/types/product-intelligence';
+
 
 // Request validation schema
 const HandoffRequestSchema = z.object({

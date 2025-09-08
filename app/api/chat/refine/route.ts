@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { 
-  PromptRefiner,
-  FirestoreService,
-  CostTracker
-} from '@/lib/services';
-import { 
   ChatRefinementRequestSchema,
   createApiResponseSchema,
   ValidationUtils
 } from '@/lib/utils/validation';
 import type { ChatRefinementResponse } from '@/lib/utils/validation';
+import { PromptRefiner } from '@/lib/agents/product-intelligence/tools/prompt-refiner';
+import { FirestoreService } from '@/lib/services/firestore';
+import { CostTracker } from '@/lib/utils/cost-tracker';
 
 const ChatRefinementResponseApiSchema = createApiResponseSchema(
   ChatRefinementRequestSchema.omit({ sessionId: true, message: true }).extend({

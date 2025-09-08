@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  VeoService, 
-  FirestoreService, 
-  CostTracker, 
-  JobTracker,
-  RateLimiterService 
-} from '@/lib/services';
+
 import { 
   VideoGenerationRequestSchema,
   createApiResponseSchema,
   ValidationUtils
 } from '@/lib/utils/validation';
 import type { VideoGenerationResponse } from '@/lib/utils/validation';
+import { FirestoreService } from '@/lib/services/firestore';
+import { VeoService } from '@/lib/services/veo';
+import { CostTracker } from '@/lib/utils/cost-tracker';
+import { JobTracker } from '@/lib/utils/job-tracker';
+import RateLimiterService from '@/lib/monitor/rate-limiter';
 
 const VideoGenerationResponseSchema = createApiResponseSchema(
   VideoGenerationRequestSchema.omit({ prompt: true }).extend({

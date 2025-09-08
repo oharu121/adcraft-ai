@@ -1,10 +1,13 @@
-import { NextRequest } from 'next/server';
-import { MonitoringService, MonitoringDashboardData as ServiceMonitoringData } from '@/lib/services/monitoring';
-import { MonitoringDashboardData } from '@/types/monitoring';
+import { NextRequest } from "next/server";
+import {
+  MonitoringService,
+  MonitoringDashboardData as ServiceMonitoringData,
+} from "@/lib/monitor/monitoring";
+import { MonitoringDashboardData } from "@/types/monitoring";
 
 // Server-Sent Events for real-time updates (more compatible than WebSocket with Next.js)
 export interface MonitoringEvent {
-  type: 'health-change' | 'budget-update' | 'new-alert' | 'metrics-update' | 'connection-status';
+  type: "health-change" | "budget-update" | "new-alert" | "metrics-update" | "connection-status";
   data?: any;
   timestamp: string;
   id: string;
@@ -18,20 +21,20 @@ let lastData: ServiceMonitoringData | null = null;
 // Broadcast to all connected SSE clients
 function broadcast(event: MonitoringEvent) {
   const sseMessage = `event: ${event.type}\ndata: ${JSON.stringify(event)}\nid: ${event.id}\n\n`;
-  
+
   const deadConnections: ReadableStreamDefaultController[] = [];
-  
-  sseConnections.forEach(controller => {
+
+  sseConnections.forEach((controller) => {
     try {
       controller.enqueue(new TextEncoder().encode(sseMessage));
     } catch (error) {
-      console.error('Error sending SSE message:', error);
+      console.error("Error sending SSE message:", error);
       deadConnections.push(controller);
     }
   });
-  
+
   // Clean up dead connections
-  deadConnections.forEach(controller => {
+  deadConnections.forEach((controller) => {
     sseConnections.delete(controller);
     try {
       controller.close();
@@ -69,13 +72,16 @@ function convertToDashboardData(serviceData: ServiceMonitoringData): MonitoringD
       correlationId: generateEventId(),
       timestamp: new Date().toISOString(),
       generatedIn: 0, // Will be calculated
-      version: '1.0.0'
-    }
+      version: "1.0.0",
+    },
   };
 }
 
 // Compare monitoring data for changes
-function hasSignificantChanges(oldData: ServiceMonitoringData | null, newData: ServiceMonitoringData): boolean {
+function hasSignificantChanges(
+  oldData: ServiceMonitoringData | null,
+  newData: ServiceMonitoringData
+): boolean {
   if (!oldData) return true;
 
   // Check system health status change
@@ -106,8 +112,8 @@ function hasSignificantChanges(oldData: ServiceMonitoringData | null, newData: S
   // Check for significant performance changes (> 10% change in response time)
   if (oldData.performance.averageResponseTime > 0 && newData.performance.averageResponseTime > 0) {
     const responseTimeChange = Math.abs(
-      (newData.performance.averageResponseTime - oldData.performance.averageResponseTime) / 
-      oldData.performance.averageResponseTime
+      (newData.performance.averageResponseTime - oldData.performance.averageResponseTime) /
+        oldData.performance.averageResponseTime
     );
     if (responseTimeChange > 0.1) {
       return true;
@@ -126,7 +132,7 @@ function hasSignificantChanges(oldData: ServiceMonitoringData | null, newData: S
 function startMonitoring() {
   if (updateInterval) return;
 
-  console.log('Starting monitoring updates for SSE connections');
+  console.log("Starting monitoring updates for SSE connections");
 
   updateInterval = setInterval(async () => {
     if (sseConnections.size === 0) return;
@@ -139,82 +145,86 @@ function startMonitoring() {
       if (hasSignificantChanges(lastData, serviceData)) {
         // Determine specific event types based on what changed
         if (lastData) {
-          if (lastData.systemHealth.status !== serviceData.systemHealth.status ||
-              Math.abs(lastData.systemHealth.overallScore - serviceData.systemHealth.overallScore) > 5) {
+          if (
+            lastData.systemHealth.status !== serviceData.systemHealth.status ||
+            Math.abs(lastData.systemHealth.overallScore - serviceData.systemHealth.overallScore) > 5
+          ) {
             broadcast({
-              type: 'health-change',
+              type: "health-change",
               data: {
                 oldStatus: lastData.systemHealth.status,
                 newStatus: serviceData.systemHealth.status,
                 oldScore: lastData.systemHealth.overallScore,
                 newScore: serviceData.systemHealth.overallScore,
-                systemHealth: newData.systemHealth
+                systemHealth: newData.systemHealth,
               },
               timestamp: new Date().toISOString(),
-              id: generateEventId()
+              id: generateEventId(),
             });
           }
 
-          if (Math.abs(lastData.budget.percentageUsed - serviceData.budget.percentageUsed) > 1 ||
-              lastData.budget.alertLevel !== serviceData.budget.alertLevel) {
+          if (
+            Math.abs(lastData.budget.percentageUsed - serviceData.budget.percentageUsed) > 1 ||
+            lastData.budget.alertLevel !== serviceData.budget.alertLevel
+          ) {
             broadcast({
-              type: 'budget-update',
+              type: "budget-update",
               data: {
                 oldPercentage: lastData.budget.percentageUsed,
                 newPercentage: serviceData.budget.percentageUsed,
                 oldAlertLevel: lastData.budget.alertLevel,
                 newAlertLevel: serviceData.budget.alertLevel,
-                budget: newData.budget
+                budget: newData.budget,
               },
               timestamp: new Date().toISOString(),
-              id: generateEventId()
+              id: generateEventId(),
             });
           }
 
           if (lastData.alerts.total !== serviceData.alerts.total) {
             broadcast({
-              type: 'new-alert',
+              type: "new-alert",
               data: {
                 newAlerts: serviceData.alerts.total - lastData.alerts.total,
                 oldTotal: lastData.alerts.total,
                 newTotal: serviceData.alerts.total,
                 alerts: newData.alerts,
-                recentAlerts: newData.alerts.recent.slice(0, 3) // Send most recent 3 alerts
+                recentAlerts: newData.alerts.recent.slice(0, 3), // Send most recent 3 alerts
               },
               timestamp: new Date().toISOString(),
-              id: generateEventId()
+              id: generateEventId(),
             });
           }
         }
 
         // Send general metrics update
         broadcast({
-          type: 'metrics-update',
+          type: "metrics-update",
           data: {
             performance: newData.performance,
             trends: newData.trends,
             metadata: newData.metadata,
-            fullData: newData // Include full data for complete updates
+            fullData: newData, // Include full data for complete updates
           },
           timestamp: new Date().toISOString(),
-          id: generateEventId()
+          id: generateEventId(),
         });
       }
 
       lastData = serviceData;
     } catch (error) {
-      console.error('Error fetching monitoring data for SSE:', error);
-      
+      console.error("Error fetching monitoring data for SSE:", error);
+
       // Send error event to clients
       broadcast({
-        type: 'connection-status',
+        type: "connection-status",
         data: {
-          status: 'error',
-          message: 'Failed to fetch monitoring data',
-          error: error instanceof Error ? error.message : 'Unknown error'
+          status: "error",
+          message: "Failed to fetch monitoring data",
+          error: error instanceof Error ? error.message : "Unknown error",
         },
         timestamp: new Date().toISOString(),
-        id: generateEventId()
+        id: generateEventId(),
       });
     }
   }, 15000); // Check every 15 seconds
@@ -225,7 +235,7 @@ function stopMonitoring() {
   if (updateInterval) {
     clearInterval(updateInterval);
     updateInterval = null;
-    console.log('Stopped monitoring updates');
+    console.log("Stopped monitoring updates");
   }
 }
 
@@ -237,21 +247,21 @@ export async function GET(request: NextRequest) {
         // Add connection to tracking
         sseConnections.add(controller);
         console.log(`SSE connection established. Total connections: ${sseConnections.size}`);
-        
+
         // Start monitoring if this is the first connection
         startMonitoring();
 
         // Send initial connection event
         const welcomeEvent: MonitoringEvent = {
-          type: 'connection-status',
-          data: { 
-            status: 'connected',
-            message: 'Real-time monitoring connected',
+          type: "connection-status",
+          data: {
+            status: "connected",
+            message: "Real-time monitoring connected",
             connectionId: generateEventId(),
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           },
           timestamp: new Date().toISOString(),
-          id: generateEventId()
+          id: generateEventId(),
         };
 
         const sseMessage = `event: ${welcomeEvent.type}\ndata: ${JSON.stringify(welcomeEvent)}\nid: ${welcomeEvent.id}\n\n`;
@@ -272,15 +282,15 @@ export async function GET(request: NextRequest) {
         }, 30000);
 
         // Handle connection cleanup
-        request.signal.addEventListener('abort', () => {
+        request.signal.addEventListener("abort", () => {
           clearInterval(heartbeatInterval);
           sseConnections.delete(controller);
           console.log(`SSE connection closed. Remaining connections: ${sseConnections.size}`);
-          
+
           if (sseConnections.size === 0) {
             stopMonitoring();
           }
-          
+
           try {
             controller.close();
           } catch (error) {
@@ -288,43 +298,43 @@ export async function GET(request: NextRequest) {
           }
         });
       },
-      
+
       cancel() {
         // This will be called when the client disconnects
-        console.log('SSE stream cancelled by client');
-      }
+        console.log("SSE stream cancelled by client");
+      },
     });
 
     return new Response(stream, {
       headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Cache-Control',
-        'X-Accel-Buffering': 'no', // Disable nginx buffering
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Cache-Control",
+        "X-Accel-Buffering": "no", // Disable nginx buffering
       },
     });
   } catch (error) {
-    console.error('Error establishing SSE connection:', error);
-    return new Response('Failed to establish SSE connection', { status: 500 });
+    console.error("Error establishing SSE connection:", error);
+    return new Response("Failed to establish SSE connection", { status: 500 });
   }
 }
 
 // Handle connection cleanup
 export async function DELETE() {
-  console.log('Cleaning up all SSE connections');
-  
-  sseConnections.forEach(controller => {
+  console.log("Cleaning up all SSE connections");
+
+  sseConnections.forEach((controller) => {
     try {
       controller.close();
     } catch (error) {
       // Ignore close errors
     }
   });
-  
+
   sseConnections.clear();
   stopMonitoring();
-  
-  return new Response('All SSE connections cleaned up', { status: 200 });
+
+  return new Response("All SSE connections cleaned up", { status: 200 });
 }

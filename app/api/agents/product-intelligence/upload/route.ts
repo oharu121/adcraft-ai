@@ -5,14 +5,10 @@
  * product analysis with Vertex AI Gemini Pro Vision.
  */
 
+import { ApiErrorCode } from '@/lib/agents/product-intelligence/enums';
+import { ApiResponse, ImageUploadResponse } from '@/lib/agents/product-intelligence/types';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { 
-  ApiResponse, 
-  ImageUploadRequest,
-  ImageUploadResponse,
-  ApiErrorCode
-} from '@/types/product-intelligence';
 
 // File validation configuration
 const UPLOAD_CONFIG = {

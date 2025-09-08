@@ -3,12 +3,12 @@
  * Provides comprehensive monitoring data for system administration
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { MonitoringService } from '@/lib/services/monitoring';
-import { Logger } from '@/lib/services/logger';
-import { MetricsService } from '@/lib/services/metrics';
-import { CostTracker } from '@/lib/services/cost-tracker';
-import { SecurityMonitorService } from '@/lib/services/security-monitor';
+import { NextRequest, NextResponse } from "next/server";
+import { MonitoringService } from "@/lib/monitor/monitoring";
+import { Logger } from "@/lib/utils/logger";
+import { MetricsService } from "@/lib/monitor/metrics";
+import { CostTracker } from "@/lib/utils/cost-tracker";
+import { SecurityMonitorService } from "@/lib/monitor/security-monitor";
 
 interface AdminAuthResult {
   isAuthorized: boolean;
@@ -23,18 +23,18 @@ function authenticateAdmin(request: NextRequest): AdminAuthResult {
   // Check for admin API key in environment
   const adminApiKey = process.env.ADMIN_API_KEY;
   if (!adminApiKey) {
-    return { isAuthorized: false, reason: 'Admin API key not configured' };
+    return { isAuthorized: false, reason: "Admin API key not configured" };
   }
 
   // Check Authorization header
-  const authHeader = request.headers.get('Authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return { isAuthorized: false, reason: 'Missing or invalid Authorization header' };
+  const authHeader = request.headers.get("Authorization");
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return { isAuthorized: false, reason: "Missing or invalid Authorization header" };
   }
 
   const providedKey = authHeader.substring(7); // Remove "Bearer " prefix
   if (providedKey !== adminApiKey) {
-    return { isAuthorized: false, reason: 'Invalid admin API key' };
+    return { isAuthorized: false, reason: "Invalid admin API key" };
   }
 
   return { isAuthorized: true };
@@ -50,15 +50,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now();
 
   // Extract client info
-  const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-    request.headers.get('x-real-ip') || 
-    'unknown';
-  const userAgent = request.headers.get('user-agent') || 'unknown';
+  const clientIP =
+    request.headers.get("x-forwarded-for")?.split(",")[0] ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
+  const userAgent = request.headers.get("user-agent") || "unknown";
 
-  logger.info('Admin monitoring dashboard accessed', {
+  logger.info("Admin monitoring dashboard accessed", {
     correlationId,
-    endpoint: '/api/admin/monitoring',
-    method: 'GET',
+    endpoint: "/api/admin/monitoring",
+    method: "GET",
     ip: clientIP,
     userAgent,
   });
@@ -67,19 +68,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Authenticate admin access
     const authResult = authenticateAdmin(request);
     if (!authResult.isAuthorized) {
-      logger.warn('Unauthorized admin monitoring access attempt', {
+      logger.warn("Unauthorized admin monitoring access attempt", {
         correlationId,
-        endpoint: '/api/admin/monitoring',
-        method: 'GET',
+        endpoint: "/api/admin/monitoring",
+        method: "GET",
         ip: clientIP,
         userAgent,
         reason: authResult.reason,
       });
 
       return NextResponse.json(
-        { 
-          error: 'Unauthorized',
-          message: 'Admin access required for monitoring dashboard',
+        {
+          error: "Unauthorized",
+          message: "Admin access required for monitoring dashboard",
           correlationId,
         },
         { status: 401 }
@@ -88,19 +89,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Get monitoring service instance
     const monitoringService = MonitoringService.getInstance();
-    
+
     // Extract query parameters for filtering
     const searchParams = request.nextUrl.searchParams;
-    const section = searchParams.get('section'); // 'overview', 'health', 'performance', 'costs', 'security', 'alerts'
-    const timeRange = searchParams.get('timeRange') || '24h';
-    const includeDetails = searchParams.get('details') === 'true';
+    const section = searchParams.get("section"); // 'overview', 'health', 'performance', 'costs', 'security', 'alerts'
+    const timeRange = searchParams.get("timeRange") || "24h";
+    const includeDetails = searchParams.get("details") === "true";
 
     let responseData: any = {};
 
-    if (!section || section === 'overview') {
+    if (!section || section === "overview") {
       // Get comprehensive dashboard data
       responseData = await monitoringService.getMonitoringDashboard();
-      
+
       // Add system information
       responseData.system = {
         nodeVersion: process.version,
@@ -108,13 +109,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         uptime: process.uptime(),
         memoryUsage: process.memoryUsage(),
         pid: process.pid,
-        environment: process.env.NODE_ENV || 'development',
+        environment: process.env.NODE_ENV || "development",
       };
-
     } else {
       // Handle specific section requests
       switch (section) {
-        case 'health':
+        case "health":
           responseData.health = await monitoringService.performHealthCheck();
           if (includeDetails) {
             responseData.healthHistory = monitoringService.exportMonitoringData(
@@ -123,7 +123,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           }
           break;
 
-        case 'performance':
+        case "performance":
           const metricsService = MetricsService.getInstance();
           responseData.performance = {
             summary: metricsService.getPerformanceSummary(timeRange),
@@ -133,12 +133,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           };
           break;
 
-        case 'costs':
+        case "costs":
           const costTracker = CostTracker.getInstance();
           responseData.costs = await costTracker.getDetailedMetrics();
           break;
 
-        case 'security':
+        case "security":
           const securityMonitor = SecurityMonitorService.getInstance();
           responseData.security = {
             metrics: securityMonitor.getMetrics(),
@@ -149,7 +149,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           };
           break;
 
-        case 'alerts':
+        case "alerts":
           const monitoring = MonitoringService.getInstance();
           const dashboardData = await monitoring.getMonitoringDashboard();
           responseData.alerts = dashboardData.alerts;
@@ -163,24 +163,32 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           };
           break;
 
-        case 'logs':
+        case "logs":
           const loggerService = Logger.getInstance();
           responseData.logs = {
             metrics: loggerService.getMetrics(),
             recent: loggerService.getRecentLogs(200),
-            errors: loggerService.getRecentLogs(50, 'ERROR'),
+            errors: loggerService.getRecentLogs(50, "ERROR"),
           };
           if (includeDetails) {
-            responseData.logs.critical = loggerService.getRecentLogs(20, 'CRITICAL');
+            responseData.logs.critical = loggerService.getRecentLogs(20, "CRITICAL");
           }
           break;
 
         default:
           return NextResponse.json(
             {
-              error: 'Invalid section',
+              error: "Invalid section",
               message: `Unknown monitoring section: ${section}`,
-              availableSections: ['overview', 'health', 'performance', 'costs', 'security', 'alerts', 'logs'],
+              availableSections: [
+                "overview",
+                "health",
+                "performance",
+                "costs",
+                "security",
+                "alerts",
+                "logs",
+              ],
               correlationId,
             },
             { status: 400 }
@@ -192,20 +200,20 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     responseData.metadata = {
       correlationId,
       timestamp: new Date().toISOString(),
-      section: section || 'overview',
+      section: section || "overview",
       timeRange,
       generatedIn: Date.now() - startTime,
-      version: process.env.npm_package_version || '0.1.0',
+      version: process.env.npm_package_version || "0.1.0",
     };
 
     // Log successful response
     const duration = Date.now() - startTime;
-    logger.info('Admin monitoring dashboard served', {
+    logger.info("Admin monitoring dashboard served", {
       correlationId,
-      endpoint: '/api/admin/monitoring',
-      method: 'GET',
+      endpoint: "/api/admin/monitoring",
+      method: "GET",
       ip: clientIP,
-      section: section || 'overview',
+      section: section || "overview",
       duration,
     });
 
@@ -213,31 +221,34 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(responseData, {
       status: 200,
       headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-        'X-Correlation-ID': correlationId,
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        Pragma: "no-cache",
+        Expires: "0",
+        "X-Correlation-ID": correlationId,
       },
     });
-
   } catch (error) {
     const duration = Date.now() - startTime;
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
-    logger.error('Admin monitoring dashboard error', {
-      correlationId,
-      endpoint: '/api/admin/monitoring',
-      method: 'GET',
-      ip: clientIP,
-      duration,
-    }, error instanceof Error ? error : new Error(errorMessage));
+    logger.error(
+      "Admin monitoring dashboard error",
+      {
+        correlationId,
+        endpoint: "/api/admin/monitoring",
+        method: "GET",
+        ip: clientIP,
+        duration,
+      },
+      error instanceof Error ? error : new Error(errorMessage)
+    );
 
     return NextResponse.json(
       {
-        error: 'Internal server error',
-        message: 'Failed to retrieve monitoring data',
+        error: "Internal server error",
+        message: "Failed to retrieve monitoring data",
         correlationId,
-        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
+        details: process.env.NODE_ENV === "development" ? errorMessage : undefined,
       },
       { status: 500 }
     );
@@ -254,28 +265,29 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now();
 
   // Extract client info
-  const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-    request.headers.get('x-real-ip') || 
-    'unknown';
-  const userAgent = request.headers.get('user-agent') || 'unknown';
+  const clientIP =
+    request.headers.get("x-forwarded-for")?.split(",")[0] ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
+  const userAgent = request.headers.get("user-agent") || "unknown";
 
   try {
     // Authenticate admin access
     const authResult = authenticateAdmin(request);
     if (!authResult.isAuthorized) {
-      logger.warn('Unauthorized admin monitoring action attempt', {
+      logger.warn("Unauthorized admin monitoring action attempt", {
         correlationId,
-        endpoint: '/api/admin/monitoring',
-        method: 'POST',
+        endpoint: "/api/admin/monitoring",
+        method: "POST",
         ip: clientIP,
         userAgent,
         reason: authResult.reason,
       });
 
       return NextResponse.json(
-        { 
-          error: 'Unauthorized',
-          message: 'Admin access required for monitoring actions',
+        {
+          error: "Unauthorized",
+          message: "Admin access required for monitoring actions",
           correlationId,
         },
         { status: 401 }
@@ -286,10 +298,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const body = await request.json().catch(() => ({}));
     const { action, ...params } = body;
 
-    logger.info('Admin monitoring action requested', {
+    logger.info("Admin monitoring action requested", {
       correlationId,
-      endpoint: '/api/admin/monitoring',
-      method: 'POST',
+      endpoint: "/api/admin/monitoring",
+      method: "POST",
       ip: clientIP,
       action,
     });
@@ -298,67 +310,67 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     let result: any = {};
 
     switch (action) {
-      case 'force_health_check':
+      case "force_health_check":
         result.healthCheck = await monitoringService.forceHealthCheck();
-        result.message = 'Health check completed';
+        result.message = "Health check completed";
         break;
 
-      case 'clear_trends':
+      case "clear_trends":
         monitoringService.clearTrends();
-        result.message = 'System trends cleared';
+        result.message = "System trends cleared";
         break;
 
-      case 'update_config':
+      case "update_config":
         if (!params.config) {
-          throw new Error('Missing config parameter');
+          throw new Error("Missing config parameter");
         }
         monitoringService.updateConfig(params.config);
-        result.message = 'Monitoring configuration updated';
+        result.message = "Monitoring configuration updated";
         result.newConfig = monitoringService.getConfig();
         break;
 
-      case 'resolve_alert':
+      case "resolve_alert":
         if (!params.alertId || !params.source) {
-          throw new Error('Missing alertId or source parameter');
+          throw new Error("Missing alertId or source parameter");
         }
-        
+
         let resolved = false;
         switch (params.source) {
-          case 'security':
+          case "security":
             resolved = SecurityMonitorService.getInstance().resolveAlert(params.alertId);
             break;
-          case 'performance':
+          case "performance":
             resolved = MetricsService.getInstance().resolveAlert(params.alertId);
             break;
-          case 'cost':
+          case "cost":
             resolved = CostTracker.getInstance().resolveAlert(params.alertId);
             break;
           default:
             throw new Error(`Unknown alert source: ${params.source}`);
         }
-        
+
         result.resolved = resolved;
-        result.message = resolved ? 'Alert resolved' : 'Alert not found';
+        result.message = resolved ? "Alert resolved" : "Alert not found";
         break;
 
-      case 'export_data':
+      case "export_data":
         const startDate = params.startDate ? new Date(params.startDate) : undefined;
         const endDate = params.endDate ? new Date(params.endDate) : undefined;
         result.data = monitoringService.exportMonitoringData(startDate, endDate);
-        result.message = 'Monitoring data exported';
+        result.message = "Monitoring data exported";
         break;
 
       default:
         return NextResponse.json(
           {
-            error: 'Invalid action',
+            error: "Invalid action",
             message: `Unknown monitoring action: ${action}`,
             availableActions: [
-              'force_health_check',
-              'clear_trends',
-              'update_config',
-              'resolve_alert',
-              'export_data',
+              "force_health_check",
+              "clear_trends",
+              "update_config",
+              "resolve_alert",
+              "export_data",
             ],
             correlationId,
           },
@@ -376,10 +388,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Log successful action
     const duration = Date.now() - startTime;
-    logger.info('Admin monitoring action completed', {
+    logger.info("Admin monitoring action completed", {
       correlationId,
-      endpoint: '/api/admin/monitoring',
-      method: 'POST',
+      endpoint: "/api/admin/monitoring",
+      method: "POST",
       ip: clientIP,
       action,
       duration,
@@ -388,28 +400,31 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(result, {
       status: 200,
       headers: {
-        'X-Correlation-ID': correlationId,
+        "X-Correlation-ID": correlationId,
       },
     });
-
   } catch (error) {
     const duration = Date.now() - startTime;
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
-    logger.error('Admin monitoring action error', {
-      correlationId,
-      endpoint: '/api/admin/monitoring',
-      method: 'POST',
-      ip: clientIP,
-      duration,
-    }, error instanceof Error ? error : new Error(errorMessage));
+    logger.error(
+      "Admin monitoring action error",
+      {
+        correlationId,
+        endpoint: "/api/admin/monitoring",
+        method: "POST",
+        ip: clientIP,
+        duration,
+      },
+      error instanceof Error ? error : new Error(errorMessage)
+    );
 
     return NextResponse.json(
       {
-        error: 'Internal server error',
-        message: 'Failed to execute monitoring action',
+        error: "Internal server error",
+        message: "Failed to execute monitoring action",
         correlationId,
-        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
+        details: process.env.NODE_ENV === "development" ? errorMessage : undefined,
       },
       { status: 500 }
     );
@@ -424,9 +439,9 @@ export async function OPTIONS(): Promise<NextResponse> {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
     },
   });
 }

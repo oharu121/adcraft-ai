@@ -11,9 +11,9 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
-import { ChatMessage, AgentMessage, UserMessage } from "@/types/product-intelligence";
 import type { Dictionary } from "@/lib/dictionaries";
 import AgentAvatar from "@/components/ui/AgentAvatar";
+import { ChatMessage } from "@/lib/agents/product-intelligence/types";
 
 export interface ChatContainerProps {
   sessionId: string;

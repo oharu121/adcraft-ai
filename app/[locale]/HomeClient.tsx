@@ -7,10 +7,6 @@ import { AppModeConfig } from "@/lib/config/app-mode";
 import { useToast } from "@/hooks/useToast";
 import { useProductIntelligenceStore } from "@/lib/stores/product-intelligence-store";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
-import type { ChatMessage, ProductAnalysis } from "@/types/product-intelligence";
-import { SessionStatus } from "@/types/product-intelligence";
-
-// 🚀 Our beautiful new components!
 import HeroSection from "@/components/home/HeroSection";
 import ProductInputForm from "@/components/home/ProductInputForm";
 import AnalysisProgressCard from "@/components/home/AnalysisProgressCard";
@@ -18,6 +14,8 @@ import ProductInsightsCard from "@/components/home/ProductInsightsCard";
 import CommercialStrategyCard from "@/components/home/CommercialStrategyCard";
 import InstructionsCard from "@/components/home/InstructionsCard";
 import ImageModal from "@/components/home/ImageModal";
+import { SessionStatus } from "@/lib/agents/product-intelligence/enums";
+import { ChatMessage } from "@/lib/agents/product-intelligence/types";
 
 // Utility function to convert File to base64
 const fileToBase64 = (file: File): Promise<string> => {

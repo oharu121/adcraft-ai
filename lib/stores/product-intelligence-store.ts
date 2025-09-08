@@ -1,10 +1,7 @@
 import { create } from 'zustand';
-import { SessionStatus } from '@/types/product-intelligence';
-import type { 
-  ChatMessage, 
-  ProductAnalysis, 
-  SessionState 
-} from '@/types/product-intelligence';
+import { SessionStatus } from '../agents/product-intelligence/enums';
+import { ChatMessage, ProductAnalysis } from '../agents/product-intelligence/types';
+
 
 interface ProductIntelligenceStore {
   // Session state

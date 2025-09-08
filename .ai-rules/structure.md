@@ -9,7 +9,7 @@ inclusion: always
 ## Root Directory Organization
 
 ```
-commercial-generator/
+adcraft-ai/
 ├── .ai-rules/                    # AI assistant steering documents
 │   ├── product.md               # Product vision and requirements
 │   ├── tech.md                  # Technology stack and standards

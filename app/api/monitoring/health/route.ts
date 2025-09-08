@@ -3,9 +3,9 @@
  * Provides detailed health information for system monitoring
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { MonitoringService } from '@/lib/services/monitoring';
-import { Logger } from '@/lib/services/logger';
+import { NextRequest, NextResponse } from "next/server";
+import { MonitoringService } from "@/lib/monitor/monitoring";
+import { Logger } from "@/lib/utils/logger";
 
 /**
  * GET /api/monitoring/health
@@ -17,17 +17,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now();
 
   // Extract client info and query parameters
-  const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-    request.headers.get('x-real-ip') || 
-    'unknown';
+  const clientIP =
+    request.headers.get("x-forwarded-for")?.split(",")[0] ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
   const searchParams = request.nextUrl.searchParams;
-  const forceCheck = searchParams.get('force') === 'true';
-  const includeHistory = searchParams.get('history') === 'true';
+  const forceCheck = searchParams.get("force") === "true";
+  const includeHistory = searchParams.get("history") === "true";
 
-  logger.info('System health data requested', {
+  logger.info("System health data requested", {
     correlationId,
-    endpoint: '/api/monitoring/health',
-    method: 'GET',
+    endpoint: "/api/monitoring/health",
+    method: "GET",
     ip: clientIP,
     forceCheck,
     includeHistory,
@@ -36,7 +37,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Get monitoring service instance
     const monitoringService = MonitoringService.getInstance();
-    
+
     let healthData;
     if (forceCheck) {
       // Force a new health check
@@ -70,10 +71,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Log successful response
     const duration = Date.now() - startTime;
-    logger.info('System health data served', {
+    logger.info("System health data served", {
       correlationId,
-      endpoint: '/api/monitoring/health',
-      method: 'GET',
+      endpoint: "/api/monitoring/health",
+      method: "GET",
       ip: clientIP,
       duration,
       status: healthData.status,
@@ -84,29 +85,32 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(responseData, {
       status: 200,
       headers: {
-        'Cache-Control': forceCheck ? 'no-cache' : 'public, max-age=30, s-maxage=30',
-        'X-Correlation-ID': correlationId,
+        "Cache-Control": forceCheck ? "no-cache" : "public, max-age=30, s-maxage=30",
+        "X-Correlation-ID": correlationId,
       },
     });
-
   } catch (error) {
     const duration = Date.now() - startTime;
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
-    logger.error('System health check error', {
-      correlationId,
-      endpoint: '/api/monitoring/health',
-      method: 'GET',
-      ip: clientIP,
-      duration,
-    }, error instanceof Error ? error : new Error(errorMessage));
+    logger.error(
+      "System health check error",
+      {
+        correlationId,
+        endpoint: "/api/monitoring/health",
+        method: "GET",
+        ip: clientIP,
+        duration,
+      },
+      error instanceof Error ? error : new Error(errorMessage)
+    );
 
     return NextResponse.json(
       {
-        error: 'Health check failed',
-        message: 'Failed to retrieve system health data',
+        error: "Health check failed",
+        message: "Failed to retrieve system health data",
         correlationId,
-        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
+        details: process.env.NODE_ENV === "development" ? errorMessage : undefined,
         metadata: {
           correlationId,
           timestamp: new Date().toISOString(),
@@ -128,28 +132,29 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now();
 
   // Extract client info
-  const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-    request.headers.get('x-real-ip') || 
-    'unknown';
+  const clientIP =
+    request.headers.get("x-forwarded-for")?.split(",")[0] ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
 
-  logger.info('Forced health check requested', {
+  logger.info("Forced health check requested", {
     correlationId,
-    endpoint: '/api/monitoring/health',
-    method: 'POST',
+    endpoint: "/api/monitoring/health",
+    method: "POST",
     ip: clientIP,
   });
 
   try {
     // Get monitoring service instance
     const monitoringService = MonitoringService.getInstance();
-    
+
     // Force a new health check
     const healthData = await monitoringService.forceHealthCheck();
 
     // Prepare response data
     const responseData = {
       health: healthData,
-      message: 'Health check completed successfully',
+      message: "Health check completed successfully",
       metadata: {
         correlationId,
         timestamp: new Date().toISOString(),
@@ -160,10 +165,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Log successful response
     const duration = Date.now() - startTime;
-    logger.info('Forced health check completed', {
+    logger.info("Forced health check completed", {
       correlationId,
-      endpoint: '/api/monitoring/health',
-      method: 'POST',
+      endpoint: "/api/monitoring/health",
+      method: "POST",
       ip: clientIP,
       duration,
       status: healthData.status,
@@ -173,29 +178,32 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(responseData, {
       status: 200,
       headers: {
-        'Cache-Control': 'no-cache',
-        'X-Correlation-ID': correlationId,
+        "Cache-Control": "no-cache",
+        "X-Correlation-ID": correlationId,
       },
     });
-
   } catch (error) {
     const duration = Date.now() - startTime;
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
-    logger.error('Forced health check error', {
-      correlationId,
-      endpoint: '/api/monitoring/health',
-      method: 'POST',
-      ip: clientIP,
-      duration,
-    }, error instanceof Error ? error : new Error(errorMessage));
+    logger.error(
+      "Forced health check error",
+      {
+        correlationId,
+        endpoint: "/api/monitoring/health",
+        method: "POST",
+        ip: clientIP,
+        duration,
+      },
+      error instanceof Error ? error : new Error(errorMessage)
+    );
 
     return NextResponse.json(
       {
-        error: 'Health check failed',
-        message: 'Failed to perform health check',
+        error: "Health check failed",
+        message: "Failed to perform health check",
         correlationId,
-        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
+        details: process.env.NODE_ENV === "development" ? errorMessage : undefined,
         metadata: {
           correlationId,
           timestamp: new Date().toISOString(),
@@ -215,9 +223,9 @@ export async function OPTIONS(): Promise<NextResponse> {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
     },
   });
 }
