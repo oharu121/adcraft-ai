@@ -107,11 +107,43 @@ export class FallbackGenerator {
           resolution: "Peace of mind with quality choice",
         },
         keyScenes: {
-          opening: "Person searching for quality product",
-          productShowcase: "Close-up of product features",
-          problemSolution: "Product solving user needs",
-          emotionalMoment: "Satisfaction with purchase",
-          callToAction: "Product logo and availability",
+          scenes: [
+            {
+              id: "opening",
+              title: "Opening",
+              description: "Person searching for quality product",
+              duration: "3-5 seconds",
+              purpose: "hook audience",
+            },
+            {
+              id: "showcase",
+              title: "Product Showcase",
+              description: "Close-up of product features",
+              duration: "5-8 seconds",
+              purpose: "showcase product features",
+            },
+            {
+              id: "solution",
+              title: "Problem Solution", 
+              description: "Product solving user needs",
+              duration: "4-6 seconds",
+              purpose: "demonstrate value",
+            },
+            {
+              id: "emotional",
+              title: "Emotional Moment",
+              description: "Satisfaction with purchase",
+              duration: "3-4 seconds",
+              purpose: "emotional connection",
+            },
+            {
+              id: "cta",
+              title: "Call to Action",
+              description: "Product logo and availability",
+              duration: "2-3 seconds",
+              purpose: "drive action",
+            },
+          ],
         },
       },
       visualPreferences: {

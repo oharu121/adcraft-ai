@@ -168,7 +168,9 @@ export class ResponseParser {
       warnings.push("No compelling headline generated");
     }
 
-    if (analysis.commercialStrategy.keyScenes.opening === "unknown") {
+    if (!analysis.commercialStrategy.keyScenes.scenes || 
+        analysis.commercialStrategy.keyScenes.scenes.length === 0 ||
+        analysis.commercialStrategy.keyScenes.scenes[0]?.description === "unknown") {
       warnings.push("Commercial scenes not properly generated");
     }
 

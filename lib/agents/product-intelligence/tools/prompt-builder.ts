@@ -336,11 +336,43 @@ Please provide a comprehensive analysis in the following JSON structure:
       "resolution": "story resolution"
     },
     "keyScenes": {
-      "opening": "opening scene description for commercial video",
-      "productShowcase": "product showcase scene description",
-      "problemSolution": "problem/solution scene description",
-      "emotionalMoment": "emotional moment scene description",
-      "callToAction": "final call to action scene description"
+      "scenes": [
+        {
+          "id": "opening",
+          "title": "Opening Hook",
+          "description": "opening scene description for commercial video",
+          "duration": "3-5 seconds",
+          "purpose": "hook audience"
+        },
+        {
+          "id": "showcase",
+          "title": "Product Showcase",
+          "description": "product showcase scene description",
+          "duration": "5-8 seconds",
+          "purpose": "showcase product features"
+        },
+        {
+          "id": "problem",
+          "title": "Problem Solution",
+          "description": "problem/solution scene description",
+          "duration": "4-6 seconds",
+          "purpose": "demonstrate value"
+        },
+        {
+          "id": "emotion",
+          "title": "Emotional Moment",
+          "description": "emotional moment scene description",
+          "duration": "3-4 seconds",
+          "purpose": "emotional connection"
+        },
+        {
+          "id": "cta",
+          "title": "Call to Action",
+          "description": "final call to action scene description",
+          "duration": "2-3 seconds",
+          "purpose": "drive action"
+        }
+      ]
     }
   },
   "visualPreferences": {

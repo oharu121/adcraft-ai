@@ -61,15 +61,14 @@ export class SceneGenerator {
         }
       } catch (error) {
         console.warn(
-          "Failed to generate flexible scenes with Gemini, falling back to rigid scenes:",
+          "Failed to generate flexible scenes with Gemini, falling back to default scenes:",
           error
         );
       }
     }
 
-    // Fallback to original rigid method
-    const rigidScenes = this.generateRigidKeyScenes(category, productName, locale);
-    return this.convertRigidToFlexibleFormat(rigidScenes);
+    // Fallback to default scene structure
+    return this.generateDefaultScenes(product, category, template, locale);
   }
 
   /**
@@ -139,240 +138,95 @@ Effective patterns to consider: lifestyle integration, transformation stories, s
   private buildFlexibleScenesResponse(scenes: any[]): KeyScenes {
     return {
       scenes: scenes,
-      // Maintain backward compatibility by providing legacy fields
-      opening: scenes[0]?.description || "",
-      productShowcase:
-        scenes.find((s: any) => s.purpose.includes("product") || s.purpose.includes("showcase"))
-          ?.description ||
-        scenes[1]?.description ||
-        "",
-      problemSolution:
-        scenes.find((s: any) => s.purpose.includes("problem") || s.purpose.includes("solution"))
-          ?.description ||
-        scenes[2]?.description ||
-        "",
-      emotionalMoment:
-        scenes.find((s: any) => s.purpose.includes("emotional") || s.purpose.includes("connection"))
-          ?.description ||
-        scenes[3]?.description ||
-        "",
-      callToAction: scenes[scenes.length - 1]?.description || "",
     };
   }
 
   /**
-   * Convert rigid scenes to flexible format
+   * Generate default scenes when AI generation fails
    */
-  private convertRigidToFlexibleFormat(rigidScenes: KeyScenes): KeyScenes {
-    const flexibleScenes = [
+  private generateDefaultScenes(
+    product: string,
+    category: ProductCategory,
+    template: CommercialStrategyTemplate,
+    locale: "en" | "ja" = "en"
+  ): KeyScenes {
+    const defaultScenes = locale === "ja" ? [
       {
         id: "opening",
-        title: "Opening",
-        description: rigidScenes.opening,
+        title: "オープニング",
+        description: `${product}との出会いのシーン`,
+        duration: "3-5秒",
+        purpose: "視聴者の関心を引く",
+      },
+      {
+        id: "showcase",
+        title: "商品紹介",
+        description: `${product}の特徴と魅力`,
+        duration: "5-8秒",
+        purpose: "商品機能を紹介",
+      },
+      {
+        id: "solution",
+        title: "問題解決",
+        description: `${product}で日常の課題を解決`,
+        duration: "4-6秒",
+        purpose: "価値を実証",
+      },
+      {
+        id: "emotional",
+        title: "感情的瞬間",
+        description: `${product}による満足の瞬間`,
+        duration: "3-4秒",
+        purpose: "感情的つながり",
+      },
+      {
+        id: "cta",
+        title: "行動喚起",
+        description: `${product}を体験しよう`,
+        duration: "2-3秒",
+        purpose: "行動を促す",
+      },
+    ] : [
+      {
+        id: "opening",
+        title: "Opening Hook",
+        description: `Introducing ${product} in daily life`,
         duration: "3-5 seconds",
         purpose: "hook audience",
       },
       {
         id: "showcase",
         title: "Product Showcase",
-        description: rigidScenes.productShowcase,
+        description: `${product} features and benefits`,
         duration: "5-8 seconds",
         purpose: "showcase product features",
       },
       {
         id: "solution",
         title: "Problem Solution",
-        description: rigidScenes.problemSolution,
+        description: `${product} solves everyday challenges`,
         duration: "4-6 seconds",
         purpose: "demonstrate value",
       },
       {
         id: "emotional",
         title: "Emotional Moment",
-        description: rigidScenes.emotionalMoment,
+        description: `Satisfaction with ${product}`,
         duration: "3-4 seconds",
         purpose: "emotional connection",
       },
       {
         id: "cta",
         title: "Call to Action",
-        description: rigidScenes.callToAction,
+        description: `Experience ${product} today`,
         duration: "2-3 seconds",
         purpose: "drive action",
       },
     ];
 
     return {
-      scenes: flexibleScenes,
-      // Keep legacy fields for backward compatibility
-      ...rigidScenes,
+      scenes: defaultScenes,
     };
   }
 
-  /**
-   * Generate rigid key scenes based on category and locale
-   *
-   * This is the original template-based approach that provides consistent
-   * but less flexible scene generation.
-   */
-  public generateRigidKeyScenes(
-    category: ProductCategory,
-    productName?: string,
-    locale: "en" | "ja" = "en"
-  ): KeyScenes {
-    const product = productName || (locale === "ja" ? "商品" : "product");
-
-    if (locale === "ja") {
-      switch (category) {
-        case ProductCategory.ELECTRONICS:
-          return {
-            opening: `重要なプレゼンテーションのための${product}の準備`,
-            productShowcase: `${product}のプレミアム機能とデザインのクローズアップ`,
-            problemSolution: `${product}が現実の課題を簡単に解決`,
-            emotionalMoment: `${product}による成功を満喫している顧客`,
-            callToAction: `行動喚起と${product}ロゴの表示`,
-          };
-        case ProductCategory.FASHION:
-          return {
-            opening: `特別な日のための${product}の選択`,
-            productShowcase: `${product}のエレガントなスタイルと品質の詳細`,
-            problemSolution: `${product}で自信とスタイルを完璧に表現`,
-            emotionalMoment: `${product}を身に着けて輝いている瞬間`,
-            callToAction: `あなたのスタイルを発見 - ${product}コレクション`,
-          };
-        case ProductCategory.HOME_GARDEN:
-          return {
-            opening: `理想的な住空間での${product}の配置`,
-            productShowcase: `${product}の機能性とデザインの美しさ`,
-            problemSolution: `${product}で日常生活が格段に向上`,
-            emotionalMoment: `${product}のある快適な家庭空間での満足`,
-            callToAction: `あなたの家を変革 - ${product}で始めよう`,
-          };
-        case ProductCategory.FOOD_BEVERAGE:
-          return {
-            opening: `特別な料理体験のための${product}の準備`,
-            productShowcase: `${product}の美味しさと品質の魅力`,
-            problemSolution: `${product}で毎日の食事が特別な体験に`,
-            emotionalMoment: `${product}を味わう幸せな瞬間`,
-            callToAction: `美味しさを体験 - ${product}を試してみて`,
-          };
-        case ProductCategory.AUTOMOTIVE:
-          return {
-            opening: `新しいドライブ体験への${product}の準備`,
-            productShowcase: `${product}の高性能と先進技術の詳細`,
-            problemSolution: `${product}で移動が快適で安全な体験に`,
-            emotionalMoment: `${product}での素晴らしい旅の瞬間`,
-            callToAction: `あなたの旅を変える - ${product}を体験`,
-          };
-        case ProductCategory.SPORTS_OUTDOORS:
-          return {
-            opening: `アウトドア冒険のための${product}の準備`,
-            productShowcase: `${product}の耐久性と機能性の実演`,
-            problemSolution: `${product}で自然の中での活動が安心安全`,
-            emotionalMoment: `${product}と共に冒険を楽しむ瞬間`,
-            callToAction: `冒険を始めよう - ${product}がサポート`,
-          };
-        case ProductCategory.TOYS_GAMES:
-          return {
-            opening: `楽しい遊び時間のための${product}の用意`,
-            productShowcase: `${product}の創造性を刺激する機能`,
-            problemSolution: `${product}で退屈が楽しい学習体験に`,
-            emotionalMoment: `${product}で遊ぶ子供たちの笑顔`,
-            callToAction: `楽しさを発見 - ${product}で遊ぼう`,
-          };
-        case ProductCategory.BUSINESS:
-          return {
-            opening: `ビジネス成功のための${product}の導入`,
-            productShowcase: `${product}の効率性とビジネス価値の紹介`,
-            problemSolution: `${product}でビジネス課題をスマートに解決`,
-            emotionalMoment: `${product}による成果を達成した満足感`,
-            callToAction: `ビジネスを加速 - ${product}ソリューション`,
-          };
-        default:
-          return {
-            opening: `高品質な体験のための${product}の紹介`,
-            productShowcase: `${product}の優れた特徴と価値`,
-            problemSolution: `${product}で日常の課題をスムーズに解決`,
-            emotionalMoment: `${product}による満足と安心の瞬間`,
-            callToAction: `品質を体験 - ${product}を選択`,
-          };
-      }
-    } else {
-      // English key scenes
-      switch (category) {
-        case ProductCategory.ELECTRONICS:
-          return {
-            opening: `Professional preparing ${product} for important presentation`,
-            productShowcase: `Close-up showcasing ${product} premium features and design`,
-            problemSolution: `${product} solving real-world challenges effortlessly`,
-            emotionalMoment: `Satisfied customer enjoying success with ${product}`,
-            callToAction: `${product} logo reveal with call-to-action`,
-          };
-        case ProductCategory.FASHION:
-          return {
-            opening: `Selecting ${product} for a special occasion`,
-            productShowcase: `Elegant styling and quality details of ${product}`,
-            problemSolution: `${product} expressing confidence and style perfectly`,
-            emotionalMoment: `Radiant moment wearing ${product}`,
-            callToAction: `Discover your style - ${product} collection`,
-          };
-        case ProductCategory.HOME_GARDEN:
-          return {
-            opening: `Placing ${product} in the ideal living space`,
-            productShowcase: `Functionality and design beauty of ${product}`,
-            problemSolution: `${product} dramatically improving daily life`,
-            emotionalMoment: `Satisfaction in comfortable home space with ${product}`,
-            callToAction: `Transform your home - start with ${product}`,
-          };
-        case ProductCategory.FOOD_BEVERAGE:
-          return {
-            opening: `Preparing ${product} for special culinary experience`,
-            productShowcase: `Deliciousness and quality appeal of ${product}`,
-            problemSolution: `${product} making every meal a special experience`,
-            emotionalMoment: `Happy moment savoring ${product}`,
-            callToAction: `Taste the excellence - try ${product}`,
-          };
-        case ProductCategory.AUTOMOTIVE:
-          return {
-            opening: `Preparing ${product} for new driving experience`,
-            productShowcase: `High performance and advanced technology of ${product}`,
-            problemSolution: `${product} making travel comfortable and safe`,
-            emotionalMoment: `Amazing journey moments with ${product}`,
-            callToAction: `Transform your journey - experience ${product}`,
-          };
-        case ProductCategory.SPORTS_OUTDOORS:
-          return {
-            opening: `Preparing ${product} for outdoor adventure`,
-            productShowcase: `Durability and functionality demonstration of ${product}`,
-            problemSolution: `${product} making nature activities safe and secure`,
-            emotionalMoment: `Moment of enjoying adventure with ${product}`,
-            callToAction: `Start your adventure - ${product} supports you`,
-          };
-        case ProductCategory.TOYS_GAMES:
-          return {
-            opening: `Setting up ${product} for fun playtime`,
-            productShowcase: `Creativity-inspiring features of ${product}`,
-            problemSolution: `${product} turning boredom into fun learning`,
-            emotionalMoment: `Children's smiles playing with ${product}`,
-            callToAction: `Discover fun - play with ${product}`,
-          };
-        case ProductCategory.BUSINESS:
-          return {
-            opening: `Implementing ${product} for business success`,
-            productShowcase: `Efficiency and business value of ${product}`,
-            problemSolution: `${product} smartly solving business challenges`,
-            emotionalMoment: `Satisfaction of achieving results with ${product}`,
-            callToAction: `Accelerate business - ${product} solution`,
-          };
-        default:
-          return {
-            opening: `Introducing ${product} for quality experience`,
-            productShowcase: `Excellent features and value of ${product}`,
-            problemSolution: `${product} smoothly solving daily challenges`,
-            emotionalMoment: `Moment of satisfaction and peace with ${product}`,
-            callToAction: `Experience quality - choose ${product}`,
-          };
-      }
-    }
-  }
 }
