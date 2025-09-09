@@ -242,7 +242,12 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
       );
 
       cost = analysisResult.cost;
-      agentResponse = PromptBuilder.getLocaleMessages(locale || "en").imageAnalysisComplete;
+      
+      // Use Maya's personality for the initial greeting in real mode
+      const persona = require("@/lib/constants/maya-persona").MAYA_PERSONA;
+      agentResponse = locale === "ja" 
+        ? `こんにちは！私はMaya、あなたのプロダクト・インテリジェンス・アシスタントです。${analysisResult.analysis?.product?.name || "商品"}の分析が完了しました！\n\n商用戦略について一緒に検討していきましょう。何から始めたいですか？`
+        : `${persona.voiceExamples.opening}\n\nI've completed the analysis for ${analysisResult.analysis?.product?.name || "your product"}! Ready to refine your commercial strategy together. What would you like to explore first?`;
     }
 
     const processingTime = Date.now() - startTime;
@@ -255,12 +260,35 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
       console.log(`[REAL MODE] Stored analysis for session: ${sessionId}`);
     }
 
-    // Generate initial quick actions for user guidance (same as demo mode)
-    const initialQuickActions = [
-      ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 2),
-      ...PromptBuilder.getQuickActions("audience", locale || "en").slice(0, 1),
-      ...PromptBuilder.getQuickActions("positioning", locale || "en").slice(0, 1),
-    ];
+    // Generate initial quick actions for user guidance
+    let initialQuickActions: string[];
+    
+    if (appMode === "real" && analysisResult?.analysis) {
+      // Real mode: Use dynamic contextual quick actions
+      try {
+        initialQuickActions = await PromptBuilder.generateContextualQuickActions(
+          analysisResult.analysis,
+          analysisResult.analysis.commercialStrategy,
+          "", // Empty conversation history for first interaction
+          locale || "en"
+        );
+      } catch (error) {
+        console.error("Error generating initial dynamic quick actions:", error);
+        // Fallback to static actions
+        initialQuickActions = [
+          ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 2),
+          ...PromptBuilder.getQuickActions("audience", locale || "en").slice(0, 1),
+          ...PromptBuilder.getQuickActions("positioning", locale || "en").slice(0, 1),
+        ];
+      }
+    } else {
+      // Demo mode: Use static actions for consistent experience
+      initialQuickActions = [
+        ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 2),
+        ...PromptBuilder.getQuickActions("audience", locale || "en").slice(0, 1),
+        ...PromptBuilder.getQuickActions("positioning", locale || "en").slice(0, 1),
+      ];
+    }
 
     return {
       sessionId: request.sessionId,

@@ -63,7 +63,7 @@ export async function processMessage(
     const geminiResponse = await callGeminiChat(conversationPrompt);
 
     // Parse response and determine next actions
-    const responseAnalysis = analyzeResponse(geminiResponse.text, request);
+    const responseAnalysis = await analyzeResponse(geminiResponse.text, request, shouldUseMockMode);
 
     const processingTime = Date.now() - startTime;
     const cost = calculateCost(geminiResponse.usage);
@@ -213,10 +213,11 @@ async function callGeminiChat(prompt: string): Promise<{
 /**
  * Analyze response and determine next actions
  */
-function analyzeResponse(
+async function analyzeResponse(
   responseText: string,
-  request: ChatRequest
-): {
+  request: ChatRequest,
+  shouldUseMockMode: boolean = false
+): Promise<{
   cleanedResponse: string;
   confidence: number;
   nextAction: "continue" | "complete" | "clarify" | "handoff";
@@ -226,7 +227,7 @@ function analyzeResponse(
     completedTopics: string[];
     nextTopic?: string;
   };
-} {
+}> {
   // Clean the response text
   const cleanedResponse = responseText.trim();
 
@@ -240,7 +241,7 @@ function analyzeResponse(
   const readyForHandoff = assessHandoffReadiness(request.context);
 
   // Generate appropriate follow-up suggestions
-  const suggestedFollowUps = generateFollowUpSuggestions(request, cleanedResponse);
+  const suggestedFollowUps = await generateFollowUpSuggestions(request, cleanedResponse, shouldUseMockMode);
 
   // Determine current topic focus
   const currentTopic = identifyCurrentTopic(cleanedResponse, request.context);
@@ -283,6 +284,8 @@ async function generateMockResponse(
       : `${persona.voiceExamples.opening}\n\nI can see we have a great commercial strategy for ${request.context.productAnalysis.product.name}! What would you like to refine or improve?`;
     
     // Generate relevant quick actions based on the strategy
+    // Since we're in generateMockResponse, we're already in demo/mock mode
+    // Always use static actions for consistent demo experience
     const quickActions = [
       ...PromptBuilder.getQuickActions("headline", locale).slice(0, 2),
       ...PromptBuilder.getQuickActions("audience", locale).slice(0, 1),
@@ -361,11 +364,39 @@ function assessHandoffReadiness(context: any): boolean {
 /**
  * Generate contextual follow-up suggestions
  */
-function generateFollowUpSuggestions(request: ChatRequest, response: string): string[] {
+async function generateFollowUpSuggestions(
+  request: ChatRequest, 
+  response: string,
+  shouldUseMockMode: boolean = false
+): Promise<string[]> {
   const locale = request.locale;
   
   // If we have product analysis, use strategy-focused quick actions
   if (request.context.productAnalysis) {
+    // For real mode, use dynamic AI-generated suggestions
+    if (!shouldUseMockMode) {
+      try {
+        // Build conversation history for context
+        const conversationHistory = request.context.conversationHistory
+          ?.map(msg => `${msg.type === 'user' ? 'User' : 'Agent'}: ${msg.content}`)
+          .join('\n') || '';
+        
+        // Use dynamic contextual quick actions
+        const dynamicActions = await PromptBuilder.generateContextualQuickActions(
+          request.context.productAnalysis,
+          request.context.productAnalysis.commercialStrategy,
+          conversationHistory + `\nAgent: ${response}`,
+          locale
+        );
+        
+        return dynamicActions;
+      } catch (error) {
+        console.error("Error generating dynamic quick actions, falling back to static:", error);
+        // Fall through to static approach if dynamic fails
+      }
+    }
+    
+    // Demo mode or fallback: use static approach
     // Analyze the response to determine which category is most relevant
     const lowerResponse = response.toLowerCase();
     

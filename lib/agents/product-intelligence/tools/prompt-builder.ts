@@ -7,6 +7,8 @@
 
 import { VisionAnalysisRequest } from "../types";
 import { MAYA_PERSONA } from "@/lib/constants/maya-persona";
+import { GeminiClient } from "@/lib/services/gemini";
+import { VertexAIService } from "@/lib/services/vertex-ai";
 
 /**
  * Prompt building options
@@ -92,13 +94,15 @@ export class PromptBuilder {
 - ユーザーが十分満足したら、クリエイティブ・ディレクターエージェントへの引き継ぎを準備する
 
 対話スタイル:
-- 温かく親しみやすい挨拶から始める
+- 簡潔で分かりやすい回答を心がける（2-3文以内）
+- 温かく親しみやすいが、冗長ではない
 - ${persona.voiceExamples.analysis}のような分析的アプローチ
-- 戦略改善に焦点を当てた質問をする
+- 戦略改善に焦点を当てた具体的な質問をする
 - ユーザーの意図を深く理解する努力をする
-- 成功した洞察には genuine excitement で反応する
+- 成功した洞察には authentic excitement で反応する
 
 重要な制約:
+- 回答は簡潔に（最大3文、150文字以内を目安）
 - 商業戦略の改善にのみ焦点を当てる
 - 関係のない話題には戻らない
 - JSON構造の整合性を保つ
@@ -121,17 +125,19 @@ Goals:
 - When user is satisfied, prepare for handoff to Creative Director Agent
 
 Conversation Style:
-- Start with warm, welcoming greetings
+- Keep responses concise and clear (2-3 sentences max)
+- Start with warm, welcoming greetings but avoid being verbose
 - Use ${persona.voiceExamples.analysis.substring(0, 50)}... analytical approach
-- Ask focused questions about strategy improvements
+- Ask focused, specific questions about strategy improvements
 - Show genuine interest in understanding user intent
 - Celebrate successful insights with authentic excitement
 
 Critical Constraints:
+- Response length: Maximum 3 sentences, 150 characters as guideline
 - Focus ONLY on commercial strategy refinement
 - Do not engage with unrelated topics
 - Maintain JSON structure integrity
-- Keep responses concise yet insightful`;
+- Prioritize clarity and actionability over explanation`;
     }
   }
 
@@ -286,6 +292,109 @@ Critical Constraints:
     };
 
     return actions[category]?.[locale] || [];
+  }
+
+  /**
+   * Generate contextual quick actions using AI based on conversation context
+   * Mixes product insights, strategy rationale, and refinement suggestions
+   */
+  public static async generateContextualQuickActions(
+    productContext: any,
+    commercialStrategy: any,
+    conversationHistory: string,
+    locale: "en" | "ja" = "en"
+  ): Promise<string[]> {
+    const isJapanese = locale === "ja";
+    
+    const prompt = isJapanese 
+      ? `この商品分析と会話に基づいて、2-4個の簡潔なクイックアクションを提案してください。以下の3つのタイプを組み合わせて、具体的な質問や提案にしてください:
+
+1. 商品洞察: 商品についてのより深い理解のための質問
+2. 戦略根拠: 戦略決定の理由についての質問  
+3. 戦略改善: 戦略の特定部分を改善する具体的な提案
+
+商品: ${productContext?.product?.name || "商品"}
+現在の会話: ${conversationHistory}
+現在の戦略: ${JSON.stringify(commercialStrategy, null, 2)}
+
+## 良い例:
+- "ターゲット層を20～30代に絞り込む"
+- "競合他社との違いは何ですか？" 
+- "ヘッドラインをより感情的にする"
+- "なぜこのポジショニングを選んだのですか？"
+
+## 悪い例:
+- "**商品洞察:** TeaTeaの主要な競合商品は..." (カテゴリープレフィックス不要)
+- "競合分析を行うことで、TeaTea独自の価値を..." (長すぎる説明)
+
+要件:
+- カテゴリープレフィックス（**商品洞察:**など）は含めない
+- 各アクションは30文字以内
+- 具体的で実行可能な質問や提案にする
+- ユーザーがクリックしたくなる簡潔な表現
+
+有効なJSONとして、文字列の配列で返してください: ["アクション1", "アクション2", ...]`
+      : `Based on this product analysis and conversation, suggest 2-4 concise quick actions. Mix these types into specific questions or suggestions:
+
+1. PRODUCT INSIGHTS: Questions for deeper product understanding
+2. STRATEGY RATIONALE: Questions about strategy decision reasoning
+3. STRATEGY REFINEMENT: Specific suggestions to improve strategy parts
+
+Product: ${productContext?.product?.name || "Product"}
+Current conversation: ${conversationHistory}
+Current strategy: ${JSON.stringify(commercialStrategy, null, 2)}
+
+## Good Examples:
+- "Target 20-30 year olds instead"
+- "What sets this apart from competitors?"
+- "Make headline more emotional"
+- "Why choose this positioning?"
+
+## Bad Examples:
+- "**PRODUCT INSIGHTS:** The main competitors of..." (no category prefixes)
+- "By conducting competitive analysis, we can clarify..." (too explanatory)
+
+Requirements:
+- No category prefixes (**PRODUCT INSIGHTS:** etc.)
+- Each action under 50 characters
+- Make them specific, actionable questions or suggestions
+- Use language that users want to click
+- Focus on what the user can DO next
+
+Return as valid JSON, an array of strings: ["Action 1", "Action 2", ...]`;
+
+    try {
+      // Create Gemini client using singleton instance
+      const vertexAIService = VertexAIService.getInstance();
+      const geminiClient = new GeminiClient(vertexAIService);
+      
+      // Call Gemini API for dynamic suggestions
+      const response = await geminiClient.generateTextOnly(prompt);
+      
+      // Parse JSON response
+      const cleanedText = response.text.replace(/```json\n?|\n?```/g, '').trim();
+      const actions = JSON.parse(cleanedText);
+      
+      // Validate the response is an array of strings
+      if (Array.isArray(actions) && actions.every(action => typeof action === 'string')) {
+        // Limit to max 4 actions to avoid overwhelming UI
+        return actions.slice(0, 4);
+      } else {
+        throw new Error("Invalid response format from Gemini");
+      }
+    } catch (error) {
+      console.error("Error generating contextual quick actions:", error);
+      
+      // Fallback to mixed static actions that provide variety
+      const fallbackActions = [
+        ...this.getQuickActions("headline", locale).slice(0, 1),
+        ...this.getQuickActions("audience", locale).slice(0, 1),
+        ...this.getQuickActions("positioning", locale).slice(0, 1),
+        ...this.getQuickActions("scenes", locale).slice(0, 1),
+      ];
+      
+      return fallbackActions.slice(0, 4);
+    }
   }
 
   /**
