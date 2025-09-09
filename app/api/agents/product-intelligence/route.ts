@@ -344,7 +344,7 @@ async function handleChatRequest(request: SimpleRequest) {
     // Retrieve session context from FirestoreService
     const firestoreService = FirestoreService.getInstance();
     const piSession = await firestoreService.getPISession(sessionId);
-    
+
     if (!piSession) {
       console.warn(`[REAL MODE] PI session not found: ${sessionId}. Creating new session.`);
       // Create session if it doesn't exist
@@ -353,7 +353,7 @@ async function handleChatRequest(request: SimpleRequest) {
 
     // Build context from session data (retrieved from database)
     const chatContext = {
-      productAnalysis: piSession?.productAnalysis || null,
+      productAnalysis: piSession?.productAnalysis || undefined,
       conversationHistory: piSession?.conversationHistory || [],
       conversationContext: {
         topics: {
@@ -434,7 +434,7 @@ async function handleDemoChat(request: SimpleRequest) {
   // Retrieve session context from FirestoreService (same as real mode)
   const firestoreService = FirestoreService.getInstance();
   const piSession = await firestoreService.getPISession(sessionId);
-  
+
   if (!piSession) {
     console.warn(`[DEMO MODE] PI session not found: ${sessionId}. Using mock context.`);
   }
@@ -580,12 +580,15 @@ async function handleDemoChat(request: SimpleRequest) {
   };
 
   // Use Maya's chat system for demo mode
-  const mayaResponse = await processMessage({
-    sessionId: sessionId || "demo-session",
-    message: message || "",
-    locale,
-    context: mockContext,
-  }, { forceMode: "demo" });
+  const mayaResponse = await processMessage(
+    {
+      sessionId: sessionId || "demo-session",
+      message: message || "",
+      locale,
+      context: mockContext,
+    },
+    { forceMode: "demo" }
+  );
 
   const cost = mayaResponse.cost || 0.05;
   const processingTime = mayaResponse.processingTime || 1500 + Math.random() * 500;

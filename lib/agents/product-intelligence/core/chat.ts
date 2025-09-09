@@ -196,9 +196,9 @@ async function callGeminiChat(prompt: string): Promise<{
     return {
       text: response.text,
       usage: {
-        input_tokens: response.usage?.inputTokens || prompt.length / 4,
-        output_tokens: response.usage?.outputTokens || response.text.length / 4,
-      }
+        input_tokens: response.usage?.input_tokens || prompt.length / 4,
+        output_tokens: response.usage?.input_tokens || response.text.length / 4,
+      },
     };
   } catch (error) {
     console.error("GeminiClient chat failed:", error);
