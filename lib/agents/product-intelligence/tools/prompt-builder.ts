@@ -307,59 +307,58 @@ Critical Constraints:
     const isJapanese = locale === "ja";
     
     const prompt = isJapanese 
-      ? `この商品分析と会話に基づいて、2-4個の簡潔なクイックアクションを提案してください。以下の3つのタイプを組み合わせて、具体的な質問や提案にしてください:
-
-1. 商品洞察: 商品についてのより深い理解のための質問
-2. 戦略根拠: 戦略決定の理由についての質問  
-3. 戦略改善: 戦略の特定部分を改善する具体的な提案
+      ? `この商品分析と現在の商業戦略に基づいて、2-4個の戦略改善提案を生成してください。商業戦略の特定フィールドを改善する具体的な提案のみに焦点を当ててください。
 
 商品: ${productContext?.product?.name || "商品"}
 現在の会話: ${conversationHistory}
 現在の戦略: ${JSON.stringify(commercialStrategy, null, 2)}
 
-## 良い例:
+## 戦略改善の良い例（フィールド特化型）:
 - "ターゲット層を20～30代に絞り込む"
-- "競合他社との違いは何ですか？" 
+- "照明を「warm natural」にしたい"
+- "narrativeの課題を「時間不足」にしたい"
+- "シーンに「商品使用場面」を追加したい"
 - "ヘッドラインをより感情的にする"
-- "なぜこのポジショニングを選んだのですか？"
+- "CTAを「今すぐ体験」に変更する"
 
-## 悪い例:
-- "**商品洞察:** TeaTeaの主要な競合商品は..." (カテゴリープレフィックス不要)
-- "競合分析を行うことで、TeaTea独自の価値を..." (長すぎる説明)
+## 避けるべき例:
+- 商品の一般的な質問（「競合は何ですか？」など）
+- 戦略決定の理由を問う質問（「なぜ...」など）
+- 長い説明文
 
 要件:
-- カテゴリープレフィックス（**商品洞察:**など）は含めない
+- 戦略改善のみに焦点を当てる
+- 商業戦略の具体的なフィールドに対する変更提案
 - 各アクションは30文字以内
-- 具体的で実行可能な質問や提案にする
-- ユーザーがクリックしたくなる簡潔な表現
+- 「〜にしたい」「〜に変更する」「〜を追加する」形式
+- ユーザーがすぐ実行できる具体的な提案
 
 有効なJSONとして、文字列の配列で返してください: ["アクション1", "アクション2", ...]`
-      : `Based on this product analysis and conversation, suggest 2-4 concise quick actions. Mix these types into specific questions or suggestions:
-
-1. PRODUCT INSIGHTS: Questions for deeper product understanding
-2. STRATEGY RATIONALE: Questions about strategy decision reasoning
-3. STRATEGY REFINEMENT: Specific suggestions to improve strategy parts
+      : `Based on this product analysis and current commercial strategy, generate 2-4 strategy refinement suggestions. Focus ONLY on specific field improvements for the commercial strategy.
 
 Product: ${productContext?.product?.name || "Product"}
 Current conversation: ${conversationHistory}
 Current strategy: ${JSON.stringify(commercialStrategy, null, 2)}
 
-## Good Examples:
+## Good Examples (Field-Specific Strategy Improvements):
 - "Target 20-30 year olds instead"
-- "What sets this apart from competitors?"
+- "Change lighting to 'warm natural'"
+- "Set narrative conflict to 'time pressure'"
+- "Add 'product usage scene'"
 - "Make headline more emotional"
-- "Why choose this positioning?"
+- "Change CTA to 'Try Now'"
 
-## Bad Examples:
-- "**PRODUCT INSIGHTS:** The main competitors of..." (no category prefixes)
-- "By conducting competitive analysis, we can clarify..." (too explanatory)
+## Avoid These:
+- General product questions ("Who are competitors?")
+- Strategy reasoning questions ("Why did you choose...")
+- Long explanatory text
 
 Requirements:
-- No category prefixes (**PRODUCT INSIGHTS:** etc.)
+- Focus ONLY on strategy refinement
+- Specific commercial strategy field changes
 - Each action under 50 characters
-- Make them specific, actionable questions or suggestions
-- Use language that users want to click
-- Focus on what the user can DO next
+- Use "Change X to Y", "Make X more Y", "Add X" format
+- Actionable suggestions users can immediately implement
 
 Return as valid JSON, an array of strings: ["Action 1", "Action 2", ...]`;
 
