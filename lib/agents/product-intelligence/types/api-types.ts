@@ -113,13 +113,19 @@ export interface ChatMessageRequest {
 // Chat message response
 export interface ChatMessageResponse {
   messageId: string;
+  messageType?: "NORMAL_CHAT" | "STRATEGY_UPDATE_CONFIRMATION";
   agentResponse: string;
   processingTime: number;
   cost: number;
   confidence?: number;
-  nextAction: "continue" | "complete" | "clarify" | "handoff";
+  nextAction: "continue" | "complete" | "clarify" | "handoff" | "awaiting_confirmation";
   suggestedFollowUp?: string[];
   quickActions?: string[];
+  metadata?: {
+    proposedStrategy?: any;
+    originalStrategy?: any;
+    requiresConfirmation?: boolean;
+  };
 }
 
 // Analysis request

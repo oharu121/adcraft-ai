@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create session
-    const sessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+    const sessionId = crypto.randomUUID();
     
     // Create session in Firestore with specified session ID
     const session = await firestoreService.createSession(sanitizedPrompt, undefined, sessionId);

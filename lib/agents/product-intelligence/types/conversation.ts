@@ -21,6 +21,9 @@ export interface ChatMessage {
     confidence?: number;
     messageType?: MessageType;
     quickActions?: string[];
+    proposedStrategy?: any;
+    originalStrategy?: any;
+    requiresConfirmation?: boolean;
   };
 }
 

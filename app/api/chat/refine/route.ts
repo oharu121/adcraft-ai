@@ -8,6 +8,7 @@ import type { ChatRefinementResponse } from '@/lib/utils/validation';
 import { PromptRefiner } from '@/lib/agents/product-intelligence/tools/prompt-refiner';
 import { FirestoreService } from '@/lib/services/firestore';
 import { CostTracker } from '@/lib/utils/cost-tracker';
+import { AppModeConfig } from '@/lib/config/app-mode';
 
 const ChatRefinementResponseApiSchema = createApiResponseSchema(
   ChatRefinementRequestSchema.omit({ sessionId: true, message: true }).extend({
@@ -85,27 +86,32 @@ export async function POST(request: NextRequest) {
     let session = await firestoreService.getSession(validatedRequest.sessionId);
     if (!session) {
       // In mock mode, create a temporary session for testing
-      if (firestoreService.isMock()) {
-        console.log(`[MOCK MODE] Creating temporary session for chat: ${validatedRequest.sessionId}`);
+      if (AppModeConfig.mode === "demo") {
+        console.log(
+          `[MOCK MODE] Creating temporary session for chat: ${validatedRequest.sessionId}`
+        );
         session = {
           id: validatedRequest.sessionId,
-          prompt: validatedRequest.currentPrompt || 'A beautiful sunset over a calm lake',
+          prompt: validatedRequest.currentPrompt || "A beautiful sunset over a calm lake",
           chatHistory: [],
-          status: 'draft' as const,
+          status: "draft" as const,
           createdAt: new Date(),
           updatedAt: new Date(),
           expiresAt: new Date(Date.now() + 12 * 60 * 60 * 1000), // 12 hours
         };
       } else {
-        return NextResponse.json({
-          success: false,
-          error: {
-            code: 'SESSION_NOT_FOUND',
-            message: 'Session not found or has expired.',
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              code: "SESSION_NOT_FOUND",
+              message: "Session not found or has expired.",
+              timestamp: new Date(),
+            },
             timestamp: new Date(),
           },
-          timestamp: new Date(),
-        }, { status: 404 });
+          { status: 404 }
+        );
       }
     }
 

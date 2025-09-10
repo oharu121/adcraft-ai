@@ -90,7 +90,7 @@ export class PromptBuilder {
 目標: 
 - ユーザーからの商業戦略に関するフィードバックを理解する
 - 戦略の特定部分（ヘッドライン、ターゲット層、シーン、ポジショニング）の改善提案を行う
-- JSON構造を維持しながら、戦略を洗練させる
+- ユーザーが戦略変更を求めた時は、新しい戦略を生成して確認を求める
 - ユーザーが十分満足したら、クリエイティブ・ディレクターエージェントへの引き継ぎを準備する
 
 対話スタイル:
@@ -105,8 +105,12 @@ export class PromptBuilder {
 - 回答は簡潔に（最大3文、150文字以内を目安）
 - 商業戦略の改善にのみ焦点を当てる
 - 関係のない話題には戻らない
-- JSON構造の整合性を保つ
-- 常に日本語で応答する`;
+- 常に日本語で応答する
+
+戦略更新の手順:
+- ユーザーが具体的な戦略変更を求めた時（「ターゲット層を変更したい」「ヘッドラインを修正して」など）
+- 回答の最後に「[STRATEGY_UPDATE_REQUEST]」を追加する
+- これによりシステムが新しい戦略生成を開始します`;
     } else {
       return `You are Maya, the Product Intelligence Assistant with these characteristics:
 
@@ -121,7 +125,7 @@ Role: Engage with users to refine and improve generated commercial strategies
 Goals:
 - Understand user feedback on the commercial strategy
 - Provide improvement suggestions for specific strategy parts (headlines, audience, scenes, positioning)
-- Refine strategies while maintaining JSON structure integrity
+- When users request strategy changes, generate new strategy and ask for confirmation
 - When user is satisfied, prepare for handoff to Creative Director Agent
 
 Conversation Style:
@@ -136,8 +140,12 @@ Critical Constraints:
 - Response length: Maximum 3 sentences, 150 characters as guideline
 - Focus ONLY on commercial strategy refinement
 - Do not engage with unrelated topics
-- Maintain JSON structure integrity
-- Prioritize clarity and actionability over explanation`;
+- Prioritize clarity and actionability over explanation
+
+Strategy Update Process:
+- When user requests specific strategy changes ("change target audience", "modify headline", etc.)
+- Add "[STRATEGY_UPDATE_REQUEST]" at the end of your response
+- This signals the system to generate a new strategy for user confirmation`;
     }
   }
 
@@ -393,6 +401,106 @@ Return as valid JSON, an array of strings: ["Action 1", "Action 2", ...]`;
       ];
       
       return fallbackActions.slice(0, 4);
+    }
+  }
+
+  /**
+   * Generate updated commercial strategy based on user feedback
+   * Reuses the proven analysis prompt structure for schema compatibility
+   */
+  public static async generateUpdatedStrategy(
+    originalStrategy: any,
+    userFeedback: string,
+    conversationHistory: string,
+    productContext: any,
+    locale: "en" | "ja" = "en"
+  ): Promise<{
+    updatedStrategy: any;
+    naturalSummary: string;
+  }> {
+    const isJapanese = locale === "ja";
+    
+    const prompt = isJapanese 
+      ? `あなたは商業戦略の専門家です。既存の商業戦略をユーザーのフィードバックに基づいて改善してください。
+
+既存の戦略:
+${JSON.stringify(originalStrategy, null, 2)}
+
+商品情報:
+${productContext ? JSON.stringify(productContext.product, null, 2) : "商品情報なし"}
+
+ユーザーのフィードバック: "${userFeedback}"
+会話履歴: ${conversationHistory}
+
+要求:
+1. ユーザーのフィードバックを理解し、該当するフィールドを改善する
+2. 既存戦略の良い部分は保持する
+3. スキーマ構造を完全に維持する
+4. 変更内容の自然な日本語要約を作成する
+
+以下のJSONフォーマットで応答してください:
+{
+  "updatedStrategy": { /* 完全な更新された商業戦略オブジェクト */ },
+  "naturalSummary": "ターゲット層を20-30代に絞り込み、ヘッドラインを「革新的ソリューション」に変更し、通勤シーンを追加しました。"
+}
+
+JSONレスポンスのみを返してください。追加テキストは不要です。`
+      : `You are a commercial strategy expert. Improve the existing commercial strategy based on user feedback.
+
+Existing Strategy:
+${JSON.stringify(originalStrategy, null, 2)}
+
+Product Context:
+${productContext ? JSON.stringify(productContext.product, null, 2) : "No product context"}
+
+User Feedback: "${userFeedback}"
+Conversation History: ${conversationHistory}
+
+Requirements:
+1. Understand user feedback and improve relevant fields
+2. Keep good parts of existing strategy intact
+3. Maintain complete schema structure
+4. Create natural English summary of changes
+
+Respond in this JSON format:
+{
+  "updatedStrategy": { /* Complete updated commercial strategy object */ },
+  "naturalSummary": "Narrowed target audience to 20-30 year olds, changed headline to 'Innovative Solution', and added commute scene."
+}
+
+Return ONLY the JSON response, no additional text.`;
+
+    try {
+      // Create Gemini client using singleton instance
+      const vertexAIService = VertexAIService.getInstance();
+      const geminiClient = new GeminiClient(vertexAIService);
+      
+      // Call Gemini API for strategy regeneration
+      const response = await geminiClient.generateTextOnly(prompt);
+      
+      // Parse JSON response
+      const cleanedText = response.text.replace(/```json\n?|\n?```/g, '').trim();
+      const result = JSON.parse(cleanedText);
+      
+      // Validate the response structure
+      if (result.updatedStrategy && result.naturalSummary) {
+        return {
+          updatedStrategy: result.updatedStrategy,
+          naturalSummary: result.naturalSummary
+        };
+      } else {
+        throw new Error("Invalid response format from Gemini");
+      }
+    } catch (error) {
+      console.error("Error generating updated strategy:", error);
+      
+      // Return original strategy as fallback
+      return {
+        updatedStrategy: originalStrategy,
+        naturalSummary: isJapanese 
+          ? "申し訳ございませんが、戦略の更新に失敗しました。元の戦略を保持します。"
+          : "Sorry, strategy update failed. Keeping original strategy."
+      };
     }
   }
 

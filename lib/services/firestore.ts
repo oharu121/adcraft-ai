@@ -1,6 +1,7 @@
 import { Firestore, CollectionReference, DocumentData, QuerySnapshot, FieldValue } from '@google-cloud/firestore';
 import { ProductAnalysis } from '@/lib/agents/product-intelligence/types/product-analysis';
 import { ChatMessage as PIChat } from '@/lib/agents/product-intelligence/types/conversation';
+import { AppModeConfig } from '@/lib/config/app-mode';
 
 export interface VideoSession {
   id: string;
@@ -54,11 +55,12 @@ export interface ProductIntelligenceSession {
   conversationHistory: PIChat[];
   status: 'active' | 'completed' | 'expired';
   locale: 'en' | 'ja';
-  appMode: 'demo' | 'real';
   totalCost: number;
   createdAt: Date;
   updatedAt: Date;
   expiresAt: Date;
+  pendingStrategy?: any;
+  pendingStrategyTimestamp?: Date;
 }
 
 /**
@@ -73,7 +75,6 @@ export class FirestoreService {
   private jobsCollection: CollectionReference<DocumentData> | null = null;
   private costsCollection: CollectionReference<DocumentData> | null = null;
   private piSessionsCollection: CollectionReference<DocumentData> | null = null;
-  private isMockMode: boolean;
   
   // Mock data stores for development (static to persist across instances)
   private static mockSessions: Map<string, VideoSession> = new Map();
@@ -83,17 +84,9 @@ export class FirestoreService {
 
   private constructor() {
     const projectId = process.env.GCP_PROJECT_ID;
-    this.isMockMode = process.env.NODE_ENV === 'development' && 
-                      (process.env.ENABLE_MOCK_MODE === 'true' || !projectId);
     
-    if (!projectId && !this.isMockMode) {
-      throw new Error('GCP_PROJECT_ID environment variable is required for production mode');
-    }
-
-    if (this.isMockMode) {
-      console.log('[MOCK MODE] Using in-memory storage for Firestore operations');
-    } else {
-      // Initialize Firestore
+    // Initialize Firestore if we have credentials (for production)
+    if (projectId) {
       this.db = new Firestore({
         projectId: projectId!,
         databaseId: '(default)',
@@ -104,6 +97,9 @@ export class FirestoreService {
       this.jobsCollection = this.db.collection('videoJobs');
       this.costsCollection = this.db.collection('costs');
       this.piSessionsCollection = this.db.collection('productIntelligenceSessions');
+      console.log('[FIRESTORE] Initialized with real Firestore');
+    } else {
+      console.log('[FIRESTORE] No GCP credentials - will use mock mode when AppModeConfig.mode === demo');
     }
   }
 
@@ -117,12 +113,7 @@ export class FirestoreService {
     return FirestoreService.instance;
   }
 
-  /**
-   * Check if service is running in mock mode
-   */
-  public isMock(): boolean {
-    return this.isMockMode;
-  }
+
 
   // Session Management
 
@@ -133,7 +124,7 @@ export class FirestoreService {
     try {
       const now = new Date();
       const expiresAt = new Date(now.getTime() + 12 * 60 * 60 * 1000); // 12 hours
-      const finalSessionId = sessionId || `session-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+      const finalSessionId = sessionId || crypto.randomUUID();
 
       const sessionData: VideoSession = {
         id: finalSessionId,
@@ -146,7 +137,7 @@ export class FirestoreService {
         expiresAt,
       };
 
-      if (this.isMockMode) {
+      if (AppModeConfig.mode === 'demo') {
         FirestoreService.mockSessions.set(finalSessionId, sessionData);
         console.log(`[MOCK MODE] Created session: ${finalSessionId}`);
         return sessionData;
@@ -178,7 +169,7 @@ export class FirestoreService {
    */
   public async getSession(sessionId: string): Promise<VideoSession | null> {
     try {
-      if (this.isMockMode) {
+      if (AppModeConfig.mode === 'demo') {
         const session = FirestoreService.mockSessions.get(sessionId);
         if (session) {
           console.log(`[MOCK MODE] Retrieved session: ${sessionId}`);
@@ -228,7 +219,7 @@ export class FirestoreService {
         updatedAt: new Date(),
       };
 
-      if (this.isMockMode) {
+      if (AppModeConfig.mode === 'demo') {
         const existingSession = FirestoreService.mockSessions.get(sessionId);
         if (existingSession) {
           FirestoreService.mockSessions.set(sessionId, { ...existingSession, ...updateData });
@@ -264,11 +255,11 @@ export class FirestoreService {
   public async addChatMessage(sessionId: string, message: Omit<ChatMessage, 'id'>): Promise<boolean> {
     try {
       const chatMessage: ChatMessage = {
-        id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: crypto.randomUUID(),
         ...message,
       };
 
-      if (this.isMockMode) {
+      if (AppModeConfig.mode === 'demo') {
         const existingSession = FirestoreService.mockSessions.get(sessionId);
         if (existingSession) {
           existingSession.chatHistory.push(chatMessage);
@@ -312,7 +303,7 @@ export class FirestoreService {
   ): Promise<VideoJob> {
     try {
       const now = new Date();
-      const finalJobId = jobId || `job-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+      const finalJobId = jobId || crypto.randomUUID();
       
       const jobData: VideoJob = {
         id: finalJobId,
@@ -325,7 +316,7 @@ export class FirestoreService {
         ...(operationId && { veoJobId: operationId }), // Store operation ID if provided
       };
 
-      if (this.isMockMode) {
+      if (AppModeConfig.mode === 'demo') {
         FirestoreService.mockJobs.set(finalJobId, jobData);
         console.log(`[MOCK MODE] Created video job: ${finalJobId}`);
         return jobData;
@@ -352,7 +343,7 @@ export class FirestoreService {
    */
   public async getVideoJob(jobId: string): Promise<VideoJob | null> {
     try {
-      if (this.isMockMode) {
+      if (AppModeConfig.mode === 'demo') {
         const job = FirestoreService.mockJobs.get(jobId);
         if (job) {
           console.log(`[MOCK MODE] Retrieved video job: ${jobId}`);
@@ -397,7 +388,7 @@ export class FirestoreService {
         updatedAt: new Date(),
       };
 
-      if (this.isMockMode) {
+      if (AppModeConfig.mode === 'demo') {
         const existingJob = FirestoreService.mockJobs.get(jobId);
         if (existingJob) {
           FirestoreService.mockJobs.set(jobId, { ...existingJob, ...updateData });
@@ -432,7 +423,7 @@ export class FirestoreService {
    */
   public async getJobsByStatus(status: VideoJob['status'], limit = 50): Promise<VideoJob[]> {
     try {
-      if (this.isMockMode) {
+      if (AppModeConfig.mode === 'demo') {
         const filteredJobs = Array.from(FirestoreService.mockJobs.values())
           .filter(job => job.status === status)
           .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
@@ -474,14 +465,14 @@ export class FirestoreService {
    */
   public async recordCost(entry: Omit<CostEntry, 'id'>): Promise<CostEntry> {
     try {
-      const costId = `cost-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+      const costId = crypto.randomUUID();
       const costData: CostEntry = {
         id: costId,
         ...entry,
         timestamp: new Date(),
       };
 
-      if (this.isMockMode) {
+      if (AppModeConfig.mode === 'demo') {
         FirestoreService.mockCosts.push(costData);
         console.log(`[MOCK MODE] Recorded cost: $${costData.amount} for ${costData.service}`);
         return costData;
@@ -509,7 +500,7 @@ export class FirestoreService {
    */
   public async getTotalCosts(startDate?: Date, endDate?: Date): Promise<number> {
     try {
-      if (this.isMockMode) {
+      if (AppModeConfig.mode === 'demo') {
         // Filter mock costs by date range if provided
         let filteredCosts = FirestoreService.mockCosts;
         
@@ -590,7 +581,7 @@ export class FirestoreService {
    */
   public async cleanupExpiredSessions(): Promise<number> {
     try {
-      if (this.isMockMode) {
+      if (AppModeConfig.mode === 'demo') {
         const now = new Date();
         const expiredSessionIds: string[] = [];
         
@@ -638,7 +629,7 @@ export class FirestoreService {
    */
   public async healthCheck(): Promise<boolean> {
     try {
-      if (this.isMockMode) {
+      if (AppModeConfig.mode === 'demo') {
         console.log('[MOCK MODE] Health check passed');
         return true;
       }
@@ -666,7 +657,7 @@ export class FirestoreService {
     totalCosts: number;
   }> {
     try {
-      if (this.isMockMode) {
+      if (AppModeConfig.mode === 'demo') {
         const now = new Date();
         const activeSessions = Array.from(FirestoreService.mockSessions.values())
           .filter(session => session.expiresAt > now).length;
@@ -723,7 +714,6 @@ export class FirestoreService {
   public async createPISession(
     sessionId: string,
     locale: 'en' | 'ja' = 'en',
-    appMode: 'demo' | 'real' = 'demo'
   ): Promise<ProductIntelligenceSession> {
     try {
       const now = new Date();
@@ -735,14 +725,13 @@ export class FirestoreService {
         conversationHistory: [],
         status: 'active',
         locale,
-        appMode,
         totalCost: 0,
         createdAt: now,
         updatedAt: now,
         expiresAt,
       };
 
-      if (this.isMockMode) {
+      if (AppModeConfig.mode === 'demo') {
         FirestoreService.mockPISessions.set(sessionId, sessionData);
         console.log(`[MOCK MODE] Created PI session: ${sessionId}`);
         return sessionData;
@@ -773,7 +762,7 @@ export class FirestoreService {
    */
   public async getPISession(sessionId: string): Promise<ProductIntelligenceSession | null> {
     try {
-      if (this.isMockMode) {
+      if (AppModeConfig.mode === 'demo') {
         const session = FirestoreService.mockPISessions.get(sessionId);
         if (session) {
           console.log(`[MOCK MODE] Retrieved PI session: ${sessionId}`);
@@ -822,7 +811,7 @@ export class FirestoreService {
         updatedAt: new Date(),
       };
 
-      if (this.isMockMode) {
+      if (AppModeConfig.mode === 'demo') {
         const existingSession = FirestoreService.mockPISessions.get(sessionId);
         if (existingSession) {
           FirestoreService.mockPISessions.set(sessionId, { ...existingSession, ...updateData });
@@ -849,11 +838,148 @@ export class FirestoreService {
   }
 
   /**
+   * Store pending strategy awaiting user confirmation
+   */
+  public async storePendingStrategy(sessionId: string, pendingStrategy: any): Promise<boolean> {
+    try {
+      const updateData = {
+        pendingStrategy: pendingStrategy,
+        pendingStrategyTimestamp: new Date(),
+        updatedAt: new Date(),
+      };
+
+      if (AppModeConfig.mode === 'demo') {
+        const existingSession = FirestoreService.mockPISessions.get(sessionId);
+        if (existingSession) {
+          FirestoreService.mockPISessions.set(sessionId, { ...existingSession, ...updateData });
+          console.log(`[MOCK MODE] Stored pending strategy for PI session: ${sessionId}`);
+          return true;
+        } else {
+          console.warn(`[MOCK MODE] PI session not found for pending strategy: ${sessionId}`);
+          return false;
+        }
+      }
+
+      if (!this.piSessionsCollection) {
+        throw new Error('Firestore not initialized');
+      }
+
+      await this.piSessionsCollection.doc(sessionId).update(updateData);
+      console.log(`[FIRESTORE] Stored pending strategy for PI session: ${sessionId}`);
+
+      return true;
+    } catch (error) {
+      console.error(`Error storing pending strategy for session ${sessionId}:`, error);
+      return false;
+    }
+  }
+
+  /**
+   * Update session with confirmed strategy
+   */
+  public async confirmPendingStrategy(sessionId: string): Promise<boolean> {
+    try {
+      if (AppModeConfig.mode === 'demo') {
+        const existingSession = FirestoreService.mockPISessions.get(sessionId);
+        console.log(`[DEBUG] Session exists:`, !!existingSession);
+        console.log(`[DEBUG] Has pendingStrategy:`, !!existingSession?.pendingStrategy);
+        console.log(`[DEBUG] Has productAnalysis:`, !!existingSession?.productAnalysis);
+        if (existingSession?.pendingStrategy) {
+          console.log(`[DEBUG] pendingStrategy keys:`, Object.keys(existingSession.pendingStrategy));
+        }
+        if (existingSession && existingSession.pendingStrategy && existingSession.productAnalysis) {
+          // Move pending strategy to confirmed strategy
+          existingSession.productAnalysis.commercialStrategy = existingSession.pendingStrategy;
+          // Clear pending strategy
+          delete existingSession.pendingStrategy;
+          delete existingSession.pendingStrategyTimestamp;
+          existingSession.updatedAt = new Date();
+          console.log(`[MOCK MODE] Confirmed pending strategy for PI session: ${sessionId}`);
+          return true;
+        } else {
+          console.warn(`[MOCK MODE] No pending strategy found for session: ${sessionId}`);
+          return false;
+        }
+      }
+
+      if (!this.piSessionsCollection) {
+        throw new Error('Firestore not initialized');
+      }
+
+      // Get current session data
+      const sessionDoc = await this.piSessionsCollection.doc(sessionId).get();
+      if (!sessionDoc.exists) {
+        console.warn(`Session not found for confirmation: ${sessionId}`);
+        return false;
+      }
+
+      const sessionData = sessionDoc.data();
+      if (!sessionData?.pendingStrategy) {
+        console.warn(`No pending strategy found for confirmation: ${sessionId}`);
+        return false;
+      }
+
+      // Update confirmed strategy and clear pending
+      await this.piSessionsCollection.doc(sessionId).update({
+        'productAnalysis.commercialStrategy': sessionData.pendingStrategy,
+        pendingStrategy: FieldValue.delete(),
+        pendingStrategyTimestamp: FieldValue.delete(),
+        updatedAt: new Date(),
+      });
+
+      console.log(`[FIRESTORE] Confirmed pending strategy for PI session: ${sessionId}`);
+      return true;
+    } catch (error) {
+      console.error(`Error confirming pending strategy for session ${sessionId}:`, error);
+      return false;
+    }
+  }
+
+  /**
+   * Clear pending strategy (user rejected)
+   */
+  public async clearPendingStrategy(sessionId: string): Promise<boolean> {
+    try {
+      const updateData = {
+        pendingStrategy: FieldValue.delete(),
+        pendingStrategyTimestamp: FieldValue.delete(),
+        updatedAt: new Date(),
+      };
+
+      if (AppModeConfig.mode === 'demo') {
+        const existingSession = FirestoreService.mockPISessions.get(sessionId);
+        if (existingSession) {
+          delete existingSession.pendingStrategy;
+          delete existingSession.pendingStrategyTimestamp;
+          existingSession.updatedAt = new Date();
+          console.log(`[MOCK MODE] Cleared pending strategy for PI session: ${sessionId}`);
+          return true;
+        } else {
+          console.warn(`[MOCK MODE] PI session not found for clearing: ${sessionId}`);
+          return false;
+        }
+      }
+
+      if (!this.piSessionsCollection) {
+        throw new Error('Firestore not initialized');
+      }
+
+      await this.piSessionsCollection.doc(sessionId).update(updateData);
+      console.log(`[FIRESTORE] Cleared pending strategy for PI session: ${sessionId}`);
+
+      return true;
+    } catch (error) {
+      console.error(`Error clearing pending strategy for session ${sessionId}:`, error);
+      return false;
+    }
+  }
+
+  /**
    * Add chat message to PI session history
    */
   public async addPIChatMessage(sessionId: string, message: PIChat): Promise<boolean> {
     try {
-      if (this.isMockMode) {
+      if (AppModeConfig.mode === 'demo') {
         const existingSession = FirestoreService.mockPISessions.get(sessionId);
         if (existingSession) {
           existingSession.conversationHistory.push(message);
@@ -889,7 +1015,7 @@ export class FirestoreService {
    */
   public async updatePICost(sessionId: string, additionalCost: number): Promise<boolean> {
     try {
-      if (this.isMockMode) {
+      if (AppModeConfig.mode === 'demo') {
         const existingSession = FirestoreService.mockPISessions.get(sessionId);
         if (existingSession) {
           existingSession.totalCost += additionalCost;

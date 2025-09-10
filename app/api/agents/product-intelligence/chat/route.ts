@@ -15,6 +15,7 @@ import {
 import { processMessage } from "@/lib/agents/product-intelligence/core/chat";
 import { PromptBuilder } from "@/lib/agents/product-intelligence/tools/prompt-builder";
 import { AppModeConfig } from "@/lib/config/app-mode";
+import { FirestoreService } from "@/lib/services/firestore";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -207,12 +208,53 @@ async function processChatMessage(request: ChatMessageRequest): Promise<ChatMess
     },
   };
 
-  // Process with Maya's intelligence - respect app mode configuration
-  const forceMode = AppModeConfig.isDemoMode ? "demo" : "real";
-  const mayaResponse = await processMessage(chatRequest, { forceMode });
+  // Process with Maya's intelligence - AppModeConfig is checked internally
+  const mayaResponse = await processMessage(chatRequest);
+
+  // Check if Maya signaled a strategy update request
+  console.log("[DEBUG] Maya's response:", mayaResponse.response);
+  console.log("[DEBUG] Contains signal?", mayaResponse.response.includes("[STRATEGY_UPDATE_REQUEST]"));
+  if (mayaResponse.response.includes("[STRATEGY_UPDATE_REQUEST]")) {
+    console.log("[DEBUG] Signal detected! Processing strategy update...");
+    // Remove the signal from the user-facing response
+    const cleanResponse = mayaResponse.response.replace("[STRATEGY_UPDATE_REQUEST]", "").trim();
+    
+    // Generate updated strategy using our new method
+    console.log("[DEBUG] sessionContext.analysis:", sessionContext.analysis);
+    const strategyUpdate = await PromptBuilder.generateUpdatedStrategy(
+      sessionContext.analysis?.commercialStrategy || {},
+      request.message,
+      sessionContext.messages?.map((m: any) => `${m.type}: ${m.content}`).join("\n") || "",
+      sessionContext.analysis,
+      request.locale
+    );
+    console.log("[DEBUG] Strategy update result:", strategyUpdate);
+
+    // Store the pending strategy in the session for later confirmation
+    const firestoreService = FirestoreService.getInstance();
+    await firestoreService.storePendingStrategy(request.sessionId, strategyUpdate.updatedStrategy);
+
+    return {
+      messageId,
+      messageType: "STRATEGY_UPDATE_CONFIRMATION",
+      agentResponse: `${cleanResponse}\n\n${strategyUpdate.naturalSummary}`,
+      processingTime: mayaResponse.processingTime,
+      cost: mayaResponse.cost,
+      confidence: mayaResponse.confidence,
+      nextAction: "awaiting_confirmation",
+      suggestedFollowUp: [],
+      quickActions: [],
+      metadata: {
+        proposedStrategy: strategyUpdate.updatedStrategy,
+        originalStrategy: sessionContext.analysis?.commercialStrategy,
+        requiresConfirmation: true
+      }
+    };
+  }
 
   return {
     messageId,
+    messageType: "NORMAL_CHAT",
     agentResponse: mayaResponse.response,
     processingTime: mayaResponse.processingTime,
     cost: mayaResponse.cost,

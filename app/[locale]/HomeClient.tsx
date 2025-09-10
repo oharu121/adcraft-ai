@@ -3,7 +3,6 @@
 import { useCallback, useRef } from "react";
 import { Card, ToastContainer } from "@/components/ui";
 import { ModeToggle } from "@/components/debug/ModeIndicator";
-import { AppModeConfig } from "@/lib/config/app-mode";
 import { useToast } from "@/hooks/useToast";
 import { useProductIntelligenceStore } from "@/lib/stores/product-intelligence-store";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
@@ -82,7 +81,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
   // Initialize session on component mount
   const initializeSession = useCallback(async () => {
     try {
-      const newSessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+      const newSessionId = crypto.randomUUID();
       setSessionId(newSessionId);
       setIsConnected(true);
       console.log("Session initialized:", newSessionId);
@@ -122,7 +121,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         // Initialize session if not already done and wait for completion
         let currentSessionId = sessionId;
         if (!currentSessionId) {
-          currentSessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+          currentSessionId = crypto.randomUUID();
           setSessionId(currentSessionId);
           setIsConnected(true);
         }
@@ -149,7 +148,6 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
             sessionId: currentSessionId,
             action: "analyze",
             locale,
-            appMode: AppModeConfig.mode, // Send current mode to server
             productName: productName.trim() || undefined, // Include product name if provided
             metadata: {
               inputType: "image",
@@ -250,7 +248,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
       // Initialize session if not already done and wait for completion
       let currentSessionId = sessionId;
       if (!currentSessionId) {
-        currentSessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+        currentSessionId = crypto.randomUUID();
         setSessionId(currentSessionId);
         setIsConnected(true);
       }
@@ -274,7 +272,6 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           sessionId: currentSessionId,
           action: "analyze",
           locale,
-          appMode: AppModeConfig.mode, // Send current mode to server
           productName: productName.trim() || undefined, // Include product name if provided
           message: productDescription,
           metadata: {
@@ -369,7 +366,6 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
             action: "chat",
             message,
             locale,
-            appMode: AppModeConfig.mode, // Send current mode to server
           }),
         });
 
@@ -386,6 +382,10 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
               processingTime: result.data?.processingTime || 0,
               cost: result.data?.cost?.current || 0,
               quickActions: result.data?.quickActions || [],
+              messageType: result.data?.messageType, // Add messageType to metadata
+              proposedStrategy: result.data?.metadata?.proposedStrategy,
+              originalStrategy: result.data?.metadata?.originalStrategy,
+              requiresConfirmation: result.data?.metadata?.requiresConfirmation,
             },
           };
 

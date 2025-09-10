@@ -12,6 +12,7 @@
  * Run with: npm run test:firestore-prod
  */
 
+import { AppModeConfig } from "@/lib/config/app-mode.js";
 import { FirestoreService } from "../lib/services/firestore.js";
 import { CostTracker } from "../lib/utils/cost-tracker.js";
 
@@ -67,7 +68,7 @@ class FirestoreProductionTester {
 
       if (isHealthy) {
         this.addResult("Firestore Health Check", true, undefined, undefined, duration);
-        this.addResult("Production Mode Check", !this.firestore.isMock());
+        this.addResult("Production Mode Check", AppModeConfig.mode !== "demo");
       } else {
         this.addResult(
           "Firestore Health Check",

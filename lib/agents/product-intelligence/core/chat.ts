@@ -7,6 +7,7 @@
 
 import { VertexAIService } from "@/lib/services/vertex-ai";
 import { GeminiClient } from "@/lib/services/gemini";
+import { AppModeConfig } from "@/lib/config/app-mode";
 import {
   ChatMessage,
   ChatRequest,
@@ -35,19 +36,13 @@ const CHAT_LABELS = {
  * Process chat message with context-aware response
  */
 export async function processMessage(
-  request: ChatRequest,
-  options?: { forceMode?: "demo" | "real" }
+  request: ChatRequest
 ): Promise<ChatResponse> {
   const startTime = Date.now();
 
   try {
-    // Use forced mode if provided, otherwise use environment mock mode
-    const shouldUseMockMode =
-      options?.forceMode === "demo" ||
-      (!options?.forceMode &&
-        options?.forceMode !== "real" &&
-        process.env.NODE_ENV === "development" &&
-        process.env.ENABLE_MOCK_MODE === "true");
+    // Check mode directly from AppModeConfig
+    const shouldUseMockMode = AppModeConfig.mode === 'demo';
 
     if (shouldUseMockMode) {
       console.log("[GEMINI CHAT] Using mock mode for chat");

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AppModeConfig } from '@/lib/config/app-mode';
 
 interface ModeInfo {
   mode: 'demo' | 'real';
@@ -10,6 +9,31 @@ interface ModeInfo {
   emoji: string;
   bgColor: string;
   textColor: string;
+}
+
+interface ApiModeResponse {
+  success: boolean;
+  data: {
+    currentMode: 'demo' | 'real';
+    displayName: string;
+    description: string;
+    canSwitch: boolean;
+    timestamp: string;
+  };
+}
+
+// Helper function to convert API response to local ModeInfo format
+function mapApiResponseToModeInfo(apiData: ApiModeResponse['data']): ModeInfo {
+  const isDemoMode = apiData.currentMode === 'demo';
+  
+  return {
+    mode: apiData.currentMode,
+    displayName: apiData.displayName,
+    description: apiData.description,
+    emoji: isDemoMode ? '🎭' : '🤖',
+    bgColor: isDemoMode ? 'bg-purple-100' : 'bg-green-100',
+    textColor: isDemoMode ? 'text-purple-800' : 'text-green-800'
+  };
 }
 
 /**
@@ -28,27 +52,27 @@ export function ModeIndicator() {
       return;
     }
 
-    // Get initial mode info
-    const info = AppModeConfig.getModeInfo();
-    setModeInfo(info);
-    setIsVisible(true);
-
-    // Optional: Poll for mode changes (in case it's changed via API)
-    const interval = setInterval(async () => {
+    // Get initial mode info from API
+    const fetchModeInfo = async () => {
       try {
         const response = await fetch('/api/debug/mode');
         if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            const currentInfo = AppModeConfig.getModeInfo();
-            setModeInfo(currentInfo);
+          const apiResponse: ApiModeResponse = await response.json();
+          if (apiResponse.success) {
+            const info = mapApiResponseToModeInfo(apiResponse.data);
+            setModeInfo(info);
+            setIsVisible(true);
           }
         }
       } catch (error) {
-        // Silently ignore - mode indicator is not critical
-        console.debug('Mode indicator update failed:', error);
+        console.debug('Failed to fetch mode info:', error);
       }
-    }, 10000); // Check every 10 seconds
+    };
+
+    fetchModeInfo();
+
+    // Poll for mode changes (in case it's changed via API)
+    const interval = setInterval(fetchModeInfo, 10000); // Check every 10 seconds
 
     return () => clearInterval(interval);
   }, []);
@@ -91,9 +115,24 @@ export function ModeToggle() {
       return;
     }
 
-    const info = AppModeConfig.getModeInfo();
-    setModeInfo(info);
-    setIsVisible(true);
+    // Get initial mode info from API
+    const fetchModeInfo = async () => {
+      try {
+        const response = await fetch('/api/debug/mode');
+        if (response.ok) {
+          const apiResponse: ApiModeResponse = await response.json();
+          if (apiResponse.success) {
+            const info = mapApiResponseToModeInfo(apiResponse.data);
+            setModeInfo(info);
+            setIsVisible(true);
+          }
+        }
+      } catch (error) {
+        console.debug('Failed to fetch mode info:', error);
+      }
+    };
+
+    fetchModeInfo();
   }, []);
 
   const switchMode = async () => {
@@ -112,11 +151,10 @@ export function ModeToggle() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          // Update local state immediately
-          AppModeConfig.setMode(newMode);
-          const updatedInfo = AppModeConfig.getModeInfo();
+        const apiResponse: ApiModeResponse = await response.json();
+        if (apiResponse.success) {
+          // Update local state with API response
+          const updatedInfo = mapApiResponseToModeInfo(apiResponse.data);
           setModeInfo(updatedInfo);
           
           // Force a clean page reload to reinitialize everything with new mode

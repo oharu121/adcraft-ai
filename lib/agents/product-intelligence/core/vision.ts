@@ -7,6 +7,7 @@
 
 import { VertexAIService } from "@/lib/services/vertex-ai";
 import { GeminiClient } from "@/lib/services/gemini";
+import { AppModeConfig } from "@/lib/config/app-mode";
 import { SceneGenerator } from "../tools/scene-generator";
 import { PositioningGenerator } from "../tools/positioning-generator";
 import { MockDataGenerator } from "../tools/mock-data-generator";
@@ -65,19 +66,13 @@ function getSceneGenerator(): SceneGenerator {
  * Analyze product image with Gemini Pro Vision
  */
 export async function analyzeProductImage(
-  request: VisionAnalysisRequest,
-  options?: { forceMode?: "demo" | "real" }
+  request: VisionAnalysisRequest
 ): Promise<VisionAnalysisResponse> {
   const startTime = Date.now();
 
   try {
-    // Use forced mode if provided, otherwise use environment mock mode
-    const shouldUseMockMode =
-      options?.forceMode === "demo" ||
-      (!options?.forceMode &&
-        options?.forceMode !== "real" &&
-        process.env.NODE_ENV === "development" &&
-        process.env.ENABLE_MOCK_MODE === "true");
+    // Check mode directly from AppModeConfig
+    const shouldUseMockMode = AppModeConfig.mode === 'demo';
 
     if (shouldUseMockMode) {
       console.log("[GEMINI VISION] Using mock mode for analysis");

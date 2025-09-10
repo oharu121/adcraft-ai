@@ -21,6 +21,7 @@ export interface ChatContainerProps {
   isConnected: boolean;
   isAgentTyping: boolean;
   onSendMessage: (message: string) => Promise<void>;
+  onStrategyConfirmation?: (confirmed: boolean) => Promise<void>;
   dict: Dictionary;
   locale?: "en" | "ja";
   className?: string;
@@ -35,6 +36,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   isConnected,
   isAgentTyping,
   onSendMessage,
+  onStrategyConfirmation,
   dict,
   locale = "en",
   className = "",
@@ -47,6 +49,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   const [userTyping, setUserTyping] = useState(false);
   const [typingMessages, setTypingMessages] = useState<Set<string>>(new Set());
   const [visibleContent, setVisibleContent] = useState<Map<string, string>>(new Map());
+  const [isConfirmingStrategy, setIsConfirmingStrategy] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -55,6 +58,28 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
 
   // Use dictionary for localized text
   const t = dict.productIntelligence.chatContainer;
+
+  // Check if we're awaiting strategy confirmation
+  const isAwaitingConfirmation = messages.some(
+    (msg) => msg.type === "agent" && (msg.metadata as any)?.messageType === "STRATEGY_UPDATE_CONFIRMATION"
+  );
+
+  // Handle strategy confirmation
+  const handleStrategyConfirmation = useCallback(
+    async (confirmed: boolean) => {
+      if (!onStrategyConfirmation) return;
+
+      setIsConfirmingStrategy(true);
+      try {
+        await onStrategyConfirmation(confirmed);
+      } catch (error) {
+        console.error("Strategy confirmation failed:", error);
+      } finally {
+        setIsConfirmingStrategy(false);
+      }
+    },
+    [onStrategyConfirmation]
+  );
 
   // Auto-focus input when component mounts (chat opens) and restore cursor position
   useEffect(() => {
@@ -207,7 +232,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
     async (e: React.FormEvent) => {
       e.preventDefault();
 
-      if (!inputMessage.trim() || isSubmitting || !isConnected) {
+      if (!inputMessage.trim() || isSubmitting || !isConnected || isAwaitingConfirmation || isConfirmingStrategy) {
         return;
       }
 
@@ -301,8 +326,31 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
             )}
           </div>
 
+          {/* Strategy Confirmation Buttons */}
+          {!isUser && !isSystem && isLastMessage && !isTyping && (message.metadata as any)?.messageType === "STRATEGY_UPDATE_CONFIRMATION" && (
+            <div className="mt-3 space-y-2">
+              <p className="text-xs text-gray-600 mb-3">
+                {locale === "ja" ? "この戦略更新を承認しますか？" : "Do you approve this strategy update?"}
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleStrategyConfirmation(true)}
+                  className="cursor-pointer flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                >
+                  {locale === "ja" ? "はい、更新します" : "Yes, update strategy"}
+                </button>
+                <button
+                  onClick={() => handleStrategyConfirmation(false)}
+                  className="cursor-pointer flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                >
+                  {locale === "ja" ? "いいえ、保持します" : "No, keep original"}
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Quick Actions for Maya's messages */}
-          {!isUser && !isSystem && isLastMessage && !isTyping && message.metadata?.quickActions && (
+          {!isUser && !isSystem && isLastMessage && !isTyping && message.metadata?.quickActions && (message.metadata as any)?.messageType !== "STRATEGY_UPDATE_CONFIRMATION" && (
             <div className="mt-2 space-y-1">
               <p className="text-xs text-gray-500 mb-2">{t.quickActionsTitle}</p>
               {message.metadata.quickActions.map((action: string, actionIndex: number) => (
@@ -423,8 +471,11 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
               value={inputMessage}
               onChange={(e) => onInputMessageChange && onInputMessageChange(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={t.placeholder}
-              disabled={!isConnected || isSubmitting || isAgentTyping || typingMessages.size > 0}
+              placeholder={isAwaitingConfirmation 
+                ? (locale === "ja" ? "戦略の承認をお待ちください..." : "Awaiting strategy confirmation...")
+                : t.placeholder
+              }
+              disabled={!isConnected || isSubmitting || isAgentTyping || typingMessages.size > 0 || isAwaitingConfirmation || isConfirmingStrategy}
               className="scrollbar-hidden w-full px-3 py-2 border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 placeholder-gray-500"
               rows={1}
               style={{
@@ -438,10 +489,10 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
           <Button
             type="submit"
             variant="primary"
-            disabled={!inputMessage.trim() || !isConnected || isSubmitting || isAgentTyping || typingMessages.size > 0}
+            disabled={!inputMessage.trim() || !isConnected || isSubmitting || isAgentTyping || typingMessages.size > 0 || isAwaitingConfirmation || isConfirmingStrategy}
             className="px-4 py-2 min-w-[80px]"
           >
-            {isSubmitting ? <LoadingSpinner size="sm" /> : t.send}
+            {isSubmitting || isConfirmingStrategy ? <LoadingSpinner size="sm" /> : t.send}
           </Button>
         </form>
 

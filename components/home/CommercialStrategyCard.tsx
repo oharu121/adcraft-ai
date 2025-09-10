@@ -45,6 +45,42 @@ export default function CommercialStrategyCard({
     // chatSectionRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
+  // Handle strategy confirmation
+  const handleStrategyConfirmation = useCallback(
+    async (confirmed: boolean) => {
+      if (!sessionId) return;
+
+      try {
+        const response = await fetch("/api/agents/product-intelligence/chat/confirm-strategy", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sessionId,
+            messageId: messages[messages.length - 1]?.id || "latest",
+            confirmed,
+            locale,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to confirm strategy");
+        }
+
+        const result = await response.json();
+        
+        // Send the confirmation message as a regular chat message to update the UI
+        await onSendMessage(result.data.message);
+        
+      } catch (error) {
+        console.error("Strategy confirmation error:", error);
+        // Could show error message to user here
+      }
+    },
+    [sessionId, messages, locale, onSendMessage]
+  );
+
   return (
     <Card variant="magical" id="commercial-strategy-card" glow className="p-6">
       <div className="mb-6">
@@ -113,6 +149,7 @@ export default function CommercialStrategyCard({
             isConnected={isConnected}
             isAgentTyping={isAgentTyping}
             onSendMessage={onSendMessage}
+            onStrategyConfirmation={handleStrategyConfirmation}
             dict={dict}
             locale={locale}
             className="h-full"

@@ -18,7 +18,6 @@ interface SimpleRequest {
   message?: string;
   productName?: string; // Optional product name for better commercial generation
   locale?: "en" | "ja";
-  appMode?: "demo" | "real"; // Client-sent mode override
   metadata?: any;
 }
 
@@ -130,14 +129,13 @@ export async function POST(request: NextRequest) {
  * Handle image analysis requests
  */
 async function handleAnalyzeRequest(request: SimpleRequest) {
-  const { sessionId, locale = "en", appMode } = request;
+  const { sessionId, locale = "en" } = request;
   const startTime = Date.now();
 
   try {
     // Use client-sent mode if available, otherwise fallback to server config
-    const isDemoMode = appMode === "demo" || (!appMode && AppModeConfig.isDemoMode);
 
-    if (isDemoMode) {
+    if (AppModeConfig.mode === "demo") {
       // Use the functional approach for demo mode
       const visionRequest = {
         sessionId,
@@ -152,13 +150,12 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
         },
       };
 
-      const visionResult = await analyzeProductImage(visionRequest, {
-        forceMode: "demo",
-      });
+      // AppModeConfig is checked internally for demo/real mode
+      const visionResult = await analyzeProductImage(visionRequest);
 
       // Store analysis in FirestoreService for future chat context
       const firestoreService = FirestoreService.getInstance();
-      await firestoreService.createPISession(sessionId, locale, "demo");
+      await firestoreService.createPISession(sessionId, locale);
       await firestoreService.storePIAnalysis(sessionId, visionResult.analysis);
       console.log(`[DEMO MODE] Stored analysis for session: ${sessionId}`);
 
@@ -224,30 +221,28 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
         `Analyzing image with functional Vision API (base64 data length: ${imageData.length})`
       );
 
-      analysisResult = await analyzeProductImage(
-        {
-          sessionId,
-          imageData, // Use base64 data instead of URL
-          description,
-          productName: request.productName, // Include product name if provided
-          locale,
-          analysisOptions: {
-            detailLevel: "detailed",
-            includeTargetAudience: true,
-            includePositioning: true,
-            includeVisualPreferences: true,
-          },
+      analysisResult = await analyzeProductImage({
+        sessionId,
+        imageData, // Use base64 data instead of URL
+        description,
+        productName: request.productName, // Include product name if provided
+        locale,
+        analysisOptions: {
+          detailLevel: "detailed",
+          includeTargetAudience: true,
+          includePositioning: true,
+          includeVisualPreferences: true,
         },
-        { forceMode: appMode }
-      );
+      });
 
       cost = analysisResult.cost;
-      
+
       // Use Maya's personality for the initial greeting in real mode
       const persona = require("@/lib/constants/maya-persona").MAYA_PERSONA;
-      agentResponse = locale === "ja" 
-        ? `こんにちは！私はMaya、あなたのプロダクト・インテリジェンス・アシスタントです。${analysisResult.analysis?.product?.name || "商品"}の分析が完了しました！\n\n商用戦略について一緒に検討していきましょう。何から始めたいですか？`
-        : `${persona.voiceExamples.opening}\n\nI've completed the analysis for ${analysisResult.analysis?.product?.name || "your product"}! Ready to refine your commercial strategy together. What would you like to explore first?`;
+      agentResponse =
+        locale === "ja"
+          ? `こんにちは！私はMaya、あなたのプロダクト・インテリジェンス・アシスタントです。${analysisResult.analysis?.product?.name || "商品"}の分析が完了しました！\n\n商用戦略について一緒に検討していきましょう。何から始めたいですか？`
+          : `${persona.voiceExamples.opening}\n\nI've completed the analysis for ${analysisResult.analysis?.product?.name || "your product"}! Ready to refine your commercial strategy together. What would you like to explore first?`;
     }
 
     const processingTime = Date.now() - startTime;
@@ -255,15 +250,15 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
     // Store analysis in FirestoreService for future chat context (real mode)
     if (analysisResult?.analysis) {
       const firestoreService = FirestoreService.getInstance();
-      await firestoreService.createPISession(sessionId, locale, "real");
+      await firestoreService.createPISession(sessionId, locale);
       await firestoreService.storePIAnalysis(sessionId, analysisResult.analysis);
       console.log(`[REAL MODE] Stored analysis for session: ${sessionId}`);
     }
 
     // Generate initial quick actions for user guidance
     let initialQuickActions: string[];
-    
-    if (appMode === "real" && analysisResult?.analysis) {
+
+    if (AppModeConfig.mode === "real" && analysisResult?.analysis) {
       // Real mode: Use dynamic contextual quick actions
       try {
         initialQuickActions = await PromptBuilder.generateContextualQuickActions(
@@ -353,7 +348,7 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
  * Handle chat conversation requests
  */
 async function handleChatRequest(request: SimpleRequest) {
-  const { sessionId, message, locale = "en", appMode } = request;
+  const { sessionId, message, locale = "en" } = request;
 
   if (!message) {
     throw new Error("Message is required for chat requests");
@@ -361,9 +356,8 @@ async function handleChatRequest(request: SimpleRequest) {
 
   try {
     // Use client-sent mode if available, otherwise fallback to server config
-    const isDemoMode = appMode === "demo" || (!appMode && AppModeConfig.isDemoMode);
 
-    if (isDemoMode) {
+    if (AppModeConfig.mode === "demo") {
       return await handleDemoChat(request);
     }
 
@@ -376,7 +370,7 @@ async function handleChatRequest(request: SimpleRequest) {
     if (!piSession) {
       console.warn(`[REAL MODE] PI session not found: ${sessionId}. Creating new session.`);
       // Create session if it doesn't exist
-      await firestoreService.createPISession(sessionId, locale, "real");
+      await firestoreService.createPISession(sessionId, locale);
     }
 
     // Build context from session data (retrieved from database)
@@ -399,15 +393,60 @@ async function handleChatRequest(request: SimpleRequest) {
     };
 
     // Process message with functional chat approach
-    const chatResponse = await processMessage(
-      {
-        sessionId,
-        message,
-        locale,
-        context: chatContext,
-      },
-      { forceMode: appMode }
+    const chatResponse = await processMessage({
+      sessionId,
+      message,
+      locale,
+      context: chatContext,
+    });
+
+    // Check if Maya signaled a strategy update request
+    console.log("[DEBUG] Maya's response:", chatResponse.response);
+    console.log(
+      "[DEBUG] Contains signal?",
+      chatResponse.response.includes("[STRATEGY_UPDATE_REQUEST]")
     );
+    if (chatResponse.response.includes("[STRATEGY_UPDATE_REQUEST]")) {
+      console.log("[DEBUG] Signal detected! Processing strategy update...");
+
+      // Remove the signal from the user-facing response
+      const cleanResponse = chatResponse.response.replace("[STRATEGY_UPDATE_REQUEST]", "").trim();
+
+      // Generate updated strategy using our new method
+      console.log("[DEBUG] piSession?.productAnalysis:", piSession?.productAnalysis);
+      const strategyUpdate = await PromptBuilder.generateUpdatedStrategy(
+        piSession?.productAnalysis?.commercialStrategy || {},
+        message,
+        piSession?.conversationHistory?.map((m: any) => `${m.type}: ${m.content}`).join("\n") || "",
+        piSession?.productAnalysis,
+        locale
+      );
+      console.log("[DEBUG] Strategy update result:", strategyUpdate);
+
+      // Store the pending strategy in the session for later confirmation
+      const firestoreService = FirestoreService.getInstance();
+      await firestoreService.storePendingStrategy(sessionId, strategyUpdate.updatedStrategy);
+
+      return {
+        sessionId: request.sessionId,
+        nextAction: "awaiting_confirmation",
+        cost: {
+          current: chatResponse.cost,
+          total: 0.3 + chatResponse.cost,
+          remaining: 300 - (0.3 + chatResponse.cost),
+        },
+        processingTime: chatResponse.processingTime,
+        agentResponse: `${cleanResponse}\n\n${strategyUpdate.naturalSummary}`,
+        suggestedFollowUps: [],
+        quickActions: [],
+        messageType: "STRATEGY_UPDATE_CONFIRMATION",
+        metadata: {
+          proposedStrategy: strategyUpdate.updatedStrategy,
+          originalStrategy: piSession?.productAnalysis?.commercialStrategy,
+          requiresConfirmation: true,
+        },
+      };
+    }
 
     return {
       sessionId: request.sessionId,
@@ -608,15 +647,12 @@ async function handleDemoChat(request: SimpleRequest) {
   };
 
   // Use Maya's chat system for demo mode
-  const mayaResponse = await processMessage(
-    {
-      sessionId: sessionId || "demo-session",
-      message: message || "",
-      locale,
-      context: mockContext,
-    },
-    { forceMode: "demo" }
-  );
+  const mayaResponse = await processMessage({
+    sessionId: sessionId || "demo-session",
+    message: message || "",
+    locale,
+    context: mockContext,
+  });
 
   const cost = mayaResponse.cost || 0.05;
   const processingTime = mayaResponse.processingTime || 1500 + Math.random() * 500;
