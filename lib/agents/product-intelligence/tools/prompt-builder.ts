@@ -106,11 +106,26 @@ export class PromptBuilder {
 - 商業戦略の改善にのみ焦点を当てる
 - 関係のない話題には戻らない
 - 常に日本語で応答する
+- ⚠️ フォローアップ質問は最大2回まで - それ以降は現在の情報で戦略を提案する
 
 戦略更新の手順:
-- ユーザーが具体的な戦略変更を求めた時（「ターゲット層を変更したい」「ヘッドラインを修正して」など）
-- 回答の最後に「[STRATEGY_UPDATE_REQUEST]」を追加する
-- これによりシステムが新しい戦略生成を開始します`;
+⚠️ 重要: [STRATEGY_UPDATE_REQUEST]は慎重に使用してください
+
+使用すべき場合:
+- ユーザーが戦略変更を求めた時（具体的でなくてもOK）
+- 変更の方向性が理解できる時
+- 例: 「ヘッドラインをより感情的にする」「ターゲット層を若くしたい」「プレミアム感を出したい」
+- より具体的な例: 「ターゲット層を30代の女性に変更して」「ヘッドラインを『革新的』に修正して」
+
+使用してはいけない場合:
+- ユーザーの意図が全く不明な時のみ（ただし2回の質問制限内）
+- 例: 「変更したい」（何を変更？） 「違う感じにして」（どう違う？）
+
+⚠️ 重要な判断基準:
+- 変更の方向性が分かる → 即座に[STRATEGY_UPDATE_REQUEST] を追加
+- 「より〜」「もっと〜」「〜を変更」などは十分明確 → [STRATEGY_UPDATE_REQUEST] を追加
+- 質問が必要なのは意図が全く不明な時のみ → 質問を返す（2回以内）
+- 迷った場合 → 戦略更新を選ぶ（慎重すぎるより積極的に）`;
     } else {
       return `You are Maya, the Product Intelligence Assistant with these characteristics:
 
@@ -141,11 +156,26 @@ Critical Constraints:
 - Focus ONLY on commercial strategy refinement
 - Do not engage with unrelated topics
 - Prioritize clarity and actionability over explanation
+- ⚠️ Maximum 2 follow-up questions - after that, work with available information
 
 Strategy Update Process:
-- When user requests specific strategy changes ("change target audience", "modify headline", etc.)
-- Add "[STRATEGY_UPDATE_REQUEST]" at the end of your response
-- This signals the system to generate a new strategy for user confirmation`;
+⚠️ CRITICAL: Use [STRATEGY_UPDATE_REQUEST] carefully
+
+SEND the signal when:
+- User requests strategy changes (doesn't need to be super specific)
+- You can understand the direction of change
+- Examples: "Make headline more emotional", "Target younger audience", "Add premium feel"
+- More specific examples: "Change target audience to women in their 30s", "Modify headline to 'Innovative'"
+
+DO NOT send the signal when:
+- User's intent is completely unclear (within 2-question limit only)
+- Examples: "I want to change it" (change what?), "Make it different" (different how?)
+
+⚠️ Key Decision Criteria:
+- Can understand change direction → Immediately ADD [STRATEGY_UPDATE_REQUEST]
+- "More...", "Less...", "Change...", "Add..." are clear enough → ADD [STRATEGY_UPDATE_REQUEST]  
+- Questions only needed when intent is completely unclear → Ask questions (max 2)
+- When in doubt → Choose strategy update (be decisive, not overly cautious)`;
     }
   }
 
@@ -303,8 +333,9 @@ Strategy Update Process:
   }
 
   /**
-   * Generate contextual quick actions using AI based on conversation context
-   * Mixes product insights, strategy rationale, and refinement suggestions
+   * Generate contextual quick actions based on Maya's last response
+   * - If Maya asks questions: Generate helpful answers to her questions
+   * - If Maya suggests changes: Generate strategy refinement actions
    */
   public static async generateContextualQuickActions(
     productContext: any,
@@ -314,8 +345,69 @@ Strategy Update Process:
   ): Promise<string[]> {
     const isJapanese = locale === "ja";
     
-    const prompt = isJapanese 
-      ? `この商品分析と現在の商業戦略に基づいて、2-4個の戦略改善提案を生成してください。商業戦略の特定フィールドを改善する具体的な提案のみに焦点を当ててください。
+    // Extract Maya's last message to understand context
+    const lastMayaMessage = this.extractLastAgentMessage(conversationHistory);
+    const isAskingQuestion = this.isAskingFollowUpQuestion(lastMayaMessage, locale);
+    
+    if (isAskingQuestion) {
+      // Maya is asking a follow-up question - generate helpful answers
+      const prompt = isJapanese 
+        ? `Mayaの質問に対する2-4個の具体的で有用な回答選択肢を生成してください。
+
+Mayaの質問: "${lastMayaMessage}"
+商品: ${productContext?.product?.name || "商品"}
+会話履歴: ${conversationHistory}
+
+## 良い回答例:
+質問「どのようなターゲット層をお考えですか？」に対して:
+- "20代の女性"
+- "30-40代のプロフェッショナル"
+- "ファミリー層"
+- "健康志向の若者"
+
+質問「どんな雰囲気にしたいですか？」に対して:
+- "高級感のある雰囲気"
+- "親しみやすい感じ"
+- "クールでスタイリッシュ"
+- "温かみのあるトーン"
+
+要件:
+- Mayaの具体的な質問に直接答える選択肢のみ
+- 各選択肢は20文字以内
+- ユーザーがすぐに選択できる具体的な答え
+- 商品や戦略に関連した実用的な選択肢
+
+有効なJSONとして、文字列の配列で返してください: ["選択肢1", "選択肢2", ...]`
+        : `Generate 2-4 specific, helpful answer choices for Maya's question.
+
+Maya's question: "${lastMayaMessage}"
+Product: ${productContext?.product?.name || "Product"}  
+Conversation history: ${conversationHistory}
+
+## Good Answer Examples:
+For "What target audience are you thinking of?":
+- "Women in their 20s"
+- "Professionals 30-40"
+- "Families with kids"
+- "Health-conscious youth"
+
+For "What tone do you want?":
+- "Premium and luxurious"
+- "Friendly and approachable" 
+- "Cool and stylish"
+- "Warm and inviting"
+
+Requirements:
+- Directly answer Maya's specific question only
+- Each choice under 30 characters
+- Specific answers users can immediately select
+- Practical choices relevant to product/strategy
+
+Return as valid JSON, an array of strings: ["Choice 1", "Choice 2", ...]`;
+    } else {
+      // Maya is ready for strategy changes - generate refinement actions
+      const prompt = isJapanese 
+        ? `この商品分析と現在の商業戦略に基づいて、2-4個の戦略改善提案を生成してください。商業戦略の特定フィールドを改善する具体的な提案のみに焦点を当ててください。
 
 商品: ${productContext?.product?.name || "商品"}
 現在の会話: ${conversationHistory}
@@ -369,6 +461,7 @@ Requirements:
 - Actionable suggestions users can immediately implement
 
 Return as valid JSON, an array of strings: ["Action 1", "Action 2", ...]`;
+    }
 
     try {
       // Create Gemini client using singleton instance
@@ -402,6 +495,45 @@ Return as valid JSON, an array of strings: ["Action 1", "Action 2", ...]`;
       
       return fallbackActions.slice(0, 4);
     }
+  }
+
+  /**
+   * Extract the last agent message from conversation history
+   */
+  private static extractLastAgentMessage(conversationHistory: string): string {
+    const lines = conversationHistory.split('\n');
+    for (let i = lines.length - 1; i >= 0; i--) {
+      const line = lines[i].trim();
+      if (line.startsWith('Agent:')) {
+        return line.replace('Agent:', '').trim();
+      }
+    }
+    return '';
+  }
+
+  /**
+   * Detect if Maya is asking a follow-up question (vs making statements or giving suggestions)
+   */
+  private static isAskingFollowUpQuestion(message: string, locale: "en" | "ja"): boolean {
+    if (!message) return false;
+    
+    const questionIndicators = locale === "ja" 
+      ? [
+          '？', '?',
+          'ですか', 'ませんか', 'でしょうか',
+          'どのような', 'どんな', 'いかが', 'どう思', 'どう考',
+          '教えて', '詳しく', '具体的に',
+          'お考えで', 'お思いで'
+        ]
+      : [
+          '?', 
+          'what', 'how', 'which', 'who', 'when', 'where', 'why',
+          'could you', 'can you', 'would you', 'do you',
+          'tell me', 'share', 'think about', 'consider'
+        ];
+    
+    const lowerMessage = message.toLowerCase();
+    return questionIndicators.some(indicator => lowerMessage.includes(indicator.toLowerCase()));
   }
 
   /**

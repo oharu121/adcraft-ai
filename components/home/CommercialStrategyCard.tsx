@@ -34,6 +34,7 @@ export default function CommercialStrategyCard({
     setShowCommercialChat,
     setChatInputMessage,
     toggleSection,
+    addMessage,
   } = useProductIntelligenceStore();
 
   // Scroll to chat section header instead of chat bottom
@@ -70,8 +71,28 @@ export default function CommercialStrategyCard({
 
         const result = await response.json();
         
-        // Send the confirmation message as a regular chat message to update the UI
-        await onSendMessage(result.data.message);
+        // If strategy was updated, update the store's analysis
+        if (confirmed && result.data.updatedStrategy && analysis) {
+          const updatedAnalysis = {
+            ...analysis,
+            commercialStrategy: result.data.updatedStrategy
+          };
+          
+          // Get the store's setAnalysis method
+          const { setAnalysis } = useProductIntelligenceStore.getState();
+          setAnalysis(updatedAnalysis);
+        }
+        
+        // Add Maya's confirmation message to the chat
+        const mayaMessage = {
+          id: crypto.randomUUID(),
+          type: 'agent' as const,
+          content: result.data.message,
+          timestamp: Date.now(),
+          agentName: 'Maya',
+          metadata: {}
+        };
+        addMessage(mayaMessage);
         
       } catch (error) {
         console.error("Strategy confirmation error:", error);

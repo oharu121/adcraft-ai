@@ -42,9 +42,9 @@ export async function POST(
 
     if (confirmed) {
       // User confirmed - confirm the pending strategy
-      const success = await firestoreService.confirmPendingStrategy(sessionId);
+      const result = await firestoreService.confirmPendingStrategy(sessionId);
       
-      if (!success) {
+      if (!result.success) {
         return NextResponse.json(
           {
             success: false,
@@ -71,7 +71,8 @@ export async function POST(
         success: true,
         data: {
           success: true,
-          message: successMessage
+          message: successMessage,
+          updatedStrategy: result.updatedStrategy
         },
         timestamp,
         requestId,

@@ -877,7 +877,7 @@ export class FirestoreService {
   /**
    * Update session with confirmed strategy
    */
-  public async confirmPendingStrategy(sessionId: string): Promise<boolean> {
+  public async confirmPendingStrategy(sessionId: string): Promise<{ success: boolean; updatedStrategy?: any }> {
     try {
       if (AppModeConfig.mode === 'demo') {
         const existingSession = FirestoreService.mockPISessions.get(sessionId);
@@ -890,15 +890,16 @@ export class FirestoreService {
         if (existingSession && existingSession.pendingStrategy && existingSession.productAnalysis) {
           // Move pending strategy to confirmed strategy
           existingSession.productAnalysis.commercialStrategy = existingSession.pendingStrategy;
+          const updatedStrategy = existingSession.pendingStrategy;
           // Clear pending strategy
           delete existingSession.pendingStrategy;
           delete existingSession.pendingStrategyTimestamp;
           existingSession.updatedAt = new Date();
           console.log(`[MOCK MODE] Confirmed pending strategy for PI session: ${sessionId}`);
-          return true;
+          return { success: true, updatedStrategy };
         } else {
           console.warn(`[MOCK MODE] No pending strategy found for session: ${sessionId}`);
-          return false;
+          return { success: false };
         }
       }
 
@@ -910,14 +911,16 @@ export class FirestoreService {
       const sessionDoc = await this.piSessionsCollection.doc(sessionId).get();
       if (!sessionDoc.exists) {
         console.warn(`Session not found for confirmation: ${sessionId}`);
-        return false;
+        return { success: false };
       }
 
       const sessionData = sessionDoc.data();
       if (!sessionData?.pendingStrategy) {
         console.warn(`No pending strategy found for confirmation: ${sessionId}`);
-        return false;
+        return { success: false };
       }
+
+      const updatedStrategy = sessionData.pendingStrategy;
 
       // Update confirmed strategy and clear pending
       await this.piSessionsCollection.doc(sessionId).update({
@@ -928,10 +931,10 @@ export class FirestoreService {
       });
 
       console.log(`[FIRESTORE] Confirmed pending strategy for PI session: ${sessionId}`);
-      return true;
+      return { success: true, updatedStrategy };
     } catch (error) {
       console.error(`Error confirming pending strategy for session ${sessionId}:`, error);
-      return false;
+      return { success: false };
     }
   }
 
