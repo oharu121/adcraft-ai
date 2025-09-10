@@ -75,7 +75,7 @@ export class PromptBuilder {
    */
   public static getMayaChatSystemPrompt(locale: "en" | "ja"): string {
     const persona = MAYA_PERSONA;
-    
+
     if (locale === "ja") {
       return `あなたはMaya（マヤ）、プロダクト・インテリジェンス・アシスタントです。
 
@@ -262,71 +262,71 @@ DO NOT send the signal when:
           "Make the headline more emotional",
           "Make it more direct and clear",
           "Add urgency to the message",
-          "Focus on the main benefit"
+          "Focus on the main benefit",
         ],
         ja: [
           "ヘッドラインをより感情的にする",
-          "より直接的で分かりやすくする", 
+          "より直接的で分かりやすくする",
           "メッセージに緊急性を加える",
-          "主要なメリットに焦点を当てる"
-        ]
+          "主要なメリットに焦点を当てる",
+        ],
       },
       audience: {
         en: [
           "Target younger audience (18-35)",
           "Focus on professionals",
           "Appeal to budget-conscious buyers",
-          "Target premium customers"
+          "Target premium customers",
         ],
         ja: [
           "より若い層をターゲットにする（18-35歳）",
           "プロフェッショナルに焦点を当てる",
           "価格重視の購入者にアピールする",
-          "プレミアム顧客をターゲットにする"
-        ]
+          "プレミアム顧客をターゲットにする",
+        ],
       },
       positioning: {
         en: [
-          "Make it more premium positioning", 
+          "Make it more premium positioning",
           "Emphasize value/affordability",
           "Highlight innovation/newness",
-          "Focus on reliability/trust"
+          "Focus on reliability/trust",
         ],
         ja: [
           "よりプレミアムなポジショニングにする",
           "価値・手頃さを強調する",
           "革新性・新しさを強調する",
-          "信頼性・信用に焦点を当てる"
-        ]
+          "信頼性・信用に焦点を当てる",
+        ],
       },
       scenes: {
         en: [
           "Add a scene showing the product in use",
-          "Create more emotional moments", 
+          "Create more emotional moments",
           "Show the problem/solution dynamic",
-          "Add lifestyle context"
+          "Add lifestyle context",
         ],
         ja: [
           "商品の使用シーンを追加する",
           "より感情的な瞬間を作る",
           "問題/解決のダイナミクスを示す",
-          "ライフスタイルの文脈を追加する"
-        ]
+          "ライフスタイルの文脈を追加する",
+        ],
       },
       visual: {
         en: [
           "Make it more modern and sleek",
           "Add more warmth and personality",
           "Create more dramatic lighting",
-          "Use more vibrant colors"
+          "Use more vibrant colors",
         ],
         ja: [
           "よりモダンで洗練されたものにする",
           "より温かみと個性を加える",
           "よりドラマチックなライティングを作る",
-          "より鮮やかな色を使う"
-        ]
-      }
+          "より鮮やかな色を使う",
+        ],
+      },
     };
 
     return actions[category]?.[locale] || [];
@@ -344,14 +344,16 @@ DO NOT send the signal when:
     locale: "en" | "ja" = "en"
   ): Promise<string[]> {
     const isJapanese = locale === "ja";
-    
+
     // Extract Maya's last message to understand context
     const lastMayaMessage = this.extractLastAgentMessage(conversationHistory);
     const isAskingQuestion = this.isAskingFollowUpQuestion(lastMayaMessage, locale);
-    
+
+    let prompt;
+
     if (isAskingQuestion) {
       // Maya is asking a follow-up question - generate helpful answers
-      const prompt = isJapanese 
+      prompt = isJapanese
         ? `Mayaの質問に対する2-4個の具体的で有用な回答選択肢を生成してください。
 
 Mayaの質問: "${lastMayaMessage}"
@@ -406,7 +408,7 @@ Requirements:
 Return as valid JSON, an array of strings: ["Choice 1", "Choice 2", ...]`;
     } else {
       // Maya is ready for strategy changes - generate refinement actions
-      const prompt = isJapanese 
+      prompt = isJapanese
         ? `この商品分析と現在の商業戦略に基づいて、2-4個の戦略改善提案を生成してください。商業戦略の特定フィールドを改善する具体的な提案のみに焦点を当ててください。
 
 商品: ${productContext?.product?.name || "商品"}
@@ -434,7 +436,7 @@ Return as valid JSON, an array of strings: ["Choice 1", "Choice 2", ...]`;
 - ユーザーがすぐ実行できる具体的な提案
 
 有効なJSONとして、文字列の配列で返してください: ["アクション1", "アクション2", ...]`
-      : `Based on this product analysis and current commercial strategy, generate 2-4 strategy refinement suggestions. Focus ONLY on specific field improvements for the commercial strategy.
+        : `Based on this product analysis and current commercial strategy, generate 2-4 strategy refinement suggestions. Focus ONLY on specific field improvements for the commercial strategy.
 
 Product: ${productContext?.product?.name || "Product"}
 Current conversation: ${conversationHistory}
@@ -467,16 +469,16 @@ Return as valid JSON, an array of strings: ["Action 1", "Action 2", ...]`;
       // Create Gemini client using singleton instance
       const vertexAIService = VertexAIService.getInstance();
       const geminiClient = new GeminiClient(vertexAIService);
-      
+
       // Call Gemini API for dynamic suggestions
       const response = await geminiClient.generateTextOnly(prompt);
-      
+
       // Parse JSON response
-      const cleanedText = response.text.replace(/```json\n?|\n?```/g, '').trim();
+      const cleanedText = response.text.replace(/```json\n?|\n?```/g, "").trim();
       const actions = JSON.parse(cleanedText);
-      
+
       // Validate the response is an array of strings
-      if (Array.isArray(actions) && actions.every(action => typeof action === 'string')) {
+      if (Array.isArray(actions) && actions.every((action) => typeof action === "string")) {
         // Limit to max 4 actions to avoid overwhelming UI
         return actions.slice(0, 4);
       } else {
@@ -484,7 +486,7 @@ Return as valid JSON, an array of strings: ["Action 1", "Action 2", ...]`;
       }
     } catch (error) {
       console.error("Error generating contextual quick actions:", error);
-      
+
       // Fallback to mixed static actions that provide variety
       const fallbackActions = [
         ...this.getQuickActions("headline", locale).slice(0, 1),
@@ -492,7 +494,7 @@ Return as valid JSON, an array of strings: ["Action 1", "Action 2", ...]`;
         ...this.getQuickActions("positioning", locale).slice(0, 1),
         ...this.getQuickActions("scenes", locale).slice(0, 1),
       ];
-      
+
       return fallbackActions.slice(0, 4);
     }
   }
@@ -501,14 +503,14 @@ Return as valid JSON, an array of strings: ["Action 1", "Action 2", ...]`;
    * Extract the last agent message from conversation history
    */
   private static extractLastAgentMessage(conversationHistory: string): string {
-    const lines = conversationHistory.split('\n');
+    const lines = conversationHistory.split("\n");
     for (let i = lines.length - 1; i >= 0; i--) {
       const line = lines[i].trim();
-      if (line.startsWith('Agent:')) {
-        return line.replace('Agent:', '').trim();
+      if (line.startsWith("Agent:")) {
+        return line.replace("Agent:", "").trim();
       }
     }
-    return '';
+    return "";
   }
 
   /**
@@ -516,24 +518,47 @@ Return as valid JSON, an array of strings: ["Action 1", "Action 2", ...]`;
    */
   private static isAskingFollowUpQuestion(message: string, locale: "en" | "ja"): boolean {
     if (!message) return false;
-    
-    const questionIndicators = locale === "ja" 
-      ? [
-          '？', '?',
-          'ですか', 'ませんか', 'でしょうか',
-          'どのような', 'どんな', 'いかが', 'どう思', 'どう考',
-          '教えて', '詳しく', '具体的に',
-          'お考えで', 'お思いで'
-        ]
-      : [
-          '?', 
-          'what', 'how', 'which', 'who', 'when', 'where', 'why',
-          'could you', 'can you', 'would you', 'do you',
-          'tell me', 'share', 'think about', 'consider'
-        ];
-    
+
+    const questionIndicators =
+      locale === "ja"
+        ? [
+            "？",
+            "?",
+            "ですか",
+            "ませんか",
+            "でしょうか",
+            "どのような",
+            "どんな",
+            "いかが",
+            "どう思",
+            "どう考",
+            "教えて",
+            "詳しく",
+            "具体的に",
+            "お考えで",
+            "お思いで",
+          ]
+        : [
+            "?",
+            "what",
+            "how",
+            "which",
+            "who",
+            "when",
+            "where",
+            "why",
+            "could you",
+            "can you",
+            "would you",
+            "do you",
+            "tell me",
+            "share",
+            "think about",
+            "consider",
+          ];
+
     const lowerMessage = message.toLowerCase();
-    return questionIndicators.some(indicator => lowerMessage.includes(indicator.toLowerCase()));
+    return questionIndicators.some((indicator) => lowerMessage.includes(indicator.toLowerCase()));
   }
 
   /**
@@ -551,8 +576,8 @@ Return as valid JSON, an array of strings: ["Action 1", "Action 2", ...]`;
     naturalSummary: string;
   }> {
     const isJapanese = locale === "ja";
-    
-    const prompt = isJapanese 
+
+    const prompt = isJapanese
       ? `あなたは商業戦略の専門家です。既存の商業戦略をユーザーのフィードバックに基づいて改善してください。
 
 既存の戦略:
@@ -606,32 +631,32 @@ Return ONLY the JSON response, no additional text.`;
       // Create Gemini client using singleton instance
       const vertexAIService = VertexAIService.getInstance();
       const geminiClient = new GeminiClient(vertexAIService);
-      
+
       // Call Gemini API for strategy regeneration
       const response = await geminiClient.generateTextOnly(prompt);
-      
+
       // Parse JSON response
-      const cleanedText = response.text.replace(/```json\n?|\n?```/g, '').trim();
+      const cleanedText = response.text.replace(/```json\n?|\n?```/g, "").trim();
       const result = JSON.parse(cleanedText);
-      
+
       // Validate the response structure
       if (result.updatedStrategy && result.naturalSummary) {
         return {
           updatedStrategy: result.updatedStrategy,
-          naturalSummary: result.naturalSummary
+          naturalSummary: result.naturalSummary,
         };
       } else {
         throw new Error("Invalid response format from Gemini");
       }
     } catch (error) {
       console.error("Error generating updated strategy:", error);
-      
+
       // Return original strategy as fallback
       return {
         updatedStrategy: originalStrategy,
-        naturalSummary: isJapanese 
+        naturalSummary: isJapanese
           ? "申し訳ございませんが、戦略の更新に失敗しました。元の戦略を保持します。"
-          : "Sorry, strategy update failed. Keeping original strategy."
+          : "Sorry, strategy update failed. Keeping original strategy.",
       };
     }
   }
@@ -648,8 +673,9 @@ Return ONLY the JSON response, no additional text.`;
     const systemPrompt = this.getMayaChatSystemPrompt(locale);
     const persona = MAYA_PERSONA;
 
-    const strategyContext = locale === "ja" 
-      ? `現在の商業戦略:
+    const strategyContext =
+      locale === "ja"
+        ? `現在の商業戦略:
 商品: ${commercialStrategy?.product?.name || "商品"}
 ヘッドライン: "${commercialStrategy?.commercialStrategy?.keyMessages?.headline || "未設定"}"
 タグライン: "${commercialStrategy?.commercialStrategy?.keyMessages?.tagline || "未設定"}"
@@ -657,10 +683,12 @@ Return ONLY the JSON response, no additional text.`;
 主要メリット: ${commercialStrategy?.positioning?.valueProposition?.primaryBenefit || "未設定"}
 
 シーン構成:
-${commercialStrategy?.commercialStrategy?.keyScenes?.scenes?.map((scene: any, index: number) => 
-  `${index + 1}. ${scene.title}: ${scene.description}`
-).join("\n") || "シーン未設定"}`
-      : `Current Commercial Strategy:
+${
+  commercialStrategy?.commercialStrategy?.keyScenes?.scenes
+    ?.map((scene: any, index: number) => `${index + 1}. ${scene.title}: ${scene.description}`)
+    .join("\n") || "シーン未設定"
+}`
+        : `Current Commercial Strategy:
 Product: ${commercialStrategy?.product?.name || "Product"}
 Headline: "${commercialStrategy?.commercialStrategy?.keyMessages?.headline || "Not set"}"
 Tagline: "${commercialStrategy?.commercialStrategy?.keyMessages?.tagline || "Not set"}"
@@ -668,18 +696,21 @@ Target Audience: ${commercialStrategy?.targetAudience?.primary?.demographics?.ag
 Primary Benefit: ${commercialStrategy?.positioning?.valueProposition?.primaryBenefit || "Not set"}
 
 Scene Structure:
-${commercialStrategy?.commercialStrategy?.keyScenes?.scenes?.map((scene: any, index: number) => 
-  `${index + 1}. ${scene.title}: ${scene.description}`
-).join("\n") || "No scenes defined"}`;
+${
+  commercialStrategy?.commercialStrategy?.keyScenes?.scenes
+    ?.map((scene: any, index: number) => `${index + 1}. ${scene.title}: ${scene.description}`)
+    .join("\n") || "No scenes defined"
+}`;
 
-    const instructions = locale === "ja"
-      ? `重要な指示:
+    const instructions =
+      locale === "ja"
+        ? `重要な指示:
 1. 上記の商業戦略に基づいて応答する
 2. ユーザーの改善要求を理解し、具体的な提案をする
 3. JSON構造を壊さない範囲で戦略を調整する
 4. Mayaの個性（${persona.personality.core[0]}、${persona.personality.core[1]}）を維持する
 5. 関係のない話題には応答しない`
-      : `Important Instructions:
+        : `Important Instructions:
 1. Respond based on the commercial strategy above
 2. Understand user improvement requests and provide specific suggestions
 3. Adjust strategy without breaking JSON structure

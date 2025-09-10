@@ -135,7 +135,7 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
   try {
     // Use client-sent mode if available, otherwise fallback to server config
 
-    if (AppModeConfig.mode === "demo") {
+    if (AppModeConfig.getMode() === "demo") {
       // Use the functional approach for demo mode
       const visionRequest = {
         sessionId,
@@ -258,7 +258,7 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
     // Generate initial quick actions for user guidance
     let initialQuickActions: string[];
 
-    if (AppModeConfig.mode === "real" && analysisResult?.analysis) {
+    if (AppModeConfig.getMode() === "real" && analysisResult?.analysis) {
       // Real mode: Use dynamic contextual quick actions
       try {
         initialQuickActions = await PromptBuilder.generateContextualQuickActions(
@@ -357,7 +357,7 @@ async function handleChatRequest(request: SimpleRequest) {
   try {
     // Use client-sent mode if available, otherwise fallback to server config
 
-    if (AppModeConfig.mode === "demo") {
+    if (AppModeConfig.getMode() === "demo") {
       return await handleDemoChat(request);
     }
 

@@ -35,14 +35,12 @@ const CHAT_LABELS = {
 /**
  * Process chat message with context-aware response
  */
-export async function processMessage(
-  request: ChatRequest
-): Promise<ChatResponse> {
+export async function processMessage(request: ChatRequest): Promise<ChatResponse> {
   const startTime = Date.now();
 
   try {
     // Check mode directly from AppModeConfig
-    const shouldUseMockMode = AppModeConfig.mode === 'demo';
+    const shouldUseMockMode = AppModeConfig.getMode() === "demo";
 
     if (shouldUseMockMode) {
       console.log("[GEMINI CHAT] Using mock mode for chat");
@@ -183,11 +181,10 @@ async function callGeminiChat(prompt: string): Promise<{
   const vertexAI = VertexAIService.getInstance();
   const geminiClient = new GeminiClient(vertexAI);
 
-  
   try {
     // Use generateTextOnly for chat (not vision)
     const response = await geminiClient.generateTextOnly(prompt);
-    
+
     return {
       text: response.text,
       usage: {
@@ -197,7 +194,7 @@ async function callGeminiChat(prompt: string): Promise<{
     };
   } catch (error) {
     console.error("GeminiClient chat failed:", error);
-    
+
     // If GeminiClient fails, throw the error for fallback handling
     throw new Error(
       `Gemini Chat API error: ${error instanceof Error ? error.message : "Unknown error"}`
@@ -236,7 +233,11 @@ async function analyzeResponse(
   const readyForHandoff = assessHandoffReadiness(request.context);
 
   // Generate appropriate follow-up suggestions
-  const suggestedFollowUps = await generateFollowUpSuggestions(request, cleanedResponse, shouldUseMockMode);
+  const suggestedFollowUps = await generateFollowUpSuggestions(
+    request,
+    cleanedResponse,
+    shouldUseMockMode
+  );
 
   // Determine current topic focus
   const currentTopic = identifyCurrentTopic(cleanedResponse, request.context);
@@ -265,19 +266,21 @@ async function generateMockResponse(
   await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 2000));
 
   const locale = request.locale;
-  
+
   // Use Maya's greeting if this is the first CHAT message and we have product analysis
   // Check if there are any chat messages in history (not including analysis)
-  const chatMessages = request.context.conversationHistory?.filter(msg => 
-    msg.type === "user" || msg.type === "agent"
-  ) || [];
-  
+  const chatMessages =
+    request.context.conversationHistory?.filter(
+      (msg) => msg.type === "user" || msg.type === "agent"
+    ) || [];
+
   if (request.context.productAnalysis && chatMessages.length === 0) {
     const persona = require("@/lib/constants/maya-persona").MAYA_PERSONA;
-    const mayaGreeting = locale === "ja" 
-      ? `こんにちは！私はMaya、あなたのプロダクト・インテリジェンス・アシスタントです。商品分析が完了しましたね！素晴らしい${request.context.productAnalysis.product.name}の戦略を見させていただきました。\n\n何か改善したい点や調整したい部分はありますか？`
-      : `${persona.voiceExamples.opening}\n\nI can see we have a great commercial strategy for ${request.context.productAnalysis.product.name}! What would you like to refine or improve?`;
-    
+    const mayaGreeting =
+      locale === "ja"
+        ? `こんにちは！私はMaya、あなたのプロダクト・インテリジェンス・アシスタントです。商品分析が完了しましたね！素晴らしい${request.context.productAnalysis.product.name}の戦略を見させていただきました。\n\n何か改善したい点や調整したい部分はありますか？`
+        : `${persona.voiceExamples.opening}\n\nI can see we have a great commercial strategy for ${request.context.productAnalysis.product.name}! What would you like to refine or improve?`;
+
     // Generate relevant quick actions based on the strategy
     // Since we're in generateMockResponse, we're already in demo/mock mode
     // Always use static actions for consistent demo experience
@@ -360,22 +363,23 @@ function assessHandoffReadiness(context: any): boolean {
  * Generate contextual follow-up suggestions
  */
 async function generateFollowUpSuggestions(
-  request: ChatRequest, 
+  request: ChatRequest,
   response: string,
   shouldUseMockMode: boolean = false
 ): Promise<string[]> {
   const locale = request.locale;
-  
+
   // If we have product analysis, use strategy-focused quick actions
   if (request.context.productAnalysis) {
     // For real mode, use dynamic AI-generated suggestions
     if (!shouldUseMockMode) {
       try {
         // Build conversation history for context
-        const conversationHistory = request.context.conversationHistory
-          ?.map(msg => `${msg.type === 'user' ? 'User' : 'Agent'}: ${msg.content}`)
-          .join('\n') || '';
-        
+        const conversationHistory =
+          request.context.conversationHistory
+            ?.map((msg) => `${msg.type === "user" ? "User" : "Agent"}: ${msg.content}`)
+            .join("\n") || "";
+
         // Use dynamic contextual quick actions
         const dynamicActions = await PromptBuilder.generateContextualQuickActions(
           request.context.productAnalysis,
@@ -383,30 +387,55 @@ async function generateFollowUpSuggestions(
           conversationHistory + `\nAgent: ${response}`,
           locale
         );
-        
+
         return dynamicActions;
       } catch (error) {
         console.error("Error generating dynamic quick actions, falling back to static:", error);
         // Fall through to static approach if dynamic fails
       }
     }
-    
+
     // Demo mode or fallback: use static approach
     // Analyze the response to determine which category is most relevant
     const lowerResponse = response.toLowerCase();
-    
-    if (lowerResponse.includes("headline") || lowerResponse.includes("tagline") || lowerResponse.includes("ヘッドライン") || lowerResponse.includes("タグライン")) {
+
+    if (
+      lowerResponse.includes("headline") ||
+      lowerResponse.includes("tagline") ||
+      lowerResponse.includes("ヘッドライン") ||
+      lowerResponse.includes("タグライン")
+    ) {
       return PromptBuilder.getQuickActions("headline", locale).slice(0, 2);
-    } else if (lowerResponse.includes("audience") || lowerResponse.includes("target") || lowerResponse.includes("ターゲット") || lowerResponse.includes("顧客")) {
+    } else if (
+      lowerResponse.includes("audience") ||
+      lowerResponse.includes("target") ||
+      lowerResponse.includes("ターゲット") ||
+      lowerResponse.includes("顧客")
+    ) {
       return PromptBuilder.getQuickActions("audience", locale).slice(0, 2);
-    } else if (lowerResponse.includes("scene") || lowerResponse.includes("シーン") || lowerResponse.includes("video") || lowerResponse.includes("動画")) {
+    } else if (
+      lowerResponse.includes("scene") ||
+      lowerResponse.includes("シーン") ||
+      lowerResponse.includes("video") ||
+      lowerResponse.includes("動画")
+    ) {
       return PromptBuilder.getQuickActions("scenes", locale).slice(0, 2);
-    } else if (lowerResponse.includes("position") || lowerResponse.includes("ポジション") || lowerResponse.includes("brand") || lowerResponse.includes("ブランド")) {
+    } else if (
+      lowerResponse.includes("position") ||
+      lowerResponse.includes("ポジション") ||
+      lowerResponse.includes("brand") ||
+      lowerResponse.includes("ブランド")
+    ) {
       return PromptBuilder.getQuickActions("positioning", locale).slice(0, 2);
-    } else if (lowerResponse.includes("visual") || lowerResponse.includes("style") || lowerResponse.includes("ビジュアル") || lowerResponse.includes("スタイル")) {
+    } else if (
+      lowerResponse.includes("visual") ||
+      lowerResponse.includes("style") ||
+      lowerResponse.includes("ビジュアル") ||
+      lowerResponse.includes("スタイル")
+    ) {
       return PromptBuilder.getQuickActions("visual", locale).slice(0, 2);
     }
-    
+
     // Default to mixed strategy actions
     return [
       ...PromptBuilder.getQuickActions("headline", locale).slice(0, 1),

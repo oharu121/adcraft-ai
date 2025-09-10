@@ -68,7 +68,7 @@ class FirestoreProductionTester {
 
       if (isHealthy) {
         this.addResult("Firestore Health Check", true, undefined, undefined, duration);
-        this.addResult("Production Mode Check", AppModeConfig.mode !== "demo");
+        this.addResult("Production Mode Check", AppModeConfig.getMode() !== "demo");
       } else {
         this.addResult(
           "Firestore Health Check",

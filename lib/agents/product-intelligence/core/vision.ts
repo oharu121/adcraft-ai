@@ -72,7 +72,7 @@ export async function analyzeProductImage(
 
   try {
     // Check mode directly from AppModeConfig
-    const shouldUseMockMode = AppModeConfig.mode === 'demo';
+    const shouldUseMockMode = AppModeConfig.getMode() === "demo";
 
     if (shouldUseMockMode) {
       console.log("[GEMINI VISION] Using mock mode for analysis");
