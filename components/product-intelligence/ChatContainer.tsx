@@ -59,10 +59,10 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   // Use dictionary for localized text
   const t = dict.productIntelligence.chatContainer;
 
-  // Check if we're awaiting strategy confirmation
-  const isAwaitingConfirmation = messages.some(
-    (msg) => msg.type === "agent" && (msg.metadata as any)?.messageType === "STRATEGY_UPDATE_CONFIRMATION"
-  );
+  // Check if we're awaiting strategy confirmation - only check the latest agent message
+  const lastAgentMessage = messages.slice().reverse().find(msg => msg.type === "agent");
+  const isAwaitingConfirmation = lastAgentMessage && 
+    (lastAgentMessage.metadata as any)?.messageType === "STRATEGY_UPDATE_CONFIRMATION";
 
   // Handle strategy confirmation
   const handleStrategyConfirmation = useCallback(
