@@ -3,9 +3,9 @@
  * Provides monitoring data for the public dashboard UI
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { MonitoringService } from '@/lib/services/monitoring';
-import { Logger } from '@/lib/services/logger';
+import { NextRequest, NextResponse } from "next/server";
+import { MonitoringService } from "@/lib/monitor/monitoring";
+import { Logger } from "@/lib/utils/logger";
 
 /**
  * GET /api/monitoring/dashboard
@@ -17,15 +17,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now();
 
   // Extract client info
-  const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-    request.headers.get('x-real-ip') || 
-    'unknown';
-  const userAgent = request.headers.get('user-agent') || 'unknown';
+  const clientIP =
+    request.headers.get("x-forwarded-for")?.split(",")[0] ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
+  const userAgent = request.headers.get("user-agent") || "unknown";
 
-  logger.info('Public monitoring dashboard accessed', {
+  logger.info("Public monitoring dashboard accessed", {
     correlationId,
-    endpoint: '/api/monitoring/dashboard',
-    method: 'GET',
+    endpoint: "/api/monitoring/dashboard",
+    method: "GET",
     ip: clientIP,
     userAgent,
   });
@@ -33,10 +34,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Get monitoring service instance
     const monitoringService = MonitoringService.getInstance();
-    
+
     // Get comprehensive dashboard data
     const dashboardData = await monitoringService.getMonitoringDashboard();
-    
+
     // Filter sensitive information for public consumption
     const publicData = {
       systemHealth: {
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         timestamp: dashboardData.systemHealth.timestamp,
         uptime: dashboardData.systemHealth.uptime,
         overallScore: dashboardData.systemHealth.overallScore,
-        services: dashboardData.systemHealth.services.map(service => ({
+        services: dashboardData.systemHealth.services.map((service) => ({
           name: service.name,
           status: service.status,
           responseTime: service.responseTime,
@@ -89,16 +90,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         correlationId,
         timestamp: new Date().toISOString(),
         generatedIn: Date.now() - startTime,
-        version: process.env.npm_package_version || '0.2.2',
+        version: process.env.npm_package_version || "0.2.2",
       },
     };
 
     // Log successful response
     const duration = Date.now() - startTime;
-    logger.info('Public monitoring dashboard served', {
+    logger.info("Public monitoring dashboard served", {
       correlationId,
-      endpoint: '/api/monitoring/dashboard',
-      method: 'GET',
+      endpoint: "/api/monitoring/dashboard",
+      method: "GET",
       ip: clientIP,
       duration,
     });
@@ -107,29 +108,32 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(responseData, {
       status: 200,
       headers: {
-        'Cache-Control': 'public, max-age=30, s-maxage=30', // Cache for 30 seconds
-        'X-Correlation-ID': correlationId,
+        "Cache-Control": "public, max-age=30, s-maxage=30", // Cache for 30 seconds
+        "X-Correlation-ID": correlationId,
       },
     });
-
   } catch (error) {
     const duration = Date.now() - startTime;
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
-    logger.error('Public monitoring dashboard error', {
-      correlationId,
-      endpoint: '/api/monitoring/dashboard',
-      method: 'GET',
-      ip: clientIP,
-      duration,
-    }, error instanceof Error ? error : new Error(errorMessage));
+    logger.error(
+      "Public monitoring dashboard error",
+      {
+        correlationId,
+        endpoint: "/api/monitoring/dashboard",
+        method: "GET",
+        ip: clientIP,
+        duration,
+      },
+      error instanceof Error ? error : new Error(errorMessage)
+    );
 
     return NextResponse.json(
       {
-        error: 'Service temporarily unavailable',
-        message: 'Failed to retrieve monitoring data',
+        error: "Service temporarily unavailable",
+        message: "Failed to retrieve monitoring data",
         correlationId,
-        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
+        details: process.env.NODE_ENV === "development" ? errorMessage : undefined,
       },
       { status: 500 }
     );
@@ -144,9 +148,9 @@ export async function OPTIONS(): Promise<NextResponse> {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
     },
   });
 }

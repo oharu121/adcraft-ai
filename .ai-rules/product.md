@@ -41,7 +41,7 @@ The AdCraft AI is an **interactive multi-agent AI system** that transforms a sin
    - **Agent 2 (Creative Director)**: Discusses visual styles and generates assets via Imagen API
    - **Agent 3 (Video Producer)**: Creates final commercial using Veo API with production choices
 
-3. **Real-Time WebSocket Chat**
+3. **Real-Time Server-Sent Events (SSE) Chat**
 
    - Natural conversations with each AI agent
    - Contextual follow-up questions and refinements
@@ -155,8 +155,8 @@ The AdCraft AI is an **interactive multi-agent AI system** that transforms a sin
   why: Cloud Storage for media file handling and signed URL patterns
 - url: https://cloud.google.com/firestore/docs
   why: Firestore for session state and chat history persistence
-- url: https://socket.io/docs/v4/
-  why: WebSocket implementation patterns for real-time agent chat
+- url: https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events
+  why: Server-Sent Events implementation patterns for real-time agent updates
 - url: https://cloud.google.com/text-to-speech/docs
   why: Text-to-Speech API for narration generation in multiple languages
 

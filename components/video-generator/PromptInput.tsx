@@ -117,7 +117,7 @@ export const PromptInput = forwardRef<HTMLInputElement, PromptInputProps>(
             error={error}
             maxLength={maxLength}
             showCharacterCount={true}
-            className="text-base py-4 px-6 min-h-[4rem] text-lg"
+            className="text-base py-4 px-6 min-h-[4rem]"
             aria-label="Video generation prompt"
             aria-describedby="prompt-help"
           />

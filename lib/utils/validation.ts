@@ -1,31 +1,31 @@
-import { z } from 'zod';
-import { SecurityMonitorService } from '@/lib/services/security-monitor';
+import { z } from "zod";
+import { SecurityMonitorService } from "@/lib/monitor/security-monitor";
 
 // Base validation schemas
-export const IdSchema = z.string().min(1, 'ID is required');
+export const IdSchema = z.string().min(1, "ID is required");
 export const PromptSchema = z
   .string()
-  .min(5, 'Prompt must be at least 5 characters')
-  .max(500, 'Prompt must be 500 characters or less')
+  .min(5, "Prompt must be at least 5 characters")
+  .max(500, "Prompt must be 500 characters or less")
   .trim();
 
 export const DurationSchema = z
   .number()
-  .min(1, 'Duration must be at least 1 second')
-  .max(15, 'Duration must be 15 seconds or less')
-  .int('Duration must be a whole number');
+  .min(1, "Duration must be at least 1 second")
+  .max(15, "Duration must be 15 seconds or less")
+  .int("Duration must be a whole number");
 
-export const AspectRatioSchema = z.enum(['16:9', '9:16', '1:1']);
-export const VideoStatusSchema = z.enum(['pending', 'processing', 'completed', 'failed']);
-export const SessionStatusSchema = z.enum(['draft', 'generating', 'completed', 'failed']);
-export const ChatRoleSchema = z.enum(['user', 'assistant']);
-export const ServiceSchema = z.enum(['veo', 'gemini', 'storage', 'other']);
+export const AspectRatioSchema = z.enum(["16:9", "9:16", "1:1"]);
+export const VideoStatusSchema = z.enum(["pending", "processing", "completed", "failed"]);
+export const SessionStatusSchema = z.enum(["draft", "generating", "completed", "failed"]);
+export const ChatRoleSchema = z.enum(["user", "assistant"]);
+export const ServiceSchema = z.enum(["veo", "gemini", "storage", "other"]);
 
 // Video Generation Request Schema
 export const VideoGenerationRequestSchema = z.object({
   prompt: PromptSchema,
   duration: DurationSchema.optional().default(15),
-  aspectRatio: AspectRatioSchema.optional().default('16:9'),
+  aspectRatio: AspectRatioSchema.optional().default("16:9"),
   style: z.string().max(100).optional(),
 });
 
@@ -68,7 +68,7 @@ export type JobStatusResponse = z.infer<typeof JobStatusResponseSchema>;
 export const ChatMessageSchema = z.object({
   id: IdSchema.optional(),
   role: ChatRoleSchema,
-  content: z.string().min(1, 'Message content is required').max(1000),
+  content: z.string().min(1, "Message content is required").max(1000),
   timestamp: z.date().default(new Date()),
 });
 
@@ -79,9 +79,11 @@ export const ChatRefinementRequestSchema = z.object({
   sessionId: IdSchema,
   message: z.string().min(1).max(1000),
   currentPrompt: z.string().optional(),
-  context: z.object({
-    messages: z.array(ChatMessageSchema).max(20, 'Too many messages in context'),
-  }).optional(),
+  context: z
+    .object({
+      messages: z.array(ChatMessageSchema).max(20, "Too many messages in context"),
+    })
+    .optional(),
 });
 
 export type ChatRefinementRequest = z.infer<typeof ChatRefinementRequestSchema>;
@@ -108,18 +110,24 @@ export const PromptRefinementResponseSchema = z.object({
   originalPrompt: z.string(),
   refinedPrompt: z.string(),
   suggestions: z.array(z.string()).max(10),
-  improvements: z.array(z.object({
-    category: z.string(),
-    description: z.string(),
-    impact: z.enum(['high', 'medium', 'low']),
-  })).max(10),
+  improvements: z
+    .array(
+      z.object({
+        category: z.string(),
+        description: z.string(),
+        impact: z.enum(["high", "medium", "low"]),
+      })
+    )
+    .max(10),
   confidence: z.number().min(0).max(1),
-  analysis: z.object({
-    score: z.number().min(0).max(1),
-    feedback: z.array(z.string()).max(5),
-    strengths: z.array(z.string()).max(5),
-    improvements: z.array(z.string()).max(5),
-  }).optional(),
+  analysis: z
+    .object({
+      score: z.number().min(0).max(1),
+      feedback: z.array(z.string()).max(5),
+      strengths: z.array(z.string()).max(5),
+      improvements: z.array(z.string()).max(5),
+    })
+    .optional(),
 });
 
 export type PromptRefinementResponse = z.infer<typeof PromptRefinementResponseSchema>;
@@ -153,15 +161,17 @@ export const BudgetStatusResponseSchema = z.object({
   currentSpend: z.number().min(0),
   remainingBudget: z.number(),
   percentageUsed: z.number().min(0).max(100),
-  alertLevel: z.enum(['safe', 'warning', 'danger', 'exceeded']),
+  alertLevel: z.enum(["safe", "warning", "danger", "exceeded"]),
   canProceed: z.boolean(),
-  costBreakdown: z.object({
-    veo: z.number().min(0),
-    gemini: z.number().min(0),
-    storage: z.number().min(0),
-    other: z.number().min(0),
-    total: z.number().min(0),
-  }).optional(),
+  costBreakdown: z
+    .object({
+      veo: z.number().min(0),
+      gemini: z.number().min(0),
+      storage: z.number().min(0),
+      other: z.number().min(0),
+      total: z.number().min(0),
+    })
+    .optional(),
 });
 
 export type BudgetStatusResponse = z.infer<typeof BudgetStatusResponseSchema>;
@@ -169,7 +179,7 @@ export type BudgetStatusResponse = z.infer<typeof BudgetStatusResponseSchema>;
 // File Upload Schema
 export const FileUploadSchema = z.object({
   file: z.any(), // File object will be validated separately
-  folder: z.string().max(100).optional().default('uploads'),
+  folder: z.string().max(100).optional().default("uploads"),
 });
 
 export type FileUploadRequest = z.infer<typeof FileUploadSchema>;
@@ -221,14 +231,19 @@ export type ApiResponse<T> = {
 
 // Health Check Response Schema
 export const HealthCheckResponseSchema = z.object({
-  status: z.enum(['healthy', 'degraded', 'unhealthy']),
+  status: z.enum(["healthy", "degraded", "unhealthy"]),
   timestamp: z.date().default(new Date()),
-  services: z.record(z.string(), z.object({
-    status: z.enum(['healthy', 'unhealthy']),
-    responseTime: z.number().optional(),
-    lastCheck: z.date(),
-    error: z.string().optional(),
-  })).optional(),
+  services: z
+    .record(
+      z.string(),
+      z.object({
+        status: z.enum(["healthy", "unhealthy"]),
+        responseTime: z.number().optional(),
+        lastCheck: z.date(),
+        error: z.string().optional(),
+      })
+    )
+    .optional(),
   version: z.string().optional(),
 });
 
@@ -241,12 +256,12 @@ export function validateAndParse<T>(
   customError?: string
 ): T {
   const result = schema.safeParse(data);
-  
+
   if (!result.success) {
-    const errors = result.error.issues.map((err: any) => `${err.path.join('.')}: ${err.message}`);
-    throw new Error(customError || `Validation failed: ${errors.join(', ')}`);
+    const errors = result.error.issues.map((err: any) => `${err.path.join(".")}: ${err.message}`);
+    throw new Error(customError || `Validation failed: ${errors.join(", ")}`);
   }
-  
+
   return result.data;
 }
 
@@ -264,15 +279,15 @@ export const ValidationUtils = {
   validateFile(file: File): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
     const maxSize = 10 * 1024 * 1024; // 10MB
-    const allowedTypes = ['image/', 'video/', 'text/'];
+    const allowedTypes = ["image/", "video/", "text/"];
 
     if (file.size > maxSize) {
-      errors.push('File size must be less than 10MB');
+      errors.push("File size must be less than 10MB");
     }
 
-    const hasAllowedType = allowedTypes.some(type => file.type.startsWith(type));
+    const hasAllowedType = allowedTypes.some((type) => file.type.startsWith(type));
     if (!hasAllowedType) {
-      errors.push('File type not supported');
+      errors.push("File type not supported");
     }
 
     return {
@@ -288,7 +303,9 @@ export const ValidationUtils = {
   validateRateLimit(ip: string, identifier?: string): boolean {
     // Legacy method - kept for backward compatibility
     // New implementations should use RateLimiterService directly
-    console.warn('ValidationUtils.validateRateLimit is deprecated. Use RateLimiterService.checkRateLimit() instead.');
+    console.warn(
+      "ValidationUtils.validateRateLimit is deprecated. Use RateLimiterService.checkRateLimit() instead."
+    );
     return true;
   },
 
@@ -296,8 +313,8 @@ export const ValidationUtils = {
    * Sanitize user input to prevent XSS and other injection attacks
    */
   sanitizeInput(input: string, source?: string): string {
-    if (!input || typeof input !== 'string') {
-      return '';
+    if (!input || typeof input !== "string") {
+      return "";
     }
 
     const originalInput = input;
@@ -334,7 +351,7 @@ export const ValidationUtils = {
     for (const pattern of injectionPatterns) {
       if (pattern.test(input)) {
         if (source) {
-          securityMonitor.logInjectionAttempt(source, originalInput, 'sql');
+          securityMonitor.logInjectionAttempt(source, originalInput, "sql");
         }
         break;
       }
@@ -343,38 +360,42 @@ export const ValidationUtils = {
     const sanitized = input
       .trim()
       // Remove all HTML tags and their content
-      .replace(/<script[^>]*>.*?<\/script>/gi, '')
-      .replace(/<style[^>]*>.*?<\/style>/gi, '')
-      .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '')
-      .replace(/<object[^>]*>.*?<\/object>/gi, '')
-      .replace(/<embed[^>]*>.*?<\/embed>/gi, '')
-      .replace(/<link[^>]*>/gi, '')
-      .replace(/<meta[^>]*>/gi, '')
-      .replace(/<[^>]*>/g, '')
+      .replace(/<script[^>]*>.*?<\/script>/gi, "")
+      .replace(/<style[^>]*>.*?<\/style>/gi, "")
+      .replace(/<iframe[^>]*>.*?<\/iframe>/gi, "")
+      .replace(/<object[^>]*>.*?<\/object>/gi, "")
+      .replace(/<embed[^>]*>.*?<\/embed>/gi, "")
+      .replace(/<link[^>]*>/gi, "")
+      .replace(/<meta[^>]*>/gi, "")
+      .replace(/<[^>]*>/g, "")
       // Remove JavaScript-like patterns
-      .replace(/javascript:/gi, '')
-      .replace(/vbscript:/gi, '')
-      .replace(/data:/gi, '')
-      .replace(/on\w+\s*=/gi, '')
+      .replace(/javascript:/gi, "")
+      .replace(/vbscript:/gi, "")
+      .replace(/data:/gi, "")
+      .replace(/on\w+\s*=/gi, "")
       // Remove potentially dangerous characters
       .replace(/[<>'"&]/g, (match) => {
         const htmlEntities: Record<string, string> = {
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#x27;',
-          '&': '&amp;',
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#x27;",
+          "&": "&amp;",
         };
         return htmlEntities[match] || match;
       })
       // Remove null bytes and control characters
-      .replace(/[\0-\x1F\x7F]/g, '')
+      .replace(/[\0-\x1F\x7F]/g, "")
       // Limit length
       .substring(0, 1000);
 
     // Log if significant changes were made during sanitization
     if (source && originalInput !== sanitized && originalInput.length > sanitized.length + 10) {
-      securityMonitor.logMaliciousInput(source, originalInput, 'Input significantly modified during sanitization');
+      securityMonitor.logMaliciousInput(
+        source,
+        originalInput,
+        "Input significantly modified during sanitization"
+      );
     }
 
     return sanitized;
@@ -385,14 +406,14 @@ export const ValidationUtils = {
    */
   validatePromptContent(prompt: string, source?: string): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
-    
+
     // Basic length validation
     if (!prompt || prompt.trim().length < 5) {
-      errors.push('Prompt is too short (minimum 5 characters)');
+      errors.push("Prompt is too short (minimum 5 characters)");
     }
 
     if (prompt.length > 500) {
-      errors.push('Prompt is too long (maximum 500 characters)');
+      errors.push("Prompt is too long (maximum 500 characters)");
     }
 
     // Enhanced content policy validation
@@ -410,7 +431,7 @@ export const ValidationUtils = {
     ];
 
     const lowerPrompt = prompt.toLowerCase();
-    
+
     const securityMonitor = SecurityMonitorService.getInstance();
     const violations: string[] = [];
 
@@ -439,7 +460,7 @@ export const ValidationUtils = {
 
     for (const [word, count] of wordCounts.entries()) {
       if (count > 5 && words.length > 10) {
-        errors.push('Content contains excessive repetition');
+        errors.push("Content contains excessive repetition");
         break;
       }
     }
@@ -454,7 +475,7 @@ export const ValidationUtils = {
 
     for (const pattern of suspiciousPatterns) {
       if (pattern.test(prompt)) {
-        errors.push('Content contains suspicious encoding patterns');
+        errors.push("Content contains suspicious encoding patterns");
         break;
       }
     }

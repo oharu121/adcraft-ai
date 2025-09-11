@@ -19,6 +19,7 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest --watch",
     "test:firestore-prod": "tsx scripts/test-firestore-production.ts",
+    "deploy:firestore-rules": "node scripts/deploy-firestore-rules.js",
     "docker:build": "docker build -t adcraft-ai .",
     "docker:tag": "docker tag adcraft-ai gcr.io/adcraft-dev-2025/adcraft-service:latest",
     "docker:push": "docker push gcr.io/adcraft-dev-2025/adcraft-service:latest",
@@ -35,6 +36,7 @@
     "@types/ws": "^8.18.1",
     "clsx": "^2.1.1",
     "d3": "^7.9.0",
+    "framer-motion": "^12.23.12",
     "next": "15.5.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
@@ -44,7 +46,8 @@
     "tailwind-merge": "^3.3.1",
     "uuid": "^11.1.0",
     "ws": "^8.18.3",
-    "zod": "^4.1.3"
+    "zod": "^4.1.3",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

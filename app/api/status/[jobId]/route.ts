@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { 
-  VeoService,
-  FirestoreService,
-  JobTracker,
-  CloudStorageService,
-  RateLimiterService
-} from '@/lib/services';
-import { 
   JobStatusRequestSchema,
   createApiResponseSchema,
   ValidationUtils
 } from '@/lib/utils/validation';
 import type { JobStatusResponse } from '@/lib/utils/validation';
 import type { VideoJob } from '@/types';
+import { VeoService } from '@/lib/services/veo';
+import { FirestoreService } from '@/lib/services/firestore';
+import { JobTracker } from '@/lib/utils/job-tracker';
+import RateLimiterService from '@/lib/monitor/rate-limiter';
 
 const JobStatusResponseApiSchema = createApiResponseSchema(
   JobStatusRequestSchema.omit({ jobId: true }).extend({
@@ -78,7 +75,6 @@ export async function GET(
     const veoService = VeoService.getInstance();
     const firestoreService = FirestoreService.getInstance();
     const jobTracker = JobTracker.getInstance();
-    const storageService = CloudStorageService.getInstance();
 
     // Get job information from Firestore
     const videoJob: VideoJob | null = await firestoreService.getVideoJob(sanitizedJobId);

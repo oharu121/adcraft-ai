@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Card } from '@/components/ui/Card';
 import { useViewport } from '@/hooks';
 import { cn } from '@/lib/utils/cn';
 

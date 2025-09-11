@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  VeoService, 
-  FirestoreService, 
-  CostTracker, 
-  JobTracker,
-  RateLimiterService 
-} from '@/lib/services';
+
 import { 
   VideoGenerationRequestSchema,
   createApiResponseSchema,
   ValidationUtils
 } from '@/lib/utils/validation';
 import type { VideoGenerationResponse } from '@/lib/utils/validation';
+import { FirestoreService } from '@/lib/services/firestore';
+import { VeoService } from '@/lib/services/veo';
+import { CostTracker } from '@/lib/utils/cost-tracker';
+import { JobTracker } from '@/lib/utils/job-tracker';
+import RateLimiterService from '@/lib/monitor/rate-limiter';
 
 const VideoGenerationResponseSchema = createApiResponseSchema(
   VideoGenerationRequestSchema.omit({ prompt: true }).extend({
@@ -115,7 +114,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create session
-    const sessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+    const sessionId = crypto.randomUUID();
     
     // Create session in Firestore with specified session ID
     const session = await firestoreService.createSession(sanitizedPrompt, undefined, sessionId);
