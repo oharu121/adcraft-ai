@@ -32,18 +32,21 @@ adcraft-ai/
 ```
 app/                         # Next.js App Router structure
 ├── [locale]/                    # Internationalization routing
-│   ├── page.tsx                # Main application page
-│   ├── chat/
-│   │   └── [sessionId]/page.tsx # Individual chat session interface
+│   ├── page.tsx                # Main application page with hero section
 │   └── layout.tsx               # Locale-specific layout
 ├── api/                         # Backend API routes
 │   ├── agents/                  # Agent endpoint handlers
-│   │   ├── product-intelligence/route.ts
-│   │   ├── creative-director/route.ts
-│   │   └── video-producer/route.ts
-│   ├── upload/route.ts          # File upload handling
-│   ├── status/route.ts          # Processing status endpoints
-│   └── events/route.ts          # Server-Sent Events (SSE) handling
+│   │   └── product-intelligence/    # Maya's API endpoints
+│   │       ├── route.ts            # Main PI agent endpoint
+│   │       ├── analyze/route.ts    # Product analysis endpoint
+│   │       ├── upload/route.ts     # Image upload handling
+│   │       ├── chat/               # Chat system endpoints
+│   │       │   ├── route.ts        # Main chat endpoint
+│   │       │   └── confirm-strategy/route.ts # Strategy confirmation
+│   │       ├── events/route.ts     # Server-Sent Events (SSE)
+│   │       └── handoff/route.ts    # Agent handoff coordination
+│   └── debug/                   # Development and debugging endpoints
+│       └── mode/route.ts        # App mode configuration
 ├── globals.css                  # Global styles and Tailwind imports
 ├── layout.tsx                   # Root application layout
 ├── favicon.ico                  # Application favicon
@@ -54,26 +57,25 @@ app/                         # Next.js App Router structure
 
 ```
 components/                  # Reusable React components
-├── chat/                        # Chat interface components
-│   ├── ChatInterface.tsx        # Main chat UI container
-│   ├── AgentMessage.tsx         # Individual message rendering
-│   ├── TypingIndicator.tsx      # Real-time typing indicators
-│   ├── MessageInput.tsx         # User input interface
-│   └── AgentHandoff.tsx         # Agent transition indicators
-├── upload/                      # File upload components
-│   ├── ProductImageUpload.tsx   # Drag-and-drop upload interface
-│   ├── ImagePreview.tsx         # Uploaded image preview
-│   └── UploadProgress.tsx       # Upload progress indicator
+├── home/                        # Home page and main UI components
+│   ├── HeroSection.tsx          # Compelling hero section with CTA
+│   ├── InstructionsCard.tsx     # Step-by-step instructions
+│   ├── ProductAnalysisCard.tsx  # Dual input mode (image/text) interface
+│   ├── CommercialStrategyCard.tsx # Interactive strategy review with Maya's chat
+│   └── HandoffCard.tsx          # Agent transition and progress tracking
+├── product-intelligence/        # Maya's Product Intelligence Agent components
+│   ├── ChatContainer.tsx        # Advanced chat with Maya's personality
+│   ├── ImageUploadArea.tsx      # Image upload with drag-and-drop
+│   └── TextInputArea.tsx        # Rich text input for product descriptions
 ├── ui/                          # Base UI components
 │   ├── Button.tsx               # Standard button component
-│   ├── Card.tsx                 # Content card wrapper
+│   ├── Card.tsx                 # Magical content cards with gradients
 │   ├── Input.tsx                # Form input components
 │   ├── Modal.tsx                # Modal dialog component
-│   └── LoadingSpinner.tsx       # Loading state indicator
-└── layout/                      # Layout components
-    ├── Navigation.tsx           # Main navigation
-    ├── Sidebar.tsx              # Sidebar layout
-    └── Footer.tsx               # Application footer
+│   ├── LoadingSpinner.tsx       # Loading state indicator
+│   └── AgentAvatar.tsx          # Agent personality avatars (Maya, David, Alex)
+└── creative-director/           # David's Creative Director Agent components (future)
+    └── video-producer/          # Alex's Video Producer Agent components (future)
 ```
 
 ### Business Logic (`lib/`)
@@ -81,34 +83,42 @@ components/                  # Reusable React components
 ```
 lib/                         # Core business logic and utilities
 ├── agents/                      # Multi-agent system implementation
-│   ├── product-intelligence/    # Agent 1: Product analysis
-│   │   ├── agent.ts            # Main agent logic and conversation flow
-│   │   ├── tools.ts            # Image analysis and feature extraction
-│   │   ├── prompts.ts          # Bilingual prompts and templates
-│   │   ├── types.ts            # Agent-specific TypeScript types
-│   │   └── index.ts            # Public API exports
-│   ├── creative-director/       # Agent 2: Creative and asset generation
-│   │   ├── agent.ts            # Creative conversation and asset coordination
-│   │   ├── tools.ts            # Imagen API integration and style tools
-│   │   ├── prompts.ts          # Creative direction prompts
-│   │   ├── types.ts            # Creative-specific types
-│   │   └── index.ts            # Public API exports
-│   └── video-producer/          # Agent 3: Video production
-│       ├── agent.ts            # Production logic and Veo integration
-│       ├── tools.ts            # Video generation and composition tools
-│       ├── prompts.ts          # Production prompts and scripts
-│       ├── types.ts            # Production-specific types
-│       └── index.ts            # Public API exports
+│   ├── product-intelligence/    # Maya - Agent 1: Product Intelligence
+│   │   ├── core/               # Core Maya intelligence system
+│   │   │   ├── chat.ts         # Maya's conversational AI logic
+│   │   │   ├── demo-handler.ts # Sophisticated demo mode implementation
+│   │   │   └── real-handler.ts # Real mode with Vertex AI integration
+│   │   ├── tools/              # Maya's analysis tools
+│   │   │   ├── image-analyzer.ts    # Gemini Pro Vision integration
+│   │   │   ├── text-analyzer.ts     # Gemini Pro text analysis
+│   │   │   ├── strategy-generator.ts # Commercial strategy generation
+│   │   │   └── prompt-builder.ts    # Dynamic prompt generation
+│   │   ├── types/              # Maya's type definitions
+│   │   │   ├── api-types.ts    # API request/response types
+│   │   │   ├── chat-types.ts   # Chat and conversation types
+│   │   │   └── analysis-types.ts    # Product analysis types
+│   │   ├── enums.ts           # Maya's enums (ProductCategory, TopicStatus, etc.)
+│   │   └── index.ts           # Public API exports
+│   ├── creative-director/      # David - Agent 2: Creative Direction (future)
+│   │   ├── core/              # David's creative intelligence
+│   │   ├── tools/             # Imagen API and visual tools
+│   │   ├── types/             # Creative-specific types
+│   │   └── index.ts           # Public API exports
+│   └── video-producer/         # Alex - Agent 3: Video Production (future)
+│       ├── core/              # Alex's production logic
+│       ├── tools/             # Veo API and video tools
+│       ├── types/             # Production-specific types
+│       └── index.ts           # Public API exports
 ├── services/                    # External API integrations
 │   ├── vertex-ai.ts            # Gemini Pro Vision and chat services
 │   ├── imagen.ts               # Imagen API for asset generation
 │   ├── veo.ts                  # Veo API for video generation
 │   ├── cloud-storage.ts        # Google Cloud Storage operations
 │   └── text-to-speech.ts       # Narration generation service
-├── database/                    # Firestore utilities and models
-│   ├── session.ts              # Chat session persistence
-│   ├── chat-history.ts         # Message history management
-│   └── commercial-jobs.ts      # Processing job queue management
+├── stores/                      # Zustand state management
+│   └── product-intelligence-store.ts # Maya's state management with persistence
+├── services/                    # Core business services
+│   └── firestore.ts           # Firestore session and strategy management
 ├── services/                    # Core business services
 │   ├── sse.ts                  # Server-Sent Events implementation
 │   ├── event-handler.ts        # Event routing and agent coordination
@@ -124,36 +134,37 @@ lib/                         # Core business logic and utilities
 ### React Hooks (`hooks/`)
 
 ```
-hooks/                       # Custom React hooks
-├── useSSE.ts                    # Server-Sent Events connection management
-├── useChatSession.ts            # Chat state and message handling
-├── useFileUpload.ts             # File upload progress and validation
-├── useAgentStatus.ts            # Agent processing status tracking
-├── useCostTracking.ts           # Real-time cost monitoring
-└── useLanguage.ts               # Language switching and preferences
+hooks/                       # Custom React hooks (future - currently using Zustand)
+├── useSSE.ts                    # Server-Sent Events connection management (future)
+├── useChatSession.ts            # Chat state and message handling (future)
+├── useFileUpload.ts             # File upload progress and validation (future)
+├── useAgentStatus.ts            # Agent processing status tracking (future)
+├── useCostTracking.ts           # Real-time cost monitoring (future)
+└── useLanguage.ts               # Language switching and preferences (future)
+
+# NOTE: Currently using Zustand stores instead of custom hooks for better state management
 ```
 
 ### Type Definitions (`types/`)
 
 ```
-types/                       # TypeScript type definitions
-├── agents.ts                    # Core agent and message types
-├── api.ts                       # API request/response types
-├── chat.ts                      # Chat session and conversation types
-├── commercial.ts                # Commercial generation and output types
-├── storage.ts                   # File storage and asset types
-└── i18n.ts                      # Internationalization types
+types/                       # Global TypeScript type definitions
+├── dictionary.ts                # Internationalization and dictionary types
+└── global.ts                    # Global type definitions
+
+# NOTE: Agent-specific types are located within each agent's types/ directory
 ```
 
 ### Internationalization (`i18n/`)
 
 ```
-i18n/                        # Bilingual support
+dictionaries/                # Bilingual support with next-intl
+├── en.json                      # English translations for all agents
+└── ja.json                      # Japanese translations for all agents
+
+i18n/                        # Internationalization configuration
 ├── config.ts                    # next-intl configuration
-├── messages/                    # Translation files
-│   ├── en.json                 # English translations
-│   └── ja.json                 # Japanese translations
-└── types.ts                     # Translation key types
+└── request.ts                   # Request handling for locales
 ```
 
 ## Testing Structure (`tests/`)

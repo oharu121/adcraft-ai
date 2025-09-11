@@ -12,33 +12,36 @@ inclusion: always
 
 - **Framework**: Next.js 15.5.0 with App Router (TypeScript)
 - **Language**: TypeScript 5.x (strict mode enabled)
-- **Styling**: Tailwind CSS 4.x with PostCSS
-- **Components**: React 19.1.0 + Lucide React icons
-- **Forms**: React Hook Form + Zod validation
-- **Animations**: Framer Motion 12.x
-- **Real-Time**: Server-Sent Events (SSE) client for real-time updates
-- **Internationalization**: next-intl 4.3.5 for bilingual support (Japanese/English)
+- **State Management**: Zustand 5.x for sophisticated state persistence (PREFERRED over Context API)
+- **Styling**: Tailwind CSS 4.x with magical gradient designs and smooth animations
+- **Components**: React 19.1.0 + Lucide React icons + custom AgentAvatar components
+- **Forms**: React Hook Form + Zod validation for dual input modes (image/text)
+- **Real-Time**: Server-Sent Events (SSE) for agent conversations (HTTP-based implementation)
+- **Internationalization**: next-intl 4.3.5 for bilingual Maya, David, and Alex personalities
 
 ### Backend Stack
 
 - **Runtime**: Node.js 18+ via Next.js API Routes
-- **Framework**: Next.js API Routes with App Router pattern
-- **Language**: TypeScript (strict mode)
-- **Real-Time**: Server-Sent Events (SSE) API endpoints for agent chat
-- **File Processing**: Sharp 0.34.3 for image optimization
-- **Validation**: Zod 4.1.1 for runtime type validation
+- **Framework**: Next.js API Routes with sophisticated agent orchestration
+- **Language**: TypeScript (strict mode) with comprehensive agent-specific type systems
+- **Architecture**: Demo-First Development with sophisticated mock implementations
+- **Agent Personalities**: Maya (Product Intelligence), David (Creative Director), Alex (Video Producer)
+- **Real-Time**: HTTP-based chat system with advanced conversational AI
+- **File Processing**: Sharp 0.34.3 for dual input mode (image/text) optimization
+- **Validation**: Zod 4.1.1 for runtime type validation across all agent interactions
 
 ### Google Cloud Platform Services (MANDATORY)
 
-- **Vertex AI Gemini Pro Vision**: Product image analysis and chat conversations
-- **Imagen API**: Visual asset generation for commercials
-- **Veo API**: Final commercial video generation
-- **Text-to-Speech API**: Narration generation in multiple languages
-- **Cloud Storage**: Media file storage with signed URLs
-- **Firestore**: Session state and chat history persistence
+- **Vertex AI Gemini Pro Vision**: Maya's image analysis capabilities in real mode
+- **Vertex AI Gemini Pro**: Maya's text analysis and conversational intelligence
+- **Imagen API**: David's visual asset generation for commercials
+- **Veo API**: Alex's final commercial video generation
+- **Text-to-Speech API**: Multi-language narration for Alex's video production
+- **Cloud Storage**: Media file storage with signed URLs for all agent assets
+- **Firestore**: Advanced session management with strategy confirmation system
 - **Cloud Run**: Primary deployment platform (REQUIRED for hackathon judging)
-- **Cloud Functions**: Heavy processing tasks and background jobs
-- **Cloud Monitoring**: Cost tracking and performance monitoring
+- **Cloud Functions**: Heavy processing tasks for video production pipeline
+- **Cloud Monitoring**: Real-time cost tracking with <$2.01 per commercial target
 
 ### Development Tools
 
@@ -53,45 +56,75 @@ inclusion: always
 ### Multi-Agent System Design
 
 ```typescript
-// Agent Module Structure Pattern
+// Advanced Agent Module Structure Pattern
 lib/agents/{agent-name}/
-├── agent.ts          // Main agent logic and orchestration
-├── tools.ts          // Agent-specific tools and API integrations
-├── prompts.ts        // Bilingual system prompts and templates
-├── types.ts          // Agent-specific TypeScript types
-└── index.ts          // Public exports and interface
+├── core/
+│   ├── chat.ts           // Agent conversational intelligence
+│   ├── demo-handler.ts   // Sophisticated demo mode implementation
+│   └── real-handler.ts   // Real mode with GCP integration
+├── tools/
+│   ├── {agent}-analyzer.ts    // Agent-specific analysis tools
+│   ├── strategy-generator.ts  // Commercial strategy generation
+│   └── prompt-builder.ts      // Dynamic prompt generation
+├── types/
+│   ├── api-types.ts      // API request/response types
+│   ├── chat-types.ts     // Conversation and message types
+│   └── analysis-types.ts // Agent-specific analysis types
+├── enums.ts             // Agent-specific enums and constants
+└── index.ts             // Public exports and interface
 ```
 
 ### API Architecture Pattern
 
 ```typescript
-// Next.js App Router API Pattern
-app / api / agents / [agentType] / route.ts;
+// Advanced Agent API Pattern with Demo-First Architecture
+app/api/agents/{agent-name}/
+├── route.ts              // Main agent orchestration
+├── analyze/route.ts      // Product/creative analysis
+├── chat/
+│   ├── route.ts         // Conversational intelligence
+│   └── confirm-strategy/route.ts  // Strategy update confirmation
+├── upload/route.ts       // File upload handling
+├── events/route.ts       // Server-Sent Events
+└── handoff/route.ts      // Agent-to-agent transitions
 
-export async function POST(
-  request: Request,
-  { params }: { params: { agentType: string } }
-) {
-  // 1. Authentication and validation
-  // 2. Route to appropriate agent
-  // 3. Process with error handling
-  // 4. Return structured response with cost tracking
+export async function POST(request: Request) {
+  // 1. Demo/Real mode detection via AppModeConfig
+  // 2. Agent personality routing (Maya/David/Alex)
+  // 3. Sophisticated conversation processing
+  // 4. Strategy confirmation system
+  // 5. Cost tracking and budget monitoring
 }
 ```
 
-### Server-Sent Events (SSE) Integration Pattern
+### Zustand State Management Pattern
 
 ```typescript
-// Real-time chat with session persistence
-export class AgentChatHandler {
-  async handleUserMessage(socket: Socket, message: UserMessage) {
-    // 1. Validate session and user input
-    // 2. Route to current agent in pipeline
-    // 3. Process with cost and time tracking
-    // 4. Emit response with typing indicators
-    // 5. Update session state in Firestore
+// Advanced State Management with Persistence
+export const useProductIntelligenceStore = create<PIStore>((set, get) => ({
+  // Maya's conversation state
+  messages: [],
+  isAgentTyping: false,
+  chatInputMessage: "",
+  
+  // Analysis and strategy state
+  analysis: null,
+  showCommercialChat: false,
+  expandedSections: {},
+  
+  // Actions with persistence
+  addMessage: (message) => {
+    set((state) => ({ messages: [...state.messages, message] }));
+    // Auto-persist to localStorage
+  },
+  
+  setAnalysis: (analysis) => set({ analysis }),
+  
+  // Strategy confirmation system
+  confirmStrategy: async (confirmed) => {
+    // Handle strategy update confirmation
   }
-}
+}));
 ```
 
 ### Error Handling Pattern
@@ -123,23 +156,32 @@ try {
 
 ## Critical Technical Requirements
 
+### Demo-First Architecture (MANDATORY)
+
+- **Demo Mode**: Sophisticated demo implementations that bypass GCP APIs
+- **Real Mode**: Production-ready GCP integration after demo approval
+- **Mode Configuration**: AppModeConfig for backend-only mode detection
+- **Feature Parity**: Demo and real modes must provide identical user experience
+- **Cost Protection**: Demo mode prevents accidental API spend during development
+
 ### Google Cloud Integration
 
 - **Authentication**: Service account credentials (NEVER expose in frontend)
 - **Endpoint Format**: `{location}-aiplatform.googleapis.com` for all Vertex AI calls
-- **API Versions**: Use latest stable versions for all GCP APIs
+- **Agent-Specific APIs**: Maya (Gemini), David (Imagen), Alex (Veo)
 - **Rate Limiting**: Implement exponential backoff for quota management
-- **Cost Tracking**: Real-time monitoring of API usage costs
+- **Cost Tracking**: Real-time monitoring with <$2.01 per commercial target
 
 ### Performance Requirements
 
-- **API Response Times**: <2 seconds for status updates
-- **File Upload**: <30 seconds for product image processing
-- **Agent Processing**:
-  - Agent 1 (Analysis): <5 seconds
-  - Agent 2 (Asset Generation): <60 seconds
-  - Agent 3 (Video Generation): <300 seconds
-- **Concurrent Users**: Support 5+ simultaneous sessions
+- **Maya's Chat Response**: <2 seconds for conversational intelligence
+- **Dual Input Processing**: <30 seconds for image/text analysis
+- **Agent Processing Pipeline**:
+  - Maya (Product Intelligence): <5 seconds for analysis + strategy generation
+  - David (Creative Director): <60 seconds for visual asset generation
+  - Alex (Video Producer): <300 seconds for final commercial creation
+- **State Management**: Zustand persistence with <100ms state updates
+- **Concurrent Users**: Support 5+ simultaneous sessions across all agents
 
 ### Cost Constraints
 
@@ -155,18 +197,22 @@ try {
 
 ### File Organization Rules
 
-- **Maximum File Size**: 500 lines of code per file
-- **Module Structure**: Single responsibility principle
-- **Import Strategy**: Prefer relative imports within packages
-- **Path Aliases**: Use `@/` prefix for src directory imports
+- **Component Size**: <500 lines per file, prefer <300 lines for maintainability
+- **State Management**: Zustand over Context API for complex state (4+ variables)
+- **Module Structure**: Single responsibility principle with clear agent boundaries
+- **Import Strategy**: Prefer relative imports within agent modules
+- **Path Aliases**: Use `@/` prefix for cross-module dependencies
+- **Agent Isolation**: Each agent (Maya, David, Alex) is self-contained with clear interfaces
 
 ### Code Quality Standards
 
-- **TypeScript**: Strict mode enabled, comprehensive type annotations
+- **TypeScript**: Strict mode with agent-specific type systems (Maya/David/Alex)
+- **State Management**: Zustand patterns with persistence and type safety
 - **Linting**: ESLint with Next.js and TypeScript rules
 - **Formatting**: Prettier with 2-space indentation
-- **Documentation**: JSDoc for all public functions and classes
-- **Testing**: >80% coverage for core business logic
+- **Agent Personalities**: Consistent conversational patterns across all agents
+- **Demo-First**: All features implemented in demo mode first, then real mode
+- **Testing**: >80% coverage for agent logic and conversation flows
 
 ### Testing Strategy
 

@@ -29,42 +29,54 @@ The AdCraft AI is an **interactive multi-agent AI system** that transforms a sin
 
 ### Core Functionality
 
-1. **Product Image Upload & Analysis**
+1. **Dual Input Mode Product Analysis**
 
-   - Drag-and-drop interface for product images
-   - AI-powered image analysis using Vertex AI Gemini Pro Vision
-   - Automatic product categorization and feature detection
+   - **Image-to-Image Mode**: Drag-and-drop interface for product images with AI-powered analysis
+   - **Text-to-Image Mode**: Rich text input for detailed product descriptions
+   - AI-powered analysis using Vertex AI Gemini Pro Vision and Gemini Pro
+   - Automatic product categorization, feature detection, and commercial strategy generation
 
-2. **Three-Agent Interactive Pipeline**
+2. **Three-Agent Interactive Pipeline with Maya's Intelligence**
 
-   - **Agent 1 (Product Intelligence)**: Analyzes products and refines understanding through chat
-   - **Agent 2 (Creative Director)**: Discusses visual styles and generates assets via Imagen API
-   - **Agent 3 (Video Producer)**: Creates final commercial using Veo API with production choices
+   - **Agent 1 - Maya (Product Intelligence)**: Deep product analysis with conversational strategy refinement
+   - **Agent 2 - David (Creative Director)**: Visual style discussions and asset generation via Imagen API
+   - **Agent 3 - Alex (Video Producer)**: Production decisions and final commercial creation using Veo API
 
-3. **Real-Time Server-Sent Events (SSE) Chat**
+3. **Advanced Conversational Chat System**
 
-   - Natural conversations with each AI agent
-   - Contextual follow-up questions and refinements
-   - Session persistence with reconnection capability
+   - **Maya's Conversational AI**: Natural conversations with sophisticated agent personalities
+   - **Real-Time Strategy Updates**: Dynamic strategy modifications with user confirmation system
+   - **Contextual Quick Actions**: AI-generated suggestions based on conversation flow
+   - **Session Persistence**: Complete conversation history and state management
 
-4. **Professional Video Output**
-   - 30-second commercial videos in 1080p quality
-   - Multiple format options (16:9, 1:1, 9:16)
-   - Downloadable MP4 files with thumbnails
+4. **Professional Commercial Strategy & Video Output**
+   - **Interactive Strategy Cards**: Dynamic expandable sections for strategy review
+   - **Strategy Update Confirmation**: User-controlled approval system for strategy changes
+   - **Professional Video Output**: 30-second commercial videos in 1080p quality
+   - **Multiple Format Options**: 16:9, 1:1, 9:16 with downloadable MP4 files
 
 ### Technical Innovation Features
 
-- **Bilingual Support**: Full Japanese/English interface and agent conversations
-- **Cost-Optimized Processing**: Target <$2.01 per commercial within $300 budget
-- **Real-Time Progress Tracking**: Live updates on processing status and costs
-- **Intelligent Asset Generation**: Context-aware visual assets tailored to product analysis
+- **Demo-First Architecture**: Sophisticated demo mode for risk-free feature validation before real AI processing
+- **Advanced State Management**: Zustand-powered state persistence across component interactions
+- **Maya's Conversational Intelligence**: Sophisticated AI with contextual understanding and strategy refinement
+- **Strategy Update Confirmation System**: User-controlled strategy modifications with approval workflow
+- **Bilingual Agent Personalities**: Full Japanese/English interface with distinct agent conversational styles
+- **Cost-Optimized Processing**: Target <$2.01 per commercial within $300 budget with real-time tracking
+- **Interactive UI Components**: Dynamic expandable strategy cards with smooth animations and magical designs
 
 ### User Experience Features
 
-- **Guided Workflow**: Clear progression through three agent interactions
-- **Interactive Refinement**: Users can influence each stage through natural conversation
-- **Resume Capability**: Sessions can be resumed after disconnections
-- **Multi-Language Support**: Seamless switching between English and Japanese
+- **Hero Section with CTA**: Compelling landing with smooth scroll to Product Intelligence section
+- **Maya's Conversational Intelligence**: Natural, expert-level conversations about commercial strategy
+- **Dual Input Flexibility**: Choose between image upload or detailed text descriptions
+- **Interactive Strategy Refinement**: Real-time strategy updates through agent conversations
+- **Dynamic UI Mode Switching**: Smooth transitions between chat and strategy review modes
+- **Strategy Confirmation System**: User-controlled approval process for strategy changes
+- **Contextual Quick Actions**: Smart suggestions that adapt to conversation context and user needs
+- **Professional Agent Handoffs**: Seamless transitions between Maya, David, and Alex with complete context
+- **Resume Capability**: Complete session state persistence across disconnections
+- **Multi-Language Agent Personalities**: Each agent speaks naturally in English and Japanese
 
 ## Value Proposition
 
@@ -115,11 +127,15 @@ The AdCraft AI is an **interactive multi-agent AI system** that transforms a sin
 
 ## User Journey
 
-1. **Upload**: User uploads product image with optional description
-2. **Analysis**: Agent 1 analyzes product and engages in refinement conversation
-3. **Creative Direction**: Agent 2 presents style options and generates visual assets
-4. **Production**: Agent 3 discusses narration/pacing and creates final video
-5. **Delivery**: User downloads professional commercial in preferred format
+1. **Hero Engagement**: User lands on compelling hero section and smoothly scrolls to Product Intelligence
+2. **Input Mode Selection**: Choose between image upload or text description input modes
+3. **Maya's Product Analysis**: Comprehensive product analysis with commercial strategy generation
+4. **Interactive Strategy Refinement**: Natural conversation with Maya to refine strategy through sophisticated chat
+5. **Dynamic Strategy Review**: Interactive expandable strategy cards show key messages, visual style, scenes, and narrative
+6. **Strategy Update Confirmation**: Maya proposes strategy improvements with user approval system
+7. **David's Creative Direction**: Seamless handoff to Creative Director for visual style discussions and asset generation
+8. **Alex's Video Production**: Final handoff to Video Producer for production decisions and commercial creation
+9. **Professional Delivery**: Download complete commercial with full cost tracking and session history
 
 ## Market Context
 
