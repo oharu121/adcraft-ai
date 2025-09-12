@@ -140,7 +140,7 @@ export default function HandoffConfirmationModal({
       {/* Main Content with Glass Effect */}
       <div className="bg-gray-900/95 backdrop-blur-md p-6 space-y-6">
         {/* Description */}
-        <div className="text-center space-y-4">
+        <div className="space-y-4">
           <p className="text-gray-300 text-lg leading-relaxed">
             {dict.productIntelligence.handoffDescription}
           </p>
@@ -226,8 +226,8 @@ export default function HandoffConfirmationModal({
               </div>
             </div>
 
-            {/* Agent Names Below - Separate Container */}
-            <div className="flex items-center justify-center gap-4" style={{ paddingLeft: '24px', paddingRight: '24px' }}>
+            {/* Agent Names Below - Matching avatar container structure */}
+            <div className="flex items-center justify-center gap-4">
               <div className="flex items-center justify-center" style={{ width: '48px' }}>
                 <span className="text-xs text-blue-400 font-medium">Maya</span>
               </div>
