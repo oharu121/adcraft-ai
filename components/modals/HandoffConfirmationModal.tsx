@@ -146,74 +146,94 @@ export default function HandoffConfirmationModal({
           </p>
 
           {/* Maya to David Flow Visualization */}
-          <div className="flex items-center justify-center gap-4 py-4">
-            <div className="flex flex-col items-center">
-              <AgentAvatar agent="maya" size="md" state="idle" />
-              <span className="text-xs text-blue-400 mt-1 font-medium">Maya</span>
-            </div>
-
-            <div className="flex-1 relative h-16 flex items-center">
-              {/* Base connection line */}
-              <div className="absolute inset-y-0 left-0 right-0 flex items-center">
-                <div className="h-0.5 w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
+          <div className="relative py-4 space-y-2">
+            {/* Container for avatars and handover animation - perfectly aligned */}
+            <div className="flex items-center justify-center gap-4">
+              {/* Maya Avatar */}
+              <div className="flex items-center">
+                <AgentAvatar agent="maya" size="md" state="idle" />
               </div>
 
-              {/* Modern SaaS Style - Flowing Progress Dots */}
-              <div className="absolute inset-y-0 left-0 right-0 flex items-center overflow-hidden">
-                {/* Progress dots flowing from Maya to David */}
-                {[...Array(8)].map((_, i) => (
-                  <div
-                    key={`progress-dot-${i}`}
-                    className="absolute w-2 h-2 rounded-full"
-                    style={{
-                      left: `${i * 12.5}%`,
-                      animationDelay: `${i * 300}ms`,
-                      animationDuration: "2.4s",
-                      animation: `slideRight 2.4s infinite ease-in-out ${i * 300}ms`,
-                      background: `linear-gradient(45deg, 
-                        ${i < 2 ? '#3B82F6' : i < 4 ? '#6366F1' : i < 6 ? '#8B5CF6' : '#A855F7'}, 
-                        ${i < 2 ? '#60A5FA' : i < 4 ? '#818CF8' : i < 6 ? '#A78BFA' : '#C084FC'})`,
-                      opacity: 0.8,
-                      boxShadow: '0 0 8px rgba(139, 92, 246, 0.4)'
-                    }}
-                  />
-                ))}
-                
-                {/* Secondary wave of smaller dots for depth */}
-                {[...Array(6)].map((_, i) => (
-                  <div
-                    key={`small-dot-${i}`}
-                    className="absolute w-1.5 h-1.5 rounded-full bg-gradient-to-r from-blue-300 to-purple-300"
-                    style={{
-                      left: `${i * 20 + 10}%`,
-                      animationDelay: `${i * 400 + 150}ms`,
-                      animationDuration: "2.6s",
-                      animation: `slideRight 2.6s infinite ease-in-out ${i * 400 + 150}ms`,
-                      opacity: 0.6,
-                    }}
-                  />
-                ))}
-                
-                {/* Status indicator dots (static positions) */}
-                <div className="absolute inset-0 flex items-center justify-between px-8">
-                  {[...Array(5)].map((_, i) => (
+              {/* Handover Animation Container - aligned to avatar center */}
+              <div className="flex-1 relative flex items-center" style={{ height: '48px' }}>
+                {/* Base connection line */}
+                <div className="absolute inset-0 flex items-center">
+                  <div className="h-0.5 w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
+                </div>
+
+                {/* Modern SaaS Style - Flowing Progress Dots */}
+                <div className="absolute inset-0 flex items-center overflow-hidden">
+                  {/* Progress dots flowing from Maya to David */}
+                  {[...Array(8)].map((_, i) => (
                     <div
-                      key={`status-${i}`}
-                      className="w-1 h-1 rounded-full bg-gray-400/30"
+                      key={`progress-dot-${i}`}
+                      className="absolute w-2 h-2 rounded-full"
                       style={{
-                        animation: `statusPulse 2s infinite ease-in-out ${i * 400}ms`
+                        left: `${i * 12.5}%`,
+                        animationDelay: `${i * 300}ms`,
+                        animationDuration: "2.4s",
+                        animation: `slideRight 2.4s infinite ease-in-out ${i * 300}ms`,
+                        background: `linear-gradient(45deg, 
+                          ${i < 2 ? '#3B82F6' : i < 4 ? '#6366F1' : i < 6 ? '#8B5CF6' : '#A855F7'}, 
+                          ${i < 2 ? '#60A5FA' : i < 4 ? '#818CF8' : i < 6 ? '#A78BFA' : '#C084FC'})`,
+                        opacity: 0.8,
+                        boxShadow: '0 0 8px rgba(139, 92, 246, 0.4)'
                       }}
                     />
                   ))}
+                  
+                  {/* Secondary wave of smaller dots for depth */}
+                  {[...Array(6)].map((_, i) => (
+                    <div
+                      key={`small-dot-${i}`}
+                      className="absolute w-1.5 h-1.5 rounded-full bg-gradient-to-r from-blue-300 to-purple-300"
+                      style={{
+                        left: `${i * 20 + 10}%`,
+                        animationDelay: `${i * 400 + 150}ms`,
+                        animationDuration: "2.6s",
+                        animation: `slideRight 2.6s infinite ease-in-out ${i * 400 + 150}ms`,
+                        opacity: 0.6,
+                      }}
+                    />
+                  ))}
+                  
+                  {/* Status indicator dots (static positions) */}
+                  <div className="absolute inset-0 flex items-center justify-between px-8">
+                    {[...Array(5)].map((_, i) => (
+                      <div
+                        key={`status-${i}`}
+                        className="w-1 h-1 rounded-full bg-gray-400/30"
+                        style={{
+                          animation: `statusPulse 2s infinite ease-in-out ${i * 400}ms`
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Handshake icon in the center */}
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 animate-bounce">
+                    <span className="text-lg">🤝🏻</span>
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full blur-md opacity-40"></div>
+                  </div>
                 </div>
               </div>
 
-              {/* Handshake icon in the center */}
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 animate-bounce">
-                  <span className="text-lg">🤝🏻</span>
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full blur-md opacity-40"></div>
-                </div>
+              {/* David Avatar */}
+              <div className="flex items-center">
+                <AgentAvatar agent="david" size="md" state="idle" />
+              </div>
+            </div>
+
+            {/* Agent Names Below - Separate Container */}
+            <div className="flex items-center justify-center gap-4" style={{ paddingLeft: '24px', paddingRight: '24px' }}>
+              <div className="flex items-center justify-center" style={{ width: '48px' }}>
+                <span className="text-xs text-blue-400 font-medium">Maya</span>
+              </div>
+              <div className="flex-1"></div>
+              <div className="flex items-center justify-center" style={{ width: '48px' }}>
+                <span className="text-xs text-purple-400 font-medium">David</span>
               </div>
             </div>
 
@@ -248,11 +268,6 @@ export default function HandoffConfirmationModal({
                 }
               }
             `}</style>
-
-            <div className="flex flex-col items-center">
-              <AgentAvatar agent="david" size="md" state="idle" />
-              <span className="text-xs text-purple-400 mt-1 font-medium">David</span>
-            </div>
           </div>
         </div>
 
