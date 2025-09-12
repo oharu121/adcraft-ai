@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useRef } from "react";
-import { Card, ToastContainer } from "@/components/ui";
+import { Button, Card, ToastContainer } from "@/components/ui";
 import { ModeToggle } from "@/components/debug/ModeIndicator";
 import { useToast } from "@/hooks/useToast";
 import { useProductIntelligenceStore } from "@/lib/stores/product-intelligence-store";
@@ -436,8 +436,8 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
   return (
     <div className="min-h-screen">
       {/* 🚀 Hero Section - Now a clean server component! */}
-      <HeroSection 
-        dict={dict} 
+      <HeroSection
+        dict={dict}
         onScrollToSection={scrollToProductIntelligence}
         onFocusProductName={focusProductNameInput}
       />
@@ -482,16 +482,11 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
               )}
 
               {/* Step 2: Analysis Display */}
-              {currentStep === "analyze" && (
-                <AnalysisProgressCard dict={dict} />
-              )}
+              {currentStep === "analyze" && <AnalysisProgressCard dict={dict} />}
 
               {/* 📊 Product Insights - Beautifully componentized */}
               {currentStep === "chat" && (
-                <ProductInsightsCard 
-                  dict={dict} 
-                  onImageClick={() => setShowImageModal(true)} 
-                />
+                <ProductInsightsCard dict={dict} onImageClick={() => setShowImageModal(true)} />
               )}
             </div>
 
@@ -504,46 +499,16 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                   locale={locale}
                   onSendMessage={handleSendMessage}
                   onReset={handleReset}
-                  onProceedToHandoff={() => setCurrentStep("handoff")}
+                  onCreativeDirectorReady={() => {
+                    // Could navigate to Creative Director interface here
+                    console.log("Creative Director is ready!");
+                  }}
                 />
               )}
 
-              {/* Handoff Preparation */}
-              {currentStep === "handoff" && (
-                <Card variant="magical" glow className="p-6">
-                  <div className="text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-green-500 rounded-full flex items-center justify-center">
-                      <svg
-                        className="w-8 h-8 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-semibold text-white mb-2">
-                      {dict.productIntelligence.analysisComplete}
-                    </h3>
-                    <p className="text-gray-300 text-sm mb-4">
-                      {dict.productIntelligence.handoffToCreativeDirector}
-                    </p>
-                    <button className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:scale-105 transition-transform">
-                      {dict.productIntelligence.proceedToNextAgent}
-                    </button>
-                  </div>
-                </Card>
-              )}
 
               {/* 📝 Instructions - Clean server component */}
-              {currentStep === "upload" && (
-                <InstructionsCard dict={dict} />
-              )}
+              {currentStep === "upload" && <InstructionsCard dict={dict} />}
             </div>
           </div>
         </div>

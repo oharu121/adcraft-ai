@@ -6,18 +6,20 @@
  */
 
 import { MAYA_PERSONA } from './maya-persona';
+import { DAVID_PERSONA } from './david-persona';
 
 // Agent asset paths interface
 export interface AgentAssets {
   idle: string;
   thinking: string;
   speaking: string;
+  creating?: string; // Optional creating state for creative agents
 }
 
 // Agent configuration interface
 export interface AgentConfig {
   name: string;
-  persona: typeof MAYA_PERSONA; // Will be generic when we add more personas
+  persona: typeof MAYA_PERSONA | typeof DAVID_PERSONA; // Support multiple personas
   assets: AgentAssets;
   color?: string; // Optional theme color for UI consistency
 }
@@ -34,14 +36,25 @@ export const AGENTS = {
     },
     color: "#3B82F6" // Blue theme
   },
+  david: {
+    name: "David",
+    persona: DAVID_PERSONA,
+    assets: {
+      idle: "/agent-avatar/david-idling.gif",
+      thinking: "/agent-avatar/david-thinking.gif",
+      speaking: "/agent-avatar/david-speaking.gif",
+      creating: "/agent-avatar/david-creating.gif"
+    },
+    color: "#8B5CF6" // Purple theme for creative director
+  },
   // Future agents can be added here:
-  // bob: {
-  //   name: "Bob", 
-  //   persona: BOB_PERSONA,
+  // alex: {
+  //   name: "Alex", 
+  //   persona: ALEX_PERSONA,
   //   assets: {
-  //     idle: "/agent-avatar/bob-idling.gif",
-  //     thinking: "/agent-avatar/bob-thinking.gif",
-  //     speaking: "/agent-avatar/bob-speaking.gif"
+  //     idle: "/agent-avatar/alex-idling.gif",
+  //     thinking: "/agent-avatar/alex-thinking.gif",
+  //     speaking: "/agent-avatar/alex-speaking.gif"
   //   },
   //   color: "#10B981" // Green theme
   // }
@@ -53,5 +66,9 @@ export type AgentState = keyof AgentAssets;
 
 // Helper functions
 export const getAgent = (agentId: AgentId): AgentConfig => AGENTS[agentId];
-export const getAgentAsset = (agentId: AgentId, state: AgentState): string => 
-  AGENTS[agentId].assets[state];
+export const getAgentAsset = (agentId: AgentId, state: AgentState): string => {
+  const agent = AGENTS[agentId];
+  const asset = (agent.assets as any)[state];
+  // Fallback to idle if state doesn't exist (e.g., 'creating' for Maya)
+  return asset || agent.assets.idle;
+};

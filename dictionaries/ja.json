@@ -428,6 +428,312 @@
     "brandTone": "トーン:",
     "analyzingMusicTone": "音楽・トーンを分析中..."
   },
+  "creativeDirector": {
+    "title": "クリエイティブディレクター（デイビッド）",
+    "subtitle": "戦略をビジュアルの卓越性に転換",
+    "description": "マヤの洞察を受け取り、コマーシャルのための魅力的なビジュアルディレクションとアセットに変換します。",
+    
+    "personality": {
+      "greeting": "こんにちは！10年以上にわたりブランドを魅力的なビジュアルで変革してきたクリエイティブディレクターのデイビッドです。",
+      "introduction": "私は戦略的洞察を、文化を超えて響き、商業的成功を推進する画期的なクリエイティブに翻訳することを専門としています。",
+      "expertise": "私の専門分野は、ビジュアルストーリーテリング、異文化デザイン心理学、プレミアムブランドの美学です。",
+      "approach": "すべてのピクセルは芸術的ビジョンと商業目標の両方に貢献すべきだと信じています。一緒に特別なものを創造しましょう。",
+      "collaboration": "私はあなたのクリエイティブパートナーとして、技術的専門知識を提供しながら、すべての決定があなたのブランドの本物の声と一致することを確実にします。"
+    },
+    
+    "phases": {
+      "analysis": "分析",
+      "creativeDevelopment": "クリエイティブ開発",
+      "assetGeneration": "アセット生成",
+      "productionPreparation": "制作準備"
+    },
+    
+    "sections": {
+      "visualDirection": "ビジュアルディレクション",
+      "colorPalette": "カラーパレット",
+      "assetGeneration": "アセット生成",
+      "productionReady": "制作準備完了",
+      "handoffPreparation": "引き継ぎ準備"
+    },
+    
+    "creativeTerminology": {
+      "visualStyles": {
+        "minimalist": "ミニマリスト",
+        "luxury": "ラグジュアリー",
+        "contemporary": "コンテンポラリー",
+        "artisanal": "職人的",
+        "premium": "プレミアム",
+        "bold": "ボールド",
+        "sophisticated": "洗練された",
+        "organic": "オーガニック",
+        "geometric": "ジオメトリック",
+        "cinematic": "シネマティック"
+      },
+      "colorTheory": {
+        "harmony": "カラーハーモニー",
+        "contrast": "ビジュアルコントラスト",
+        "temperature": "色温度",
+        "saturation": "彩度",
+        "psychology": "色彩心理",
+        "cultural": "文化的色彩意味",
+        "brand": "ブランドカラー戦略",
+        "accessibility": "色彩アクセシビリティ",
+        "emotion": "色彩感情反応",
+        "market": "マーケット色彩嗜好"
+      },
+      "composition": {
+        "ruleOfThirds": "三分割法",
+        "goldenRatio": "黄金比",
+        "leadingLines": "誘導線",
+        "symmetry": "シンメトリー",
+        "balance": "バランス",
+        "hierarchy": "ビジュアル階層",
+        "focal": "フォーカルポイント戦略",
+        "negative": "ネガティブスペース",
+        "rhythm": "ビジュアルリズム",
+        "proportion": "比例"
+      },
+      "brandAlignment": {
+        "heritage": "ブランドヘリテージ",
+        "personality": "ブランドパーソナリティ",
+        "values": "ブランド価値表現",
+        "positioning": "マーケットポジショニング",
+        "differentiation": "ビジュアル差別化",
+        "consistency": "ブランド一貫性",
+        "evolution": "ブランド進化",
+        "authenticity": "ビジュアル真正性",
+        "recognition": "ブランド認知",
+        "trust": "ビジュアル信頼構築"
+      }
+    },
+    
+    "culturalSensitivity": {
+      "western": {
+        "preferences": "西洋のビジュアル嗜好は、大胆なコントラスト、個人表現、直接的メッセージングを重視します",
+        "colors": "高コントラストパレット、エネルギッシュな原色、洗練性のモノクローム",
+        "composition": "ダイナミックな非対称、三分割法、強いフォーカルポイント",
+        "typography": "クリーンなサンセリフ、ボールドなヘッドライン、読みやすい階層",
+        "imagery": "ライフスタイル重視、パーソナリティ駆動、感情的ストーリーテリング"
+      },
+      "japanese": {
+        "preferences": "日本の美学は調和、繊細さ、敬意ある表現を重視します",
+        "colors": "落ち着いたトーン、自然なパレット、季節の色彩配慮",
+        "composition": "バランスの取れた非対称、思慮深いネガティブスペース、穏やかなビジュアルフロー",
+        "typography": "クリーンで敬意ある階層、テキストと画像のバランス",
+        "imagery": "品質重視、職人技への敬意、繊細な感情表現"
+      },
+      "global": {
+        "universal": "地域の感性を尊重しながら文化的境界を超越する要素",
+        "adaptable": "核となるブランドアイデンティティを維持しながら文化的に適応可能なビジュアルアプローチ",
+        "inclusive": "多様なオーディエンスを歓迎する画像とデザイン選択",
+        "respectful": "色彩選択、画像、ビジュアルメタファーにおける文化的配慮"
+      }
+    },
+    
+    "handoff": {
+      "fromMaya": {
+        "title": "マヤから受け取り",
+        "description": "戦略的洞察とビジュアル機会を処理中",
+        "processing": "マヤの戦略的洞察を処理中...",
+        "complete": "戦略的引き継ぎ完了",
+        "viewStrategy": "戦略を表示",
+        "beginCreativeWork": "クリエイティブワークを開始",
+        "contextReceived": "戦略的コンテキストの受信完了",
+        "opportunitiesIdentified": "ビジュアル機会の特定完了",
+        "readyToProceed": "クリエイティブ開発の準備完了"
+      },
+      "toAlex": {
+        "title": "アレックスへの準備",
+        "description": "クリエイティブディレクションと制作アセットの最終化",
+        "preparing": "クリエイティブディレクションパッケージを準備中...",
+        "complete": "動画制作準備完了",
+        "handoffToAlex": "アレックスに引き継ぎ",
+        "reviewAssets": "アセットをレビュー",
+        "packageComplete": "クリエイティブディレクションパッケージ完成",
+        "assetsOrganized": "制作用アセット整理完了",
+        "specificationsReady": "制作仕様準備完了"
+      }
+    },
+    
+    "chat": {
+      "title": "クリエイティブディレクターチャット",
+      "placeholder": "ビジュアルコンセプト、スタイルの好み、またはクリエイティブな提案について話し合います...",
+      "send": "送信",
+      "connecting": "デイビッドに接続中...",
+      "connected": "デイビッドに接続済み",
+      "disconnected": "デイビッドから切断",
+      "agentTyping": "デイビッドが制作中...",
+      "userTyping": "入力中...",
+      "toggleChat": "💬 デイビッドとチャット",
+      "toggleAssets": "🎨 アセットを表示",
+      "welcomeMessage": "こんにちは！クリエイティブディレクターのデイビッドです。マヤからあなたの商品の戦略的洞察を受け取りました。あなたのブランドの本質を捉え、オーディエンスとつながる素晴らしいビジュアルを作りましょう！",
+      "suggestionPrefix": "クリエイティブなインスピレーションが必要ですか？お試しください：",
+      "quickActionsTitle": "探索するビジュアル決定：",
+      "suggestions": [
+        "私のブランドパーソナリティを最もよく表現するビジュアルスタイルは？",
+        "文化的に適切なカラーパレットオプションを見せてください",
+        "ターゲット市場に合致する背景コンセプトを生成してください",
+        "主要機能を強調する商品ヒーローショットを作成してください",
+        "感情的インパクトを最大化するシーン構成は？",
+        "このクリエイティブを異なる文化市場に適応させる方法は？"
+      ],
+      "creativeFeedback": {
+        "positive": [
+          "素晴らしいクリエイティブディレクション！あなたのブランドビジョンを完璧に捉えています。",
+          "このビジュアルアプローチがターゲットオーディエンスに響く方法が素晴らしいです。",
+          "このクリエイティブソリューションは芸術性と商業的魅力を見事にバランスしています。",
+          "このアプローチの文化的配慮はあなたのグローバル目標によく貢献するでしょう。"
+        ],
+        "constructive": [
+          "これは可能性があります - メッセージを強化するためにビジュアルバランスを洗練しましょう。",
+          "良い方向性ですが、あなたの市場に対する文化的適切性を向上させることができます。",
+          "しっかりしたコンセプトです - あなたのブランド価値により良く合致するよう色彩心理を調整しましょう。",
+          "ビジョンが見えます - 最大のビジュアルインパクトのために構成を最適化しましょう。"
+        ]
+      }
+    },
+    
+    "quickActions": {
+      "generateBackgrounds": "背景を生成",
+      "createProductHero": "商品ヒーローを作成",
+      "designColorPalette": "カラーパレットをデザイン",
+      "buildSceneComposition": "シーン構成を構築",
+      "createStyleFrames": "スタイルフレームを作成",
+      "generateMoodBoard": "ムードボードを生成",
+      "analyzeColorPsychology": "色彩心理を分析",
+      "exploreCompositions": "構成を探索",
+      "reviewBrandAlignment": "ブランド整合性をレビュー",
+      "adaptForCulture": "ターゲット文化に適応"
+    },
+    
+    "visualDecisions": {
+      "title": "ビジュアル決定",
+      "styleDirection": "スタイルディレクション",
+      "colorMood": "カラームード",
+      "approvedPalettes": "承認済みパレット",
+      "selectedCompositions": "選択された構成",
+      "brandAlignment": "ブランド整合性スコア",
+      "culturalFit": "文化的適切性",
+      "marketAppeal": "マーケット魅力度スコア",
+      "confirm": "ビジュアルディレクションを確認",
+      "confirmMessage": "このビジュアルディレクションをあなたのコマーシャルに承認しますか？",
+      "approved": "ビジュアルディレクション承認済み、アセット生成準備完了",
+      "makeChanges": "クリエイティブ調整を要求",
+      "reasoning": "クリエイティブ理由",
+      "justification": "このビジュアルディレクションが機能する理由は..."
+    },
+    
+    "assetGallery": {
+      "title": "生成されたクリエイティブアセット",
+      "description": "コマーシャル制作用のプロフェッショナルビジュアルアセット",
+      "types": {
+        "backgrounds": "環境背景",
+        "productHero": "商品ヒーローショット",
+        "lifestyleScenes": "ライフスタイルコンテキストシーン",
+        "overlays": "グラフィックオーバーレイ・エレメント",
+        "moodBoards": "ビジュアルムードボード",
+        "styleFrames": "スタイルリファレンスフレーム",
+        "colorPalettes": "カラーパレットシステム",
+        "compositions": "コンポジションテンプレート"
+      },
+      "status": {
+        "generating": "作成中...",
+        "completed": "準備完了",
+        "failed": "生成失敗",
+        "approved": "制作承認済み",
+        "inReview": "レビュー中",
+        "needsRevision": "修正が必要"
+      },
+      "actions": {
+        "preview": "アセットプレビュー",
+        "download": "高解像度ダウンロード",
+        "approve": "制作承認",
+        "regenerate": "代替生成",
+        "remove": "ギャラリーから削除",
+        "feedback": "クリエイティブフィードバック提供",
+        "iterate": "バリエーション作成",
+        "export": "制作ファイルエクスポート"
+      },
+      "empty": {
+        "title": "あなたのクリエイティブキャンバスをお待ちしています",
+        "description": "ビジョンについて話し合うか、クイックアクションを使用して最初のクリエイティブアセットを生成してください"
+      },
+      "generating": {
+        "title": "あなたのビジュアルストーリーを作成中...",
+        "description": "デイビッドがクリエイティブ専門知識を適用してアセットを生成しています",
+        "estimated": "完了予定時刻：",
+        "progress": "クリエイティブ進捗：",
+        "currentStep": "現在のステップ："
+      },
+      "quality": {
+        "excellent": "優秀なクリエイティブ品質",
+        "good": "強力なクリエイティブ実行",
+        "acceptable": "クリエイティブ基準達成",
+        "needsWork": "クリエイティブ改良が必要"
+      }
+    },
+    
+    "creativeInsights": {
+      "title": "クリエイティブインテリジェンス・洞察",
+      "visualOpportunities": "ビジュアル機会分析",
+      "styleRecommendations": "戦略的スタイル推奨",
+      "colorTheory": "応用色彩理論分析",
+      "compositionGuidance": "構成・レイアウトガイダンス",
+      "brandConsiderations": "ブランド戦略考慮事項",
+      "culturalInsights": "異文化ビジュアル洞察",
+      "marketAnalysis": "ビジュアルマーケット分析",
+      "competitivePositioning": "クリエイティブ競合分析",
+      "trendAnalysis": "現在のデザイントレンド分析",
+      "psychologyInsights": "ビジュアル心理学洞察"
+    },
+    
+    "costTracking": {
+      "assetGeneration": "クリエイティブアセット生成",
+      "totalSpent": "総クリエイティブ投資",
+      "estimatedRemaining": "アレックス用利用可能予算",
+      "costPerAsset": "クリエイティブアセット単価",
+      "budgetOptimization": "クリエイティブ予算最適化",
+      "valueAnalysis": "クリエイティブROI分析"
+    },
+    
+    "status": {
+      "initializing": "クリエイティブディレクターワークスペース初期化中...",
+      "analyzing": "戦略的コンテキストとクリエイティブ機会を分析中...",
+      "ready": "クリエイティブコラボレーション・開発準備完了",
+      "creating": "クリエイティブ精度でビジュアルアセットを生成中...",
+      "completing": "クリエイティブディレクションパッケージ最終化中...",
+      "error": "クリエイティブプロセスが問題に遭遇しました",
+      "thinking": "クリエイティブ可能性を分析中...",
+      "ideating": "クリエイティブコンセプトを生成中...",
+      "refining": "ビジュアルアプローチを洗練中..."
+    },
+    
+    "errors": {
+      "assetGenerationFailed": "アセット生成がクリエイティブ課題に遭遇しました。異なるアプローチを試すか、パラメータを調整してください。",
+      "visualAnalysisFailed": "ビジュアル分析があなたのリクエストを処理できませんでした。入力とクリエイティブパラメータを確認してください。",
+      "handoffFailed": "クリエイティブ引き継ぎ処理に失敗しました。サポートにお問い合わせください。",
+      "insufficientBudget": "追加のアセット生成に必要な予算が不足しています。現在のアセットの最適化を検討してください。",
+      "retryGeneration": "異なるクリエイティブアプローチを試す",
+      "contactSupport": "クリエイティブサポートを取得",
+      "invalidParameters": "クリエイティブパラメータの調整が必要です。ビジュアル要件を洗練してください。",
+      "processingTimeout": "クリエイティブ処理が予想より長く時間がかかっています。再度お試しください。",
+      "culturalMismatch": "リクエストされたクリエイティブアプローチがターゲット文化と合致しない可能性があります。代替案をご希望ですか？",
+      "brandMisalignment": "このクリエイティブディレクションはブランド戦略と合致しない可能性があります。代替案を探索しましょう。",
+      "qualityIssue": "生成されたアセットがクリエイティブ品質基準を満たしていません。代替案を生成中...",
+      "technicalLimitation": "技術的制限により、この特定のクリエイティブアプローチは実現できません。代替案をご提案します。"
+    },
+    
+    "feedback": {
+      "requestCreativeInput": "この方向性についてあなたのクリエイティブな意見をお聞かせください。あなたのビジョンと共鳴する側面はありますか？",
+      "clarifyCreativeDirection": "あなたのクリエイティブ嗜好をより良く理解するのを手伝っていただけますか？",
+      "confirmCreativeChoices": "これらのクリエイティブ選択があなたのブランド目標と一致することを確認しましょう。",
+      "suggestCreativeRefinements": "このアプローチを強化できるクリエイティブな改良案があります。",
+      "explainCreativeReasoning": "この推奨の背後にあるクリエイティブな理由を説明させてください。",
+      "offerCreativeAlternatives": "代替のクリエイティブディレクションを探索しますか？",
+      "validateCulturalApproach": "このクリエイティブアプローチがあなたのターゲット文化に響くことを確実にしましょう。",
+      "optimizeForBrand": "より強いブランド整合性のためにこのクリエイティブアプローチを最適化できます。"
+    }
+  },
   "chat": {
     "typeMessage": "メッセージを入力...",
     "send": "送信",

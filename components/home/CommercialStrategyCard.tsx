@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Card } from "@/components/ui";
 import { ChatContainer } from "@/components/product-intelligence";
+import HandoffConfirmationModal from "@/components/modals/HandoffConfirmationModal";
 import { useProductIntelligenceStore } from "@/lib/stores/product-intelligence-store";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
 
@@ -11,7 +12,7 @@ interface CommercialStrategyCardProps {
   locale: Locale;
   onSendMessage: (message: string) => Promise<void>;
   onReset: () => void;
-  onProceedToHandoff: () => void;
+  onCreativeDirectorReady?: () => void;
 }
 
 export default function CommercialStrategyCard({
@@ -19,7 +20,7 @@ export default function CommercialStrategyCard({
   locale,
   onSendMessage,
   onReset,
-  onProceedToHandoff,
+  onCreativeDirectorReady,
 }: CommercialStrategyCardProps) {
   const {
     sessionId,
@@ -37,6 +38,9 @@ export default function CommercialStrategyCard({
     addMessage,
   } = useProductIntelligenceStore();
 
+  // Handoff dialog state
+  const [showHandoffDialog, setShowHandoffDialog] = useState(false);
+
   // Scroll to chat section header instead of chat bottom
   const scrollToChatSection = useCallback(() => {
     const element = document.getElementById("product-intelligence-section");
@@ -45,6 +49,12 @@ export default function CommercialStrategyCard({
     }
     // chatSectionRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
+
+  // Handle handoff success
+  const handleHandoffSuccess = useCallback(() => {
+    setShowHandoffDialog(false);
+    onCreativeDirectorReady?.();
+  }, [onCreativeDirectorReady]);
 
   // Handle strategy confirmation
   const handleStrategyConfirmation = useCallback(
@@ -544,7 +554,7 @@ export default function CommercialStrategyCard({
               {dict.productIntelligence.startOver}
             </button>
             <button
-              onClick={onProceedToHandoff}
+              onClick={() => setShowHandoffDialog(true)}
               disabled={analysisError?.canProceed === false}
               className={`px-8 py-3 rounded-lg font-medium transition-all duration-200 ${
                 analysisError?.canProceed === false
@@ -557,6 +567,17 @@ export default function CommercialStrategyCard({
           </div>
         </div>
       )}
+
+      {/* Handoff Confirmation Modal */}
+      <HandoffConfirmationModal
+        isOpen={showHandoffDialog}
+        onClose={() => setShowHandoffDialog(false)}
+        onSuccess={handleHandoffSuccess}
+        analysis={analysis}
+        sessionId={sessionId}
+        dict={dict}
+        locale={locale}
+      />
     </Card>
   );
 }
