@@ -158,20 +158,54 @@ export default function HandoffConfirmationModal({
                 <div className="h-0.5 w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
               </div>
 
-              {/* Data stream animation - flowing elements */}
+              {/* Modern SaaS Style - Flowing Progress Dots */}
               <div className="absolute inset-y-0 left-0 right-0 flex items-center overflow-hidden">
-                {[...Array(5)].map((_, i) => (
+                {/* Progress dots flowing from Maya to David */}
+                {[...Array(8)].map((_, i) => (
                   <div
-                    key={i}
-                    className="absolute w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-80 animate-pulse"
+                    key={`progress-dot-${i}`}
+                    className="absolute w-2 h-2 rounded-full"
                     style={{
-                      left: `${i * 20}%`,
-                      animationDelay: `${i * 400}ms`,
-                      animationDuration: "2s",
-                      animation: `slideRight 2s infinite linear ${i * 400}ms`,
+                      left: `${i * 12.5}%`,
+                      animationDelay: `${i * 300}ms`,
+                      animationDuration: "2.4s",
+                      animation: `slideRight 2.4s infinite ease-in-out ${i * 300}ms`,
+                      background: `linear-gradient(45deg, 
+                        ${i < 2 ? '#3B82F6' : i < 4 ? '#6366F1' : i < 6 ? '#8B5CF6' : '#A855F7'}, 
+                        ${i < 2 ? '#60A5FA' : i < 4 ? '#818CF8' : i < 6 ? '#A78BFA' : '#C084FC'})`,
+                      opacity: 0.8,
+                      boxShadow: '0 0 8px rgba(139, 92, 246, 0.4)'
                     }}
                   />
                 ))}
+                
+                {/* Secondary wave of smaller dots for depth */}
+                {[...Array(6)].map((_, i) => (
+                  <div
+                    key={`small-dot-${i}`}
+                    className="absolute w-1.5 h-1.5 rounded-full bg-gradient-to-r from-blue-300 to-purple-300"
+                    style={{
+                      left: `${i * 20 + 10}%`,
+                      animationDelay: `${i * 400 + 150}ms`,
+                      animationDuration: "2.6s",
+                      animation: `slideRight 2.6s infinite ease-in-out ${i * 400 + 150}ms`,
+                      opacity: 0.6,
+                    }}
+                  />
+                ))}
+                
+                {/* Status indicator dots (static positions) */}
+                <div className="absolute inset-0 flex items-center justify-between px-8">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={`status-${i}`}
+                      className="w-1 h-1 rounded-full bg-gray-400/30"
+                      style={{
+                        animation: `statusPulse 2s infinite ease-in-out ${i * 400}ms`
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
 
               {/* Handshake icon in the center */}
@@ -199,6 +233,18 @@ export default function HandoffConfirmationModal({
                 100% {
                   transform: translateX(400%);
                   opacity: 0;
+                }
+              }
+              
+              @keyframes statusPulse {
+                0%, 100% {
+                  opacity: 0.3;
+                  transform: scale(1);
+                }
+                50% {
+                  opacity: 0.8;
+                  transform: scale(1.5);
+                  background: linear-gradient(45deg, #8B5CF6, #A855F7);
                 }
               }
             `}</style>
