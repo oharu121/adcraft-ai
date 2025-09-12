@@ -111,7 +111,7 @@ export default function HandoffConfirmationModal({
             <button
               onClick={onClose}
               disabled={isProcessing}
-              className="cursor-pointer w-8 h-8 rounded-full bg-black/20 hover:bg-black/40 text-white/70 hover:text-white transition-all duration-200 flex items-center justify-center disabled:opacity-50 -mt-2"
+              className="cursor-pointer w-8 h-8 rounded-full bg-black/20 hover:bg-black/40 text-white/70 hover:text-white transition-all duration-200 flex items-center justify-center disabled:opacity-50 -mt-10"
               title={dict.common.close}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,14 +142,56 @@ export default function HandoffConfirmationModal({
               <span className="text-xs text-blue-400 mt-1 font-medium">Maya</span>
             </div>
 
-            <div className="flex-1 relative">
-              <div className="h-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
-              <div className="absolute inset-0 h-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 blur-sm opacity-50"></div>
-              {/* Animated dot */}
-              <div className="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full shadow-lg animate-pulse">
-                <div className="absolute inset-0 bg-white rounded-full blur-sm opacity-50 animate-ping"></div>
+            <div className="flex-1 relative h-16 flex items-center">
+              {/* Base connection line */}
+              <div className="absolute inset-y-0 left-0 right-0 flex items-center">
+                <div className="h-0.5 w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
+              </div>
+
+              {/* Data stream animation - flowing elements */}
+              <div className="absolute inset-y-0 left-0 right-0 flex items-center overflow-hidden">
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-80 animate-pulse"
+                    style={{
+                      left: `${i * 20}%`,
+                      animationDelay: `${i * 400}ms`,
+                      animationDuration: "2s",
+                      animation: `slideRight 2s infinite linear ${i * 400}ms`,
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* Handshake icon in the center */}
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 ">
+                  <span className="text-lg">🤝🏻</span>
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full blur-md opacity-40"></div>
+                </div>
               </div>
             </div>
+
+            {/* CSS animation styles */}
+            <style jsx>{`
+              @keyframes slideRight {
+                0% {
+                  transform: translateX(-100%);
+                  opacity: 0;
+                }
+                20% {
+                  opacity: 1;
+                }
+                80% {
+                  opacity: 1;
+                }
+                100% {
+                  transform: translateX(400%);
+                  opacity: 0;
+                }
+              }
+            `}</style>
 
             <div className="flex flex-col items-center">
               <AgentAvatar agent="david" size="md" state="idle" />
