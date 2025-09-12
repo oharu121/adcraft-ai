@@ -368,6 +368,11 @@
     "proceedToNextAgent": "Proceed to Next Agent",
     "analysisCompleteReady": "Ready to hand off to Creative Director Agent for commercial creation?",
     "handoffToCreativeDirector": "Ready to hand off to Creative Director Agent for commercial creation?",
+    "confirmHandoff": "Proceed to Creative Director",
+    "handoffDescription": "Ready to transfer your product strategy to David, our Creative Director? He'll transform your insights into compelling visual direction for video production.",
+    "transferSummary": "What's being transferred:",
+    "reviewMore": "Review More",
+    "initializing": "Initializing...",
     "commercialStrategy": "🎬 Commercial Strategy",
     "commercialStrategyWithProduct": "🎬 {productName} Commercial Strategy",
     "chatAboutStrategyGeneric": "💬 Chat About Strategy",
@@ -388,8 +393,9 @@
     "productFullSize": "Product - Full Size"
   },
   "productAnalysis": {
-    "title": "📦 Product Analysis",
+    "title": "📦 Product Analysis", 
     "subtitle": "AI-powered product insights",
+    "productInsights": "Product Insights",
     "chatAboutStrategy": "💬 Chat About Strategy",
     "productDescription": "Product Description",
     "productName": "Product Name",
