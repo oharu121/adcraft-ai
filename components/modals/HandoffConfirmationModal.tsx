@@ -212,7 +212,7 @@ export default function HandoffConfirmationModal({
                 </div>
 
                 {/* Handshake icon in the center */}
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-3/8">
                   <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 animate-bounce">
                     <span className="text-lg">🤝🏻</span>
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full blur-md opacity-40"></div>
