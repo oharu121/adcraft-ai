@@ -17,6 +17,16 @@ interface HandoffConfirmationModalProps {
   locale: Locale;
 }
 
+// Color mapping to ensure Tailwind includes these classes
+const COLOR_MAP = {
+  blue: 'bg-blue-400',
+  green: 'bg-green-400', 
+  purple: 'bg-purple-400',
+  red: 'bg-red-400',
+  yellow: 'bg-yellow-400',
+  pink: 'bg-pink-400'
+} as const;
+
 export default function HandoffConfirmationModal({
   isOpen,
   onClose,
@@ -166,7 +176,7 @@ export default function HandoffConfirmationModal({
 
               {/* Handshake icon in the center */}
               <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 ">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 animate-bounce">
                   <span className="text-lg">🤝🏻</span>
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full blur-md opacity-40"></div>
                 </div>
@@ -224,7 +234,7 @@ export default function HandoffConfirmationModal({
                   <div className="text-lg">{item.icon}</div>
                   <span className="text-gray-300 text-sm font-medium">{item.label}</span>
                   <div
-                    className={`ml-auto w-2 h-2 bg-${item.color}-400 rounded-full animate-pulse`}
+                    className={`ml-auto w-2 h-2 rounded-full animate-pulse ${COLOR_MAP[item.color as keyof typeof COLOR_MAP]}`}
                   ></div>
                 </div>
               ))}
