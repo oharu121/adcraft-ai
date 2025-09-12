@@ -43,7 +43,6 @@ export const AGENTS = {
       idle: "/agent-avatar/david-idling.gif",
       thinking: "/agent-avatar/david-thinking.gif",
       speaking: "/agent-avatar/david-speaking.gif",
-      creating: "/agent-avatar/david-creating.gif"
     },
     color: "#8B5CF6" // Purple theme for creative director
   },
