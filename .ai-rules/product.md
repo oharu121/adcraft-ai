@@ -36,11 +36,37 @@ The AdCraft AI is an **interactive multi-agent AI system** that transforms a sin
    - AI-powered analysis using Vertex AI Gemini Pro Vision and Gemini Pro
    - Automatic product categorization, feature detection, and commercial strategy generation
 
-2. **Three-Agent Interactive Pipeline with Maya's Intelligence**
+2. **Three-Agent Interactive Pipeline with Specialized Expertise**
 
-   - **Agent 1 - Maya (Product Intelligence)**: Deep product analysis with conversational strategy refinement
-   - **Agent 2 - David (Creative Director)**: Visual style discussions and asset generation via Imagen API
-   - **Agent 3 - Alex (Video Producer)**: Production decisions and final commercial creation using Veo API
+   - **Agent 1 - Maya (Product Intelligence Agent)**
+     - **Personality**: Product expert, analytical, strategic communicator
+     - **Core Responsibilities**:
+       - Deep product analysis via Gemini Pro Vision (image input) and Gemini Pro (text input)
+       - Product categorization, feature detection, and target audience identification
+       - **Key Messages**: Core value propositions, headlines, taglines, and communication strategy
+       - Real-time conversational strategy refinement through sophisticated chat system
+     - **User Interaction**: "What should our main message be? Who is your target audience?"
+     - **Output**: Product analysis + key messaging strategy → Handoff to David
+
+   - **Agent 2 - David (Creative Director Agent)**
+     - **Personality**: Visual perfectionist, artistic expertise, brand-focused storyteller
+     - **Core Responsibilities**:
+       - **Visual Style**: Style refinement, mood board creation, color palette and lighting decisions
+       - **Key Scenes**: Scene composition, shot selection, visual storytelling structure
+       - **Visual Asset Generation**: Imagen API integration for backgrounds, product shots, lifestyle contexts, overlays
+       - Step-by-step visual decision workflow (Welcome → Style Selection → Scene Planning → Asset Generation)
+     - **User Interaction**: "How should we show this visually? What style resonates with your brand?"
+     - **Output**: Complete visual package + generated assets → Handoff to Alex
+
+   - **Agent 3 - Alex (Video Producer Agent)**
+     - **Personality**: Production expert, timing specialist, audio-focused storytelling professional
+     - **Core Responsibilities**:
+       - **Narrative Style**: Pacing decisions (slow-dramatic vs fast-energetic), narration style (authoritative vs conversational)
+       - **Music & Tone**: Audio coordination, music genre selection, final audio mixing
+       - **Final Production**: Veo API orchestration with all visual assets, video format optimization (16:9, 1:1, 9:16)
+       - Production polish: color grading, transition effects, timing refinement
+     - **User Interaction**: "How should this sound and feel? Should we go with energetic or dramatic pacing?"
+     - **Output**: Final commercial video in multiple formats with professional production quality
 
 3. **Advanced Conversational Chat System**
 
@@ -128,14 +154,34 @@ The AdCraft AI is an **interactive multi-agent AI system** that transforms a sin
 ## User Journey
 
 1. **Hero Engagement**: User lands on compelling hero section and smoothly scrolls to Product Intelligence
+
 2. **Input Mode Selection**: Choose between image upload or text description input modes
-3. **Maya's Product Analysis**: Comprehensive product analysis with commercial strategy generation
-4. **Interactive Strategy Refinement**: Natural conversation with Maya to refine strategy through sophisticated chat
-5. **Dynamic Strategy Review**: Interactive expandable strategy cards show key messages, visual style, scenes, and narrative
-6. **Strategy Update Confirmation**: Maya proposes strategy improvements with user approval system
-7. **David's Creative Direction**: Seamless handoff to Creative Director for visual style discussions and asset generation
-8. **Alex's Video Production**: Final handoff to Video Producer for production decisions and commercial creation
-9. **Professional Delivery**: Download complete commercial with full cost tracking and session history
+
+3. **Maya's Product Intelligence Phase**:
+   - **Product Analysis**: Comprehensive product understanding via AI vision/text processing
+   - **Key Messages Development**: Core value propositions, headlines, and communication strategy
+   - **Interactive Chat**: Natural conversation to refine messaging through sophisticated chat system
+   - **Strategy Confirmation**: User approves product understanding and key messages
+
+4. **Smooth Phase Transition**: Beautiful handoff animation from Maya to David with context preservation
+
+5. **David's Creative Direction Phase**:
+   - **Welcome & Introduction**: David explains visual creation process
+   - **Visual Style Selection**: User chooses style (minimalist, cinematic, lifestyle, luxury)
+   - **Scene Planning**: David presents key scenes based on Maya's messaging strategy
+   - **Visual Asset Generation**: Real-time creation of backgrounds, product shots, lifestyle contexts via Imagen API
+   - **Interactive Chat**: Ongoing conversation about visual choices and creative decisions
+
+6. **Smooth Phase Transition**: Beautiful handoff animation from David to Alex with complete visual package
+
+7. **Alex's Video Production Phase**:
+   - **Production Planning**: Alex reviews visual assets and messaging from previous agents
+   - **Narrative Style Selection**: Pacing (dramatic vs energetic) and narration style decisions
+   - **Music & Tone Selection**: Audio genre, mood, and final audio coordination
+   - **Final Video Production**: Veo API orchestration with all assets for professional commercial creation
+   - **Interactive Chat**: Real-time production decisions and final polish options
+
+8. **Professional Delivery**: Download complete commercial video with full cost tracking and session history
 
 ## Market Context
 

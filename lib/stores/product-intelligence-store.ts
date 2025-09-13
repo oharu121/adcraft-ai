@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { SessionStatus } from '../agents/product-intelligence/enums';
 import { ChatMessage, ProductAnalysis } from '../agents/product-intelligence/types';
+import { AppPhase } from '../types/app-phases';
+import { PhaseManager } from '../utils/phase-manager';
 
 
 interface ProductIntelligenceStore {
@@ -9,6 +11,10 @@ interface ProductIntelligenceStore {
   sessionStatus: SessionStatus;
   isConnected: boolean;
   isAgentTyping: boolean;
+
+  // Phase management
+  currentPhase: AppPhase;
+  completedPhases: AppPhase[];
   
   // Product input state
   uploadedImage: File | null;
@@ -49,6 +55,12 @@ interface ProductIntelligenceStore {
   setSessionStatus: (status: SessionStatus) => void;
   setIsConnected: (connected: boolean) => void;
   setIsAgentTyping: (typing: boolean) => void;
+
+  // Actions for phase management
+  setCurrentPhase: (phase: AppPhase) => void;
+  completePhase: (phase: AppPhase) => void;
+  canAccessPhase: (phase: AppPhase) => boolean;
+  transitionToPhase: (phase: AppPhase) => void;
   
   // Actions for product input
   setUploadedImage: (file: File | null) => void;
@@ -92,6 +104,10 @@ export const useProductIntelligenceStore = create<ProductIntelligenceStore>((set
   isConnected: false,
   isAgentTyping: false,
 
+  // Phase management initial state
+  currentPhase: 'product-input' as AppPhase,
+  completedPhases: [],
+
   uploadedImage: null,
   productName: "",
   productDescription: "",
@@ -127,6 +143,30 @@ export const useProductIntelligenceStore = create<ProductIntelligenceStore>((set
   setSessionStatus: (status) => set({ sessionStatus: status }),
   setIsConnected: (connected) => set({ isConnected: connected }),
   setIsAgentTyping: (typing) => set({ isAgentTyping: typing }),
+
+  // Phase management actions
+  setCurrentPhase: (phase) => set({ currentPhase: phase }),
+  completePhase: (phase) => set((state) => ({
+    completedPhases: state.completedPhases.includes(phase)
+      ? state.completedPhases
+      : [...state.completedPhases, phase]
+  })),
+  canAccessPhase: (phase) => {
+    const state = get();
+    return PhaseManager.canAccessPhase(phase, state.currentPhase);
+  },
+  transitionToPhase: (phase) => {
+    const state = get();
+    if (PhaseManager.isValidTransition(state.currentPhase, phase)) {
+      set({ currentPhase: phase });
+      // Auto-complete previous phase
+      if (!state.completedPhases.includes(state.currentPhase)) {
+        set((state) => ({
+          completedPhases: [...state.completedPhases, state.currentPhase]
+        }));
+      }
+    }
+  },
 
   setUploadedImage: (file) => set({ uploadedImage: file }),
   setProductName: (name) => set({ productName: name }),
@@ -182,6 +222,9 @@ export const useProductIntelligenceStore = create<ProductIntelligenceStore>((set
       analysisError: null,
       showProductNameError: false,
       showAllFeatures: false,
+      // Reset phase management
+      currentPhase: 'product-input' as AppPhase,
+      completedPhases: [],
       expandedSections: {
         keyMessages: false,
         visualStyle: false,

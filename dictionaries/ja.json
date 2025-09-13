@@ -18,7 +18,9 @@
     "error": "エラー",
     "success": "成功",
     "warning": "警告",
-    "info": "情報"
+    "info": "情報",
+    "confirmRestart": "現在、後のエージェントと作業中です。最初からやり直しますか？",
+    "handoffComplete": "引き継ぎ完了"
   },
   "navigation": {
     "home": "生成",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Button, Card, ToastContainer } from "@/components/ui";
 import { ModeToggle } from "@/components/debug/ModeIndicator";
 import { useToast } from "@/hooks/useToast";
@@ -12,11 +12,13 @@ import ProductInputForm from "@/components/home/ProductInputForm";
 import AnalysisProgressCard from "@/components/home/AnalysisProgressCard";
 import ProductInsightsCard from "@/components/home/ProductInsightsCard";
 import CommercialStrategyCard from "@/components/home/CommercialStrategyCard";
-import CreativeDirectorCard from "@/components/home/CreativeDirectorCard";
+import ImprovedCreativeDirectorCard from "@/components/home/ImprovedCreativeDirectorCard";
 import InstructionsCard from "@/components/home/InstructionsCard";
 import ImageModal from "@/components/home/ImageModal";
+import PhaseTransition from "@/components/ui/PhaseTransition";
 import { SessionStatus } from "@/lib/agents/product-intelligence/enums";
 import { ChatMessage } from "@/lib/agents/product-intelligence/types";
+import { AppPhase } from "@/lib/types/app-phases";
 
 // Utility function to convert File to base64
 const fileToBase64 = (file: File): Promise<string> => {
@@ -47,31 +49,41 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
   // Creative Director state
   const { mayaHandoffData } = useCreativeDirectorStore();
+
+  // Phase transition state
+  const [phaseTransition, setPhaseTransition] = useState<{
+    show: boolean;
+    from: AppPhase;
+    to: AppPhase;
+  } | null>(null);
   
   // 🚀 ZUSTAND POWER! All state in one beautiful store
   const {
     // Session state
     sessionId, sessionStatus, isConnected, isAgentTyping,
     setSessionId, setSessionStatus, setIsConnected, setIsAgentTyping,
-    
+
+    // Phase management state
+    currentPhase, completedPhases, canAccessPhase, transitionToPhase,
+
     // Product input state
     uploadedImage, productName, productDescription, inputMode,
     setUploadedImage, setProductName, setProductDescription, setInputMode,
-    
+
     // UI flow state
     currentStep, showCommercialChat, showImageModal, showAllFeatures, showProductNameError,
     setCurrentStep, setShowCommercialChat, setShowImageModal, setShowAllFeatures, setShowProductNameError,
-    
+
     // Analysis state
     messages, analysis, analysisProgress, analysisStartTime, elapsedTime, errorMessage, analysisError,
     setMessages, addMessage, setAnalysis, setAnalysisProgress, setAnalysisStartTime, setElapsedTime, setErrorMessage, setAnalysisError,
-    
+
     // 🎯 THE HERO: Chat state that PERSISTS!
     chatInputMessage, setChatInputMessage,
-    
+
     // Accordion state
     expandedSections, toggleSection,
-    
+
     // Complex actions
     resetSession, startAnalysis, completeAnalysis
   } = useProductIntelligenceStore();
@@ -116,8 +128,9 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
       setUploadedImage(file);
 
-      // 🚀 Use our beautiful startAnalysis action!
+      // 🚀 Use our beautiful startAnalysis action and transition to analysis phase!
       startAnalysis();
+      transitionToPhase('maya-analysis');
       const startTime = Date.now();
       setAnalysisStartTime(startTime);
       analysisStartRef.current = startTime;
@@ -210,6 +223,8 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
           setMessages([analysisMessage]);
           setCurrentStep("chat");
+          // Transition to Maya Strategy phase
+          transitionToPhase('maya-strategy');
         } else {
           throw new Error(
             `Analysis failed: ${analysisResponse.status} ${analysisResponse.statusText}`
@@ -243,8 +258,9 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
     if (!productDescription.trim()) return;
 
-    // 🚀 Use our beautiful startAnalysis action!
+    // 🚀 Use our beautiful startAnalysis action and transition to analysis phase!
     startAnalysis();
+    transitionToPhase('maya-analysis');
     const startTime = Date.now();
     setAnalysisStartTime(startTime);
     analysisStartRef.current = startTime;
@@ -332,6 +348,8 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
         setMessages([systemMessage]);
         // currentStep already set by completeAnalysis()
+        // Transition to Maya Strategy phase
+        transitionToPhase('maya-strategy');
       } else {
         throw new Error(
           `Analysis failed: ${analysisResponse.status} ${analysisResponse.statusText}`
@@ -438,12 +456,63 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     }, 500); // Small delay to ensure scroll completes first
   }, []);
 
+  // Smart CTA handler that respects current phase
+  const handleSmartCTA = useCallback(() => {
+    if (currentPhase === 'david-creative' || currentPhase === 'alex-production' || currentPhase === 'completed') {
+      // Show confirmation modal for going back to start
+      const confirmed = window.confirm(
+        dict.common?.confirmRestart ||
+        "You're currently working with a later agent. Do you want to start over from the beginning?"
+      );
+      
+      if (confirmed) {
+        resetSession();
+        scrollToProductIntelligence();
+        focusProductNameInput();
+      }
+    } else {
+      // Normal scroll behavior for early phases
+      scrollToProductIntelligence();
+      focusProductNameInput();
+    }
+  }, [currentPhase, dict, resetSession, scrollToProductIntelligence, focusProductNameInput]);
+
+  // Enhanced transition function with animation
+  const transitionWithAnimation = useCallback((toPhase: AppPhase) => {
+    const fromPhase = currentPhase;
+    if (fromPhase !== toPhase) {
+      setPhaseTransition({
+        show: true,
+        from: fromPhase,
+        to: toPhase
+      });
+    }
+  }, [currentPhase]);
+
+  // Handle transition completion
+  const handleTransitionComplete = useCallback(() => {
+    if (phaseTransition) {
+      transitionToPhase(phaseTransition.to);
+      setPhaseTransition(null);
+
+      // Auto-scroll to new phase section
+      setTimeout(() => {
+        if (phaseTransition.to === 'david-creative') {
+          const element = document.getElementById("creative-director-section");
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+          }
+        }
+      }, 100);
+    }
+  }, [phaseTransition, transitionToPhase]);
+
   return (
     <div className="min-h-screen">
       {/* 🚀 Hero Section - Now a clean server component! */}
       <HeroSection
         dict={dict}
-        onScrollToSection={scrollToProductIntelligence}
+        onScrollToSection={handleSmartCTA}
         onFocusProductName={focusProductNameInput}
       />
 
@@ -463,12 +532,12 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
             </p>
           </div>
 
-          {/* 🚀 Main Workflow - Now beautifully organized! */}
+          {/* 🚀 Main Workflow - Phase-based visibility! */}
           <div className="grid lg:grid-cols-2 gap-8">
-            {/* Left Column - Upload & Analysis */}
+            {/* Left Column - Maya's Domain */}
             <div className="space-y-6">
-              {/* Step 1: Product Input */}
-              {currentStep === "upload" && (
+              {/* Phase: Product Input */}
+              {currentPhase === 'product-input' && (
                 <ProductInputForm
                   dict={dict}
                   locale={locale}
@@ -486,38 +555,35 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                 />
               )}
 
-              {/* Step 2: Analysis Display */}
-              {currentStep === "analyze" && <AnalysisProgressCard dict={dict} />}
+              {/* Phase: Maya Analysis */}
+              {currentPhase === 'maya-analysis' && <AnalysisProgressCard dict={dict} />}
 
-              {/* 📊 Product Insights - Beautifully componentized */}
-              {currentStep === "chat" && (
+              {/* Phase: Maya Strategy - Product Insights */}
+              {currentPhase === 'maya-strategy' && (
                 <ProductInsightsCard dict={dict} onImageClick={() => setShowImageModal(true)} />
               )}
             </div>
 
-            {/* 🎨 Right Column - Now beautifully organized */}
+            {/* Right Column - Phase-dependent content */}
             <div className="space-y-6">
-              {/* 🎬 Step 3: Commercial Strategy - Beautifully componentized! */}
-              {currentStep === "chat" && (
+              {/* Phase: Maya Strategy - Commercial Strategy */}
+              {currentPhase === 'maya-strategy' && (
                 <CommercialStrategyCard
                   dict={dict}
                   locale={locale}
                   onSendMessage={handleSendMessage}
                   onReset={handleReset}
                   onCreativeDirectorReady={() => {
-                    // Scroll to Creative Director section when handoff is complete
-                    const element = document.getElementById("creative-director-section");
-                    if (element) {
-                      element.scrollIntoView({ behavior: "smooth" });
-                    }
+                    // Animated transition to Creative Director phase
+                    transitionWithAnimation('david-creative');
                   }}
                 />
               )}
 
-              {/* 🎨 Step 4: Creative Director - Shows after Maya handoff */}
-              {mayaHandoffData?.productAnalysis && (
+              {/* Phase: David Creative - Improved Creative Director Interface */}
+              {currentPhase === 'david-creative' && (
                 <div id="creative-director-section">
-                  <CreativeDirectorCard
+                  <ImprovedCreativeDirectorCard
                     dict={dict}
                     locale={locale}
                     onScrollToChatSection={() => {
@@ -530,8 +596,8 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                 </div>
               )}
 
-              {/* 📝 Instructions - Clean server component */}
-              {currentStep === "upload" && <InstructionsCard dict={dict} />}
+              {/* Phase: Product Input - Instructions */}
+              {currentPhase === 'product-input' && <InstructionsCard dict={dict} />}
             </div>
           </div>
         </div>
@@ -545,6 +611,17 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
       {/* Development Mode Toggle */}
       <ModeToggle />
+
+      {/* Phase Transition Animation */}
+      {phaseTransition && (
+        <PhaseTransition
+          from={phaseTransition.from}
+          to={phaseTransition.to}
+          dict={dict}
+          show={phaseTransition.show}
+          onComplete={handleTransitionComplete}
+        />
+      )}
     </div>
   );
 }
