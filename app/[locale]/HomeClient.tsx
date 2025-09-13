@@ -5,12 +5,14 @@ import { Button, Card, ToastContainer } from "@/components/ui";
 import { ModeToggle } from "@/components/debug/ModeIndicator";
 import { useToast } from "@/hooks/useToast";
 import { useProductIntelligenceStore } from "@/lib/stores/product-intelligence-store";
+import { useCreativeDirectorStore } from "@/lib/stores/creative-director-store";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
 import HeroSection from "@/components/home/HeroSection";
 import ProductInputForm from "@/components/home/ProductInputForm";
 import AnalysisProgressCard from "@/components/home/AnalysisProgressCard";
 import ProductInsightsCard from "@/components/home/ProductInsightsCard";
 import CommercialStrategyCard from "@/components/home/CommercialStrategyCard";
+import CreativeDirectorCard from "@/components/home/CreativeDirectorCard";
 import InstructionsCard from "@/components/home/InstructionsCard";
 import ImageModal from "@/components/home/ImageModal";
 import { SessionStatus } from "@/lib/agents/product-intelligence/enums";
@@ -42,6 +44,9 @@ interface HomeClientProps {
 export default function HomeClient({ dict, locale }: HomeClientProps) {
   // Toast system
   const { toasts, showErrorToast, hideToast } = useToast();
+
+  // Creative Director state
+  const { mayaHandoffData } = useCreativeDirectorStore();
   
   // 🚀 ZUSTAND POWER! All state in one beautiful store
   const {
@@ -500,12 +505,30 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                   onSendMessage={handleSendMessage}
                   onReset={handleReset}
                   onCreativeDirectorReady={() => {
-                    // Could navigate to Creative Director interface here
-                    console.log("Creative Director is ready!");
+                    // Scroll to Creative Director section when handoff is complete
+                    const element = document.getElementById("creative-director-section");
+                    if (element) {
+                      element.scrollIntoView({ behavior: "smooth" });
+                    }
                   }}
                 />
               )}
 
+              {/* 🎨 Step 4: Creative Director - Shows after Maya handoff */}
+              {mayaHandoffData?.productAnalysis && (
+                <div id="creative-director-section">
+                  <CreativeDirectorCard
+                    dict={dict}
+                    locale={locale}
+                    onScrollToChatSection={() => {
+                      const element = document.getElementById("creative-director-section");
+                      if (element) {
+                        element.scrollIntoView({ behavior: "smooth" });
+                      }
+                    }}
+                  />
+                </div>
+              )}
 
               {/* 📝 Instructions - Clean server component */}
               {currentStep === "upload" && <InstructionsCard dict={dict} />}

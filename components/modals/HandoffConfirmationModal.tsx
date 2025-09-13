@@ -77,7 +77,9 @@ export default function HandoffConfirmationModal({
       // Initialize the Creative Director store
       initializeFromMayaHandoff({
         sessionId: creativeDirectorSessionId,
-        mayaContext: analysis,
+        productAnalysis: analysis,
+        strategicInsights: analysis?.commercialStrategy || null,
+        visualOpportunities: analysis?.visualPreferences || null,
         locale,
       });
 
