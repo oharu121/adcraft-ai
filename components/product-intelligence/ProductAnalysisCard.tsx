@@ -4,27 +4,26 @@
  * Clean, simple commercial-focused analysis display
  */
 
-'use client';
+"use client";
 
-import React from 'react';
-import { Card } from '@/components/ui/Card';
-import type { Dictionary } from '@/lib/dictionaries';
-import { useProductIntelligenceStore } from '@/lib/stores/product-intelligence-store';
+import React from "react";
+import { Card } from "@/components/ui/Card";
+import type { Dictionary } from "@/lib/dictionaries";
+import { useProductIntelligenceStore } from "@/lib/stores/product-intelligence-store";
 
 export interface ProductAnalysisCardProps {
   dict: Dictionary;
-  locale?: 'en' | 'ja';
+  locale?: "en" | "ja";
   className?: string;
   onRefineRequest?: (topic: string, question: string) => void;
 }
 
 const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
   dict,
-  locale = 'en',
-  className = '',
-  onRefineRequest
+  locale = "en",
+  className = "",
+  onRefineRequest,
 }) => {
-
   // Get data from store
   const {
     analysis,
@@ -33,7 +32,7 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
     productDescription,
     inputMode,
     showAllFeatures,
-    setShowAllFeatures
+    setShowAllFeatures,
   } = useProductIntelligenceStore();
 
   // If no analysis available, show loading state
@@ -70,17 +69,17 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-xl font-bold text-white mb-1">
-              {dict.productAnalysis?.title || 'Product Analysis Results'}
+              {dict.productAnalysis?.title || "Product Analysis Results"}
             </h2>
             <p className="text-gray-300 text-sm">
-              {dict.productAnalysis?.subtitle || 'Commercial Intelligence Overview'}
+              {dict.productAnalysis?.subtitle || "Commercial Intelligence Overview"}
             </p>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-green-400">
               {formatConfidence(analysis.metadata.confidenceScore)}
             </div>
-            <div className="text-gray-400 text-xs">{t.commercialViability || 'Confidence'}</div>
+            <div className="text-gray-400 text-xs">{t.analysisQuality}</div>
           </div>
         </div>
 
@@ -132,27 +131,24 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
             <span className="text-xl">⚡</span>
             <div>
               <h3 className="text-lg font-semibold text-white mb-1">
-                {productName || analysis.product?.name || 'Product Name'}
+                {dict.productAnalysis.productName}:{" "}
+                {productName || analysis.product?.name || "Product Name"}
               </h3>
             </div>
           </div>
 
-          {/* 🏷️ Product Overview + Tagline */}
+          {/* 🏷️ Product Overview */}
           <div className="flex items-start space-x-3">
             <span className="text-xl">🏷️</span>
             <div>
               <h4 className="text-sm font-medium text-gray-300 mb-2">
-                {dict.productAnalysis?.productSummary || 'Product Overview'}
+                {dict.productAnalysis?.productSummary || "Product Overview"}
               </h4>
-              <p className="text-gray-300 text-sm leading-relaxed mb-2">
-                {productDescription || analysis.product?.description ||
-                 `${productName || 'This product'} is developed with a focus on quality and functionality. It provides innovative solutions that meet customer needs.`}
+              <p className="text-gray-300 text-sm leading-relaxed">
+                {productDescription ||
+                  analysis.product?.description ||
+                  `${productName || "This product"} is developed with a focus on quality and functionality. It provides innovative solutions that meet customer needs.`}
               </p>
-              {analysis.keyMessages?.tagline && (
-                <p className="text-blue-400 text-sm font-medium italic">
-                  "{analysis.keyMessages.tagline}"
-                </p>
-              )}
             </div>
           </div>
 
@@ -161,10 +157,16 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
             <span className="text-xl">✨</span>
             <div className="flex-1">
               <h4 className="text-sm font-medium text-gray-300 mb-2">
-                {dict.productAnalysis?.keyFeatures || 'Key Features'}
+                {dict.productAnalysis?.keyFeatures || "Key Features"}
               </h4>
               <ul className="space-y-1">
-                {(analysis.product?.keyFeatures || ['High quality materials', 'Innovative design', 'Excellent performance'])
+                {(
+                  analysis.product?.keyFeatures || [
+                    "High quality materials",
+                    "Innovative design",
+                    "Excellent performance",
+                  ]
+                )
                   .slice(0, showAllFeatures ? undefined : 3)
                   .map((feature, index) => (
                     <li key={index} className="flex items-start text-gray-300 text-sm">
@@ -178,11 +180,9 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
                   onClick={() => setShowAllFeatures(!showAllFeatures)}
                   className="text-gray-500 hover:text-gray-300 transition-colors text-sm mt-2 cursor-pointer"
                 >
-                  {showAllFeatures ? (
-                    'Show less'
-                  ) : (
-                    `+${(analysis.product?.keyFeatures?.length || 0) - 3} ${dict.productAnalysis?.moreFeatures || 'more features'}`
-                  )}
+                  {showAllFeatures
+                    ? "Show less"
+                    : `+${(analysis.product?.keyFeatures?.length || 0) - 3} ${dict.productAnalysis?.moreFeatures || "more features"}`}
                 </button>
               )}
             </div>
@@ -193,37 +193,64 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
             <span className="text-xl">🎯</span>
             <div>
               <h4 className="text-sm font-medium text-gray-300 mb-2">
-                {dict.productAnalysis?.targetAudience || 'Target Audience'}
+                {dict.productAnalysis?.targetAudience || "Target Audience"}
               </h4>
               <p className="text-gray-300 text-sm">
                 {analysis.targetAudience?.primary?.demographics?.ageRange &&
-                 `${analysis.targetAudience.primary.demographics.ageRange}, `}
-                {analysis.targetAudience?.primary?.demographics?.lifestyle?.join(', ') ||
-                 analysis.targetAudience?.primary?.psychographics?.values?.join(', ') ||
-                 'executive professionals, tech entrepreneurs, creative directors'}
+                  `${analysis.targetAudience.primary.demographics.ageRange}, `}
+                {analysis.targetAudience?.primary?.demographics?.lifestyle?.join(", ") ||
+                  analysis.targetAudience?.primary?.psychographics?.values?.join(", ") ||
+                  "executive professionals, tech entrepreneurs, creative directors"}
               </p>
             </div>
           </div>
 
-          {/* 📈 Marketing */}
+          {/* 📈 Marketing Messages */}
           <div className="flex items-start space-x-3">
             <span className="text-xl">📈</span>
-            <div>
-              <h4 className="text-sm font-medium text-gray-300 mb-2">
-                {dict.productAnalysis?.marketing || 'Marketing'}
+            <div className="flex-1">
+              <h4 className="text-sm font-medium text-gray-300 mb-3">
+                {t.marketingStrategy || "Marketing Messages"}
               </h4>
-              <p className="text-gray-300 text-sm">
-                {analysis.positioning?.valueProposition?.primaryBenefit ||
-                 analysis.keyMessages?.headline ||
-                 `${productName || 'This product'} meets your needs`}
-              </p>
-              {analysis.keyMessages?.supportingMessages && (
-                <div className="mt-2">
-                  {analysis.keyMessages.supportingMessages.slice(0, 2).map((message, index) => (
-                    <p key={index} className="text-gray-400 text-xs">
-                      • {message}
-                    </p>
-                  ))}
+
+              {/* Headline */}
+              <div className="mb-2">
+                <span className="text-xs text-gray-400">{t.headline}:</span>
+                <p className="text-white font-semibold">
+                  {analysis.keyMessages?.headline || "Premium Quality Product"}
+                </p>
+              </div>
+
+              {/* Tagline */}
+              <div className="mb-3">
+                <span className="text-xs text-gray-400">{t.tagline}:</span>
+                <p className="text-blue-400 font-medium italic">
+                  "{analysis.keyMessages?.tagline || "Excellence in Every Detail"}"
+                </p>
+              </div>
+
+              {/* Supporting Messages */}
+              {(
+                analysis.keyMessages?.supportingMessages || [
+                  "Trusted by professionals",
+                  "Built to last",
+                ]
+              ).length > 0 && (
+                <div>
+                  <span className="text-xs text-gray-400">{t.supportingMessages}:</span>
+                  <div className="mt-1">
+                    {(
+                      analysis.keyMessages?.supportingMessages || [
+                        "Trusted by professionals",
+                        "Built to last",
+                      ]
+                    ).map((message, index) => (
+                      <p key={index} className="text-gray-300 text-sm flex items-start">
+                        <span className="text-blue-400 mr-2 mt-1">•</span>
+                        {message}
+                      </p>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -235,8 +262,8 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
           <div className="flex justify-between items-center">
             <span>{new Date(analysis.metadata.timestamp).toLocaleString(locale)}</span>
             <span>
-              {t.processingTime}: {(analysis.metadata.processingTime / 1000).toFixed(1)}s |
-              {t.cost}: ${analysis.metadata.cost?.current?.toFixed(3) || '0.000'}
+              {t.processingTime}: {(analysis.metadata.processingTime / 1000).toFixed(1)}s |{t.cost}:
+              ${analysis.metadata.cost?.current?.toFixed(3) || "0.000"}
             </span>
           </div>
         </div>
