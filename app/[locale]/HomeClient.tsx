@@ -16,6 +16,7 @@ import InstructionsCard from "@/components/home/InstructionsCard";
 import ImageModal from "@/components/home/ImageModal";
 import PhaseTransition from "@/components/ui/PhaseTransition";
 import ChatContainer from "@/components/product-intelligence/ChatContainer";
+import HandoffConfirmationModal from "@/components/modals/HandoffConfirmationModal";
 import { SessionStatus } from "@/lib/agents/product-intelligence/enums";
 import { ChatMessage } from "@/lib/agents/product-intelligence/types";
 import { AppPhase } from "@/lib/types/app-phases";
@@ -71,8 +72,8 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     setUploadedImage, setProductName, setProductDescription, setInputMode,
 
     // UI flow state
-    currentStep, showCommercialChat, showImageModal, showAllFeatures, showProductNameError,
-    setCurrentStep, setShowCommercialChat, setShowImageModal, setShowAllFeatures, setShowProductNameError,
+    currentStep, showCommercialChat, showImageModal, showHandoffModal, showAllFeatures, showProductNameError,
+    setCurrentStep, setShowCommercialChat, setShowImageModal, setShowHandoffModal, setShowAllFeatures, setShowProductNameError,
 
     // Analysis state
     messages, analysis, analysisProgress, analysisStartTime, elapsedTime, errorMessage, analysisError,
@@ -505,6 +506,16 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     [sessionId, messages, locale, analysis, setAnalysis, addMessage, dict]
   );
 
+  // Handle handoff modal actions
+  const handleHandoffSuccess = useCallback(() => {
+    // Successfully handed off to Creative Director
+    transitionToPhase('david-creative');
+  }, [transitionToPhase]);
+
+  const handleHandoffClose = useCallback(() => {
+    setShowHandoffModal(false);
+  }, [setShowHandoffModal]);
+
   // 🚀 Reset session - ONE LINE with Zustand!
   const handleReset = useCallback(() => {
     resetSession();
@@ -693,6 +704,17 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
       {/* Toast Notifications */}
       <ToastContainer toasts={toasts} onRemoveToast={hideToast} position="top-center" />
+
+      {/* Handoff Confirmation Modal */}
+      <HandoffConfirmationModal
+        isOpen={showHandoffModal}
+        onClose={handleHandoffClose}
+        onSuccess={handleHandoffSuccess}
+        analysis={analysis}
+        sessionId={sessionId}
+        dict={dict}
+        locale={locale}
+      />
 
       {/* Development Mode Toggle */}
       <ModeToggle />

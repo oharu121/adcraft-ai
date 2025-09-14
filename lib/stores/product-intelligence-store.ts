@@ -26,6 +26,7 @@ interface ProductIntelligenceStore {
   currentStep: 'upload' | 'analyze' | 'chat' | 'handoff';
   showCommercialChat: boolean;
   showImageModal: boolean;
+  showHandoffModal: boolean;
   showAllFeatures: boolean;
   showProductNameError: boolean;
   
@@ -63,6 +64,7 @@ interface ProductIntelligenceStore {
   setCurrentStep: (step: 'upload' | 'analyze' | 'chat' | 'handoff') => void;
   setShowCommercialChat: (show: boolean) => void;
   setShowImageModal: (show: boolean) => void;
+  setShowHandoffModal: (show: boolean) => void;
   setShowAllFeatures: (show: boolean) => void;
   setShowProductNameError: (show: boolean) => void;
   
@@ -104,6 +106,7 @@ export const useProductIntelligenceStore = create<ProductIntelligenceStore>((set
   currentStep: "upload",
   showCommercialChat: false,
   showImageModal: false,
+  showHandoffModal: false,
   showAllFeatures: false,
   showProductNameError: false,
 
@@ -156,6 +159,7 @@ export const useProductIntelligenceStore = create<ProductIntelligenceStore>((set
   setCurrentStep: (step) => set({ currentStep: step }),
   setShowCommercialChat: (show) => set({ showCommercialChat: show }),
   setShowImageModal: (show) => set({ showImageModal: show }),
+  setShowHandoffModal: (show) => set({ showHandoffModal: show }),
   setShowAllFeatures: (show) => set({ showAllFeatures: show }),
   setShowProductNameError: (show) => set({ showProductNameError: show }),
 

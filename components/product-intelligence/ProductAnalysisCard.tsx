@@ -35,6 +35,7 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
     showAllFeatures,
     sessionId,
     setShowAllFeatures,
+    setShowHandoffModal,
     resetSession,
     transitionToPhase,
   } = useProductIntelligenceStore();
@@ -302,7 +303,7 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
             </button>
 
             <Button
-              onClick={() => transitionToPhase("david-creative")}
+              onClick={() => setShowHandoffModal(true)}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer text-sm font-medium flex-1 sm:flex-none"
             >
               {t.proceedToNextAgent}
