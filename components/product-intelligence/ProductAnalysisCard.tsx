@@ -285,7 +285,7 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
 
         {/* Action Buttons */}
         <div className="pt-6 mt-6 border-t border-gray-600">
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:justify-end">
             <button
               onClick={() => {
                 if (
