@@ -420,6 +420,8 @@
     "showLess": "表示を減らす",
     "analyzingFeatures": "機能を分析中...",
     "targetAudience": "ターゲット層",
+    "ageRange": "年齢層",
+    "targetDescription": "対象者",
     "analyzingTargetAudience": "ターゲット分析中...",
     "marketingStrategy": "マーケティング戦略",
     "analyzingMarketingStrategy": "マーケティング戦略分析中...",

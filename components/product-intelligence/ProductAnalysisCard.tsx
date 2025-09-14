@@ -201,16 +201,33 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
           {/* 🎯 Target Audience */}
           <div className="flex items-start space-x-3">
             <span className="text-xl">🎯</span>
-            <div>
+            <div className="flex-1">
               <h4 className="text-sm font-medium text-gray-300 mb-2">
                 {dict.productAnalysis?.targetAudience || "Target Audience"}
               </h4>
-              <p className="text-gray-300 text-sm">
-                {analysis.targetAudience?.ageRange &&
-                  `${analysis.targetAudience.ageRange}, `}
-                {analysis.targetAudience?.description ||
-                  "executive professionals, tech entrepreneurs, creative directors"}
-              </p>
+
+              {/* Age Range */}
+              {analysis.targetAudience?.ageRange && (
+                <div className="mb-1">
+                  <span className="text-xs text-gray-400">
+                    {dict.productAnalysis?.ageRange || "年齢層"}:
+                  </span>
+                  <span className="text-gray-300 text-sm ml-2">
+                    {analysis.targetAudience.ageRange}
+                  </span>
+                </div>
+              )}
+
+              {/* Target Description */}
+              <div>
+                <span className="text-xs text-gray-400">
+                  {dict.productAnalysis?.targetDescription || "対象者"}:
+                </span>
+                <p className="text-gray-300 text-sm mt-1">
+                  {analysis.targetAudience?.description ||
+                    "executive professionals, tech entrepreneurs, creative directors"}
+                </p>
+              </div>
             </div>
           </div>
 

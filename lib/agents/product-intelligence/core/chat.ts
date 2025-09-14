@@ -286,9 +286,10 @@ async function generateMockResponse(
     // Since we're in generateMockResponse, we're already in demo/mock mode
     // Always use static actions for consistent demo experience
     const quickActions = [
-      ...PromptBuilder.getQuickActions("headline", locale).slice(0, 2),
+      ...PromptBuilder.getQuickActions("description", locale).slice(0, 1),
+      ...PromptBuilder.getQuickActions("keyFeatures", locale).slice(0, 1),
+      ...PromptBuilder.getQuickActions("headline", locale).slice(0, 1),
       ...PromptBuilder.getQuickActions("audience", locale).slice(0, 1),
-      ...PromptBuilder.getQuickActions("positioning", locale).slice(0, 1),
     ];
 
     return {
@@ -414,6 +415,20 @@ async function generateFollowUpSuggestions(
     ) {
       return PromptBuilder.getQuickActions("audience", locale).slice(0, 2);
     } else if (
+      lowerResponse.includes("description") ||
+      lowerResponse.includes("summary") ||
+      lowerResponse.includes("概要") ||
+      lowerResponse.includes("説明")
+    ) {
+      return PromptBuilder.getQuickActions("description", locale).slice(0, 2);
+    } else if (
+      lowerResponse.includes("features") ||
+      lowerResponse.includes("feature") ||
+      lowerResponse.includes("機能") ||
+      lowerResponse.includes("特徴")
+    ) {
+      return PromptBuilder.getQuickActions("keyFeatures", locale).slice(0, 2);
+    } else if (
       lowerResponse.includes("scene") ||
       lowerResponse.includes("シーン") ||
       lowerResponse.includes("video") ||
@@ -436,10 +451,10 @@ async function generateFollowUpSuggestions(
       return PromptBuilder.getQuickActions("visual", locale).slice(0, 2);
     }
 
-    // Default to mixed strategy actions
+    // Default to mixed strategy actions focusing on core product fields
     return [
+      ...PromptBuilder.getQuickActions("description", locale).slice(0, 1),
       ...PromptBuilder.getQuickActions("headline", locale).slice(0, 1),
-      ...PromptBuilder.getQuickActions("positioning", locale).slice(0, 1),
     ];
   }
 

@@ -161,9 +161,10 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
 
       // Generate initial quick actions for immediate user guidance
       const initialQuickActions = [
-        ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 2),
+        ...PromptBuilder.getQuickActions("description", locale || "en").slice(0, 1),
+        ...PromptBuilder.getQuickActions("keyFeatures", locale || "en").slice(0, 1),
+        ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 1),
         ...PromptBuilder.getQuickActions("audience", locale || "en").slice(0, 1),
-        ...PromptBuilder.getQuickActions("positioning", locale || "en").slice(0, 1),
       ];
 
       return {
@@ -270,17 +271,19 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
         console.error("Error generating initial dynamic quick actions:", error);
         // Fallback to static actions
         initialQuickActions = [
-          ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 2),
+          ...PromptBuilder.getQuickActions("description", locale || "en").slice(0, 1),
+          ...PromptBuilder.getQuickActions("keyFeatures", locale || "en").slice(0, 1),
+          ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 1),
           ...PromptBuilder.getQuickActions("audience", locale || "en").slice(0, 1),
-          ...PromptBuilder.getQuickActions("positioning", locale || "en").slice(0, 1),
         ];
       }
     } else {
       // Demo mode: Use static actions for consistent experience
       initialQuickActions = [
-        ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 2),
+        ...PromptBuilder.getQuickActions("description", locale || "en").slice(0, 1),
+        ...PromptBuilder.getQuickActions("keyFeatures", locale || "en").slice(0, 1),
+        ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 1),
         ...PromptBuilder.getQuickActions("audience", locale || "en").slice(0, 1),
-        ...PromptBuilder.getQuickActions("positioning", locale || "en").slice(0, 1),
       ];
     }
 
@@ -468,7 +471,8 @@ async function handleChatRequest(request: SimpleRequest) {
 
     // Provide basic quick actions even in fallback
     const fallbackQuickActions = [
-      ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 2),
+      ...PromptBuilder.getQuickActions("description", locale || "en").slice(0, 1),
+      ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 1),
       ...PromptBuilder.getQuickActions("audience", locale || "en").slice(0, 1),
     ];
 

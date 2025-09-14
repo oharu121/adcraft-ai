@@ -199,6 +199,7 @@ DO NOT send the signal when:
       ],
     }[locale];
   }
+  
   public static getDemoResponse(locale: "en" | "ja" = "en") {
     return {
       en: [
@@ -253,50 +254,78 @@ DO NOT send the signal when:
   }
 
   /**
-   * Get quick action suggestions for strategy refinement
+   * Get quick action suggestions for strategy refinement using UI labels
    */
   public static getQuickActions(category: string, locale: "en" | "ja" = "en"): string[] {
     const actions: Record<string, Record<"en" | "ja", string[]>> = {
       headline: {
         en: [
-          "Make the headline more emotional",
-          "Make it more direct and clear",
-          "Add urgency to the message",
-          "Focus on the main benefit",
+          "Change the headline to be more emotional",
+          "Update the headline to be clearer",
+          "Make the headline more compelling",
+          "Revise the headline for better impact",
         ],
         ja: [
-          "ヘッドラインをより感情的にする",
-          "より直接的で分かりやすくする",
-          "メッセージに緊急性を加える",
-          "主要なメリットに焦点を当てる",
+          "ヘッドラインをより感情的に変更したい",
+          "ヘッドラインを分かりやすく修正したい",
+          "ヘッドラインをより魅力的にしたい",
+          "ヘッドラインをより印象的に改善したい",
         ],
       },
       audience: {
         en: [
-          "Target younger audience (18-35)",
-          "Focus on professionals",
-          "Appeal to budget-conscious buyers",
-          "Target premium customers",
+          "Change target audience to younger demographic",
+          "Update target audience to professionals",
+          "Modify target audience for premium segment",
+          "Revise target audience age range",
         ],
         ja: [
-          "より若い層をターゲットにする（18-35歳）",
-          "プロフェッショナルに焦点を当てる",
-          "価格重視の購入者にアピールする",
-          "プレミアム顧客をターゲットにする",
+          "対象者をより若い年代に変更したい",
+          "対象者をプロフェッショナル向けに修正したい",
+          "対象者をプレミアム層に調整したい",
+          "対象者の年齢層を見直したい",
         ],
       },
       positioning: {
         en: [
-          "Make it more premium positioning",
-          "Emphasize value/affordability",
-          "Highlight innovation/newness",
-          "Focus on reliability/trust",
+          "Update positioning to be more premium",
+          "Change positioning to emphasize value",
+          "Modify positioning for innovation focus",
+          "Revise positioning for trust emphasis",
         ],
         ja: [
-          "よりプレミアムなポジショニングにする",
-          "価値・手頃さを強調する",
-          "革新性・新しさを強調する",
-          "信頼性・信用に焦点を当てる",
+          "ポジショニングをよりプレミアムに変更したい",
+          "ポジショニングを価値重視に修正したい",
+          "ポジショニングを革新性重視に調整したい",
+          "ポジショニングを信頼性重視に改善したい",
+        ],
+      },
+      description: {
+        en: [
+          "Update product summary to be more compelling",
+          "Change product summary to highlight benefits",
+          "Modify product summary for clarity",
+          "Revise product summary to be more concise",
+        ],
+        ja: [
+          "商品概要をより魅力的に変更したい",
+          "商品概要をメリット重視に修正したい",
+          "商品概要を分かりやすく調整したい",
+          "商品概要をより簡潔に改善したい",
+        ],
+      },
+      keyFeatures: {
+        en: [
+          "Update key features to be more specific",
+          "Change key features to highlight benefits",
+          "Modify key features for better clarity",
+          "Add more compelling key features",
+        ],
+        ja: [
+          "主要機能をより具体的に変更したい",
+          "主要機能をメリット重視に修正したい",
+          "主要機能を分かりやすく調整したい",
+          "主要機能をより魅力的に改善したい",
         ],
       },
       scenes: {
@@ -479,10 +508,10 @@ Return as valid JSON, an array of strings: ["Action 1", "Action 2", ...]`;
 
       // Fallback to mixed static actions that provide variety
       const fallbackActions = [
+        ...this.getQuickActions("description", locale).slice(0, 1),
+        ...this.getQuickActions("keyFeatures", locale).slice(0, 1),
         ...this.getQuickActions("headline", locale).slice(0, 1),
         ...this.getQuickActions("audience", locale).slice(0, 1),
-        ...this.getQuickActions("positioning", locale).slice(0, 1),
-        ...this.getQuickActions("scenes", locale).slice(0, 1),
       ];
 
       return fallbackActions.slice(0, 4);
@@ -878,7 +907,7 @@ ${request.description ? `追加情報: ${request.description}` : ""}
   },
   "targetAudience": {
     "ageRange": "年齢層 (例: 25-35)",
-    "description": "ライフスタイルと価値観を組み合わせた簡潔なターゲット層の説明"
+    "description": "ライフスタイルと価値観を組み合わせた簡潔な対象者の説明"
   },
   "keyMessages": {
     "headline": "注目を集める魅力的なヘッドライン",
