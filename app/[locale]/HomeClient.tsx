@@ -603,78 +603,88 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           </div>
 
           {/* 🚀 Main Workflow - Phase-based visibility! */}
-          <div className="grid lg:grid-cols-2 gap-8">
-            {/* Left Column - Maya's Domain */}
-            <div className="space-y-6">
-              {/* Phase: Product Input */}
-              {currentPhase === 'product-input' && (
-                <ProductInputForm
-                  dict={dict}
-                  locale={locale}
-                  onImageUpload={handleImageUpload}
-                  onTextSubmit={handleTextSubmit}
-                  productNameInputRef={productNameInputRef}
-                  onValidationError={(message) => {
-                    setShowProductNameError(true);
-                    productNameInputRef.current?.focus();
-                    showErrorToast(
-                      message,
-                      dict.productIntelligence.validationError || "Validation Error"
-                    );
-                  }}
-                />
-              )}
 
-              {/* Phase: Maya Analysis */}
-              {currentPhase === 'maya-analysis' && <AnalysisProgressCard dict={dict} />}
-
-              {/* Phase: Maya Strategy - Product Analysis */}
-              {currentPhase === 'maya-strategy' && (
-                <ProductAnalysisCard dict={dict} />
-              )}
+          {/* Phase: Maya Analysis - Centered Progress */}
+          {currentPhase === 'maya-analysis' && (
+            <div className="flex justify-center">
+              <div className="w-full max-w-md">
+                <AnalysisProgressCard dict={dict} />
+              </div>
             </div>
+          )}
 
-            {/* Right Column - Phase-dependent content */}
-            <div className="space-y-6">
-              {/* Phase: Maya Strategy - Maya Chat (Right Panel) */}
-              {currentPhase === 'maya-strategy' && (
-                <div className="h-full">
-                  {/* Maya Chat Container for clean left/right layout */}
-                  <ChatContainer
-                    sessionId={sessionId}
-                    messages={messages}
-                    isConnected={isConnected}
-                    isAgentTyping={isAgentTyping}
-                    onSendMessage={handleSendMessage}
-                    onStrategyConfirmation={handleStrategyConfirmation}
+          {/* Phase: David Creative - Full Width Creative Director Interface */}
+          {currentPhase === 'david-creative' && (
+            <div id="creative-director-section">
+              <ImprovedCreativeDirectorCard
+                dict={dict}
+                locale={locale}
+                onScrollToChatSection={() => {
+                  const element = document.getElementById("creative-director-section");
+                  if (element) {
+                    element.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+              />
+            </div>
+          )}
+
+          {/* Phase: Product Input & Maya Strategy - 2-Column Layout */}
+          {(currentPhase === 'product-input' || currentPhase === 'maya-strategy') && (
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Left Column - Maya's Domain */}
+              <div className="space-y-6">
+                {/* Phase: Product Input */}
+                {currentPhase === 'product-input' && (
+                  <ProductInputForm
                     dict={dict}
                     locale={locale}
-                    inputMessage={chatInputMessage}
-                    onInputMessageChange={setChatInputMessage}
-                  />
-                </div>
-              )}
-
-              {/* Phase: David Creative - Improved Creative Director Interface */}
-              {currentPhase === 'david-creative' && (
-                <div id="creative-director-section">
-                  <ImprovedCreativeDirectorCard
-                    dict={dict}
-                    locale={locale}
-                    onScrollToChatSection={() => {
-                      const element = document.getElementById("creative-director-section");
-                      if (element) {
-                        element.scrollIntoView({ behavior: "smooth" });
-                      }
+                    onImageUpload={handleImageUpload}
+                    onTextSubmit={handleTextSubmit}
+                    productNameInputRef={productNameInputRef}
+                    onValidationError={(message) => {
+                      setShowProductNameError(true);
+                      productNameInputRef.current?.focus();
+                      showErrorToast(
+                        message,
+                        dict.productIntelligence.validationError || "Validation Error"
+                      );
                     }}
                   />
-                </div>
-              )}
+                )}
 
-              {/* Phase: Product Input - Instructions */}
-              {currentPhase === 'product-input' && <InstructionsCard dict={dict} />}
+                {/* Phase: Maya Strategy - Product Analysis */}
+                {currentPhase === 'maya-strategy' && (
+                  <ProductAnalysisCard dict={dict} />
+                )}
+              </div>
+
+              {/* Right Column - Phase-dependent content */}
+              <div className="space-y-6">
+                {/* Phase: Maya Strategy - Maya Chat (Right Panel) */}
+                {currentPhase === 'maya-strategy' && (
+                  <div className="h-full">
+                    {/* Maya Chat Container for clean left/right layout */}
+                    <ChatContainer
+                      sessionId={sessionId}
+                      messages={messages}
+                      isConnected={isConnected}
+                      isAgentTyping={isAgentTyping}
+                      onSendMessage={handleSendMessage}
+                      onStrategyConfirmation={handleStrategyConfirmation}
+                      dict={dict}
+                      locale={locale}
+                      inputMessage={chatInputMessage}
+                      onInputMessageChange={setChatInputMessage}
+                    />
+                  </div>
+                )}
+
+                {/* Phase: Product Input - Instructions */}
+                {currentPhase === 'product-input' && <InstructionsCard dict={dict} />}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
