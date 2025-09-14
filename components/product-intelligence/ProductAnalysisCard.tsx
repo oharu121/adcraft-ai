@@ -206,10 +206,9 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
                 {dict.productAnalysis?.targetAudience || "Target Audience"}
               </h4>
               <p className="text-gray-300 text-sm">
-                {analysis.targetAudience?.primary?.demographics?.ageRange &&
-                  `${analysis.targetAudience.primary.demographics.ageRange}, `}
-                {analysis.targetAudience?.primary?.demographics?.lifestyle?.join(", ") ||
-                  analysis.targetAudience?.primary?.psychographics?.values?.join(", ") ||
+                {analysis.targetAudience?.ageRange &&
+                  `${analysis.targetAudience.ageRange}, `}
+                {analysis.targetAudience?.description ||
                   "executive professionals, tech entrepreneurs, creative directors"}
               </p>
             </div>

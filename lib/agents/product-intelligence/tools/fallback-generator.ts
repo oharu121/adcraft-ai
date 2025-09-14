@@ -28,60 +28,13 @@ export class FallbackGenerator {
     
     return {
       product: {
-        id: request.sessionId,
-        category: ProductCategory.OTHER,
-        subcategory: "unknown",
         name: "Product",
         description: "Product analysis could not be completed",
         keyFeatures: ["Unable to analyze"],
-        materials: ["Unknown"],
-        colors: [{ name: "unknown", hex: "#808080", role: ColorRole.PRIMARY }],
-        usageContext: ["General use"],
-        seasonality: "year-round",
       },
       targetAudience: {
-        primary: {
-          demographics: {
-            ageRange: "18-65",
-            gender: Gender.UNISEX,
-            incomeLevel: IncomeLevel.MID_RANGE,
-            location: ["general"],
-            lifestyle: ["general"],
-          },
-          psychographics: {
-            values: ["quality"],
-            interests: ["general"],
-            personalityTraits: ["practical"],
-            motivations: ["functionality"],
-          },
-          behaviors: {
-            shoppingHabits: ["value-conscious"],
-            mediaConsumption: ["mixed"],
-            brandLoyalty: BrandLoyalty.MEDIUM,
-            decisionFactors: ["price", "quality"],
-          },
-        },
-      },
-      positioning: {
-        brandPersonality: {
-          traits: ["practical"],
-          tone: BrandTone.FRIENDLY,
-          voice: "approachable and honest",
-        },
-        valueProposition: {
-          primaryBenefit: "Reliable solution",
-          supportingBenefits: ["Quality", "Value"],
-          differentiators: ["Dependable"],
-        },
-        competitiveAdvantages: {
-          functional: ["Reliable performance"],
-          emotional: ["Peace of mind"],
-          experiential: ["Straightforward experience"],
-        },
-        marketPosition: {
-          tier: MarketTier.LUXURY,
-          marketShare: "challenger" as const,
-        },
+        ageRange: "18-65",
+        description: "general users seeking practical solutions",
       },
       keyMessages: {
         headline: "Quality Product",

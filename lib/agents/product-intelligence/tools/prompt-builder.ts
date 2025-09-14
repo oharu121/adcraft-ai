@@ -818,147 +818,22 @@ ${request.description ? `ADDITIONAL CONTEXT: ${request.description}` : ""}
 
 IMPORTANT: Use the provided product name "${request.productName || "the product"}" throughout your analysis. Ensure all marketing strategies, features, and messaging are relevant to this specific product.
 
-Please provide a comprehensive analysis in the following JSON structure:
+Please provide a focused product analysis in the following JSON structure:
 
 {
   "product": {
-    "category": "electronics|fashion|food-beverage|home-garden|health-beauty|sports-outdoors|automotive|books-media|toys-games|business|other",
-    "subcategory": "specific subcategory",
     "name": "${request.productName || "product name"}",
-    "description": "detailed product description",
-    "keyFeatures": ["feature1", "feature2", "feature3"],
-    "materials": ["material1", "material2"],
-    "colors": [
-      {"name": "color name", "hex": "#000000", "role": "primary|secondary|accent"}
-    ],
-    "usageContext": ["context1", "context2"],
-    "seasonality": "spring|summer|fall|winter|year-round"
+    "description": "concise product description highlighting key value propositions",
+    "keyFeatures": ["feature1", "feature2", "feature3", "feature4", "feature5"]
   },
   "targetAudience": {
-    "primary": {
-      "demographics": {
-        "ageRange": "age range",
-        "gender": "male|female|unisex",
-        "incomeLevel": "budget|mid-range|premium|luxury",
-        "location": ["urban", "suburban"],
-        "lifestyle": ["lifestyle1", "lifestyle2"]
-      },
-      "psychographics": {
-        "values": ["value1", "value2"],
-        "interests": ["interest1", "interest2"],
-        "personalityTraits": ["trait1", "trait2"],
-        "motivations": ["motivation1", "motivation2"]
-      },
-      "behaviors": {
-        "shoppingHabits": ["habit1", "habit2"],
-        "mediaConsumption": ["media1", "media2"],
-        "brandLoyalty": "low|medium|high",
-        "decisionFactors": ["factor1", "factor2"]
-      }
-    }
+    "ageRange": "age range (e.g., 25-35)",
+    "description": "brief audience description combining lifestyle and values"
   },
-  "positioning": {
-    "brandPersonality": {
-      "traits": ["trait1", "trait2"],
-      "tone": "professional|friendly|luxury|playful|authoritative",
-      "voice": "description of brand voice"
-    },
-    "valueProposition": {
-      "primaryBenefit": "main benefit",
-      "supportingBenefits": ["benefit1", "benefit2"],
-      "differentiators": ["diff1", "diff2"]
-    },
-    "competitiveAdvantages": {
-      "functional": ["advantage1", "advantage2"],
-      "emotional": ["advantage1", "advantage2"],
-      "experiential": ["advantage1", "advantage2"]
-    },
-    "marketPosition": {
-      "tier": "budget|mainstream|premium|luxury",
-      "niche": "market niche if applicable",
-      "marketShare": "challenger|leader|niche"
-    }
-  },
-  "commercialStrategy": {
-    "keyMessages": {
-      "headline": "compelling headline",
-      "tagline": "memorable tagline",
-      "supportingMessages": ["message1", "message2"]
-    },
-    "emotionalTriggers": {
-      "primary": {
-        "type": "aspiration|fear|joy|trust|excitement|comfort|pride",
-        "description": "trigger description",
-        "intensity": "subtle|moderate|strong"
-      },
-      "secondary": [
-        {
-          "type": "trigger type",
-          "description": "description",
-          "intensity": "intensity"
-        }
-      ]
-    },
-    "callToAction": {
-      "primary": "main CTA",
-      "secondary": ["secondary CTA1", "secondary CTA2"]
-    },
-    "storytelling": {
-      "narrative": "story narrative",
-      "conflict": "central conflict",
-      "resolution": "story resolution"
-    },
-    "keyScenes": {
-      "scenes": [
-        {
-          "id": "opening",
-          "title": "Opening Hook",
-          "description": "opening scene description for commercial video",
-          "duration": "3-5 seconds",
-          "purpose": "hook audience"
-        },
-        {
-          "id": "showcase",
-          "title": "Product Showcase",
-          "description": "product showcase scene description",
-          "duration": "5-8 seconds",
-          "purpose": "showcase product features"
-        },
-        {
-          "id": "problem",
-          "title": "Problem Solution",
-          "description": "problem/solution scene description",
-          "duration": "4-6 seconds",
-          "purpose": "demonstrate value"
-        },
-        {
-          "id": "emotion",
-          "title": "Emotional Moment",
-          "description": "emotional moment scene description",
-          "duration": "3-4 seconds",
-          "purpose": "emotional connection"
-        },
-        {
-          "id": "cta",
-          "title": "Call to Action",
-          "description": "final call to action scene description",
-          "duration": "2-3 seconds",
-          "purpose": "drive action"
-        }
-      ]
-    }
-  },
-  "visualPreferences": {
-    "overallStyle": "modern|classic|minimalist|bold|organic",
-    "colorPalette": {
-      "primary": [{"name": "color", "hex": "#000000", "role": "primary"}],
-      "secondary": [{"name": "color", "hex": "#000000", "role": "secondary"}],
-      "accent": [{"name": "color", "hex": "#000000", "role": "accent"}]
-    },
-    "mood": "energetic|calm|sophisticated|playful|inspiring",
-    "composition": "clean|dynamic|intimate|grand|artistic",
-    "lighting": "bright|warm|dramatic|natural|studio",
-    "environment": ["environment1", "environment2"]
+  "keyMessages": {
+    "headline": "compelling headline that captures attention",
+    "tagline": "memorable tagline that reinforces brand",
+    "supportingMessages": ["key benefit message 1", "key benefit message 2"]
   }
 }
 
@@ -993,9 +868,24 @@ ${request.description ? `追加情報: ${request.description}` : ""}
 
 重要: 提供された商品名「${request.productName || "この商品"}」を分析全体で使用してください。すべてのマーケティング戦略、機能、メッセージングがこの特定の商品に関連するものであることを確認してください。
 
-以下のJSON構造で包括的な分析を提供してください:
+以下のJSON構造で集中的な商品分析を提供してください:
 
-${this.getEnglishPrompt(request).split("Please provide a comprehensive analysis in the following JSON structure:")[1].split("ANALYSIS REQUIREMENTS:")[0]}
+{
+  "product": {
+    "name": "${request.productName || "product name"}",
+    "description": "主要な価値提案を強調する簡潔な商品説明",
+    "keyFeatures": ["feature1", "feature2", "feature3", "feature4", "feature5"]
+  },
+  "targetAudience": {
+    "ageRange": "年齢層 (例: 25-35)",
+    "description": "ライフスタイルと価値観を組み合わせた簡潔なターゲット層の説明"
+  },
+  "keyMessages": {
+    "headline": "注目を集める魅力的なヘッドライン",
+    "tagline": "ブランドを強化する記憶に残るタグライン",
+    "supportingMessages": ["主要便益メッセージ1", "主要便益メッセージ2"]
+  }
+}
 
 分析要件:
 - 「${request.productName || "この商品"}」について${detailLevel}レベルの分析深度を提供

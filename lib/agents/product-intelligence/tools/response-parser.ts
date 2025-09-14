@@ -100,24 +100,19 @@ export class ResponseParser {
   public static calculateConfidence(analysis: ProductAnalysis, rawResponse: string): number {
     let score = 0.5; // Base score
 
-    // Check completeness of key sections
-    if (analysis.product.keyFeatures.length > 0) score += 0.1;
-    if (analysis.targetAudience.primary.demographics.ageRange !== "unknown") score += 0.1;
-    if (analysis.positioning.valueProposition.primaryBenefit !== "unknown") score += 0.1;
-    if (analysis.keyMessages.headline !== "unknown") score += 0.1;
-    // Removed visualPreferences check - no longer part of Maya's scope
+    // Check completeness of key sections (simplified structure)
+    if (analysis.product.keyFeatures.length > 0) score += 0.15;
+    if (analysis.targetAudience.ageRange !== "unknown") score += 0.15;
+    if (analysis.keyMessages.headline !== "unknown") score += 0.15;
 
     // Check response quality indicators
-    if (rawResponse.length > 2000) score += 0.05;
-    if (analysis.product.colors.length > 1) score += 0.05;
+    if (rawResponse.length > 1000) score += 0.1;
 
     // Check for product-specific details
-    if (analysis.product.description.length > 50) score += 0.05;
-    if (analysis.product.materials.length > 1) score += 0.05;
+    if (analysis.product.description.length > 50) score += 0.1;
 
     // Check target audience specificity
-    if (analysis.targetAudience.primary.demographics.incomeLevel !== "mid-range") score += 0.05;
-    if (analysis.targetAudience.primary.psychographics.values.length > 2) score += 0.05;
+    if (analysis.targetAudience.description.length > 20) score += 0.1;
 
     // Check key messages depth (commercialStrategy moved to David)
     if (analysis.keyMessages.supportingMessages?.length > 2) score += 0.05;
@@ -131,35 +126,22 @@ export class ResponseParser {
   public static validateAnalysisCompleteness(analysis: ProductAnalysis): string[] {
     const warnings: string[] = [];
 
-    // Product validation
+    // Product validation (simplified structure)
     if (analysis.product.keyFeatures.length === 0) {
       warnings.push("No product features identified");
-    }
-
-    if (analysis.product.colors.length === 0) {
-      warnings.push("No product colors identified");
     }
 
     if (analysis.product.description.length < 20) {
       warnings.push("Product description is too brief");
     }
 
-    // Target audience validation
-    if (analysis.targetAudience.primary.demographics.ageRange === "unknown") {
+    // Target audience validation (simplified structure)
+    if (analysis.targetAudience.ageRange === "unknown") {
       warnings.push("Target age range not determined");
     }
 
-    if (analysis.targetAudience.primary.psychographics.values.length === 0) {
-      warnings.push("No target audience values identified");
-    }
-
-    // Positioning validation
-    if (analysis.positioning.valueProposition.primaryBenefit === "unknown") {
-      warnings.push("Primary value proposition not identified");
-    }
-
-    if (analysis.positioning.competitiveAdvantages.functional.length === 0) {
-      warnings.push("No functional competitive advantages identified");
+    if (analysis.targetAudience.description.length < 10) {
+      warnings.push("Target audience description is too brief");
     }
 
     // Key messages validation (commercialStrategy moved to David)

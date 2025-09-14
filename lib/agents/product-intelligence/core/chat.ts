@@ -125,10 +125,11 @@ function buildContextPrompt(request: ChatRequest): string {
   if (request.context.productAnalysis) {
     const analysis = request.context.productAnalysis;
     contextPrompt += `CURRENT PRODUCT ANALYSIS:
-Product: ${analysis.product.name} (${analysis.product.category})
+Product: ${analysis.product.name}
+Description: ${analysis.product.description}
 Key Features: ${analysis.product.keyFeatures.join(", ")}
-Target Age: ${analysis.targetAudience.primary.demographics.ageRange}
-Positioning: ${analysis.positioning.valueProposition.primaryBenefit}
+Target Audience: ${analysis.targetAudience.ageRange} - ${analysis.targetAudience.description}
+Key Messages: ${analysis.keyMessages.headline} | ${analysis.keyMessages.tagline}
 Confidence: ${Math.round(analysis.metadata.confidenceScore * 100)}%
 
 `;

@@ -9,7 +9,6 @@ import { VertexAIService } from "@/lib/services/vertex-ai";
 import { GeminiClient } from "@/lib/services/gemini";
 import { AppModeConfig } from "@/lib/config/app-mode";
 import { SceneGenerator } from "../tools/scene-generator";
-import { PositioningGenerator } from "../tools/positioning-generator";
 import { MockDataGenerator } from "../tools/mock-data-generator";
 import { FallbackGenerator } from "../tools/fallback-generator";
 import { PromptBuilder } from "../tools/prompt-builder";
@@ -107,10 +106,25 @@ export async function analyzeProductImage(
       warnings: parseResult.warnings,
     };
   } catch (error) {
-    console.error("Gemini Vision analysis failed:", error);
-    throw new Error(
-      `Product image analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`
-    );
+    console.error("Gemini Vision analysis failed, using fallback:", error);
+
+    // Generate fallback analysis instead of throwing error
+    const processingTime = Date.now() - startTime;
+    const fallbackAnalysis = generateFallbackAnalysis(request);
+
+    // Update fallback metadata
+    fallbackAnalysis.metadata.processingTime = processingTime;
+    fallbackAnalysis.metadata.cost.current = 0.0;
+    fallbackAnalysis.metadata.cost.total = 0.0;
+
+    return {
+      analysis: fallbackAnalysis,
+      processingTime,
+      cost: 0.0,
+      confidence: 0.3, // Low confidence for fallback
+      rawResponse: "Fallback analysis generated due to API failure",
+      warnings: ["Analysis failed, using fallback data"],
+    };
   }
 }
 
@@ -122,12 +136,9 @@ async function generateMockAnalysis(
   startTime: number
 ): Promise<VisionAnalysisResponse> {
   const mockDataGenerator = new MockDataGenerator();
-  const positioningGenerator = new PositioningGenerator();
-
   return await mockDataGenerator.generateMockAnalysis({
     request,
     startTime,
-    positioningGenerator,
   });
 }
 
@@ -302,16 +313,16 @@ export function generateFallbackAnalysis(request: VisionAnalysisRequest): Produc
 export function calculateConfidence(analysis: ProductAnalysis, rawResponse: string): number {
   let score = 0.5; // Base score
 
-  // Check completeness of key sections
-  if (analysis.product.keyFeatures.length > 0) score += 0.1;
-  if (analysis.targetAudience.primary.demographics.ageRange !== "unknown") score += 0.1;
-  if (analysis.positioning.valueProposition.primaryBenefit !== "unknown") score += 0.1;
-  if (analysis.keyMessages.headline !== "unknown") score += 0.1;
-  // Removed visualPreferences check - no longer part of Maya's scope
+  // Check completeness of key sections (simplified structure)
+  if (analysis.product.keyFeatures.length > 0) score += 0.15;
+  if (analysis.targetAudience.ageRange !== "unknown") score += 0.15;
+  if (analysis.keyMessages.headline !== "unknown") score += 0.15;
 
   // Check response quality indicators
-  if (rawResponse.length > 2000) score += 0.05;
-  if (analysis.product.colors.length > 1) score += 0.05;
+  if (rawResponse.length > 1000) score += 0.1;
+
+  // Check for product-specific details
+  if (analysis.product.description.length > 50) score += 0.1;
 
   return Math.min(score, 0.95); // Cap at 95%
 }
@@ -326,11 +337,9 @@ export function validateAnalysisCompleteness(analysis: ProductAnalysis): string[
     warnings.push("No product features identified");
   }
 
-  if (analysis.product.colors.length === 0) {
-    warnings.push("No product colors identified");
-  }
+  // Removed colors check - not part of simplified structure
 
-  if (analysis.targetAudience.primary.demographics.ageRange === "unknown") {
+  if (analysis.targetAudience.ageRange === "unknown") {
     warnings.push("Target age range not determined");
   }
 

@@ -507,18 +507,11 @@ async function handleDemoChat(request: SimpleRequest) {
   // Build context with stored analysis or fallback to mock for demo
   const mockContext: ChatContext = {
     productAnalysis: piSession?.productAnalysis || {
-      // Mock product analysis - this would come from session storage in real implementation
+      // Mock product analysis - simplified structure
       product: {
-        id: "demo-product-1",
         name: "Premium Wireless Headphones",
-        category: ProductCategory.ELECTRONICS,
-        subcategory: "audio",
-        description: "Premium wireless headphones designed for professionals",
-        keyFeatures: ["noise cancellation", "premium sound", "long battery"],
-        materials: ["aluminum", "leather"],
-        colors: [{ name: "black", hex: "#000000", role: "primary" as any }],
-        usageContext: ["office", "travel"],
-        seasonality: "year-round" as any,
+        description: "Premium wireless headphones designed for professionals with advanced noise cancellation",
+        keyFeatures: ["Active noise cancellation", "30-hour battery life", "Premium sound quality", "Comfortable design", "Fast charging"],
       },
       keyMessages: {
         headline: "Premium Sound for Professionals",
@@ -526,49 +519,8 @@ async function handleDemoChat(request: SimpleRequest) {
         supportingMessages: ["Professional grade audio", "All day comfort"],
       },
       targetAudience: {
-        primary: {
-          demographics: {
-            ageRange: "25-45",
-            gender: "unisex" as any,
-            incomeLevel: "high" as any,
-            location: ["urban"],
-            lifestyle: ["professional"],
-          },
-          psychographics: {
-            values: ["quality", "performance"],
-            interests: ["technology", "music"],
-            personalityTraits: ["sophisticated"],
-            motivations: ["productivity", "quality"],
-          },
-          behaviors: {
-            shoppingHabits: ["premium" as any],
-            mediaConsumption: ["digital"],
-            brandLoyalty: "high" as any,
-            decisionFactors: ["quality", "brand"],
-          },
-        },
-      },
-      positioning: {
-        brandPersonality: {
-          traits: ["professional", "reliable"],
-          tone: "confident" as any,
-          voice: "expert" as any,
-        },
-        valueProposition: {
-          primaryBenefit: "Perfect audio experience for professionals",
-          supportingBenefits: ["noise cancellation", "premium design"],
-          differentiators: ["professional grade", "superior comfort"],
-        },
-        competitiveAdvantages: {
-          functional: ["advanced technology", "superior sound"],
-          emotional: ["confidence", "prestige"],
-          experiential: ["seamless experience", "luxury feel"],
-        },
-        marketPosition: {
-          tier: "premium" as any,
-          niche: "professional audio" as any,
-          marketShare: "challenger" as any,
-        },
+        ageRange: "25-45",
+        description: "professional, tech-savvy individuals who value quality audio and productivity",
       },
       metadata: {
         sessionId: "demo-session",

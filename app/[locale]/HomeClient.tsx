@@ -10,7 +10,6 @@ import type { Dictionary, Locale } from "@/lib/dictionaries";
 import HeroSection from "@/components/home/HeroSection";
 import ProductInputForm from "@/components/home/ProductInputForm";
 import AnalysisProgressCard from "@/components/home/AnalysisProgressCard";
-import ProductInsightsCard from "@/components/home/ProductInsightsCard";
 import ProductAnalysisCard from "@/components/product-intelligence/ProductAnalysisCard";
 import ImprovedCreativeDirectorCard from "@/components/home/ImprovedCreativeDirectorCard";
 import InstructionsCard from "@/components/home/InstructionsCard";

@@ -43,20 +43,11 @@ export interface PriceRange {
   currency: string;
 }
 
-// Basic product information structure
+// Simplified product information structure
 export interface ProductInfo {
-  id: string;
-  category: ProductCategory;
-  subcategory: string;
   name: string;
   description: string;
   keyFeatures: string[];
-  materials: string[];
-  colors: Color[];
-  dimensions?: ProductDimensions;
-  priceRange?: PriceRange;
-  usageContext: string[];
-  seasonality?: "spring" | "summer" | "fall" | "winter" | "year-round";
 }
 
 // Demographics for target audience
@@ -91,10 +82,10 @@ export interface TargetAudienceSegment {
   behaviors: Behaviors;
 }
 
-// Complete target audience analysis
+// Simplified target audience analysis
 export interface TargetAudience {
-  primary: TargetAudienceSegment;
-  secondary?: TargetAudienceSegment;
+  ageRange: string;
+  description: string;
 }
 
 // Brand personality traits
@@ -127,10 +118,9 @@ export interface MarketPosition {
 
 // Brand positioning strategy
 export interface Positioning {
-  brandPersonality: BrandPersonality;
-  valueProposition: ValueProposition;
-  competitiveAdvantages: CompetitiveAdvantages;
-  marketPosition: MarketPosition;
+  valueProposition: {
+    primaryBenefit: string;
+  };
 }
 
 // Key commercial messages
@@ -216,10 +206,7 @@ export interface ProductAnalysis {
   // Target audience analysis
   targetAudience: TargetAudience;
 
-  // Brand positioning strategy
-  positioning: Positioning;
-
-  // Key messaging (promoted from commercialStrategy)
+  // Key messaging
   keyMessages: KeyMessages;
 
   // Session and processing metadata
