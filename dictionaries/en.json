@@ -356,7 +356,9 @@
       "emotionalAppeal": "Emotional Appeal",
       "proofPoints": "Proof Points",
       "askForDetails": "Ask for details",
-      "analysisQuality": "Analysis Quality"
+      "analysisQuality": "Analysis Quality",
+      "resetSession": "Reset",
+      "proceedToNextAgent": "Proceed to Creative Director"
     },
     "productAnalysisComplete": "Product analysis complete!\nFeel free to talk to me if you want to adjust anything!",
     "textAnalysisComplete": "Text analysis complete. Ask me anything about your product!",

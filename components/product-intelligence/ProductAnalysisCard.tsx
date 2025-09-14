@@ -10,6 +10,7 @@ import React from "react";
 import { Card } from "@/components/ui/Card";
 import type { Dictionary } from "@/lib/dictionaries";
 import { useProductIntelligenceStore } from "@/lib/stores/product-intelligence-store";
+import { Button } from "../ui";
 
 export interface ProductAnalysisCardProps {
   dict: Dictionary;
@@ -32,7 +33,10 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
     productDescription,
     inputMode,
     showAllFeatures,
+    sessionId,
     setShowAllFeatures,
+    resetSession,
+    transitionToPhase,
   } = useProductIntelligenceStore();
 
   // If no analysis available, show loading state
@@ -68,9 +72,14 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
         {/* Header with confidence */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-xl font-bold text-white mb-1">
-              {dict.productAnalysis?.title || "Product Analysis Results"}
-            </h2>
+            <div className="flex items-center gap-3 mb-2">
+              <h2 className="text-xl font-semibold text-white">{dict.productAnalysis.title}</h2>
+              {sessionId && (
+                <span className="px-2 py-1 bg-gray-700/50 text-gray-400 text-xs rounded border border-gray-600 font-mono">
+                  #{sessionId.slice(-6)}
+                </span>
+              )}
+            </div>
             <p className="text-gray-300 text-sm">
               {dict.productAnalysis?.subtitle || "Commercial Intelligence Overview"}
             </p>
@@ -131,7 +140,8 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
             <span className="text-xl">⚡</span>
             <div>
               <h3 className="text-lg font-semibold text-white mb-1">
-                {dict.productAnalysis.productName}:{" "}
+                {dict.productAnalysis.productName}
+                {" - "}
                 {productName || analysis.product?.name || "Product Name"}
               </h3>
             </div>
@@ -257,8 +267,35 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
           </div>
         </div>
 
+        {/* Action Buttons */}
+        <div className="pt-6 mt-6 border-t border-gray-600">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <button
+              onClick={() => {
+                if (
+                  window.confirm(
+                    dict.common?.confirmRestart || "Are you sure you want to reset the session?"
+                  )
+                ) {
+                  resetSession();
+                }
+              }}
+              className="cursor-pointer px-6 py-3 border-2 border-gray-600 text-gray-300 rounded-lg font-medium hover:border-gray-500 hover:text-white transition-colors"
+            >
+              {t.resetSession}
+            </button>
+
+            <Button
+              onClick={() => transitionToPhase("david-creative")}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer text-sm font-medium flex-1 sm:flex-none"
+            >
+              {t.proceedToNextAgent}
+            </Button>
+          </div>
+        </div>
+
         {/* Footer */}
-        <div className="pt-4 mt-6 border-t border-gray-600 text-xs text-gray-500">
+        <div className="pt-4 mt-4 text-xs text-gray-500">
           <div className="flex justify-between items-center">
             <span>{new Date(analysis.metadata.timestamp).toLocaleString(locale)}</span>
             <span>
