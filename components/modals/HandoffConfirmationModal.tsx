@@ -78,8 +78,8 @@ export default function HandoffConfirmationModal({
       initializeFromMayaHandoff({
         sessionId: creativeDirectorSessionId,
         productAnalysis: analysis,
-        strategicInsights: analysis?.commercialStrategy || null,
-        visualOpportunities: analysis?.visualPreferences || null,
+        strategicInsights: analysis?.keyMessages || null,
+        visualOpportunities: null, // Removed visualPreferences from Maya
         locale,
       });
 

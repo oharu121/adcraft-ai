@@ -41,15 +41,6 @@ interface ProductIntelligenceStore {
   // Chat state - THIS IS THE CRITICAL ONE FOR YOUR USE CASE!
   chatInputMessage: string;
   
-  // Accordion state
-  expandedSections: {
-    keyMessages: boolean;
-    visualStyle: boolean;
-    narrativeStructure: boolean;
-    keyScenes: boolean;
-    musicTone: boolean;
-  };
-  
   // Actions for session management
   setSessionId: (id: string) => void;
   setSessionStatus: (status: SessionStatus) => void;
@@ -87,9 +78,6 @@ interface ProductIntelligenceStore {
   
   // Actions for chat - THE MONEY SHOT! 🎯
   setChatInputMessage: (message: string) => void;
-  
-  // Actions for accordion
-  toggleSection: (section: keyof ProductIntelligenceStore['expandedSections']) => void;
   
   // Complex actions
   resetSession: () => void;
@@ -129,14 +117,6 @@ export const useProductIntelligenceStore = create<ProductIntelligenceStore>((set
 
   // 🎯 THE CRITICAL CHAT STATE - persists across component unmounts!
   chatInputMessage: "",
-
-  expandedSections: {
-    keyMessages: true,
-    visualStyle: true,
-    narrativeStructure: true,
-    keyScenes: true,
-    musicTone: true,
-  },
 
   // Simple setters
   setSessionId: (id) => set({ sessionId: id }),
@@ -191,15 +171,6 @@ export const useProductIntelligenceStore = create<ProductIntelligenceStore>((set
   // 🚀 THE HERO METHOD - no more lost chat messages!
   setChatInputMessage: (message) => set({ chatInputMessage: message }),
 
-  // Toggle accordion sections
-  toggleSection: (section) =>
-    set((state) => ({
-      expandedSections: {
-        ...state.expandedSections,
-        [section]: !state.expandedSections[section],
-      },
-    })),
-
   // Complex actions that handle multiple state updates
   resetSession: () =>
     set({
@@ -225,13 +196,6 @@ export const useProductIntelligenceStore = create<ProductIntelligenceStore>((set
       // Reset phase management
       currentPhase: 'product-input' as AppPhase,
       completedPhases: [],
-      expandedSections: {
-        keyMessages: false,
-        visualStyle: false,
-        narrativeStructure: false,
-        keyScenes: false,
-        musicTone: false,
-      },
     }),
 
   startAnalysis: () =>

@@ -177,31 +177,9 @@ export interface KeyScenes {
   }>;
 }
 
-// Commercial strategy insights
-export interface CommercialStrategy {
-  keyMessages: KeyMessages;
-  emotionalTriggers: EmotionalTriggers;
-  callToAction: CallToAction;
-  storytelling: Storytelling;
-  keyScenes: KeyScenes;
-}
-
-// Color palette for visual direction
-export interface ColorPalette {
-  primary: Color[];
-  secondary: Color[];
-  accent: Color[];
-}
-
-// Visual preferences for creative direction
-export interface VisualPreferences {
-  overallStyle: VisualStyle;
-  colorPalette: ColorPalette;
-  mood: Mood;
-  composition: Composition;
-  lighting: Lighting;
-  environment: string[];
-}
+// Note: CommercialStrategy and VisualPreferences moved to David (Creative Director Agent)
+// EmotionalTriggers, CallToAction, Storytelling, KeyScenes will be handled by David/Alex
+// ColorPalette and visual elements will be handled by David
 
 // Cost breakdown tracking
 export interface CostBreakdown {
@@ -241,11 +219,8 @@ export interface ProductAnalysis {
   // Brand positioning strategy
   positioning: Positioning;
 
-  // Commercial strategy insights
-  commercialStrategy: CommercialStrategy;
-
-  // Visual direction for Creative Director Agent
-  visualPreferences: VisualPreferences;
+  // Key messaging (promoted from commercialStrategy)
+  keyMessages: KeyMessages;
 
   // Session and processing metadata
   metadata: AnalysisMetadata;

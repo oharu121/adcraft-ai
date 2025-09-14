@@ -27,11 +27,6 @@ export interface MockDataGenerationOptions {
   request: VisionAnalysisRequest;
   startTime: number;
   positioningGenerator: PositioningGenerator;
-  generateCommercialStrategy: (
-    category: ProductCategory,
-    productName?: string,
-    locale?: "en" | "ja"
-  ) => Promise<any>;
 }
 
 /**
@@ -44,7 +39,7 @@ export class MockDataGenerator {
   public async generateMockAnalysis(
     options: MockDataGenerationOptions
   ): Promise<VisionAnalysisResponse> {
-    const { request, startTime, positioningGenerator, generateCommercialStrategy } = options;
+    const { request, startTime, positioningGenerator } = options;
 
     // Simulate processing delay
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -103,29 +98,11 @@ export class MockDataGenerator {
         productName: request.productName,
         locale: request.locale,
       }),
-      // 🎬 Commercial Strategy Data
-      commercialStrategy: await generateCommercialStrategy(
-        category,
-        request.productName,
-        request.locale
-      ),
-      // Visual Style & Music & Tone
-      visualPreferences: {
-        overallStyle: VisualStyle.MODERN,
-        colorPalette: {
-          primary: [{ name: "executive midnight", hex: "#1e293b", role: ColorRole.PRIMARY }],
-          secondary: [{ name: "platinum white", hex: "#f8fafc", role: ColorRole.SECONDARY }],
-          accent: [{ name: "innovation gold", hex: "#f59e0b", role: ColorRole.ACCENT }],
-        },
-        mood: Mood.SOPHISTICATED, // Music & Tone
-        composition: Composition.CLEAN,
-        lighting: Lighting.NATURAL,
-        environment: [
-          "executive boardroom",
-          "modern skyline",
-          "premium workspace",
-          "innovation lab",
-        ],
+      // Key Messages only (commercialStrategy moved to David)
+      keyMessages: {
+        headline: "Premium Quality Product",
+        tagline: "Excellence in Every Detail",
+        supportingMessages: ["Trusted by professionals", "Built to last"]
       },
       metadata: {
         sessionId: request.sessionId,

@@ -903,8 +903,8 @@ export class FirestoreService {
           );
         }
         if (existingSession && existingSession.pendingStrategy && existingSession.productAnalysis) {
-          // Move pending strategy to confirmed strategy
-          existingSession.productAnalysis.commercialStrategy = existingSession.pendingStrategy;
+          // Move pending strategy to confirmed keyMessages (commercialStrategy moved to David)
+          existingSession.productAnalysis.keyMessages = existingSession.pendingStrategy;
           const updatedStrategy = existingSession.pendingStrategy;
           // Clear pending strategy
           delete existingSession.pendingStrategy;
@@ -939,7 +939,7 @@ export class FirestoreService {
 
       // Update confirmed strategy and clear pending
       await this.piSessionsCollection.doc(sessionId).update({
-        "productAnalysis.commercialStrategy": sessionData.pendingStrategy,
+        "productAnalysis.keyMessages": sessionData.pendingStrategy,
         pendingStrategy: FieldValue.delete(),
         pendingStrategyTimestamp: FieldValue.delete(),
         updatedAt: new Date(),

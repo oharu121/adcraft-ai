@@ -15,9 +15,7 @@ import { FallbackGenerator } from "../tools/fallback-generator";
 import { PromptBuilder } from "../tools/prompt-builder";
 import { ResponseParser } from "../tools/response-parser";
 import { getLocaleConstants } from "@/lib/constants/locale-constants";
-import { getCommercialStrategyTemplate } from "@/lib/constants/commercial-templates";
 import {
-  CommercialStrategy,
   ProductAnalysis,
   VisionAnalysisRequest,
   VisionAnalysisResponse,
@@ -130,58 +128,9 @@ async function generateMockAnalysis(
     request,
     startTime,
     positioningGenerator,
-    generateCommercialStrategy: (category, productName, locale) =>
-      generateCommercialStrategy(category, productName, locale),
   });
 }
 
-/**
- * Generate commercial strategy based on product category and name
- */
-async function generateCommercialStrategy(
-  category: ProductCategory,
-  productName?: string,
-  locale: "en" | "ja" = "en"
-): Promise<CommercialStrategy> {
-  const template = getCommercialStrategyTemplate(category, locale);
-  const sceneGenerator = getSceneGenerator();
-
-  return {
-    keyMessages: {
-      headline:
-        typeof template.headline === "function"
-          ? template.headline(productName)
-          : template.headline,
-      tagline: template.tagline,
-      supportingMessages: template.supportingMessages,
-    },
-    emotionalTriggers: {
-      primary: {
-        type: EmotionalTriggerType.EXCITEMENT,
-        description: template.narrative,
-        intensity: "strong" as const,
-      },
-      secondary: [],
-    },
-    callToAction: {
-      primary: template.callToAction.primary,
-      secondary: template.callToAction.secondary,
-    },
-    storytelling: {
-      narrative: template.narrative,
-      conflict: template.conflict,
-      resolution: template.resolution,
-    },
-    keyScenes: await sceneGenerator.generateFlexibleKeyScenes({
-      category,
-      productName,
-      template,
-      locale,
-      useMockMode:
-        process.env.NODE_ENV === "development" && process.env.ENABLE_MOCK_MODE === "true",
-    }),
-  };
-}
 
 /**
  * Calculate cost based on token usage
@@ -357,8 +306,8 @@ export function calculateConfidence(analysis: ProductAnalysis, rawResponse: stri
   if (analysis.product.keyFeatures.length > 0) score += 0.1;
   if (analysis.targetAudience.primary.demographics.ageRange !== "unknown") score += 0.1;
   if (analysis.positioning.valueProposition.primaryBenefit !== "unknown") score += 0.1;
-  if (analysis.commercialStrategy.keyMessages.headline !== "unknown") score += 0.1;
-  if (analysis.visualPreferences.overallStyle !== "classic") score += 0.1;
+  if (analysis.keyMessages.headline !== "unknown") score += 0.1;
+  // Removed visualPreferences check - no longer part of Maya's scope
 
   // Check response quality indicators
   if (rawResponse.length > 2000) score += 0.05;

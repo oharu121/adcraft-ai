@@ -383,7 +383,6 @@ async function generateFollowUpSuggestions(
         // Use dynamic contextual quick actions
         const dynamicActions = await PromptBuilder.generateContextualQuickActions(
           request.context.productAnalysis,
-          request.context.productAnalysis.commercialStrategy,
           conversationHistory + `\nAgent: ${response}`,
           locale
         );

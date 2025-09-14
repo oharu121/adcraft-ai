@@ -83,80 +83,10 @@ export class FallbackGenerator {
           marketShare: "challenger" as const,
         },
       },
-      commercialStrategy: {
-        keyMessages: {
-          headline: "Quality Product",
-          tagline: "Reliable and Practical",
-          supportingMessages: ["Quality you can trust", "Practical solution"],
-        },
-        emotionalTriggers: {
-          primary: {
-            type: EmotionalTriggerType.PRIDE,
-            description: "Reliability and dependability",
-            intensity: "moderate" as const,
-          },
-          secondary: [],
-        },
-        callToAction: {
-          primary: "Learn More",
-          secondary: ["View Details"],
-        },
-        storytelling: {
-          narrative: "Finding a reliable solution",
-          conflict: "Need for dependable product",
-          resolution: "Peace of mind with quality choice",
-        },
-        keyScenes: {
-          scenes: [
-            {
-              id: "opening",
-              title: "Opening",
-              description: "Person searching for quality product",
-              duration: "3-5 seconds",
-              purpose: "hook audience",
-            },
-            {
-              id: "showcase",
-              title: "Product Showcase",
-              description: "Close-up of product features",
-              duration: "5-8 seconds",
-              purpose: "showcase product features",
-            },
-            {
-              id: "solution",
-              title: "Problem Solution", 
-              description: "Product solving user needs",
-              duration: "4-6 seconds",
-              purpose: "demonstrate value",
-            },
-            {
-              id: "emotional",
-              title: "Emotional Moment",
-              description: "Satisfaction with purchase",
-              duration: "3-4 seconds",
-              purpose: "emotional connection",
-            },
-            {
-              id: "cta",
-              title: "Call to Action",
-              description: "Product logo and availability",
-              duration: "2-3 seconds",
-              purpose: "drive action",
-            },
-          ],
-        },
-      },
-      visualPreferences: {
-        overallStyle: VisualStyle.CLASSIC,
-        colorPalette: {
-          primary: [{ name: "blue", hex: "#3b82f6", role: ColorRole.PRIMARY }],
-          secondary: [{ name: "gray", hex: "#6b7280", role: ColorRole.SECONDARY }],
-          accent: [{ name: "white", hex: "#ffffff", role: ColorRole.ACCENT }],
-        },
-        mood: Mood.CALM,
-        composition: Composition.CLEAN,
-        lighting: Lighting.NATURAL,
-        environment: ["neutral background"],
+      keyMessages: {
+        headline: "Quality Product",
+        tagline: "Reliable and Practical",
+        supportingMessages: ["Quality you can trust", "Practical solution"],
       },
       metadata: {
         sessionId: request.sessionId,

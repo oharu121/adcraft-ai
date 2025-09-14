@@ -11,11 +11,12 @@ import HeroSection from "@/components/home/HeroSection";
 import ProductInputForm from "@/components/home/ProductInputForm";
 import AnalysisProgressCard from "@/components/home/AnalysisProgressCard";
 import ProductInsightsCard from "@/components/home/ProductInsightsCard";
-import CommercialStrategyCard from "@/components/home/CommercialStrategyCard";
+import ProductAnalysisCard from "@/components/product-intelligence/ProductAnalysisCard";
 import ImprovedCreativeDirectorCard from "@/components/home/ImprovedCreativeDirectorCard";
 import InstructionsCard from "@/components/home/InstructionsCard";
 import ImageModal from "@/components/home/ImageModal";
 import PhaseTransition from "@/components/ui/PhaseTransition";
+import ChatContainer from "@/components/product-intelligence/ChatContainer";
 import { SessionStatus } from "@/lib/agents/product-intelligence/enums";
 import { ChatMessage } from "@/lib/agents/product-intelligence/types";
 import { AppPhase } from "@/lib/types/app-phases";
@@ -80,9 +81,6 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
     // 🎯 THE HERO: Chat state that PERSISTS!
     chatInputMessage, setChatInputMessage,
-
-    // Accordion state
-    expandedSections, toggleSection,
 
     // Complex actions
     resetSession, startAnalysis, completeAnalysis
@@ -558,26 +556,30 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
               {/* Phase: Maya Analysis */}
               {currentPhase === 'maya-analysis' && <AnalysisProgressCard dict={dict} />}
 
-              {/* Phase: Maya Strategy - Product Insights */}
+              {/* Phase: Maya Strategy - Product Analysis */}
               {currentPhase === 'maya-strategy' && (
-                <ProductInsightsCard dict={dict} onImageClick={() => setShowImageModal(true)} />
+                <ProductAnalysisCard dict={dict} />
               )}
             </div>
 
             {/* Right Column - Phase-dependent content */}
             <div className="space-y-6">
-              {/* Phase: Maya Strategy - Commercial Strategy */}
+              {/* Phase: Maya Strategy - Maya Chat (Right Panel) */}
               {currentPhase === 'maya-strategy' && (
-                <CommercialStrategyCard
-                  dict={dict}
-                  locale={locale}
-                  onSendMessage={handleSendMessage}
-                  onReset={handleReset}
-                  onCreativeDirectorReady={() => {
-                    // Animated transition to Creative Director phase
-                    transitionWithAnimation('david-creative');
-                  }}
-                />
+                <div className="h-full">
+                  {/* Maya Chat Container for clean left/right layout */}
+                  <ChatContainer
+                    sessionId={sessionId}
+                    messages={messages}
+                    isConnected={isConnected}
+                    isAgentTyping={isAgentTyping}
+                    onSendMessage={handleSendMessage}
+                    dict={dict}
+                    locale={locale}
+                    inputMessage={chatInputMessage}
+                    onInputMessageChange={setChatInputMessage}
+                  />
+                </div>
               )}
 
               {/* Phase: David Creative - Improved Creative Director Interface */}

@@ -7,14 +7,12 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card } from '@/components/ui/Card';
-import { CollapsibleSection } from '@/components/ui/CollapsibleSection';
 import type { Dictionary } from '@/lib/dictionaries';
-import { ProductAnalysis } from '@/lib/agents/product-intelligence/types';
+import { useProductIntelligenceStore } from '@/lib/stores/product-intelligence-store';
 
 export interface ProductAnalysisCardProps {
-  analysis: ProductAnalysis;
   dict: Dictionary;
   locale?: 'en' | 'ja';
   className?: string;
@@ -22,12 +20,25 @@ export interface ProductAnalysisCardProps {
 }
 
 const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
-  analysis,
   dict,
   locale = 'en',
   className = '',
   onRefineRequest
 }) => {
+
+  // Get analysis from store
+  const { analysis } = useProductIntelligenceStore();
+
+  // If no analysis available, show loading state
+  if (!analysis) {
+    return (
+      <Card variant="magical" className={`p-6 ${className}`}>
+        <div className="text-center text-gray-400">
+          <div className="animate-pulse">Analyzing product...</div>
+        </div>
+      </Card>
+    );
+  }
 
   // Use dictionary for localized text
   const t = dict.productIntelligence.productAnalysisCard;
@@ -90,17 +101,14 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
         </div>
 
         {/* Product Information */}
-        <CollapsibleSection
-          title={t.productInfo}
-          defaultExpanded={true}
-          className="mb-4"
-        >
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.productInfo}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <h4 className="font-medium text-gray-700 mb-2">{t.category}</h4>
               <p className="text-gray-600 capitalize">{analysis.product.category}</p>
             </div>
-            
+
             <div>
               <h4 className="font-medium text-gray-700 mb-2">{t.features}</h4>
               <ul className="text-gray-600 text-sm space-y-1">
@@ -112,7 +120,7 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
                 ))}
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-medium text-gray-700 mb-2">{t.materials}</h4>
               <div className="flex flex-wrap gap-1">
@@ -123,7 +131,7 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
                 ))}
               </div>
             </div>
-            
+
             <div>
               <h4 className="font-medium text-gray-700 mb-2">{t.colors}</h4>
               <div className="space-y-1">
@@ -131,26 +139,23 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
               </div>
             </div>
           </div>
-          
+
           <button
             onClick={() => handleRefineRequest('product features')}
-            className="mt-3 text-blue-600 hover:text-blue-700 text-sm font-medium"
+            className="mt-3 text-blue-600 hover:text-blue-700 text-sm font-medium cursor-pointer"
           >
             {t.refineThis} →
           </button>
-        </CollapsibleSection>
+        </div>
 
         {/* Target Audience */}
-        <CollapsibleSection
-          title={t.targetAudience}
-          defaultExpanded={false}
-          className="mb-4"
-        >
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.targetAudience}</h3>
           <div className="space-y-4">
             {/* Primary Audience */}
             <div>
               <h4 className="font-semibold text-gray-800 mb-3">{t.primary}</h4>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <h5 className="font-medium text-gray-700 mb-2">{t.demographics}</h5>
@@ -160,7 +165,7 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
                     <div><span className="font-medium">{t.income}:</span> {analysis.targetAudience.primary.demographics.incomeLevel}</div>
                   </div>
                 </div>
-                
+
                 <div>
                   <h5 className="font-medium text-gray-700 mb-2">{t.psychographics}</h5>
                   <div className="space-y-2">
@@ -176,7 +181,7 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
                     </div>
                   </div>
                 </div>
-                
+
                 <div>
                   <h5 className="font-medium text-gray-700 mb-2">{t.behaviors}</h5>
                   <div className="text-sm text-gray-600">
@@ -186,21 +191,18 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
               </div>
             </div>
           </div>
-          
+
           <button
             onClick={() => handleRefineRequest('target audience')}
-            className="mt-3 text-blue-600 hover:text-blue-700 text-sm font-medium"
+            className="mt-3 text-blue-600 hover:text-blue-700 text-sm font-medium cursor-pointer"
           >
             {t.refineThis} →
           </button>
-        </CollapsibleSection>
+        </div>
 
         {/* Brand Positioning */}
-        <CollapsibleSection
-          title={t.positioning}
-          defaultExpanded={false}
-          className="mb-4"
-        >
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.positioning}</h3>
           <div className="space-y-4">
             <div>
               <h4 className="font-medium text-gray-700 mb-2">{t.valueProposition}</h4>
@@ -218,7 +220,7 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
                 </ul>
               </div>
             </div>
-            
+
             <div>
               <h4 className="font-medium text-gray-700 mb-2">{t.competitiveAdvantages}</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -249,88 +251,39 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
               </div>
             </div>
           </div>
-          
+
           <button
             onClick={() => handleRefineRequest('brand positioning')}
-            className="mt-3 text-blue-600 hover:text-blue-700 text-sm font-medium"
+            className="mt-3 text-blue-600 hover:text-blue-700 text-sm font-medium cursor-pointer"
           >
             {t.refineThis} →
           </button>
-        </CollapsibleSection>
+        </div>
 
-        {/* Commercial Strategy */}
-        <CollapsibleSection
-          title={t.commercialStrategy}
-          defaultExpanded={false}
-          className="mb-4"
-        >
-          <div className="space-y-4">
-            <div>
-              <h4 className="font-medium text-gray-700 mb-2">{t.keyMessages}</h4>
-              <div className="bg-yellow-50 p-4 rounded-lg">
-                <h5 className="font-bold text-yellow-900 text-lg mb-1">
-                  {analysis.commercialStrategy.keyMessages.headline}
-                </h5>
-                <p className="text-yellow-800 font-medium mb-2">
-                  {analysis.commercialStrategy.keyMessages.tagline}
-                </p>
-                <ul className="text-yellow-700 text-sm space-y-1">
-                  {analysis.commercialStrategy.keyMessages.supportingMessages.map((message, index) => (
-                    <li key={index}>• {message}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+        {/* Key Messages - Now top-level in ProductAnalysis */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.keyMessages}</h3>
+          <div className="bg-yellow-50 p-4 rounded-lg">
+            <h5 className="font-bold text-yellow-900 text-lg mb-1">
+              {analysis.keyMessages.headline}
+            </h5>
+            <p className="text-yellow-800 font-medium mb-2">
+              {analysis.keyMessages.tagline}
+            </p>
+            <ul className="text-yellow-700 text-sm space-y-1">
+              {analysis.keyMessages.supportingMessages.map((message, index) => (
+                <li key={index}>• {message}</li>
+              ))}
+            </ul>
           </div>
-          
-          <button
-            onClick={() => handleRefineRequest('commercial strategy')}
-            className="mt-3 text-blue-600 hover:text-blue-700 text-sm font-medium"
-          >
-            {t.refineThis} →
-          </button>
-        </CollapsibleSection>
 
-        {/* Visual Preferences */}
-        <CollapsibleSection
-          title={t.visualPreferences}
-          defaultExpanded={false}
-          className="mb-4"
-        >
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <h4 className="font-medium text-gray-700 mb-1">{t.overallStyle}</h4>
-              <span className="px-2 py-1 bg-purple-100 text-purple-700 text-sm rounded capitalize">
-                {analysis.visualPreferences.overallStyle}
-              </span>
-            </div>
-            <div>
-              <h4 className="font-medium text-gray-700 mb-1">{t.mood}</h4>
-              <span className="px-2 py-1 bg-green-100 text-green-700 text-sm rounded capitalize">
-                {analysis.visualPreferences.mood}
-              </span>
-            </div>
-            <div>
-              <h4 className="font-medium text-gray-700 mb-1">{t.composition}</h4>
-              <span className="px-2 py-1 bg-orange-100 text-orange-700 text-sm rounded capitalize">
-                {analysis.visualPreferences.composition}
-              </span>
-            </div>
-            <div>
-              <h4 className="font-medium text-gray-700 mb-1">{t.lighting}</h4>
-              <span className="px-2 py-1 bg-red-100 text-red-700 text-sm rounded capitalize">
-                {analysis.visualPreferences.lighting}
-              </span>
-            </div>
-          </div>
-          
           <button
-            onClick={() => handleRefineRequest('visual preferences')}
-            className="mt-3 text-blue-600 hover:text-blue-700 text-sm font-medium"
+            onClick={() => handleRefineRequest('key messages')}
+            className="mt-3 text-blue-600 hover:text-blue-700 text-sm font-medium cursor-pointer"
           >
             {t.refineThis} →
           </button>
-        </CollapsibleSection>
+        </div>
 
         {/* Metadata */}
         <div className="mt-6 pt-4 border-t border-gray-200">

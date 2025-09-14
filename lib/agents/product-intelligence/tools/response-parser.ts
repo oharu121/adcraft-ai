@@ -104,8 +104,8 @@ export class ResponseParser {
     if (analysis.product.keyFeatures.length > 0) score += 0.1;
     if (analysis.targetAudience.primary.demographics.ageRange !== "unknown") score += 0.1;
     if (analysis.positioning.valueProposition.primaryBenefit !== "unknown") score += 0.1;
-    if (analysis.commercialStrategy.keyMessages.headline !== "unknown") score += 0.1;
-    if (analysis.visualPreferences.overallStyle !== "classic") score += 0.1;
+    if (analysis.keyMessages.headline !== "unknown") score += 0.1;
+    // Removed visualPreferences check - no longer part of Maya's scope
 
     // Check response quality indicators
     if (rawResponse.length > 2000) score += 0.05;
@@ -119,9 +119,8 @@ export class ResponseParser {
     if (analysis.targetAudience.primary.demographics.incomeLevel !== "mid-range") score += 0.05;
     if (analysis.targetAudience.primary.psychographics.values.length > 2) score += 0.05;
 
-    // Check commercial strategy depth
-    if (analysis.commercialStrategy.emotionalTriggers.secondary.length > 0) score += 0.05;
-    if (analysis.commercialStrategy.keyMessages.supportingMessages?.length > 2) score += 0.05;
+    // Check key messages depth (commercialStrategy moved to David)
+    if (analysis.keyMessages.supportingMessages?.length > 2) score += 0.05;
 
     return Math.min(score, 0.95); // Cap at 95%
   }
@@ -163,15 +162,9 @@ export class ResponseParser {
       warnings.push("No functional competitive advantages identified");
     }
 
-    // Commercial strategy validation
-    if (analysis.commercialStrategy.keyMessages.headline === "unknown") {
+    // Key messages validation (commercialStrategy moved to David)
+    if (analysis.keyMessages.headline === "unknown") {
       warnings.push("No compelling headline generated");
-    }
-
-    if (!analysis.commercialStrategy.keyScenes.scenes || 
-        analysis.commercialStrategy.keyScenes.scenes.length === 0 ||
-        analysis.commercialStrategy.keyScenes.scenes[0]?.description === "unknown") {
-      warnings.push("Commercial scenes not properly generated");
     }
 
     // Overall confidence validation
@@ -211,8 +204,7 @@ export class ResponseParser {
         "product",
         "targetAudience",
         "positioning",
-        "commercialStrategy",
-        "visualPreferences",
+        "keyMessages",
       ];
 
       for (const prop of requiredProperties) {

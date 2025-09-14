@@ -263,7 +263,6 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
       try {
         initialQuickActions = await PromptBuilder.generateContextualQuickActions(
           analysisResult.analysis,
-          analysisResult.analysis.commercialStrategy,
           "", // Empty conversation history for first interaction
           locale || "en"
         );
@@ -415,10 +414,9 @@ async function handleChatRequest(request: SimpleRequest) {
       // Generate updated strategy using our new method
       console.log("[DEBUG] piSession?.productAnalysis:", piSession?.productAnalysis);
       const strategyUpdate = await PromptBuilder.generateUpdatedStrategy(
-        piSession?.productAnalysis?.commercialStrategy || {},
+        piSession?.productAnalysis || {},
         message,
         piSession?.conversationHistory?.map((m: any) => `${m.type}: ${m.content}`).join("\n") || "",
-        piSession?.productAnalysis,
         locale
       );
       console.log("[DEBUG] Strategy update result:", strategyUpdate);
@@ -442,7 +440,7 @@ async function handleChatRequest(request: SimpleRequest) {
         messageType: "STRATEGY_UPDATE_CONFIRMATION",
         metadata: {
           proposedStrategy: strategyUpdate.updatedStrategy,
-          originalStrategy: piSession?.productAnalysis?.commercialStrategy,
+          originalStrategy: piSession?.productAnalysis,
           requiresConfirmation: true,
         },
       };
@@ -522,40 +520,10 @@ async function handleDemoChat(request: SimpleRequest) {
         usageContext: ["office", "travel"],
         seasonality: "year-round" as any,
       },
-      commercialStrategy: {
-        keyMessages: {
-          headline: "Premium Sound for Professionals",
-          tagline: "Quality, Comfort, Performance",
-          supportingMessages: ["Professional grade audio", "All day comfort"],
-        },
-        emotionalTriggers: {
-          primary: {
-            type: "confidence" as any,
-            description: "Feel confident in every meeting",
-            intensity: "strong" as any,
-          },
-          secondary: [],
-        },
-        callToAction: {
-          primary: "Experience Premium Sound",
-          secondary: ["Learn More", "Shop Now"],
-        },
-        storytelling: {
-          narrative: "Professional excellence through superior audio",
-          conflict: "Poor audio quality disrupts productivity",
-          resolution: "Premium headphones deliver clarity and focus",
-        },
-        keyScenes: {
-          scenes: [
-            {
-              id: "opening",
-              title: "Opening Hook",
-              description: "Professional using headphones in office setting",
-              duration: "3-5 seconds" as any,
-              purpose: "capture attention" as any,
-            },
-          ],
-        },
+      keyMessages: {
+        headline: "Premium Sound for Professionals",
+        tagline: "Quality, Comfort, Performance",
+        supportingMessages: ["Professional grade audio", "All day comfort"],
       },
       targetAudience: {
         primary: {
@@ -601,18 +569,6 @@ async function handleDemoChat(request: SimpleRequest) {
           niche: "professional audio" as any,
           marketShare: "challenger" as any,
         },
-      },
-      visualPreferences: {
-        overallStyle: "modern" as any,
-        colorPalette: {
-          primary: [{ name: "executive midnight", hex: "#1e293b", role: "primary" as any }],
-          secondary: [{ name: "platinum white", hex: "#f8fafc", role: "secondary" as any }],
-          accent: [{ name: "innovation gold", hex: "#f59e0b", role: "accent" as any }],
-        },
-        mood: "sophisticated" as any,
-        composition: "clean" as any,
-        lighting: "natural" as any,
-        environment: ["executive boardroom", "modern skyline"],
       },
       metadata: {
         sessionId: "demo-session",

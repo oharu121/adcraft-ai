@@ -339,7 +339,6 @@ DO NOT send the signal when:
    */
   public static async generateContextualQuickActions(
     productContext: any,
-    commercialStrategy: any,
     conversationHistory: string,
     locale: "en" | "ja" = "en"
   ): Promise<string[]> {
@@ -409,55 +408,46 @@ Return as valid JSON, an array of strings: ["Choice 1", "Choice 2", ...]`;
     } else {
       // Maya is ready for strategy changes - generate refinement actions
       prompt = isJapanese
-        ? `この商品分析と現在の商業戦略に基づいて、2-4個の戦略改善提案を生成してください。商業戦略の特定フィールドを改善する具体的な提案のみに焦点を当ててください。
+        ? `この商品分析に基づいて、2-4個の分析改善提案を生成してください。商品分析の具体的フィールドを直接編集する提案のみに焦点を当ててください。
 
 商品: ${productContext?.product?.name || "商品"}
 現在の会話: ${conversationHistory}
-現在の戦略: ${JSON.stringify(commercialStrategy, null, 2)}
+現在の分析: ${JSON.stringify(productContext, null, 2)}
 
-## 戦略改善の良い例（フィールド特化型）:
-- "ターゲット層を20～30代に絞り込む"
-- "照明を「warm natural」にしたい"
-- "narrativeの課題を「時間不足」にしたい"
-- "シーンに「商品使用場面」を追加したい"
-- "ヘッドラインをより感情的にする"
-- "CTAを「今すぐ体験」に変更する"
-
-## 避けるべき例:
-- 商品の一般的な質問（「競合は何ですか？」など）
-- 戦略決定の理由を問う質問（「なぜ...」など）
-- 長い説明文
+## 分析改善の良い例（直接フィールド編集）:
+- "ターゲット層を20-25歳に変更したい"
+- "ヘッドラインを「革新的な〜」にする"
+- "主要メリットを「時短効果」に修正する"
+- "ブランドトーンを「親しみやすい」にしたい"
+- "価格帯を「ミドルレンジ」に変更する"
+- "使用場面に「通勤時」を追加したい"
 
 要件:
-- 戦略改善のみに焦点を当てる
-- 商業戦略の具体的なフィールドに対する変更提案
+- の直接フィールド編集のみ
+- 分析改善のみに焦点を当てる
+- 商品分析の具体的なフィールドに対する変更提案
 - 各アクションは30文字以内
-- 「〜にしたい」「〜に変更する」「〜を追加する」形式
-- ユーザーがすぐ実行できる具体的な提案
+- 「〜を○○にしたい」「〜に変更する」形式
+- 実際のデータ値を具体的に提案
 
 有効なJSONとして、文字列の配列で返してください: ["アクション1", "アクション2", ...]`
-        : `Based on this product analysis and current commercial strategy, generate 2-4 strategy refinement suggestions. Focus ONLY on specific field improvements for the commercial strategy.
+        : `Based on this product analysis, generate 2-4 analysis improvement suggestions. Focus ONLY on direct field edits to ProductAnalysis.
 
 Product: ${productContext?.product?.name || "Product"}
 Current conversation: ${conversationHistory}
-Current strategy: ${JSON.stringify(commercialStrategy, null, 2)}
+Current analysis: ${JSON.stringify(productContext, null, 2)}
 
-## Good Examples (Field-Specific Strategy Improvements):
-- "Target 20-30 year olds instead"
-- "Change lighting to 'warm natural'"
-- "Set narrative conflict to 'time pressure'"
-- "Add 'product usage scene'"
-- "Make headline more emotional"
-- "Change CTA to 'Try Now'"
-
-## Avoid These:
-- General product questions ("Who are competitors?")
-- Strategy reasoning questions ("Why did you choose...")
-- Long explanatory text
+## Good Examples (Direct Field Edits):
+- "Change target age to 20-25"
+- "Set headline to 'Innovative...'"
+- "Update primary benefit to 'time-saving'"
+- "Change brand tone to 'friendly'"
+- "Set price tier to 'mid-range'"
+- "Add 'commuting' to usage contexts"
 
 Requirements:
-- Focus ONLY on strategy refinement
-- Specific commercial strategy field changes
+- Focus ONLY on analysis refinement
+- Specific product analysis field changes
 - Each action under 50 characters
 - Use "Change X to Y", "Make X more Y", "Add X" format
 - Actionable suggestions users can immediately implement
@@ -566,10 +556,9 @@ Return as valid JSON, an array of strings: ["Action 1", "Action 2", ...]`;
    * Reuses the proven analysis prompt structure for schema compatibility
    */
   public static async generateUpdatedStrategy(
-    originalStrategy: any,
+    productAnalysis: any,
     userFeedback: string,
     conversationHistory: string,
-    productContext: any,
     locale: "en" | "ja" = "en"
   ): Promise<{
     updatedStrategy: any;
@@ -578,51 +567,45 @@ Return as valid JSON, an array of strings: ["Action 1", "Action 2", ...]`;
     const isJapanese = locale === "ja";
 
     const prompt = isJapanese
-      ? `あなたは商業戦略の専門家です。既存の商業戦略をユーザーのフィードバックに基づいて改善してください。
+      ? `あなたは商品分析の専門家です。既存の商品分析をユーザーのフィードバックに基づいて改善してください。
 
-既存の戦略:
-${JSON.stringify(originalStrategy, null, 2)}
-
-商品情報:
-${productContext ? JSON.stringify(productContext.product, null, 2) : "商品情報なし"}
+既存の分析:
+${JSON.stringify(productAnalysis, null, 2)}
 
 ユーザーのフィードバック: "${userFeedback}"
 会話履歴: ${conversationHistory}
 
 要求:
 1. ユーザーのフィードバックを理解し、該当するフィールドを改善する
-2. 既存戦略の良い部分は保持する
-3. スキーマ構造を完全に維持する
+2. 既存分析の良い部分は保持する
+3. ProductAnalysisスキーマ構造を完全に維持する
 4. 変更内容の自然な日本語要約を作成する
 
 以下のJSONフォーマットで応答してください:
 {
-  "updatedStrategy": { /* 完全な更新された商業戦略オブジェクト */ },
-  "naturalSummary": "ターゲット層を20-30代に絞り込み、ヘッドラインを「革新的ソリューション」に変更し、通勤シーンを追加しました。"
+  "updatedAnalysis": { /* 完全な更新された商品分析オブジェクト */ },
+  "naturalSummary": "ターゲット層を20-25歳に変更し、ヘッドラインを「革新的ソリューション」に修正し、主要メリットを「時短効果」に更新しました。"
 }
 
 JSONレスポンスのみを返してください。追加テキストは不要です。`
-      : `You are a commercial strategy expert. Improve the existing commercial strategy based on user feedback.
+      : `You are a product analysis expert. Improve the existing product analysis based on user feedback.
 
-Existing Strategy:
-${JSON.stringify(originalStrategy, null, 2)}
-
-Product Context:
-${productContext ? JSON.stringify(productContext.product, null, 2) : "No product context"}
+Existing Analysis:
+${JSON.stringify(productAnalysis, null, 2)}
 
 User Feedback: "${userFeedback}"
 Conversation History: ${conversationHistory}
 
 Requirements:
 1. Understand user feedback and improve relevant fields
-2. Keep good parts of existing strategy intact
-3. Maintain complete schema structure
+2. Keep good parts of existing analysis intact
+3. Maintain complete ProductAnalysis schema structure
 4. Create natural English summary of changes
 
 Respond in this JSON format:
 {
-  "updatedStrategy": { /* Complete updated commercial strategy object */ },
-  "naturalSummary": "Narrowed target audience to 20-30 year olds, changed headline to 'Innovative Solution', and added commute scene."
+  "updatedAnalysis": { /* Complete updated product analysis object */ },
+  "naturalSummary": "Changed target age to 20-25, updated headline to 'Innovative Solution', and modified primary benefit to 'time-saving'."
 }
 
 Return ONLY the JSON response, no additional text.`;
@@ -640,9 +623,9 @@ Return ONLY the JSON response, no additional text.`;
       const result = JSON.parse(cleanedText);
 
       // Validate the response structure
-      if (result.updatedStrategy && result.naturalSummary) {
+      if (result.updatedAnalysis && result.naturalSummary) {
         return {
-          updatedStrategy: result.updatedStrategy,
+          updatedStrategy: result.updatedAnalysis,
           naturalSummary: result.naturalSummary,
         };
       } else {
@@ -651,12 +634,12 @@ Return ONLY the JSON response, no additional text.`;
     } catch (error) {
       console.error("Error generating updated strategy:", error);
 
-      // Return original strategy as fallback
+      // Return original analysis as fallback
       return {
-        updatedStrategy: originalStrategy,
+        updatedStrategy: productAnalysis,
         naturalSummary: isJapanese
-          ? "申し訳ございませんが、戦略の更新に失敗しました。元の戦略を保持します。"
-          : "Sorry, strategy update failed. Keeping original strategy.",
+          ? "申し訳ございませんが、分析の更新に失敗しました。元の分析を保持します。"
+          : "Sorry, analysis update failed. Keeping original analysis.",
       };
     }
   }
@@ -678,7 +661,7 @@ Return ONLY the JSON response, no additional text.`;
         ? `現在の商業戦略:
 商品: ${commercialStrategy?.product?.name || "商品"}
 ヘッドライン: "${commercialStrategy?.commercialStrategy?.keyMessages?.headline || "未設定"}"
-タグライン: "${commercialStrategy?.commercialStrategy?.keyMessages?.tagline || "未設定"}"
+タグライン: "${commercialStrategy?.commerciala?.keyMessages?.tagline || "未設定"}"
 ターゲット層: ${commercialStrategy?.targetAudience?.primary?.demographics?.ageRange || "未設定"}
 主要メリット: ${commercialStrategy?.positioning?.valueProposition?.primaryBenefit || "未設定"}
 

@@ -222,10 +222,9 @@ async function processChatMessage(request: ChatMessageRequest): Promise<ChatMess
     // Generate updated strategy using our new method
     console.log("[DEBUG] sessionContext.analysis:", sessionContext.analysis);
     const strategyUpdate = await PromptBuilder.generateUpdatedStrategy(
-      sessionContext.analysis?.commercialStrategy || {},
+      sessionContext.analysis || {},
       request.message,
       sessionContext.messages?.map((m: any) => `${m.type}: ${m.content}`).join("\n") || "",
-      sessionContext.analysis,
       request.locale
     );
     console.log("[DEBUG] Strategy update result:", strategyUpdate);
