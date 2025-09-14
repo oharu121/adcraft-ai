@@ -432,6 +432,79 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     [sessionId, locale, productName]
   );
 
+  // Handle strategy confirmation (Yes/No buttons) - using proven pattern
+  const handleStrategyConfirmation = useCallback(
+    async (confirmed: boolean) => {
+      if (!sessionId) return;
+
+      try {
+        const response = await fetch("/api/agents/product-intelligence/chat/confirm-strategy", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sessionId,
+            messageId: messages[messages.length - 1]?.id || "latest",
+            confirmed,
+            locale,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to confirm strategy");
+        }
+
+        const result = await response.json();
+
+        // If strategy was updated, update the store's analysis
+        if (confirmed && result.data.updatedStrategy && analysis) {
+          const updatedAnalysis = {
+            ...analysis,
+            ...result.data.updatedStrategy
+          };
+
+          // Update the analysis in the store
+          setAnalysis(updatedAnalysis);
+        }
+
+        // Add Maya's confirmation message to the chat
+        const mayaMessage: ChatMessage = {
+          id: crypto.randomUUID(),
+          type: 'agent',
+          content: result.data.message,
+          timestamp: Date.now(),
+          agentName: dict.agent.productIntelligenceAgent,
+          metadata: {
+            processingTime: 100,
+            cost: 0,
+          }
+        };
+        addMessage(mayaMessage);
+
+      } catch (error) {
+        console.error("Strategy confirmation error:", error);
+
+        // Add error message to chat
+        const errorMessage: ChatMessage = {
+          id: crypto.randomUUID(),
+          type: 'system',
+          content: locale === "ja"
+            ? "戦略の確認に失敗しました。もう一度お試しください。"
+            : "Failed to confirm strategy. Please try again.",
+          timestamp: Date.now(),
+          agentName: dict.agent.systemAgent,
+          metadata: {
+            processingTime: 0,
+            cost: 0,
+          }
+        };
+        addMessage(errorMessage);
+      }
+    },
+    [sessionId, messages, locale, analysis, setAnalysis, addMessage, dict]
+  );
+
   // 🚀 Reset session - ONE LINE with Zustand!
   const handleReset = useCallback(() => {
     resetSession();
@@ -573,6 +646,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                     isConnected={isConnected}
                     isAgentTyping={isAgentTyping}
                     onSendMessage={handleSendMessage}
+                    onStrategyConfirmation={handleStrategyConfirmation}
                     dict={dict}
                     locale={locale}
                     inputMessage={chatInputMessage}
