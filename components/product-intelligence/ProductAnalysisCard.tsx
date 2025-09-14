@@ -1,7 +1,7 @@
 /**
- * Commercial-Focused Product Analysis Card
+ * Product Intelligence Agent - Product Analysis Card
  *
- * Shows commercial intelligence instead of technical product specs
+ * Clean, simple commercial-focused analysis display
  */
 
 'use client';
@@ -25,8 +25,16 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
   onRefineRequest
 }) => {
 
-  // Get analysis from store
-  const { analysis } = useProductIntelligenceStore();
+  // Get data from store
+  const {
+    analysis,
+    uploadedImage,
+    productName,
+    productDescription,
+    inputMode,
+    showAllFeatures,
+    setShowAllFeatures
+  } = useProductIntelligenceStore();
 
   // If no analysis available, show loading state
   if (!analysis) {
@@ -57,167 +65,153 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
 
   return (
     <div className={`w-full ${className}`}>
-      <Card className="p-6">
-        {/* Header */}
+      <Card variant="magical" className="p-6">
+        {/* Header with confidence */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-900">
-            {t.title}
-          </h2>
+          <div>
+            <h2 className="text-xl font-bold text-white mb-1">
+              {dict.productAnalysis?.title || 'Product Analysis Results'}
+            </h2>
+            <p className="text-gray-300 text-sm">
+              {dict.productAnalysis?.subtitle || 'Commercial Intelligence Overview'}
+            </p>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-400">
+              {formatConfidence(analysis.metadata.confidenceScore)}
+            </div>
+            <div className="text-gray-400 text-xs">{t.commercialViability || 'Confidence'}</div>
+          </div>
+        </div>
 
-          <div className="flex items-center space-x-4 text-sm">
-            <div className="text-center">
-              <div className="text-lg font-semibold text-green-600">
-                {formatConfidence(analysis.metadata.confidenceScore)}
+        {/* Image Preview (if uploaded) */}
+        {uploadedImage && (
+          <div className="mb-6">
+            <div className="relative rounded-lg overflow-hidden bg-gray-700">
+              <img
+                src={URL.createObjectURL(uploadedImage)}
+                alt="Product"
+                className="w-full max-h-48 object-contain bg-gray-800"
+              />
+              <div className="absolute bottom-2 left-2 bg-black/70 rounded px-2 py-1">
+                <span className="text-white text-xs">{uploadedImage.name}</span>
               </div>
-              <div className="text-gray-500">{t.commercialViability}</div>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* 🎯 Commercial Assessment */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            🎯 {t.commercialAssessment}
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-6">
+          {/* ⚡ Product Name */}
+          <div className="flex items-start space-x-3">
+            <span className="text-xl">⚡</span>
             <div>
-              <h4 className="font-medium text-gray-700 mb-2">{t.marketPosition}</h4>
-              <p className="text-gray-600">
-                {analysis.positioning?.marketPosition?.tier || 'Premium professional product'}
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-medium text-gray-700 mb-2">{t.purchaseDriver}</h4>
-              <p className="text-gray-600">
-                {analysis.positioning?.valueProposition?.primaryBenefit || 'Quality and performance'}
-              </p>
+              <h3 className="text-lg font-semibold text-white mb-1">
+                {productName || analysis.product?.name || 'Product Name'}
+              </h3>
             </div>
           </div>
 
-          <div className="mt-4 text-right">
-            <button
-              onClick={() => handleRefineRequest('commercial assessment')}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium cursor-pointer"
-            >
-              {t.askForDetails} →
-            </button>
-          </div>
-        </div>
-
-        {/* 👥 Primary Buyers */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            👥 {t.primaryBuyers}
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* 🏷️ Product Overview + Tagline */}
+          <div className="flex items-start space-x-3">
+            <span className="text-xl">🏷️</span>
             <div>
-              <h4 className="font-medium text-gray-700 mb-2">{t.targetAudience}</h4>
-              <p className="text-gray-600">
-                {analysis.targetAudience?.primary?.demographics?.ageRange
-                  ? `Professionals aged ${analysis.targetAudience.primary.demographics.ageRange}`
-                  : 'Professionals aged 25-45'}
+              <h4 className="text-sm font-medium text-gray-300 mb-2">
+                {dict.productAnalysis?.productSummary || 'Product Overview'}
+              </h4>
+              <p className="text-gray-300 text-sm leading-relaxed mb-2">
+                {productDescription || analysis.product?.description ||
+                 `${productName || 'This product'} is developed with a focus on quality and functionality. It provides innovative solutions that meet customer needs.`}
               </p>
-            </div>
-
-            <div>
-              <h4 className="font-medium text-gray-700 mb-2">{t.purchaseMotivation}</h4>
-              <p className="text-gray-600">
-                {analysis.targetAudience?.primary?.psychographics?.values?.[0] || 'Quality over price, long-term value'}
-              </p>
+              {analysis.keyMessages?.tagline && (
+                <p className="text-blue-400 text-sm font-medium italic">
+                  "{analysis.keyMessages.tagline}"
+                </p>
+              )}
             </div>
           </div>
 
-          <div className="mt-4 text-right">
-            <button
-              onClick={() => handleRefineRequest('target buyers')}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium cursor-pointer"
-            >
-              {t.askForDetails} →
-            </button>
-          </div>
-        </div>
-
-        {/* 🎬 Commercial Messages */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            🎬 {t.commercialMessages}
-          </h3>
-
-          <div className="space-y-4">
-            <div>
-              <h4 className="font-medium text-gray-700 mb-1">{t.headline}</h4>
-              <p className="text-gray-900 font-semibold text-lg">
-                {analysis.keyMessages?.headline || 'Premium Quality Product'}
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-medium text-gray-700 mb-1">{t.tagline}</h4>
-              <p className="text-gray-600">
-                {analysis.keyMessages?.tagline || 'Excellence in Every Detail'}
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-medium text-gray-700 mb-2">{t.supportingMessages}</h4>
-              <ul className="text-gray-600 text-sm space-y-1">
-                {(analysis.keyMessages?.supportingMessages || ['Trusted by professionals', 'Built to last']).map((message, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="w-1 h-1 bg-blue-500 rounded-full mt-2 mr-2 flex-shrink-0" />
-                    {message}
-                  </li>
-                ))}
+          {/* ✨ Key Features */}
+          <div className="flex items-start space-x-3">
+            <span className="text-xl">✨</span>
+            <div className="flex-1">
+              <h4 className="text-sm font-medium text-gray-300 mb-2">
+                {dict.productAnalysis?.keyFeatures || 'Key Features'}
+              </h4>
+              <ul className="space-y-1">
+                {(analysis.product?.keyFeatures || ['High quality materials', 'Innovative design', 'Excellent performance'])
+                  .slice(0, showAllFeatures ? undefined : 3)
+                  .map((feature, index) => (
+                    <li key={index} className="flex items-start text-gray-300 text-sm">
+                      <span className="text-blue-400 mr-2 mt-1">•</span>
+                      {feature}
+                    </li>
+                  ))}
               </ul>
+              {(analysis.product?.keyFeatures?.length || 0) > 3 && (
+                <button
+                  onClick={() => setShowAllFeatures(!showAllFeatures)}
+                  className="text-gray-500 hover:text-gray-300 transition-colors text-sm mt-2 cursor-pointer"
+                >
+                  {showAllFeatures ? (
+                    'Show less'
+                  ) : (
+                    `+${(analysis.product?.keyFeatures?.length || 0) - 3} ${dict.productAnalysis?.moreFeatures || 'more features'}`
+                  )}
+                </button>
+              )}
             </div>
           </div>
 
-          <div className="mt-4 text-right">
-            <button
-              onClick={() => handleRefineRequest('key messages')}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium cursor-pointer"
-            >
-              {t.askForDetails} →
-            </button>
-          </div>
-        </div>
-
-        {/* 📈 Market Strategy */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            📈 {t.marketStrategy}
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* 🎯 Target Audience */}
+          <div className="flex items-start space-x-3">
+            <span className="text-xl">🎯</span>
             <div>
-              <h4 className="font-medium text-gray-700 mb-2">{t.uniqueAngle}</h4>
-              <p className="text-gray-600">
-                {analysis.positioning?.valueProposition?.differentiators?.[0] || 'Professional-grade reliability'}
+              <h4 className="text-sm font-medium text-gray-300 mb-2">
+                {dict.productAnalysis?.targetAudience || 'Target Audience'}
+              </h4>
+              <p className="text-gray-300 text-sm">
+                {analysis.targetAudience?.primary?.demographics?.ageRange &&
+                 `${analysis.targetAudience.primary.demographics.ageRange}, `}
+                {analysis.targetAudience?.primary?.demographics?.lifestyle?.join(', ') ||
+                 analysis.targetAudience?.primary?.psychographics?.values?.join(', ') ||
+                 'executive professionals, tech entrepreneurs, creative directors'}
               </p>
             </div>
-
-            <div>
-              <h4 className="font-medium text-gray-700 mb-2">{t.emotionalAppeal}</h4>
-              <p className="text-gray-600">
-                {analysis.positioning?.competitiveAdvantages?.emotional?.[0] || 'Confidence & status'}
-              </p>
-            </div>
           </div>
 
-          <div className="mt-4 text-right">
-            <button
-              onClick={() => handleRefineRequest('market strategy')}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium cursor-pointer"
-            >
-              {t.askForDetails} →
-            </button>
+          {/* 📈 Marketing */}
+          <div className="flex items-start space-x-3">
+            <span className="text-xl">📈</span>
+            <div>
+              <h4 className="text-sm font-medium text-gray-300 mb-2">
+                {dict.productAnalysis?.marketing || 'Marketing'}
+              </h4>
+              <p className="text-gray-300 text-sm">
+                {analysis.positioning?.valueProposition?.primaryBenefit ||
+                 analysis.keyMessages?.headline ||
+                 `${productName || 'This product'} meets your needs`}
+              </p>
+              {analysis.keyMessages?.supportingMessages && (
+                <div className="mt-2">
+                  {analysis.keyMessages.supportingMessages.slice(0, 2).map((message, index) => (
+                    <p key={index} className="text-gray-400 text-xs">
+                      • {message}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="pt-4 border-t border-gray-200 text-sm text-gray-500">
+        <div className="pt-4 mt-6 border-t border-gray-600 text-xs text-gray-500">
           <div className="flex justify-between items-center">
             <span>{new Date(analysis.metadata.timestamp).toLocaleString(locale)}</span>
-            <span>{t.processingTime}: {(analysis.metadata.processingTime / 1000).toFixed(1)}s</span>
+            <span>
+              {t.processingTime}: {(analysis.metadata.processingTime / 1000).toFixed(1)}s |
+              {t.cost}: ${analysis.metadata.cost?.current?.toFixed(3) || '0.000'}
+            </span>
           </div>
         </div>
       </Card>
