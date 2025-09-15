@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from "react";
 import ImprovedCreativeDirectorCard from "@/components/home/ImprovedCreativeDirectorCard";
-import ProjectSummary from "./ProjectSummary";
+import WorkflowProgress from "./WorkflowProgress";
 import CreativeChatContainer from "./CreativeChatContainer";
 import { useCreativeDirectorStore } from "@/lib/stores/creative-director-store";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
@@ -109,9 +109,9 @@ export default function CreativeDirectorWorkspace({
   );
 
   return (
-    <div className="flex gap-6">
-      {/* Main Creative Director Card */}
-      <div className="flex-1">
+    <div className="flex gap-6 h-screen">
+      {/* Left: Main Creative Director Card */}
+      <div className="flex-1 overflow-y-auto">
         <ImprovedCreativeDirectorCard
           dict={dict}
           locale={locale}
@@ -122,17 +122,20 @@ export default function CreativeDirectorWorkspace({
         />
       </div>
 
-      {/* Right Sidebar - Summary + Chat */}
-      <div className="w-80 space-y-4">
-        {/* Project Summary */}
-        <ProjectSummary
-          onNavigateToStep={handleNavigateToStep}
-        />
+      {/* Right: Fixed Sidebar with Proper Height Management */}
+      <div className="w-80 flex flex-col h-screen py-4">
+        {/* Workflow Progress - Fixed height, scrollable if needed */}
+        <div className="flex-shrink-0 mb-4">
+          <WorkflowProgress
+            onNavigateToStep={handleNavigateToStep}
+            expanded={!showChat}
+          />
+        </div>
 
-        {/* Chat Sidebar */}
+        {/* Chat - Takes remaining height, internal scroll */}
         {showChat && (
-          <div className="bg-gray-800/30 rounded-xl border border-gray-600/50 flex flex-col max-h-96">
-            <div className="p-4 border-b border-gray-600/50">
+          <div className="flex-1 flex flex-col min-h-0 bg-gray-800/30 rounded-xl border border-gray-600/50">
+            <div className="flex-shrink-0 p-4 border-b border-gray-600/50">
               <div className="flex items-center justify-between">
                 <h3 className="font-medium text-white">Chat with David</h3>
                 <button
@@ -150,6 +153,8 @@ export default function CreativeDirectorWorkspace({
                 </button>
               </div>
             </div>
+
+            {/* Chat content with internal scrolling */}
             <div className="flex-1 min-h-0">
               <CreativeChatContainer
                 sessionId={sessionId}

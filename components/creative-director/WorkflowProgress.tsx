@@ -3,13 +3,15 @@
 import React from "react";
 import { useCreativeDirectorStore } from "@/lib/stores/creative-director-store";
 
-interface ProjectSummaryProps {
+interface WorkflowProgressProps {
   onNavigateToStep: (step: string) => void;
+  expanded?: boolean;
 }
 
-export default function ProjectSummary({
+export default function WorkflowProgress({
   onNavigateToStep,
-}: ProjectSummaryProps) {
+  expanded = true,
+}: WorkflowProgressProps) {
   const {
     selectedProductionStyle,
     selectedStyleOption,
@@ -36,17 +38,19 @@ export default function ProjectSummary({
   );
 
   return (
-    <div className="sticky top-4 bg-gray-800/30 rounded-xl border border-gray-600/50 backdrop-blur-sm">
+    <div className="bg-gray-800/30 rounded-xl border border-gray-600/50 backdrop-blur-sm">
       <div className="p-4 border-b border-gray-600/50">
         <h3 className="font-medium text-white flex items-center gap-2">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
-          Project Summary
+          Workflow Progress
         </h3>
       </div>
 
-      <div className="p-4 space-y-4">
+      <div className={`p-4 transition-all duration-300 ${
+        expanded ? 'space-y-4' : 'space-y-3'
+      }`}>
         {/* Production Style Summary */}
         <div className="flex items-start gap-3">
           <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-semibold transition-all ${
@@ -63,14 +67,16 @@ export default function ProjectSummary({
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium text-white">Production Style</div>
             {selectedProductionStyle ? (
-              <div className="space-y-1">
+              <div className={`transition-all duration-300 ${expanded ? 'space-y-1' : 'space-y-0.5'}`}>
                 <div className="text-xs text-purple-300 font-medium">{selectedProductionStyle.name}</div>
-                <div className="text-xs text-gray-400 truncate">{selectedProductionStyle.description}</div>
+                {expanded && (
+                  <div className="text-xs text-gray-400 truncate">{selectedProductionStyle.description}</div>
+                )}
                 <button
                   onClick={() => onNavigateToStep("production-style")}
                   className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
                 >
-                  Change selection
+                  {expanded ? "Change selection" : "Change"}
                 </button>
               </div>
             ) : (
@@ -95,22 +101,24 @@ export default function ProjectSummary({
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium text-white">Creative Direction</div>
             {selectedStyleOption ? (
-              <div className="space-y-1">
+              <div className={`transition-all duration-300 ${expanded ? 'space-y-1' : 'space-y-0.5'}`}>
                 <div className="text-xs text-purple-300 font-medium">{selectedStyleOption.name}</div>
-                <div className="flex gap-1 mt-1">
-                  {selectedStyleOption.colorPalette.slice(0, 3).map((color: string, idx: number) => (
-                    <div
-                      key={idx}
-                      className="w-3 h-3 rounded border border-gray-600 flex-shrink-0"
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
-                </div>
+                {expanded && (
+                  <div className="flex gap-1 mt-1">
+                    {selectedStyleOption.colorPalette.slice(0, 3).map((color: string, idx: number) => (
+                      <div
+                        key={idx}
+                        className="w-3 h-3 rounded border border-gray-600 flex-shrink-0"
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </div>
+                )}
                 <button
                   onClick={() => onNavigateToStep("creative-direction")}
                   className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
                 >
-                  Change selection
+                  {expanded ? "Change selection" : "Change"}
                 </button>
               </div>
             ) : (
@@ -137,24 +145,28 @@ export default function ProjectSummary({
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium text-white">Scene Architecture</div>
             {completedSteps.sceneArchitecture ? (
-              <div className="space-y-1">
+              <div className={`transition-all duration-300 ${expanded ? 'space-y-1' : 'space-y-0.5'}`}>
                 <div className="text-xs text-purple-300 font-medium">Completed</div>
-                <div className="text-xs text-gray-400">Scene planning finished</div>
+                {expanded && (
+                  <div className="text-xs text-gray-400">Scene planning finished</div>
+                )}
                 <button
                   onClick={() => onNavigateToStep("scene-architecture")}
                   className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
                 >
-                  Review scenes
+                  {expanded ? "Review scenes" : "Review"}
                 </button>
               </div>
             ) : completedSteps.creativeDirection ? (
-              <div className="space-y-1">
-                <div className="text-xs text-gray-400">Ready to plan</div>
+              <div className={`transition-all duration-300 ${expanded ? 'space-y-1' : 'space-y-0.5'}`}>
+                {expanded && (
+                  <div className="text-xs text-gray-400">Ready to plan</div>
+                )}
                 <button
                   onClick={() => onNavigateToStep("scene-architecture")}
                   className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
                 >
-                  Start planning
+                  {expanded ? "Start planning" : "Start"}
                 </button>
               </div>
             ) : (
@@ -181,24 +193,26 @@ export default function ProjectSummary({
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium text-white">Asset Development</div>
             {completedSteps.assetDevelopment ? (
-              <div className="space-y-1">
+              <div className={`transition-all duration-300 ${expanded ? 'space-y-1' : 'space-y-0.5'}`}>
                 <div className="text-xs text-purple-300 font-medium">Completed</div>
-                <div className="text-xs text-gray-400">{assets.generated.length} Assets Generated</div>
+                <div className="text-xs text-gray-400">{assets.generated.length} Assets{expanded ? ' Generated' : ''}</div>
                 <button
                   onClick={() => onNavigateToStep("asset-development")}
                   className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
                 >
-                  Review assets
+                  {expanded ? "Review assets" : "Review"}
                 </button>
               </div>
             ) : completedSteps.sceneArchitecture ? (
-              <div className="space-y-1">
-                <div className="text-xs text-gray-400">Ready to generate</div>
+              <div className={`transition-all duration-300 ${expanded ? 'space-y-1' : 'space-y-0.5'}`}>
+                {expanded && (
+                  <div className="text-xs text-gray-400">Ready to generate</div>
+                )}
                 <button
                   onClick={() => onNavigateToStep("asset-development")}
                   className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
                 >
-                  Start generation
+                  {expanded ? "Start generation" : "Generate"}
                 </button>
               </div>
             ) : (
@@ -209,10 +223,18 @@ export default function ProjectSummary({
       </div>
 
       {/* Estimated Budget/Timeline */}
-      <div className="border-t border-gray-600/50 p-4">
-        <div className="text-xs text-gray-400 mb-2">Estimated Budget</div>
-        <div className="text-lg font-semibold text-white">$12.50</div>
-        <div className="text-xs text-gray-500">~3-4 minutes to complete</div>
+      <div className={`border-t border-gray-600/50 p-4 transition-all duration-300 ${
+        expanded ? 'space-y-2' : 'space-y-1'
+      }`}>
+        <div className="text-xs text-gray-400 mb-2">
+          {expanded ? "Estimated Budget" : "Budget"}
+        </div>
+        <div className={`font-semibold text-white ${expanded ? 'text-lg' : 'text-base'}`}>
+          $12.50
+        </div>
+        {expanded && (
+          <div className="text-xs text-gray-500">~3-4 minutes to complete</div>
+        )}
       </div>
     </div>
   );
