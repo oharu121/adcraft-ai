@@ -156,88 +156,81 @@ export default function ImprovedCreativeDirectorCard({
     [sessionId, locale, addMessage, setIsAgentTyping]
   );
 
-  // Handle production style selection
+  // State for selected production style
+  const [selectedProductionStyle, setSelectedProductionStyle] = useState<any>(null);
+
+  // Handle production style selection (just select, don't auto-advance)
   const handleProductionStyleSelection = useCallback(
-    async (productionStyle: any) => {
-      try {
-        // Store selected production style
-        // TODO: Add to store if needed
-
-        // Auto-progress to creative direction step
-        setCurrentStep("creative-direction");
-
-        // Show chat with confirmation
-        setShowChat(true);
-        const confirmationMessage = `Excellent choice! ${productionStyle.name} is perfect for your ${mayaHandoffData?.productAnalysis?.product?.name || "product"}. Now let me generate aesthetic options tailored specifically for ${productionStyle.name.toLowerCase()} production.`;
-
-        setTimeout(() => {
-          const agentMessage = {
-            id: crypto.randomUUID(),
-            type: "agent" as const,
-            content: confirmationMessage,
-            timestamp: Date.now(),
-            sessionId,
-            locale: locale || "en",
-            quickActions: [],
-          };
-          addMessage(agentMessage);
-        }, 500);
-      } catch (error) {
-        console.error("Production style selection error:", error);
-      }
+    (productionStyle: any) => {
+      setSelectedProductionStyle(productionStyle);
     },
-    [addMessage, sessionId, locale, mayaHandoffData]
+    []
   );
 
-  // Handle creative direction selection
+  // Handle creative direction selection (just select, don't auto-advance)
   const handleCreativeDirectionSelection = useCallback(
-    async (styleOption: any) => {
-      try {
-        selectStyleOption(styleOption);
-        setCurrentPhase(CreativePhase.ASSET_GENERATION);
-
-        // Load demo assets
-        const { demoGeneratedAssets } = await import(
-          "@/lib/agents/creative-director/demo/demo-data"
-        );
-        demoGeneratedAssets.forEach((asset) => addAsset(asset));
-
-        // Auto-progress to next step
-        setCurrentStep("scene-architecture");
-
-        // Show chat with confirmation
-        setShowChat(true);
-        const confirmationMessage = `Perfect! I've selected "${styleOption.name}" as your creative direction. This ${styleOption.description.toLowerCase()} aesthetic will work beautifully with your chosen production style.`;
-
-        setTimeout(() => {
-          const agentMessage = {
-            id: crypto.randomUUID(),
-            type: "agent" as const,
-            content: confirmationMessage,
-            timestamp: Date.now(),
-            sessionId,
-            locale: locale || "en",
-            quickActions: [],
-          };
-          addMessage(agentMessage);
-        }, 500);
-      } catch (error) {
-        console.error("Creative direction selection error:", error);
-      }
+    (styleOption: any) => {
+      selectStyleOption(styleOption);
     },
-    [selectStyleOption, setCurrentPhase, addMessage, sessionId, locale, mayaHandoffData]
+    [selectStyleOption]
   );
 
-  // Handle step navigation
-  const handleNextStep = () => {
-    if (currentStep === "production-style") {
+  // Handle step navigation with proper progression logic
+  const handleNextStep = useCallback(async () => {
+    if (currentStep === "production-style" && selectedProductionStyle) {
+      // Progress from production style to creative direction
       setCurrentStep("creative-direction");
+
+      // Show chat with confirmation
+      setShowChat(true);
+      const confirmationMessage = `Excellent choice! ${selectedProductionStyle.name} is perfect for your ${mayaHandoffData?.productAnalysis?.product?.name || "product"}. Now let me generate aesthetic options tailored specifically for ${selectedProductionStyle.name.toLowerCase()} production.`;
+
+      setTimeout(() => {
+        const agentMessage = {
+          id: crypto.randomUUID(),
+          type: "agent" as const,
+          content: confirmationMessage,
+          timestamp: Date.now(),
+          sessionId,
+          locale: locale || "en",
+          quickActions: [],
+        };
+        addMessage(agentMessage);
+      }, 500);
+
     } else if (currentStep === "creative-direction" && selectedStyleOption) {
+      // Progress from creative direction to scene architecture
+      setCurrentPhase(CreativePhase.ASSET_GENERATION);
+
+      // Load demo assets
+      const { demoGeneratedAssets } = await import(
+        "@/lib/agents/creative-director/demo/demo-data"
+      );
+      demoGeneratedAssets.forEach((asset) => addAsset(asset));
+
       setCurrentStep("scene-architecture");
+
+      // Show chat with confirmation
+      setShowChat(true);
+      const confirmationMessage = `Perfect! I've selected "${selectedStyleOption.name}" as your creative direction. This ${selectedStyleOption.description.toLowerCase()} aesthetic will work beautifully with your chosen production style.`;
+
+      setTimeout(() => {
+        const agentMessage = {
+          id: crypto.randomUUID(),
+          type: "agent" as const,
+          content: confirmationMessage,
+          timestamp: Date.now(),
+          sessionId,
+          locale: locale || "en",
+          quickActions: [],
+        };
+        addMessage(agentMessage);
+      }, 500);
+
     } else if (currentStep === "scene-architecture") {
       setCurrentStep("asset-development");
     }
-  };
+  }, [currentStep, selectedProductionStyle, selectedStyleOption, setCurrentPhase, addAsset, setShowChat, addMessage, sessionId, locale, mayaHandoffData]);
 
   const handlePrevStep = () => {
     if (currentStep === "creative-direction") {
@@ -386,7 +379,11 @@ export default function ImprovedCreativeDirectorCard({
           {productionStyles.map((style) => (
             <div
               key={style.id}
-              className="group relative rounded-xl border-2 border-gray-600 hover:border-purple-400 transition-all duration-300 cursor-pointer hover:scale-105 overflow-hidden min-h-[300px]"
+              className={`group relative rounded-xl border-2 transition-all duration-300 cursor-pointer hover:scale-105 overflow-hidden min-h-[300px] ${
+                selectedProductionStyle?.id === style.id
+                  ? "border-purple-500 bg-purple-900/20 shadow-lg shadow-purple-500/25"
+                  : "border-gray-600 hover:border-purple-400"
+              }`}
               onClick={() => handleProductionStyleSelection(style)}
             >
               {/* Full Card Background Image */}
@@ -450,6 +447,19 @@ export default function ImprovedCreativeDirectorCard({
                     </div>
                   </div>
                 </div>
+
+                {/* Selection Indicator */}
+                {selectedProductionStyle?.id === style.id && (
+                  <div className="absolute top-4 right-4 w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -776,10 +786,12 @@ export default function ImprovedCreativeDirectorCard({
           onClick={handleNextStep}
           disabled={
             currentStepIndex === steps.length - 1 ||
+            (currentStep === "production-style" && !selectedProductionStyle) ||
             (currentStep === "creative-direction" && !selectedStyleOption)
           }
           className={`cursor-pointer flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
             currentStepIndex === steps.length - 1 ||
+            (currentStep === "production-style" && !selectedProductionStyle) ||
             (currentStep === "creative-direction" && !selectedStyleOption)
               ? "bg-gray-700 text-gray-400 cursor-not-allowed"
               : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
