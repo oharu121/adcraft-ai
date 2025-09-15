@@ -171,6 +171,7 @@ export default function ImprovedCreativeDirectorCard({
   // Handle production style selection (just select, don't auto-advance)
   const handleProductionStyleSelection = useCallback(
     (productionStyle: any) => {
+      if (onExpandWorkflowProgress) onExpandWorkflowProgress();
       setSelectedProductionStyle(productionStyle);
     },
     [setSelectedProductionStyle]
@@ -179,6 +180,7 @@ export default function ImprovedCreativeDirectorCard({
   // Handle creative direction selection (just select, don't auto-advance)
   const handleCreativeDirectionSelection = useCallback(
     (styleOption: any) => {
+      if (onExpandWorkflowProgress) onExpandWorkflowProgress();
       selectStyleOption(styleOption);
     },
     [selectStyleOption]

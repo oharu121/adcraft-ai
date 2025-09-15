@@ -122,6 +122,9 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
     return () => clearTimeout(timer);
   }, [inputMessage.length]);
 
+  // Track previous message count to only scroll on new messages
+  const prevMessageCountRef = useRef(0);
+
   // Scroll when new messages arrive or agent starts thinking
   useEffect(() => {
     if (isAgentTyping) {
@@ -132,7 +135,10 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
       }, 100);
     }
 
-    if (messages.length > 0) {
+    // Only scroll if there are actually NEW messages (not just state updates)
+    if (messages.length > prevMessageCountRef.current) {
+      prevMessageCountRef.current = messages.length;
+
       if (onScrollRequest) {
         onScrollRequest();
       } else {
