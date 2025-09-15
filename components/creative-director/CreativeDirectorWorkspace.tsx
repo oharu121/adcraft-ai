@@ -130,9 +130,9 @@ export default function CreativeDirectorWorkspace({
           expanded={!showChat}
         />
 
-        {/* Chat - Constrained height with internal scroll */}
+        {/* Chat - Expands to fill remaining space after WorkflowProgress */}
         {showChat && (
-          <div className="mt-4 bg-gray-800/30 rounded-xl border border-gray-600/50 max-h-96 flex flex-col">
+          <div className="flex-1 mt-4 bg-gray-800/30 rounded-xl border border-gray-600/50 flex flex-col min-h-0">
             <div className="flex-shrink-0 p-4 border-b border-gray-600/50">
               <div className="flex items-center justify-between">
                 <h3 className="font-medium text-white">Chat with David</h3>
@@ -152,7 +152,7 @@ export default function CreativeDirectorWorkspace({
               </div>
             </div>
 
-            {/* Chat content with internal scrolling */}
+            {/* Chat content expands to fill remaining space */}
             <div className="flex-1 overflow-y-auto">
               <CreativeChatContainer
                 sessionId={sessionId}
