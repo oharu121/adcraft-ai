@@ -403,12 +403,9 @@ export default function ImprovedCreativeDirectorCard({
               <div className="relative p-6 h-full flex flex-col justify-between">
                 {/* Icon and Title */}
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-2xl shadow-lg">
-                    {style.icon}
-                  </div>
                   <div>
                     <h4 className="text-xl font-bold text-white group-hover:text-purple-200 transition-colors">
-                      {style.name}
+                      {style.icon} {style.name}
                     </h4>
                   </div>
                 </div>
@@ -482,60 +479,82 @@ export default function ImprovedCreativeDirectorCard({
             }`}
             onClick={() => handleCreativeDirectionSelection(styleOption)}
           >
-            {/* Mood Board Preview */}
+            {/* Simplified Style Info */}
             <div className="p-6">
-              <div className="grid grid-cols-3 gap-2 mb-4 rounded-lg overflow-hidden">
-                {styleOption.moodBoard.slice(0, 3).map((imageUrl: string, idx: number) => (
-                  <div key={idx} className="aspect-square rounded overflow-hidden bg-gray-700">
-                    <img
-                      src={imageUrl}
-                      alt={`${styleOption.name} mood ${idx + 1}`}
-                      className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                      loading="lazy"
-                    />
-                  </div>
-                ))}
+              {/* Icon and Title */}
+              <div className="flex items-center gap-3 mb-4">
+                <div>
+                  <h4 className="text-xl font-bold text-white group-hover:text-purple-200 transition-colors">
+                    {styleOption.name}
+                  </h4>
+                </div>
               </div>
 
-              {/* Style Info */}
-              <div className="space-y-3">
-                <h4 className="text-xl font-bold text-white group-hover:text-purple-200 transition-colors">
-                  {styleOption.name}
-                </h4>
-                <p className="text-gray-300 text-sm leading-relaxed">{styleOption.description}</p>
+              {/* Description */}
+              <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                {styleOption.description}
+              </p>
 
+              {/* Style Details */}
+              <div className="space-y-4">
                 {/* Color Palette */}
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-gray-400 font-medium">Colors:</span>
+                <div>
+                  <span className="text-xs text-gray-400 font-medium mb-2 block">
+                    Color Palette:
+                  </span>
                   <div className="flex gap-2">
                     {styleOption.colorPalette.map((color: string, idx: number) => (
                       <div
                         key={idx}
-                        className="w-5 h-5 rounded-full border-2 border-gray-600 shadow-sm"
+                        className="w-8 h-8 rounded-lg border-2 border-gray-600 shadow-sm flex-shrink-0"
                         style={{ backgroundColor: color }}
+                        title={color}
                       />
                     ))}
                   </div>
                 </div>
 
-                {/* Animation Style */}
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-gray-400 font-medium">Animation:</span>
-                  <span className="text-xs text-purple-300 bg-purple-900/30 px-3 py-1 rounded-full">
-                    {styleOption.animationStyle}
+                {/* Visual Keywords */}
+                <div>
+                  <span className="text-xs text-gray-400 font-medium mb-2 block">
+                    Visual Style:
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {styleOption.visualKeywords.slice(0, 4).map((keyword: string, idx: number) => (
+                      <span
+                        key={idx}
+                        className="text-xs text-purple-300 bg-purple-900/40 px-3 py-1 rounded-full border border-purple-500/30"
+                      >
+                        #{keyword}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Typography Style */}
+                <div>
+                  <span className="text-xs text-gray-400 font-medium mb-2 block">Typography:</span>
+                  <span className="text-xs text-gray-300 bg-gray-700/50 px-3 py-1 rounded">
+                    {styleOption.animationStyle === "Static"
+                      ? "Classic & Refined"
+                      : styleOption.animationStyle === "Dynamic"
+                        ? "Bold & Modern"
+                        : "Clean & Minimal"}
                   </span>
                 </div>
 
-                {/* Visual Keywords */}
-                <div className="flex flex-wrap gap-2">
-                  {styleOption.visualKeywords.slice(0, 3).map((keyword: string, idx: number) => (
-                    <span
-                      key={idx}
-                      className="text-xs text-gray-300 bg-gray-700/50 px-2 py-1 rounded"
-                    >
-                      #{keyword}
-                    </span>
-                  ))}
+                {/* Best For */}
+                <div>
+                  <span className="text-xs text-gray-400 font-medium mb-2 block">Perfect For:</span>
+                  <p className="text-xs text-gray-300 leading-relaxed">
+                    {styleOption.name === "Premium Minimalism"
+                      ? "Luxury brands, tech products, sophisticated audiences"
+                      : styleOption.name === "Tech Dynamic"
+                        ? "Innovation-focused brands, startups, modern products"
+                        : styleOption.name === "Luxury Editorial"
+                          ? "High-end products, premium positioning, elite markets"
+                          : "Lifestyle brands, authentic storytelling, human-centered products"}
+                  </p>
                 </div>
               </div>
 
