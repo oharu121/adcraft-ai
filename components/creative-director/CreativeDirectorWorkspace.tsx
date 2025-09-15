@@ -18,7 +18,7 @@ export default function CreativeDirectorWorkspace({
   locale,
   onScrollToChatSection,
 }: CreativeDirectorWorkspaceProps) {
-  const [showChat, setShowChat] = useState(false);
+  const [workflowProgressExpanded, setWorkflowProgressExpanded] = useState(true);
   const [currentStep, setCurrentStep] = useState<string>("production-style");
   const [mainContentHeight, setMainContentHeight] = useState<number | null>(null);
   const mainContentRef = useRef<HTMLDivElement>(null);
@@ -42,9 +42,9 @@ export default function CreativeDirectorWorkspace({
     setCurrentStep(step);
   }, []);
 
-  // Handle chat toggle
-  const handleToggleChat = useCallback(() => {
-    setShowChat(prev => !prev);
+  // Handle workflow progress toggle
+  const handleToggleWorkflowProgress = useCallback(() => {
+    setWorkflowProgressExpanded(prev => !prev);
   }, []);
 
   // Measure main content height and sync sidebar
@@ -146,8 +146,6 @@ export default function CreativeDirectorWorkspace({
           locale={locale}
           onScrollToChatSection={onScrollToChatSection}
           onNavigateToStep={handleNavigateToStep}
-          showChat={showChat}
-          onToggleChat={handleToggleChat}
           currentStep={currentStep}
           onStepChange={setCurrentStep}
         />
@@ -163,48 +161,35 @@ export default function CreativeDirectorWorkspace({
         {/* Workflow Progress */}
         <WorkflowProgress
           onNavigateToStep={handleNavigateToStep}
-          expanded={!showChat}
+          expanded={workflowProgressExpanded}
+          onToggleExpanded={handleToggleWorkflowProgress}
         />
 
-        {/* Chat - Expands to fill remaining space after WorkflowProgress */}
-        {showChat && (
-          <div className="flex-1 mt-4 bg-gray-800/30 rounded-xl border border-gray-600/50 flex flex-col min-h-0">
-            <div className="flex-shrink-0 p-4 border-b border-gray-600/50">
-              <div className="flex items-center justify-between">
-                <h3 className="font-medium text-white">Chat with David</h3>
-                <button
-                  onClick={handleToggleChat}
-                  className="cursor-pointer text-gray-400 hover:text-white"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            {/* Chat content expands to fill remaining space */}
-            <div className="flex-1 overflow-y-auto">
-              <CreativeChatContainer
-                sessionId={sessionId}
-                messages={messages}
-                isConnected={isConnected}
-                isAgentTyping={isAgentTyping}
-                onSendMessage={handleSendMessage}
-                dict={dict}
-                locale={locale}
-                inputMessage={chatInputMessage}
-                onInputMessageChange={setChatInputMessage}
-                onScrollRequest={onScrollToChatSection}
-              />
+        {/* Chat - Always visible, expands to fill remaining space after WorkflowProgress */}
+        <div className="flex-1 mt-4 bg-gray-800/30 rounded-xl border border-gray-600/50 flex flex-col min-h-0">
+          <div className="flex-shrink-0 p-4 border-b border-gray-600/50">
+            <div className="flex items-center justify-between">
+              <h3 className="font-medium text-white">Chat with David</h3>
             </div>
           </div>
-        )}
+
+          {/* Chat content expands to fill remaining space */}
+          <div className="flex-1 overflow-y-auto">
+            <CreativeChatContainer
+              sessionId={sessionId}
+              messages={messages}
+              isConnected={isConnected}
+              isAgentTyping={isAgentTyping}
+              onSendMessage={handleSendMessage}
+              dict={dict}
+              locale={locale}
+              inputMessage={chatInputMessage}
+              onInputMessageChange={setChatInputMessage}
+              onScrollRequest={onScrollToChatSection}
+              onTextareaFocus={() => setWorkflowProgressExpanded(false)}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

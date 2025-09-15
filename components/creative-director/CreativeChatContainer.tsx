@@ -33,6 +33,7 @@ export interface CreativeChatContainerProps {
   inputMessage?: string;
   onInputMessageChange?: (message: string) => void;
   onScrollRequest?: () => void;
+  onTextareaFocus?: () => void;
 }
 
 const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
@@ -49,6 +50,7 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
   inputMessage = "",
   onInputMessageChange,
   onScrollRequest,
+  onTextareaFocus,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userTyping, setUserTyping] = useState(false);
@@ -481,6 +483,7 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
               value={inputMessage}
               onChange={(e) => onInputMessageChange && onInputMessageChange(e.target.value)}
               onKeyDown={handleKeyDown}
+              onFocus={() => onTextareaFocus && onTextareaFocus()}
               placeholder={isAwaitingDecisionConfirmation 
                 ? (locale === "ja" ? "ビジュアル決定の承認をお待ちください..." : "Awaiting visual decision confirmation...")
                 : t.placeholder
