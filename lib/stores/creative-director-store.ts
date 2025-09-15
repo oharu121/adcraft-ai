@@ -48,6 +48,14 @@ interface CreativeDirectorStore {
   availableStyleOptions: any[]; // Style options from demo data
   selectedStyleOption: any | null;
 
+  // Step completion tracking
+  completedSteps: {
+    productionStyle: boolean;
+    creativeDirection: boolean;
+    sceneArchitecture: boolean;
+    assetDevelopment: boolean;
+  };
+
   // Simplified visual decisions
   visualDecisions: {
     styleDirection: VisualStyle | null;
@@ -133,6 +141,9 @@ interface CreativeDirectorStore {
   setAvailableStyleOptions: (options: any[]) => void;
   selectStyleOption: (styleOption: any) => void;
 
+  // Step completion actions
+  markStepCompleted: (step: keyof CreativeDirectorStore['completedSteps']) => void;
+
   // Simplified visual decision actions
   updateVisualDecisions: (decisions: Partial<CreativeDirectorStore['visualDecisions']>) => void;
   
@@ -197,6 +208,14 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
   // Phase 2: Style Selection Initial State
   availableStyleOptions: [],
   selectedStyleOption: null,
+
+  // Step completion initial state
+  completedSteps: {
+    productionStyle: false,
+    creativeDirection: false,
+    sceneArchitecture: false,
+    assetDevelopment: false,
+  },
 
   // Simplified visual decisions initial state
   visualDecisions: {
@@ -274,6 +293,14 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
     visualDecisions: {
       ...state.visualDecisions,
       selectedStyle: styleOption?.id || null
+    }
+  })),
+
+  // Step completion actions
+  markStepCompleted: (step) => set((state) => ({
+    completedSteps: {
+      ...state.completedSteps,
+      [step]: true
     }
   })),
 
@@ -381,6 +408,12 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
         assetGeneration: false,
         productionReady: false,
         handoffPreparation: false,
+      },
+      completedSteps: {
+        productionStyle: false,
+        creativeDirection: false,
+        sceneArchitecture: false,
+        assetDevelopment: false,
       },
       handoffPreparation: {
         directionFinalized: false,

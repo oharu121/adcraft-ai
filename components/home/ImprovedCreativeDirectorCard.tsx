@@ -56,6 +56,7 @@ export default function ImprovedCreativeDirectorCard({
     costTracking,
     handoffPreparation,
     chatInputMessage,
+    completedSteps,
 
     // Actions
     setSessionId,
@@ -71,6 +72,7 @@ export default function ImprovedCreativeDirectorCard({
     addMessage,
     addAsset,
     setIsAgentTyping,
+    markStepCompleted,
   } = useCreativeDirectorStore();
 
   const [currentStep, setCurrentStep] = useState<WorkflowStep>("production-style");
@@ -184,6 +186,8 @@ export default function ImprovedCreativeDirectorCard({
   // Handle step navigation with proper progression logic
   const handleNextStep = useCallback(async () => {
     if (currentStep === "production-style" && selectedProductionStyle) {
+      // Mark production style as completed
+      markStepCompleted("productionStyle");
       // Progress from production style to creative direction
       setCurrentStep("creative-direction");
 
@@ -205,6 +209,8 @@ export default function ImprovedCreativeDirectorCard({
       }, 500);
 
     } else if (currentStep === "creative-direction" && selectedStyleOption) {
+      // Mark creative direction as completed
+      markStepCompleted("creativeDirection");
       // Progress from creative direction to scene architecture
       setCurrentPhase(CreativePhase.ASSET_GENERATION);
 
@@ -234,9 +240,15 @@ export default function ImprovedCreativeDirectorCard({
       }, 500);
 
     } else if (currentStep === "scene-architecture") {
+      // Mark scene architecture as completed
+      markStepCompleted("sceneArchitecture");
       setCurrentStep("asset-development");
+    } else if (currentStep === "asset-development") {
+      // Mark asset development as completed
+      markStepCompleted("assetDevelopment");
+      // Asset development is the final step - could add success message or handoff
     }
-  }, [currentStep, selectedProductionStyle, selectedStyleOption, setCurrentPhase, addAsset, onToggleChat, externalShowChat, addMessage, sessionId, locale, mayaHandoffData]);
+  }, [currentStep, selectedProductionStyle, selectedStyleOption, setCurrentPhase, addAsset, onToggleChat, externalShowChat, addMessage, sessionId, locale, mayaHandoffData, markStepCompleted]);
 
   const handlePrevStep = () => {
     if (currentStep === "creative-direction") {

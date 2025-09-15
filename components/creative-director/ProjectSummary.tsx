@@ -14,6 +14,7 @@ export default function ProjectSummary({
     selectedProductionStyle,
     selectedStyleOption,
     assets,
+    completedSteps,
   } = useCreativeDirectorStore();
 
   const steps = [
@@ -28,10 +29,10 @@ export default function ProjectSummary({
   ];
 
   const currentStepIndex = steps.findIndex(step =>
-    (step.id === "production-style" && selectedProductionStyle) ||
-    (step.id === "creative-direction" && selectedStyleOption) ||
-    (step.id === "scene-architecture" && false) || // Not implemented yet
-    (step.id === "asset-development" && assets.generated.length > 0)
+    (step.id === "production-style" && completedSteps.productionStyle) ||
+    (step.id === "creative-direction" && completedSteps.creativeDirection) ||
+    (step.id === "scene-architecture" && completedSteps.sceneArchitecture) ||
+    (step.id === "asset-development" && completedSteps.assetDevelopment)
   );
 
   return (
@@ -49,11 +50,11 @@ export default function ProjectSummary({
         {/* Production Style Summary */}
         <div className="flex items-start gap-3">
           <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-semibold transition-all ${
-            selectedProductionStyle
+            completedSteps.productionStyle
               ? "bg-gradient-to-r from-purple-500 to-pink-500 border-purple-500 text-white"
               : "bg-gray-800 border-gray-700 text-gray-500"
           }`}>
-            {selectedProductionStyle ? (
+            {completedSteps.productionStyle ? (
               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
@@ -81,11 +82,11 @@ export default function ProjectSummary({
         {/* Creative Direction Summary */}
         <div className="flex items-start gap-3">
           <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-semibold transition-all ${
-            selectedStyleOption
+            completedSteps.creativeDirection
               ? "bg-gradient-to-r from-purple-500 to-pink-500 border-purple-500 text-white"
               : "bg-gray-800 border-gray-700 text-gray-500"
           }`}>
-            {selectedStyleOption ? (
+            {completedSteps.creativeDirection ? (
               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
@@ -121,13 +122,13 @@ export default function ProjectSummary({
         {/* Scene Architecture Summary */}
         <div className="flex items-start gap-3">
           <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-semibold transition-all ${
-            false // Scene architecture not implemented yet
+            completedSteps.sceneArchitecture
               ? "bg-gradient-to-r from-purple-500 to-pink-500 border-purple-500 text-white"
-              : selectedStyleOption
+              : completedSteps.creativeDirection
               ? "bg-gray-700 border-gray-600 text-gray-400"
               : "bg-gray-800 border-gray-700 text-gray-500"
           }`}>
-            {false ? ( // Scene architecture not implemented yet
+            {completedSteps.sceneArchitecture ? (
               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
@@ -135,7 +136,18 @@ export default function ProjectSummary({
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium text-white">Scene Architecture</div>
-            {selectedStyleOption ? (
+            {completedSteps.sceneArchitecture ? (
+              <div className="space-y-1">
+                <div className="text-xs text-purple-300 font-medium">Completed</div>
+                <div className="text-xs text-gray-400">Scene planning finished</div>
+                <button
+                  onClick={() => onNavigateToStep("scene-architecture")}
+                  className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
+                >
+                  Review scenes
+                </button>
+              </div>
+            ) : completedSteps.creativeDirection ? (
               <div className="space-y-1">
                 <div className="text-xs text-gray-400">Ready to plan</div>
                 <button
@@ -154,11 +166,13 @@ export default function ProjectSummary({
         {/* Asset Development Summary */}
         <div className="flex items-start gap-3">
           <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-semibold transition-all ${
-            assets.generated.length > 0
+            completedSteps.assetDevelopment
               ? "bg-gradient-to-r from-purple-500 to-pink-500 border-purple-500 text-white"
+              : completedSteps.sceneArchitecture
+              ? "bg-gray-700 border-gray-600 text-gray-400"
               : "bg-gray-800 border-gray-700 text-gray-500"
           }`}>
-            {assets.generated.length > 0 ? (
+            {completedSteps.assetDevelopment ? (
               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
@@ -166,15 +180,25 @@ export default function ProjectSummary({
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium text-white">Asset Development</div>
-            {assets.generated.length > 0 ? (
+            {completedSteps.assetDevelopment ? (
               <div className="space-y-1">
-                <div className="text-xs text-purple-300 font-medium">{assets.generated.length} Assets Generated</div>
-                <div className="text-xs text-gray-400">Backgrounds, compositions, overlays</div>
+                <div className="text-xs text-purple-300 font-medium">Completed</div>
+                <div className="text-xs text-gray-400">{assets.generated.length} Assets Generated</div>
                 <button
                   onClick={() => onNavigateToStep("asset-development")}
                   className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
                 >
-                  View assets
+                  Review assets
+                </button>
+              </div>
+            ) : completedSteps.sceneArchitecture ? (
+              <div className="space-y-1">
+                <div className="text-xs text-gray-400">Ready to generate</div>
+                <button
+                  onClick={() => onNavigateToStep("asset-development")}
+                  className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
+                >
+                  Start generation
                 </button>
               </div>
             ) : (
