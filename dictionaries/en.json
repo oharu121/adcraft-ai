@@ -757,6 +757,10 @@
       "optimizeForBrand": "We can optimize this creative approach for stronger brand alignment."
     }
   },
+  "videoProducer": {
+    "title": "Video Producer (Alex)",
+    "description": "Transform creative direction into professional video production with advanced AI video generation technology"
+  },
   "chat": {
     "typeMessage": "Type your message...",
     "send": "Send",

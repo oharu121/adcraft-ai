@@ -275,7 +275,7 @@ body {
 
 .magical-button {
   position: relative;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-accent-glow));
+  background: linear-gradient(to right, #8b5cf6, #ec4899);
   border: none;
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -298,6 +298,7 @@ body {
 }
 
 .magical-button:hover {
+  background: linear-gradient(to right, #9333ea, #db2777);
   transform: translateY(-2px);
   box-shadow: var(--shadow-magical);
 }

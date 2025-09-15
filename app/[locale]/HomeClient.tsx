@@ -57,33 +57,74 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     from: AppPhase;
     to: AppPhase;
   } | null>(null);
-  
+
   // 🚀 ZUSTAND POWER! All state in one beautiful store
   const {
     // Session state
-    sessionId, sessionStatus, isConnected, isAgentTyping,
-    setSessionId, setSessionStatus, setIsConnected, setIsAgentTyping,
+    sessionId,
+    sessionStatus,
+    isConnected,
+    isAgentTyping,
+    setSessionId,
+    setSessionStatus,
+    setIsConnected,
+    setIsAgentTyping,
 
     // Phase management state
-    currentPhase, completedPhases, canAccessPhase, transitionToPhase,
+    currentPhase,
+    completedPhases,
+    canAccessPhase,
+    transitionToPhase,
 
     // Product input state
-    uploadedImage, productName, productDescription, inputMode,
-    setUploadedImage, setProductName, setProductDescription, setInputMode,
+    uploadedImage,
+    productName,
+    productDescription,
+    inputMode,
+    setUploadedImage,
+    setProductName,
+    setProductDescription,
+    setInputMode,
 
     // UI flow state
-    currentStep, showCommercialChat, showImageModal, showHandoffModal, showAllFeatures, showProductNameError,
-    setCurrentStep, setShowCommercialChat, setShowImageModal, setShowHandoffModal, setShowAllFeatures, setShowProductNameError,
+    currentStep,
+    showCommercialChat,
+    showImageModal,
+    showHandoffModal,
+    showAllFeatures,
+    showProductNameError,
+    setCurrentStep,
+    setShowCommercialChat,
+    setShowImageModal,
+    setShowHandoffModal,
+    setShowAllFeatures,
+    setShowProductNameError,
 
     // Analysis state
-    messages, analysis, analysisProgress, analysisStartTime, elapsedTime, errorMessage, analysisError,
-    setMessages, addMessage, setAnalysis, setAnalysisProgress, setAnalysisStartTime, setElapsedTime, setErrorMessage, setAnalysisError,
+    messages,
+    analysis,
+    analysisProgress,
+    analysisStartTime,
+    elapsedTime,
+    errorMessage,
+    analysisError,
+    setMessages,
+    addMessage,
+    setAnalysis,
+    setAnalysisProgress,
+    setAnalysisStartTime,
+    setElapsedTime,
+    setErrorMessage,
+    setAnalysisError,
 
     // 🎯 THE HERO: Chat state that PERSISTS!
-    chatInputMessage, setChatInputMessage,
+    chatInputMessage,
+    setChatInputMessage,
 
     // Complex actions
-    resetSession, startAnalysis, completeAnalysis
+    resetSession,
+    startAnalysis,
+    completeAnalysis,
   } = useProductIntelligenceStore();
 
   // Ref for tracking analysis start time for progress calculation
@@ -120,7 +161,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         );
         return;
       }
-      
+
       // Clear error state if validation passes
       setShowProductNameError(false);
 
@@ -128,7 +169,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
       // 🚀 Use our beautiful startAnalysis action and transition to analysis phase!
       startAnalysis();
-      transitionToPhase('maya-analysis');
+      transitionToPhase("maya-analysis");
       const startTime = Date.now();
       setAnalysisStartTime(startTime);
       analysisStartRef.current = startTime;
@@ -222,7 +263,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           setMessages([analysisMessage]);
           setCurrentStep("chat");
           // Transition to Maya Strategy phase
-          transitionToPhase('maya-strategy');
+          transitionToPhase("maya-strategy");
         } else {
           throw new Error(
             `Analysis failed: ${analysisResponse.status} ${analysisResponse.statusText}`
@@ -250,7 +291,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
       );
       return;
     }
-    
+
     // Clear error state if validation passes
     setShowProductNameError(false);
 
@@ -258,7 +299,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
     // 🚀 Use our beautiful startAnalysis action and transition to analysis phase!
     startAnalysis();
-    transitionToPhase('maya-analysis');
+    transitionToPhase("maya-analysis");
     const startTime = Date.now();
     setAnalysisStartTime(startTime);
     analysisStartRef.current = startTime;
@@ -347,7 +388,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         setMessages([systemMessage]);
         // currentStep already set by completeAnalysis()
         // Transition to Maya Strategy phase
-        transitionToPhase('maya-strategy');
+        transitionToPhase("maya-strategy");
       } else {
         throw new Error(
           `Analysis failed: ${analysisResponse.status} ${analysisResponse.statusText}`
@@ -462,7 +503,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         if (confirmed && result.data.updatedStrategy && analysis) {
           const updatedAnalysis = {
             ...analysis,
-            ...result.data.updatedStrategy
+            ...result.data.updatedStrategy,
           };
 
           // Update the analysis in the store
@@ -472,33 +513,33 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         // Add Maya's confirmation message to the chat
         const mayaMessage: ChatMessage = {
           id: crypto.randomUUID(),
-          type: 'agent',
+          type: "agent",
           content: result.data.message,
           timestamp: Date.now(),
           agentName: dict.agent.productIntelligenceAgent,
           metadata: {
             processingTime: 100,
             cost: 0,
-          }
+          },
         };
         addMessage(mayaMessage);
-
       } catch (error) {
         console.error("Strategy confirmation error:", error);
 
         // Add error message to chat
         const errorMessage: ChatMessage = {
           id: crypto.randomUUID(),
-          type: 'system',
-          content: locale === "ja"
-            ? "戦略の確認に失敗しました。もう一度お試しください。"
-            : "Failed to confirm strategy. Please try again.",
+          type: "system",
+          content:
+            locale === "ja"
+              ? "戦略の確認に失敗しました。もう一度お試しください。"
+              : "Failed to confirm strategy. Please try again.",
           timestamp: Date.now(),
           agentName: dict.agent.systemAgent,
           metadata: {
             processingTime: 0,
             cost: 0,
-          }
+          },
         };
         addMessage(errorMessage);
       }
@@ -509,7 +550,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
   // Handle handoff modal actions
   const handleHandoffSuccess = useCallback(() => {
     // Successfully handed off to Creative Director
-    transitionToPhase('david-creative');
+    transitionToPhase("david-creative");
   }, [transitionToPhase]);
 
   const handleHandoffClose = useCallback(() => {
@@ -539,13 +580,17 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
   // Smart CTA handler that respects current phase
   const handleSmartCTA = useCallback(() => {
-    if (currentPhase === 'david-creative' || currentPhase === 'alex-production' || currentPhase === 'completed') {
+    if (
+      currentPhase === "david-creative" ||
+      currentPhase === "alex-production" ||
+      currentPhase === "completed"
+    ) {
       // Show confirmation modal for going back to start
       const confirmed = window.confirm(
         dict.common?.confirmRestart ||
-        "You're currently working with a later agent. Do you want to start over from the beginning?"
+          "You're currently working with a later agent. Do you want to start over from the beginning?"
       );
-      
+
       if (confirmed) {
         resetSession();
         scrollToProductIntelligence();
@@ -559,16 +604,19 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
   }, [currentPhase, dict, resetSession, scrollToProductIntelligence, focusProductNameInput]);
 
   // Enhanced transition function with animation
-  const transitionWithAnimation = useCallback((toPhase: AppPhase) => {
-    const fromPhase = currentPhase;
-    if (fromPhase !== toPhase) {
-      setPhaseTransition({
-        show: true,
-        from: fromPhase,
-        to: toPhase
-      });
-    }
-  }, [currentPhase]);
+  const transitionWithAnimation = useCallback(
+    (toPhase: AppPhase) => {
+      const fromPhase = currentPhase;
+      if (fromPhase !== toPhase) {
+        setPhaseTransition({
+          show: true,
+          from: fromPhase,
+          to: toPhase,
+        });
+      }
+    },
+    [currentPhase]
+  );
 
   // Handle transition completion
   const handleTransitionComplete = useCallback(() => {
@@ -578,7 +626,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
       // Auto-scroll to new phase section
       setTimeout(() => {
-        if (phaseTransition.to === 'david-creative') {
+        if (phaseTransition.to === "david-creative") {
           const element = document.getElementById("creative-director-section");
           if (element) {
             element.scrollIntoView({ behavior: "smooth" });
@@ -600,23 +648,30 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
       {/* Product Intelligence Section */}
       <div id="product-intelligence-section" className="py-16 md:py-24">
         <div className="container mx-auto px-4 max-w-6xl relative">
-          {/* Section Header */}
+          {/* Dynamic Agent Section Header */}
           <div className="text-center mb-12 md:mb-16">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 magical-text">
-              {dict.productIntelligence.agentSection}
+              {currentPhase === "david-creative" && dict.creativeDirector.title}
+              {currentPhase === "alex-production" && dict.videoProducer.title}
+              {(currentPhase === "product-input" ||
+                currentPhase === "maya-analysis" ||
+                currentPhase === "maya-strategy") &&
+                dict.productIntelligence.agentSection}
             </h2>
             <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-3 md:mb-4 max-w-3xl mx-auto leading-relaxed">
-              {dict.productIntelligence.agentDescription}
-            </p>
-            <p className="text-sm md:text-base text-gray-400 mb-6 md:mb-8">
-              {dict.productIntelligence.costInfo}
+              {currentPhase === "david-creative" && dict.creativeDirector.description}
+              {currentPhase === "alex-production" && dict.videoProducer.description}
+              {(currentPhase === "product-input" ||
+                currentPhase === "maya-analysis" ||
+                currentPhase === "maya-strategy") &&
+                dict.productIntelligence.agentDescription}
             </p>
           </div>
 
           {/* 🚀 Main Workflow - Phase-based visibility! */}
 
           {/* Phase: Maya Analysis - Centered Progress */}
-          {currentPhase === 'maya-analysis' && (
+          {currentPhase === "maya-analysis" && (
             <div className="flex justify-center">
               <div className="w-full max-w-md">
                 <AnalysisProgressCard dict={dict} />
@@ -625,7 +680,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           )}
 
           {/* Phase: David Creative - Full Width Creative Director Interface */}
-          {currentPhase === 'david-creative' && (
+          {currentPhase === "david-creative" && (
             <div id="creative-director-section">
               <CreativeDirectorWorkspace
                 dict={dict}
@@ -641,12 +696,12 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           )}
 
           {/* Phase: Product Input & Maya Strategy - 2-Column Layout */}
-          {(currentPhase === 'product-input' || currentPhase === 'maya-strategy') && (
+          {(currentPhase === "product-input" || currentPhase === "maya-strategy") && (
             <div className="grid lg:grid-cols-2 gap-8">
               {/* Left Column - Maya's Domain */}
               <div className="space-y-6">
                 {/* Phase: Product Input */}
-                {currentPhase === 'product-input' && (
+                {currentPhase === "product-input" && (
                   <ProductInputForm
                     dict={dict}
                     locale={locale}
@@ -665,15 +720,13 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                 )}
 
                 {/* Phase: Maya Strategy - Product Analysis */}
-                {currentPhase === 'maya-strategy' && (
-                  <ProductAnalysisCard dict={dict} />
-                )}
+                {currentPhase === "maya-strategy" && <ProductAnalysisCard dict={dict} />}
               </div>
 
               {/* Right Column - Phase-dependent content */}
               <div className="space-y-6">
                 {/* Phase: Maya Strategy - Maya Chat (Right Panel) */}
-                {currentPhase === 'maya-strategy' && (
+                {currentPhase === "maya-strategy" && (
                   <div className="h-full">
                     {/* Maya Chat Container for clean left/right layout */}
                     <ChatContainer
@@ -692,7 +745,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                 )}
 
                 {/* Phase: Product Input - Instructions */}
-                {currentPhase === 'product-input' && <InstructionsCard dict={dict} />}
+                {currentPhase === "product-input" && <InstructionsCard dict={dict} />}
               </div>
             </div>
           )}

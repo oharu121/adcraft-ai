@@ -732,7 +732,7 @@ export default function ImprovedCreativeDirectorCard({
             (currentStep === "production-style" && !selectedProductionStyle) ||
             (currentStep === "creative-direction" && !selectedStyleOption)
           }
-          className={`cursor-pointer flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+          className={`magical-button cursor-pointer flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
             currentStep === "asset-development" ||
             (currentStep === "production-style" && !selectedProductionStyle) ||
             (currentStep === "creative-direction" && !selectedStyleOption)
@@ -785,7 +785,7 @@ export default function ImprovedCreativeDirectorCard({
       </div>
 
       {/* Footer */}
-      <div className="mt-8 pt-4 border-t border-gray-600 text-xs text-gray-400">
+      <div className="mt-8 pt-4 text-xs text-gray-400">
         <div className="flex justify-between">
           <span>Creative Session: #{sessionId?.slice(-6) || "Loading..."}</span>
           <span>
