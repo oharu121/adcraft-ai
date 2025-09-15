@@ -578,18 +578,7 @@ export default function ImprovedCreativeDirectorCard({
           </div>
         </div>
 
-        {/* Maya Handoff Summary */}
-        <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-xl p-4 border border-blue-500/30">
-          <div className="flex items-center gap-3">
-            <AgentAvatar agent="maya" size="sm" state="idle" />
-            <div>
-              <h4 className="font-medium text-blue-200">Received from Maya</h4>
-              <p className="text-xs text-blue-300">
-                Complete analysis for {mayaHandoffData?.productAnalysis?.product?.name || "your product"}
-              </p>
-            </div>
-          </div>
-        </div>
+       
       </div>
 
       {/* Main Content Layout */}
