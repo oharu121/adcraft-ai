@@ -12,18 +12,17 @@ import {
   AssetType,
   AssetStatus,
 } from "@/lib/agents/creative-director/enums";
+import { WorkflowStep } from "@/lib/agents/creative-director/enums";
 
 interface CreativeDirectorCardProps {
   dict: Dictionary;
   locale: Locale;
   onScrollToChatSection?: () => void;
-  onNavigateToStep?: (step: string) => void;
+  onNavigateToStep?: (step: WorkflowStep) => void;
   currentStep?: string;
-  onStepChange?: (step: string) => void;
+  onStepChange?: (step: WorkflowStep) => void;
   onExpandWorkflowProgress?: () => void;
 }
-
-type WorkflowStep = "production-style" | "creative-direction" | "scene-architecture";
 
 export default function ImprovedCreativeDirectorCard({
   dict,
@@ -74,8 +73,10 @@ export default function ImprovedCreativeDirectorCard({
   } = useCreativeDirectorStore();
 
   // Use external step state if provided, fallback to internal state
-  const [internalCurrentStep, setInternalCurrentStep] = useState<WorkflowStep>("production-style");
-  const currentStep = (externalCurrentStep as WorkflowStep) || internalCurrentStep;
+  const [internalCurrentStep, setInternalCurrentStep] = useState<WorkflowStep>(
+    WorkflowStep.PRODUCTION_STYLE
+  );
+  const currentStep = externalCurrentStep || internalCurrentStep;
   const setCurrentStep = onStepChange || setInternalCurrentStep;
 
   // Now using Zustand store for selectedProductionStyle - no local state needed!
@@ -191,11 +192,11 @@ export default function ImprovedCreativeDirectorCard({
     // Expand workflow progress to show navigation changes
     if (onExpandWorkflowProgress) onExpandWorkflowProgress();
 
-    if (currentStep === "production-style" && selectedProductionStyle) {
+    if (currentStep === WorkflowStep.PRODUCTION_STYLE && selectedProductionStyle) {
       // Mark production style as completed
       markStepCompleted("productionStyle");
       // Progress from production style to creative direction
-      setCurrentStep("creative-direction");
+      setCurrentStep(WorkflowStep.CREATIVE_DIRECTION);
 
       const confirmationMessage = `Excellent choice! ${selectedProductionStyle.name} is perfect for your ${mayaHandoffData?.productAnalysis?.product?.name || "product"}. Now let me generate aesthetic options tailored specifically for ${selectedProductionStyle.name.toLowerCase()} production.`;
 
@@ -221,7 +222,7 @@ export default function ImprovedCreativeDirectorCard({
       const { demoGeneratedAssets } = await import("@/lib/agents/creative-director/demo/demo-data");
       demoGeneratedAssets.forEach((asset) => addAsset(asset));
 
-      setCurrentStep("scene-architecture");
+      setCurrentStep(WorkflowStep.SCENE_ARCHITECTURE);
 
       const confirmationMessage = `Perfect! I've selected "${selectedStyleOption.name}" as your creative direction. This ${selectedStyleOption.description.toLowerCase()} aesthetic will work beautifully with your chosen production style.`;
 
@@ -260,10 +261,10 @@ export default function ImprovedCreativeDirectorCard({
     // Expand workflow progress to show navigation changes
     if (onExpandWorkflowProgress) onExpandWorkflowProgress();
 
-    if (currentStep === "creative-direction") {
-      setCurrentStep("production-style");
-    } else if (currentStep === "scene-architecture") {
-      setCurrentStep("creative-direction");
+    if (currentStep === WorkflowStep.CREATIVE_DIRECTION) {
+      setCurrentStep(WorkflowStep.PRODUCTION_STYLE);
+    } else if (currentStep === WorkflowStep.SCENE_ARCHITECTURE) {
+      setCurrentStep(WorkflowStep.CREATIVE_DIRECTION);
     }
   };
 
@@ -271,8 +272,8 @@ export default function ImprovedCreativeDirectorCard({
   React.useEffect(() => {
     if (onNavigateToStep) {
       // Parent can call this to navigate to specific steps
-      const navigateToStep = (step: string) => {
-        setCurrentStep(step as WorkflowStep);
+      const navigateToStep = (step: WorkflowStep) => {
+        setCurrentStep(step);
       };
 
       // Store reference for parent to use

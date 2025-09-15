@@ -18,6 +18,8 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import AgentAvatar from "@/components/ui/AgentAvatar";
 import type { Dictionary } from "@/lib/dictionaries";
 import { CreativeChatMessage } from "@/lib/agents/creative-director/types/chat-types";
+import { useCreativeDirectorStore } from "@/lib/stores/creative-director-store";
+import { WorkflowStep } from "@/lib/agents/creative-director/enums";
 
 export interface CreativeChatContainerProps {
   sessionId: string;
@@ -64,8 +66,16 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const typingIntervalsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
+  // Get currentStep from store for step-based behavior
+  const { currentStep } = useCreativeDirectorStore();
+
   // Use dictionary for localized text
   const t = dict.creativeDirector.chat;
+
+  // Determine chat mode based on current step
+  const isConsultativeMode = currentStep === WorkflowStep.PRODUCTION_STYLE ||
+                            currentStep === WorkflowStep.CREATIVE_DIRECTION;
+  const isInteractiveMode = currentStep === WorkflowStep.SCENE_ARCHITECTURE;
 
   // Check if we're awaiting visual decision confirmation
   const lastAgentMessage = messages
@@ -398,12 +408,13 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
               </div>
             )}
 
-          {/* Quick Actions for David's messages */}
+          {/* Quick Actions for David's messages - only in interactive mode */}
           {!isUser &&
             isLastMessage &&
             !isTyping &&
             message.quickActions &&
-            message.messageType !== "DIRECTION_CONFIRMATION" && (
+            message.messageType !== "DIRECTION_CONFIRMATION" &&
+            isInteractiveMode && (
               <div className="mt-2 space-y-1">
                 <p className="text-xs text-gray-500 mb-2">{t.quickActionsTitle}</p>
                 {message.quickActions.map((action, actionIndex) => (
@@ -466,6 +477,17 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
   const renderGreeting = () => {
     if (messages.length > 0) return null;
 
+    // Get step-specific greeting message
+    const getGreetingMessage = () => {
+      if (isConsultativeMode) {
+        return locale === "ja"
+          ? "こんにちは！現在のステップについてご質問がございましたら、お気軽にお聞きください。選択に関するアドバイスをいたします。"
+          : "Hi! Feel free to ask questions about the current step. I'm here to help you understand your options and make the right choice.";
+      } else {
+        return dict.creativeDirector.chat.welcomeMessage;
+      }
+    };
+
     return (
       <div className="mb-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
         <div className="flex items-center mb-2">
@@ -473,9 +495,13 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
             <AgentAvatar agent="david" size="md" state="idle" />
           </div>
           <span className="text-purple-900 font-medium text-sm">David</span>
+          <span className="ml-2 text-xs text-purple-600 bg-purple-200 px-2 py-1 rounded">
+            {isConsultativeMode ? (locale === "ja" ? "相談モード" : "Consultative")
+                               : (locale === "ja" ? "対話モード" : "Interactive")}
+          </span>
         </div>
         <p className="text-purple-800 text-sm whitespace-pre-wrap">
-          {dict.creativeDirector.chat.welcomeMessage}
+          {getGreetingMessage()}
         </p>
       </div>
     );
@@ -525,7 +551,11 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
                   ? locale === "ja"
                     ? "ビジュアル決定の承認をお待ちください..."
                     : "Awaiting visual decision confirmation..."
-                  : t.placeholder
+                  : isConsultativeMode
+                    ? locale === "ja"
+                      ? "現在のステップについて質問してください..."
+                      : "Ask questions about the current step..."
+                    : t.placeholder
               }
               disabled={
                 !isConnected ||

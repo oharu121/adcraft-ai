@@ -1,11 +1,11 @@
 import { create } from 'zustand';
-import { SessionStatus } from '../agents/creative-director/enums';
-import { 
+import { SessionStatus, WorkflowStep } from '../agents/creative-director/enums';
+import {
   CreativeChatMessage
 } from '../agents/creative-director/types/chat-types';
-import { 
-  VisualAsset, 
-  CreativeDirection, 
+import {
+  VisualAsset,
+  CreativeDirection,
   StylePalette
 } from '../agents/creative-director/types/asset-types';
 import {
@@ -32,6 +32,7 @@ interface CreativeDirectorStore {
   
   // UI flow state - simplified for 4-phase workflow
   currentPhase: CreativePhase;
+  currentStep: WorkflowStep;
   showCreativeChat: boolean;
   showAssetGallery: boolean;
   showStyleSelector: boolean;
@@ -124,6 +125,7 @@ interface CreativeDirectorStore {
   
   // Actions for UI flow - simplified
   setCurrentPhase: (phase: CreativePhase) => void;
+  setCurrentStep: (step: WorkflowStep) => void;
   setShowCreativeChat: (show: boolean) => void;
   setShowAssetGallery: (show: boolean) => void;
   setShowStyleSelector: (show: boolean) => void;
@@ -194,6 +196,7 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
   },
 
   currentPhase: CreativePhase.ANALYSIS,
+  currentStep: WorkflowStep.PRODUCTION_STYLE,
   showCreativeChat: false,
   showAssetGallery: false,
   showStyleSelector: false,
@@ -274,6 +277,7 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
   setMayaHandoffData: (data) => set({ mayaHandoffData: data }),
 
   setCurrentPhase: (phase) => set({ currentPhase: phase }),
+  setCurrentStep: (step) => set({ currentStep: step }),
   setShowCreativeChat: (show) => set({ showCreativeChat: show }),
   setShowAssetGallery: (show) => set({ showAssetGallery: show }),
   setShowStyleSelector: (show) => set({ showStyleSelector: show }),

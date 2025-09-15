@@ -5,6 +5,7 @@ import ImprovedCreativeDirectorCard from "@/components/home/ImprovedCreativeDire
 import WorkflowProgress from "./WorkflowProgress";
 import CreativeChatContainer from "./CreativeChatContainer";
 import { useCreativeDirectorStore } from "@/lib/stores/creative-director-store";
+import { WorkflowStep } from "@/lib/agents/creative-director/enums";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
 
 interface CreativeDirectorWorkspaceProps {
@@ -19,7 +20,6 @@ export default function CreativeDirectorWorkspace({
   onScrollToChatSection,
 }: CreativeDirectorWorkspaceProps) {
   const [workflowProgressExpanded, setWorkflowProgressExpanded] = useState(true);
-  const [currentStep, setCurrentStep] = useState<string>("production-style");
   const [mainContentHeight, setMainContentHeight] = useState<number | null>(null);
   const mainContentRef = useRef<HTMLDivElement>(null);
 
@@ -34,19 +34,24 @@ export default function CreativeDirectorWorkspace({
     setIsAgentTyping,
     mayaHandoffData,
     currentPhase,
+    currentStep,
+    setCurrentStep,
     selectedStyleOption,
   } = useCreativeDirectorStore();
 
   // Handle step navigation from summary
-  const handleNavigateToStep = useCallback((step: string) => {
-    setCurrentStep(step);
-    // Expand workflow progress when navigating steps
-    setWorkflowProgressExpanded(true);
-  }, []);
+  const handleNavigateToStep = useCallback(
+    (step: WorkflowStep) => {
+      setCurrentStep(step);
+      // Expand workflow progress when navigating steps
+      setWorkflowProgressExpanded(true);
+    },
+    [setCurrentStep]
+  );
 
   // Handle workflow progress toggle
   const handleToggleWorkflowProgress = useCallback(() => {
-    setWorkflowProgressExpanded(prev => !prev);
+    setWorkflowProgressExpanded((prev) => !prev);
   }, []);
 
   // Handle expanding workflow progress (for navigation buttons)
@@ -141,7 +146,16 @@ export default function CreativeDirectorWorkspace({
         setIsAgentTyping(false);
       }
     },
-    [sessionId, locale, addMessage, setIsAgentTyping, currentPhase, selectedStyleOption, mayaHandoffData, messages]
+    [
+      sessionId,
+      locale,
+      addMessage,
+      setIsAgentTyping,
+      currentPhase,
+      selectedStyleOption,
+      mayaHandoffData,
+      messages,
+    ]
   );
 
   return (
@@ -154,7 +168,7 @@ export default function CreativeDirectorWorkspace({
           onScrollToChatSection={onScrollToChatSection}
           onNavigateToStep={handleNavigateToStep}
           currentStep={currentStep}
-          onStepChange={setCurrentStep}
+          onStepChange={(step: WorkflowStep) => setCurrentStep(step)}
           onExpandWorkflowProgress={handleExpandWorkflowProgress}
         />
       </div>
@@ -163,7 +177,7 @@ export default function CreativeDirectorWorkspace({
       <div
         className="w-80 flex flex-col"
         style={{
-          height: mainContentHeight ? `${mainContentHeight}px` : 'auto'
+          height: mainContentHeight ? `${mainContentHeight}px` : "auto",
         }}
       >
         {/* Workflow Progress */}

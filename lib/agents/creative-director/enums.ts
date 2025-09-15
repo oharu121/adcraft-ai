@@ -138,8 +138,15 @@ export enum CreativeQuickActionType {
 export enum CreativePhase {
   ANALYSIS = "analysis",
   CREATIVE_DEVELOPMENT = "creative_development",
-  ASSET_GENERATION = "asset_generation", 
+  ASSET_GENERATION = "asset_generation",
   FINALIZATION = "finalization",
+}
+
+// Workflow steps in David's UI
+export enum WorkflowStep {
+  PRODUCTION_STYLE = "production-style",
+  CREATIVE_DIRECTION = "creative-direction",
+  SCENE_ARCHITECTURE = "scene-architecture",
 }
 
 // Composition principles
