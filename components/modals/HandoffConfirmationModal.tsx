@@ -283,12 +283,10 @@ export default function HandoffConfirmationModal({
 
             <div className="grid grid-cols-2 gap-4">
               {[
-                { color: "blue", icon: "📊", label: dict.productAnalysis.productInsights },
-                { color: "green", icon: "👥", label: dict.productAnalysis.targetAudience },
-                { color: "purple", icon: "🎨", label: dict.productAnalysis.visualStyle },
+                { color: "blue", icon: "📦", label: dict.productAnalysis.productSummary },
+                { color: "green", icon: "✨", label: dict.productAnalysis.keyFeatures },
+                { color: "purple", icon: "🎯", label: dict.productAnalysis.targetAudience },
                 { color: "red", icon: "💬", label: dict.productAnalysis.keyMessages },
-                { color: "yellow", icon: "📝", label: dict.productAnalysis.narrativeStructure },
-                { color: "pink", icon: "🎬", label: dict.productAnalysis.keyScenes },
               ].map((item, index) => (
                 <div
                   key={index}

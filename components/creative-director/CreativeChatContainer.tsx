@@ -323,7 +323,7 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
                   <span>Processed in {(message.processingTime / 1000).toFixed(1)}s</span>
                 )}
                 {message.cost && (
-                  <span className="ml-2">Cost: ${message.cost.toFixed(3)}</span>
+                  <span className="ml-2">Cost: ${typeof message.cost === 'number' ? message.cost.toFixed(3) : message.cost}</span>
                 )}
                 {message.confidence && (
                   <span className="ml-2">

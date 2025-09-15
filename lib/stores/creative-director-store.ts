@@ -30,28 +30,32 @@ interface CreativeDirectorStore {
     visualOpportunities: any | null;
   };
   
-  // UI flow state  
+  // UI flow state - simplified for 4-phase workflow
   currentPhase: CreativePhase;
   showCreativeChat: boolean;
   showAssetGallery: boolean;
-  showStylePalette: boolean;
-  showCompositionGuide: boolean;
+  showStyleSelector: boolean;
+  showAssetVariants: boolean;
   
-  // Creative direction state
+  // Creative direction state - simplified for demo workflow
   messages: CreativeChatMessage[];
   creativeDirection: CreativeDirection | null;
-  currentStylePalette: StylePalette | null;
+
+  // Phase 2: Style Selection State
+  availableStyleOptions: any[]; // Style options from demo data
+  selectedStyleOption: any | null;
+
+  // Simplified visual decisions
   visualDecisions: {
     styleDirection: VisualStyle | null;
     colorMood: ColorMood | null;
-    approvedPalettes: string[];
-    selectedCompositions: string[];
+    selectedStyle: string | null;
     brandAlignmentScore: number;
   };
   
-  // Asset generation state
+  // Asset generation state - simplified for demo
   assets: {
-    generated: VisualAsset[];
+    generated: any[]; // Use any[] for demo compatibility with both VisualAsset and DemoAsset
     inProgress: string[]; // Asset IDs currently generating
     failed: string[];     // Asset IDs that failed
     approved: string[];   // Asset IDs approved for production
@@ -107,23 +111,28 @@ interface CreativeDirectorStore {
   // Actions for Maya handoff
   setMayaHandoffData: (data: any) => void;
   
-  // Actions for UI flow
+  // Actions for UI flow - simplified
   setCurrentPhase: (phase: CreativePhase) => void;
   setShowCreativeChat: (show: boolean) => void;
   setShowAssetGallery: (show: boolean) => void;
-  setShowStylePalette: (show: boolean) => void;
-  setShowCompositionGuide: (show: boolean) => void;
+  setShowStyleSelector: (show: boolean) => void;
+  setShowAssetVariants: (show: boolean) => void;
   
-  // Actions for creative direction
+  // Actions for creative direction - simplified
   setMessages: (messages: CreativeChatMessage[]) => void;
   addMessage: (message: CreativeChatMessage) => void;
   setCreativeDirection: (direction: CreativeDirection | null) => void;
-  setCurrentStylePalette: (palette: StylePalette | null) => void;
+
+  // Phase 2: Style Selection Actions
+  setAvailableStyleOptions: (options: any[]) => void;
+  selectStyleOption: (styleOption: any) => void;
+
+  // Simplified visual decision actions
   updateVisualDecisions: (decisions: Partial<CreativeDirectorStore['visualDecisions']>) => void;
   
-  // Actions for assets
-  addAsset: (asset: VisualAsset) => void;
-  updateAsset: (assetId: string, updates: Partial<VisualAsset>) => void;
+  // Actions for assets - simplified for demo
+  addAsset: (asset: any) => void; // Use any for demo compatibility
+  updateAsset: (assetId: string, updates: Partial<any>) => void;
   setAssetGenerationProgress: (assetId: string, progress: any) => void;
   approveAsset: (assetId: string) => void;
   
@@ -170,17 +179,21 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
   currentPhase: CreativePhase.ANALYSIS,
   showCreativeChat: false,
   showAssetGallery: false,
-  showStylePalette: false,
-  showCompositionGuide: false,
+  showStyleSelector: false,
+  showAssetVariants: false,
 
   messages: [],
   creativeDirection: null,
-  currentStylePalette: null,
+
+  // Phase 2: Style Selection Initial State
+  availableStyleOptions: [],
+  selectedStyleOption: null,
+
+  // Simplified visual decisions initial state
   visualDecisions: {
     styleDirection: null,
     colorMood: null,
-    approvedPalettes: [],
-    selectedCompositions: [],
+    selectedStyle: null,
     brandAlignmentScore: 0,
   },
 
@@ -235,16 +248,27 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
   setCurrentPhase: (phase) => set({ currentPhase: phase }),
   setShowCreativeChat: (show) => set({ showCreativeChat: show }),
   setShowAssetGallery: (show) => set({ showAssetGallery: show }),
-  setShowStylePalette: (show) => set({ showStylePalette: show }),
-  setShowCompositionGuide: (show) => set({ showCompositionGuide: show }),
+  setShowStyleSelector: (show) => set({ showStyleSelector: show }),
+  setShowAssetVariants: (show) => set({ showAssetVariants: show }),
 
   setMessages: (messages) => set({ messages }),
   addMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),
   setCreativeDirection: (direction) => set({ creativeDirection: direction }),
-  setCurrentStylePalette: (palette) => set({ currentStylePalette: palette }),
-  updateVisualDecisions: (decisions) => 
-    set((state) => ({ 
-      visualDecisions: { ...state.visualDecisions, ...decisions } 
+
+  // Phase 2: Style Selection Actions
+  setAvailableStyleOptions: (options) => set({ availableStyleOptions: options }),
+  selectStyleOption: (styleOption) => set((state) => ({
+    selectedStyleOption: styleOption,
+    visualDecisions: {
+      ...state.visualDecisions,
+      selectedStyle: styleOption?.id || null
+    }
+  })),
+
+  // Simplified visual decisions actions
+  updateVisualDecisions: (decisions) =>
+    set((state) => ({
+      visualDecisions: { ...state.visualDecisions, ...decisions }
     })),
 
   addAsset: (asset) =>
@@ -316,7 +340,6 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
       sessionStatus: SessionStatus.INITIALIZING,
       messages: [],
       creativeDirection: null,
-      currentStylePalette: null,
       assets: {
         generated: [],
         inProgress: [],
@@ -337,8 +360,7 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
       visualDecisions: {
         styleDirection: null,
         colorMood: null,
-        approvedPalettes: [],
-        selectedCompositions: [],
+        selectedStyle: null,
         brandAlignmentScore: 0,
       },
       expandedSections: {
@@ -376,6 +398,7 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
 
   initializeFromMayaHandoff: (handoffData) =>
     set({
+      sessionId: handoffData.sessionId, // Set the sessionId from handoff data
       mayaHandoffData: handoffData,
       sessionStatus: SessionStatus.READY,
       currentPhase: CreativePhase.ANALYSIS,
