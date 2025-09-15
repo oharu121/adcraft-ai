@@ -41,6 +41,9 @@ interface CreativeDirectorStore {
   messages: CreativeChatMessage[];
   creativeDirection: CreativeDirection | null;
 
+  // Phase 1: Production Style State
+  selectedProductionStyle: any | null;
+
   // Phase 2: Style Selection State
   availableStyleOptions: any[]; // Style options from demo data
   selectedStyleOption: any | null;
@@ -123,6 +126,9 @@ interface CreativeDirectorStore {
   addMessage: (message: CreativeChatMessage) => void;
   setCreativeDirection: (direction: CreativeDirection | null) => void;
 
+  // Phase 1: Production Style Actions
+  setSelectedProductionStyle: (style: any) => void;
+
   // Phase 2: Style Selection Actions
   setAvailableStyleOptions: (options: any[]) => void;
   selectStyleOption: (styleOption: any) => void;
@@ -184,6 +190,9 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
 
   messages: [],
   creativeDirection: null,
+
+  // Phase 1: Production Style Initial State
+  selectedProductionStyle: null,
 
   // Phase 2: Style Selection Initial State
   availableStyleOptions: [],
@@ -254,6 +263,9 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
   setMessages: (messages) => set({ messages }),
   addMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),
   setCreativeDirection: (direction) => set({ creativeDirection: direction }),
+
+  // Phase 1: Production Style Actions
+  setSelectedProductionStyle: (style) => set({ selectedProductionStyle: style }),
 
   // Phase 2: Style Selection Actions
   setAvailableStyleOptions: (options) => set({ availableStyleOptions: options }),

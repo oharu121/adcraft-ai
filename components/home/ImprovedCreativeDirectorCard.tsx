@@ -17,6 +17,9 @@ interface CreativeDirectorCardProps {
   dict: Dictionary;
   locale: Locale;
   onScrollToChatSection?: () => void;
+  onNavigateToStep?: (step: string) => void;
+  showChat?: boolean;
+  onToggleChat?: () => void;
 }
 
 type WorkflowStep =
@@ -29,6 +32,9 @@ export default function ImprovedCreativeDirectorCard({
   dict,
   locale = "en",
   onScrollToChatSection,
+  onNavigateToStep,
+  showChat: externalShowChat,
+  onToggleChat,
 }: CreativeDirectorCardProps) {
   const {
     sessionId,
@@ -44,6 +50,7 @@ export default function ImprovedCreativeDirectorCard({
     assets,
     availableStyleOptions,
     selectedStyleOption,
+    selectedProductionStyle,
     visualDecisions,
     expandedSections,
     costTracking,
@@ -58,6 +65,7 @@ export default function ImprovedCreativeDirectorCard({
     setShowStyleSelector,
     setAvailableStyleOptions,
     selectStyleOption,
+    setSelectedProductionStyle,
     setChatInputMessage,
     toggleSection,
     addMessage,
@@ -66,7 +74,8 @@ export default function ImprovedCreativeDirectorCard({
   } = useCreativeDirectorStore();
 
   const [currentStep, setCurrentStep] = useState<WorkflowStep>("production-style");
-  const [showChat, setShowChat] = useState(false);
+
+  // Now using Zustand store for selectedProductionStyle - no local state needed!
 
   // Use dictionary for localized text
   const t = dict.creativeDirector;
@@ -156,15 +165,12 @@ export default function ImprovedCreativeDirectorCard({
     [sessionId, locale, addMessage, setIsAgentTyping]
   );
 
-  // State for selected production style
-  const [selectedProductionStyle, setSelectedProductionStyle] = useState<any>(null);
-
   // Handle production style selection (just select, don't auto-advance)
   const handleProductionStyleSelection = useCallback(
     (productionStyle: any) => {
       setSelectedProductionStyle(productionStyle);
     },
-    []
+    [setSelectedProductionStyle]
   );
 
   // Handle creative direction selection (just select, don't auto-advance)
@@ -182,7 +188,7 @@ export default function ImprovedCreativeDirectorCard({
       setCurrentStep("creative-direction");
 
       // Show chat with confirmation
-      setShowChat(true);
+      if (onToggleChat && !externalShowChat) onToggleChat();
       const confirmationMessage = `Excellent choice! ${selectedProductionStyle.name} is perfect for your ${mayaHandoffData?.productAnalysis?.product?.name || "product"}. Now let me generate aesthetic options tailored specifically for ${selectedProductionStyle.name.toLowerCase()} production.`;
 
       setTimeout(() => {
@@ -211,7 +217,7 @@ export default function ImprovedCreativeDirectorCard({
       setCurrentStep("scene-architecture");
 
       // Show chat with confirmation
-      setShowChat(true);
+      if (onToggleChat && !externalShowChat) onToggleChat();
       const confirmationMessage = `Perfect! I've selected "${selectedStyleOption.name}" as your creative direction. This ${selectedStyleOption.description.toLowerCase()} aesthetic will work beautifully with your chosen production style.`;
 
       setTimeout(() => {
@@ -230,7 +236,7 @@ export default function ImprovedCreativeDirectorCard({
     } else if (currentStep === "scene-architecture") {
       setCurrentStep("asset-development");
     }
-  }, [currentStep, selectedProductionStyle, selectedStyleOption, setCurrentPhase, addAsset, setShowChat, addMessage, sessionId, locale, mayaHandoffData]);
+  }, [currentStep, selectedProductionStyle, selectedStyleOption, setCurrentPhase, addAsset, onToggleChat, externalShowChat, addMessage, sessionId, locale, mayaHandoffData]);
 
   const handlePrevStep = () => {
     if (currentStep === "creative-direction") {
@@ -241,6 +247,27 @@ export default function ImprovedCreativeDirectorCard({
       setCurrentStep("scene-architecture");
     }
   };
+
+  // Expose step navigation to parent component
+  React.useEffect(() => {
+    if (onNavigateToStep) {
+      // Parent can call this to navigate to specific steps
+      const navigateToStep = (step: string) => {
+        setCurrentStep(step as WorkflowStep);
+      };
+
+      // Store reference for parent to use
+      (onNavigateToStep as any).navigateToStep = navigateToStep;
+    }
+  }, [onNavigateToStep]);
+
+  // Expose current selections to parent
+  const selections = React.useMemo(() => ({
+    selectedProductionStyle,
+    selectedStyleOption,
+    currentStep,
+    assets
+  }), [selectedProductionStyle, selectedStyleOption, currentStep, assets]);
 
   // Don't show card if no handoff data from Maya
   if (!hasHandoffData) {
@@ -654,21 +681,6 @@ export default function ImprovedCreativeDirectorCard({
           </div>
         ))}
       </div>
-
-      {/* Style Confirmation */}
-      {selectedStyleOption && (
-        <div className="bg-green-900/20 border border-green-500/30 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">✅</span>
-            <div>
-              <h4 className="text-green-200 font-medium">
-                Selected Style: {selectedStyleOption.name}
-              </h4>
-              <p className="text-green-300 text-sm">{selectedStyleOption.description}</p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 
@@ -768,7 +780,7 @@ export default function ImprovedCreativeDirectorCard({
 
       <div className="flex items-center gap-4">
         <button
-          onClick={() => setShowChat(!showChat)}
+          onClick={onToggleChat || (() => {})}
           className="cursor-pointer flex items-center gap-2 px-4 py-2 text-purple-300 hover:text-white border border-purple-500/50 hover:border-purple-400 rounded-lg transition-all"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -779,7 +791,7 @@ export default function ImprovedCreativeDirectorCard({
               d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
             />
           </svg>
-          {showChat ? "Hide Chat" : "Ask David"}
+          {externalShowChat ? "Hide Chat" : "Ask David"}
         </button>
 
         <button
@@ -821,59 +833,18 @@ export default function ImprovedCreativeDirectorCard({
         </div>
       </div>
 
-      {/* Main Content Layout */}
-      <div className="flex gap-6">
-        {/* Main Workflow Area */}
-        <div className={`transition-all duration-300 ${showChat ? "flex-1" : "w-full"}`}>
-          {renderStepper()}
+      {/* Main Workflow Content */}
+      <div className="w-full">
+        {renderStepper()}
 
-          <div className="min-h-[400px]">
-            {currentStep === "production-style" && renderProductionStyle()}
-            {currentStep === "creative-direction" && renderCreativeDirection()}
-            {currentStep === "scene-architecture" && renderSceneArchitecture()}
-            {currentStep === "asset-development" && renderAssetDevelopment()}
-          </div>
-
-          {renderNavigation()}
+        <div className="min-h-[400px]">
+          {currentStep === "production-style" && renderProductionStyle()}
+          {currentStep === "creative-direction" && renderCreativeDirection()}
+          {currentStep === "scene-architecture" && renderSceneArchitecture()}
+          {currentStep === "asset-development" && renderAssetDevelopment()}
         </div>
 
-        {/* Chat Sidebar */}
-        {showChat && (
-          <div className="w-80 bg-gray-800/30 rounded-xl border border-gray-600/50 flex flex-col">
-            <div className="p-4 border-b border-gray-600/50">
-              <div className="flex items-center justify-between">
-                <h3 className="font-medium text-white">Chat with David</h3>
-                <button
-                  onClick={() => setShowChat(false)}
-                  className="cursor-pointer text-gray-400 hover:text-white"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div className="flex-1">
-              <CreativeChatContainer
-                sessionId={sessionId}
-                messages={messages}
-                isConnected={isConnected}
-                isAgentTyping={isAgentTyping}
-                onSendMessage={handleSendMessage}
-                dict={dict}
-                locale={locale}
-                inputMessage={chatInputMessage}
-                onInputMessageChange={setChatInputMessage}
-                onScrollRequest={onScrollToChatSection}
-              />
-            </div>
-          </div>
-        )}
+        {renderNavigation()}
       </div>
 
       {/* Footer */}

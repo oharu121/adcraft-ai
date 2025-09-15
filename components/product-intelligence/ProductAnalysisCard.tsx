@@ -304,7 +304,7 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
 
             <Button
               onClick={() => setShowHandoffModal(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer text-sm font-medium flex-1 sm:flex-none"
+              className="px-4 py-2 text-white rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 transition-colors cursor-pointer text-sm font-medium flex-1 sm:flex-none"
             >
               {t.proceedToNextAgent}
             </Button>

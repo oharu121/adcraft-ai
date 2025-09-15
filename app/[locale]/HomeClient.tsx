@@ -11,7 +11,7 @@ import HeroSection from "@/components/home/HeroSection";
 import ProductInputForm from "@/components/home/ProductInputForm";
 import AnalysisProgressCard from "@/components/home/AnalysisProgressCard";
 import ProductAnalysisCard from "@/components/product-intelligence/ProductAnalysisCard";
-import ImprovedCreativeDirectorCard from "@/components/home/ImprovedCreativeDirectorCard";
+import CreativeDirectorWorkspace from "@/components/creative-director/CreativeDirectorWorkspace";
 import InstructionsCard from "@/components/home/InstructionsCard";
 import ImageModal from "@/components/home/ImageModal";
 import PhaseTransition from "@/components/ui/PhaseTransition";
@@ -627,7 +627,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           {/* Phase: David Creative - Full Width Creative Director Interface */}
           {currentPhase === 'david-creative' && (
             <div id="creative-director-section">
-              <ImprovedCreativeDirectorCard
+              <CreativeDirectorWorkspace
                 dict={dict}
                 locale={locale}
                 onScrollToChatSection={() => {
