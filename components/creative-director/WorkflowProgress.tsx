@@ -3,17 +3,22 @@
 import React from "react";
 import { useCreativeDirectorStore } from "@/lib/stores/creative-director-store";
 import { WorkflowStep } from "@/lib/agents/creative-director/enums";
+import type { Dictionary } from "@/lib/dictionaries";
 
 interface WorkflowProgressProps {
   onNavigateToStep: (step: WorkflowStep) => void;
   expanded?: boolean;
   onToggleExpanded?: () => void;
+  dict: Dictionary;
+  locale?: "en" | "ja";
 }
 
 export default function WorkflowProgress({
   onNavigateToStep,
   expanded = true,
   onToggleExpanded,
+  dict,
+  locale = "en",
 }: WorkflowProgressProps) {
   const {
     selectedProductionStyle,
@@ -22,14 +27,24 @@ export default function WorkflowProgress({
     completedSteps,
   } = useCreativeDirectorStore();
 
+  const t = dict.creativeDirector.workflowProgress;
+
   const steps = [
-    { id: "production-style", label: "Production Style", description: "Choose production method" },
+    {
+      id: "production-style",
+      label: t.steps.productionStyle.label,
+      description: t.steps.productionStyle.description
+    },
     {
       id: "creative-direction",
-      label: "Creative Direction",
-      description: "Select aesthetic approach",
+      label: t.steps.creativeDirection.label,
+      description: t.steps.creativeDirection.description,
     },
-    { id: "scene-architecture", label: "Scene Architecture", description: "Plan narrative flow" },
+    {
+      id: "scene-architecture",
+      label: t.steps.sceneArchitecture.label,
+      description: t.steps.sceneArchitecture.description
+    },
   ];
 
   const currentStepIndex = steps.findIndex(step =>
@@ -51,13 +66,13 @@ export default function WorkflowProgress({
                 d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
               />
             </svg>
-            Workflow Progress
+{t.title}
           </h3>
           {onToggleExpanded && (
             <button
               onClick={onToggleExpanded}
               className="cursor-pointer text-gray-400 hover:text-white transition-colors p-1 rounded hover:bg-gray-700/50"
-              aria-label={expanded ? "Collapse workflow progress" : "Expand workflow progress"}
+              aria-label={expanded ? t.accessibility.collapse : t.accessibility.expand}
             >
               <svg
                 className={`w-4 h-4 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
@@ -118,11 +133,11 @@ export default function WorkflowProgress({
                     onClick={() => onNavigateToStep(WorkflowStep.PRODUCTION_STYLE)}
                     className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
                   >
-                    {expanded ? "Change selection" : "Change"}
+{expanded ? t.actions.changeSelection : t.actions.change}
                   </button>
                 </div>
               ) : (
-                <div className="text-xs text-gray-500">Not selected</div>
+                <div className="text-xs text-gray-500">{t.status.notSelected}</div>
               )}
             </div>
           </div>
@@ -174,11 +189,11 @@ export default function WorkflowProgress({
                     onClick={() => onNavigateToStep(WorkflowStep.CREATIVE_DIRECTION)}
                     className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
                   >
-                    {expanded ? "Change selection" : "Change"}
+{expanded ? t.actions.changeSelection : t.actions.change}
                   </button>
                 </div>
               ) : (
-                <div className="text-xs text-gray-500">Not selected</div>
+                <div className="text-xs text-gray-500">{t.status.notSelected}</div>
               )}
             </div>
           </div>
@@ -212,31 +227,31 @@ export default function WorkflowProgress({
                 <div
                   className={`transition-all duration-300 ${expanded ? "space-y-1" : "space-y-0.5"}`}
                 >
-                  <div className="text-xs text-purple-300 font-medium">Completed</div>
+                  <div className="text-xs text-purple-300 font-medium">{t.status.completed}</div>
                   {expanded && (
-                    <div className="text-xs text-gray-400">Ready for video production</div>
+                    <div className="text-xs text-gray-400">{t.status.readyForProduction}</div>
                   )}
                   <button
                     onClick={() => onNavigateToStep(WorkflowStep.SCENE_ARCHITECTURE)}
                     className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
                   >
-                    {expanded ? "Review scenes" : "Review"}
+{expanded ? t.actions.reviewScenes : t.actions.review}
                   </button>
                 </div>
               ) : completedSteps.creativeDirection ? (
                 <div
                   className={`transition-all duration-300 ${expanded ? "space-y-1" : "space-y-0.5"}`}
                 >
-                  {expanded && <div className="text-xs text-gray-400">Ready to plan</div>}
+                  {expanded && <div className="text-xs text-gray-400">{t.status.readyToPlan}</div>}
                   <button
                     onClick={() => onNavigateToStep(WorkflowStep.SCENE_ARCHITECTURE)}
                     className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
                   >
-                    {expanded ? "Start planning" : "Start"}
+{expanded ? t.actions.startPlanning : t.actions.start}
                   </button>
                 </div>
               ) : (
-                <div className="text-xs text-gray-500">Not started</div>
+                <div className="text-xs text-gray-500">{t.status.notStarted}</div>
               )}
             </div>
           </div>
@@ -251,12 +266,12 @@ export default function WorkflowProgress({
           }`}
         >
           <div className="text-xs text-gray-400 mb-2">
-            {expanded ? "Estimated Budget" : "Budget"}
+            {expanded ? t.budget.title : t.budget.titleShort}
           </div>
           <div className={`font-semibold text-white ${expanded ? "text-lg" : "text-base"}`}>
             $8.50
           </div>
-          {expanded && <div className="text-xs text-gray-500">~2-3 minutes to complete</div>}
+          {expanded && <div className="text-xs text-gray-500">{t.budget.timeEstimate}</div>}
         </div>
       )}
     </div>

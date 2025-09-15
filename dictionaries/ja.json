@@ -577,7 +577,189 @@
         "specificationsReady": "制作仕様準備完了"
       }
     },
-    
+
+    "workflow": {
+      "stepTitles": {
+        "productionStyle": "制作スタイルを選択",
+        "creativeDirection": "クリエイティブディレクションを選択",
+        "sceneArchitecture": "シーン設計を計画"
+      },
+      "stepDescriptions": {
+        "productionStyle": "コマーシャルの制作手法をお選びください",
+        "creativeDirection": "ビジョンに合った美的アプローチを選択してください",
+        "sceneArchitecture": "ナラティブフローとシーン構造をレビューし、改良してください"
+      },
+      "navigation": {
+        "back": "戻る",
+        "continue": "続行",
+        "stepOf": "ステップ {current} / {total}"
+      }
+    },
+
+    "workflowProgress": {
+      "title": "ワークフロー進捗",
+      "steps": {
+        "productionStyle": {
+          "label": "制作スタイル",
+          "description": "制作手法を選択"
+        },
+        "creativeDirection": {
+          "label": "クリエイティブディレクション",
+          "description": "美的アプローチを選択"
+        },
+        "sceneArchitecture": {
+          "label": "シーン設計",
+          "description": "ナラティブ構成を計画"
+        }
+      },
+      "actions": {
+        "change": "変更",
+        "changeSelection": "選択を変更",
+        "review": "レビュー",
+        "reviewScenes": "シーンをレビュー",
+        "start": "開始",
+        "startPlanning": "プランニング開始"
+      },
+      "status": {
+        "notSelected": "未選択",
+        "notStarted": "未開始",
+        "completed": "完了",
+        "readyToPlan": "プランニング準備完了",
+        "readyForProduction": "動画制作準備完了"
+      },
+      "accessibility": {
+        "collapse": "ワークフロー進捗を折りたたむ",
+        "expand": "ワークフロー進捗を展開"
+      },
+      "budget": {
+        "title": "予算見積もり",
+        "titleShort": "予算",
+        "timeEstimate": "約2-3分で完了"
+      }
+    },
+
+    "productionStyles": {
+      "liveAction": {
+        "id": "live-action",
+        "name": "ライブアクション",
+        "description": "本物の人、製品、環境を使った映画的な撮影で、真実味のあるストーリーテリング",
+        "icon": "🎬",
+        "headerImage": "/production-style/live-action.png",
+        "features": ["真実味のある感触", "人とのつながり", "プレミアムな制作価値"],
+        "bestFor": "ライフスタイル製品、感情的なストーリーテリング、ブランドの信頼性",
+        "examples": ["製品デモンストレーション", "顧客の声", "ブランドストーリー"]
+      },
+      "motionGraphics": {
+        "id": "motion-graphics",
+        "name": "モーショングラフィックス",
+        "description": "洗練されたタイポグラフィとグラフィック要素を使ったクリーンな2Dアニメーション",
+        "icon": "📐",
+        "headerImage": "/production-style/motion-graphics.png",
+        "features": ["コスト効率", "明確なメッセージング", "ブランドの一貫性"],
+        "bestFor": "テック製品、解説コンテンツ、機能のハイライト",
+        "examples": ["機能説明", "データ可視化", "アプリウォークスルー"]
+      },
+      "3dAnimation": {
+        "id": "3d-animation",
+        "name": "3Dアニメーション",
+        "description": "不可能な角度から製品を紹介する美しい三次元ビジュアル",
+        "icon": "🎯",
+        "headerImage": "/production-style/3d-animation.png",
+        "features": ["製品フォーカス", "不可能なショット", "プレミアムな感触"],
+        "bestFor": "物理的な製品、技術的なデモンストレーション、ラグジュアリーポジショニング",
+        "examples": ["製品リビール", "技術的な分解説明", "機能スポットライト"]
+      },
+      "mixedMedia": {
+        "id": "mixed-media",
+        "name": "ミックスメディア",
+        "description": "ライブアクション、アニメーション、グラフィックスを組み合わせたダイナミックなストーリーテリング",
+        "icon": "🎨",
+        "headerImage": "/production-style/mixed-media.png",
+        "features": ["クリエイティブな柔軟性", "魅力的な多様性", "独自のブランドボイス"],
+        "bestFor": "イノベーティブなブランド、複雑な製品、プレミアムキャンペーン",
+        "examples": ["ハイブリッドストーリーテリング", "クリエイティブキャンペーン", "マルチフォーマットコンテンツ"]
+      }
+    },
+
+    "creativeDirections": {
+      "premiumMinimalism": {
+        "id": "premium-minimalism",
+        "name": "プレミアムミニマリズム",
+        "description": "ネガティブスペースとプレミアム素材に焦点を当てた、クリーンで洗練されたApple風の美学",
+        "colorPalette": ["#1a1a1a", "#f8f8f8", "#007AFF", "#34C759"],
+        "visualKeywords": ["クリーンなライン", "ネガティブスペース", "プレミアム素材", "微細な影"],
+        "animationStyle": "微細なモーション",
+        "examples": [
+          "滑らかな製品回転",
+          "ジェンタルなパララックススクロール",
+          "フェードインテキストアニメーション"
+        ]
+      },
+      "techDynamic": {
+        "id": "tech-dynamic",
+        "name": "テックダイナミック",
+        "description": "イノベーション重視のブランド向けの鮮やかな色彩とダイナミックな構成の大胆でエネルギッシュなアプローチ",
+        "colorPalette": ["#FF3B30", "#007AFF", "#5856D6", "#FF9500"],
+        "visualKeywords": ["大胆なコントラスト", "ダイナミックな角度", "エネルギーとモーション", "テック風"],
+        "animationStyle": "ダイナミック",
+        "examples": [
+          "キネティックタイポグラフィ",
+          "ジオメトリックトランジション",
+          "大胆なスライドアニメーション"
+        ]
+      },
+      "luxuryEditorial": {
+        "id": "luxury-editorial",
+        "name": "ラグジュアリーエディトリアル",
+        "description": "豊かな質感、ドラマティックな照明、洗練されたコンポジションのハイエンド雑誌美学",
+        "colorPalette": ["#000000", "#B8860B", "#F5F5DC", "#8B4513"],
+        "visualKeywords": ["ドラマティックな照明", "豊かな質感", "エディトリアル品質", "ラグジュアリーポジショニング"],
+        "animationStyle": "静的",
+        "examples": [
+          "クラシック製品写真",
+          "エディトリアルスタイルレイアウト",
+          "タイムレスなコンポジション"
+        ]
+      },
+      "lifestyleAuthentic": {
+        "id": "lifestyle-authentic",
+        "name": "ライフスタイルオーセンティック",
+        "description": "現実的な文脈と人とのつながりに焦点を当てた温かく親しみやすいスタイル",
+        "colorPalette": ["#8B7355", "#F4A460", "#DEB887", "#A0522D"],
+        "visualKeywords": ["自然な照明", "本物の瞬間", "暖色調", "人間中心"],
+        "animationStyle": "微細なモーション",
+        "examples": [
+          "自然なカメラムーブメント",
+          "オーガニックトランジション",
+          "ライフスタイルストーリーテリング"
+        ]
+      }
+    },
+
+    "sceneArchitecture": {
+      "productHeroShot": {
+        "title": "プロダクトヒーローショット",
+        "description": "完璧な照明でプロダクトの素晴らしいディテールを披露",
+        "duration": "3-4s",
+        "icon": "🎯",
+        "tips": "クローズアップディテール、プレミアム感、ヒーロー照明"
+      },
+      "lifestyleContext": {
+        "title": "ライフスタイルコンテキスト",
+        "description": "日常生活に自然に溶け込む製品の姿を表示",
+        "duration": "4-5s",
+        "icon": "🌟",
+        "tips": "リアルな環境、本物の使用感、感情的なつながり"
+      },
+      "keyBenefitsHighlight": {
+        "title": "主要メリットハイライト",
+        "description": "あなたの製品の特別さを視覚的にデモンストレーション",
+        "duration": "3-4s",
+        "icon": "✨",
+        "tips": "明確な価値提案、前後比較、機能デモンストレーション"
+      }
+    },
+
     "chat": {
       "title": "チャット",
       "placeholder": "ビジュアルコンセプト、スタイルの好み、またはクリエイティブな提案について話し合います...",

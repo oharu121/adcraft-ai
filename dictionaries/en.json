@@ -577,7 +577,189 @@
         "specificationsReady": "Production specifications ready"
       }
     },
-    
+
+    "workflow": {
+      "stepTitles": {
+        "productionStyle": "Choose Your Production Style",
+        "creativeDirection": "Select Your Creative Direction",
+        "sceneArchitecture": "Plan Your Scene Architecture"
+      },
+      "stepDescriptions": {
+        "productionStyle": "Choose your preferred production method for the commercial",
+        "creativeDirection": "Select the aesthetic approach that matches your vision",
+        "sceneArchitecture": "Review and refine the narrative flow and scene structure"
+      },
+      "navigation": {
+        "back": "Back",
+        "continue": "Continue",
+        "stepOf": "Step {current} of {total}"
+      }
+    },
+
+    "workflowProgress": {
+      "title": "Workflow Progress",
+      "steps": {
+        "productionStyle": {
+          "label": "Production Style",
+          "description": "Choose production method"
+        },
+        "creativeDirection": {
+          "label": "Creative Direction",
+          "description": "Select aesthetic approach"
+        },
+        "sceneArchitecture": {
+          "label": "Scene Architecture",
+          "description": "Plan narrative flow"
+        }
+      },
+      "actions": {
+        "change": "Change",
+        "changeSelection": "Change selection",
+        "review": "Review",
+        "reviewScenes": "Review scenes",
+        "start": "Start",
+        "startPlanning": "Start planning"
+      },
+      "status": {
+        "notSelected": "Not selected",
+        "notStarted": "Not started",
+        "completed": "Completed",
+        "readyToPlan": "Ready to plan",
+        "readyForProduction": "Ready for video production"
+      },
+      "accessibility": {
+        "collapse": "Collapse workflow progress",
+        "expand": "Expand workflow progress"
+      },
+      "budget": {
+        "title": "Estimated Budget",
+        "titleShort": "Budget",
+        "timeEstimate": "~2-3 minutes to complete"
+      }
+    },
+
+    "productionStyles": {
+      "liveAction": {
+        "id": "live-action",
+        "name": "Live-Action",
+        "description": "Cinematic filming with real people, products, and environments for authentic storytelling",
+        "icon": "🎬",
+        "headerImage": "/production-style/live-action.png",
+        "features": ["Authentic feel", "Human connection", "Premium production value"],
+        "bestFor": "Lifestyle products, emotional storytelling, brand trust",
+        "examples": ["Product demonstrations", "Customer testimonials", "Brand stories"]
+      },
+      "motionGraphics": {
+        "id": "motion-graphics",
+        "name": "Motion Graphics",
+        "description": "Clean 2D animations with sophisticated typography and graphic elements",
+        "icon": "📐",
+        "headerImage": "/production-style/motion-graphics.png",
+        "features": ["Cost effective", "Clear messaging", "Brand consistency"],
+        "bestFor": "Tech products, explainer content, feature highlights",
+        "examples": ["Feature explanations", "Data visualization", "App walkthroughs"]
+      },
+      "3dAnimation": {
+        "id": "3d-animation",
+        "name": "3D Animation",
+        "description": "Stunning three-dimensional visuals showcasing products from impossible angles",
+        "icon": "🎯",
+        "headerImage": "/production-style/3d-animation.png",
+        "features": ["Product focus", "Impossible shots", "Premium feel"],
+        "bestFor": "Physical products, technical demonstrations, luxury positioning",
+        "examples": ["Product reveals", "Technical breakdowns", "Feature spotlights"]
+      },
+      "mixedMedia": {
+        "id": "mixed-media",
+        "name": "Mixed Media",
+        "description": "Combination of live-action, animation, and graphics for dynamic storytelling",
+        "icon": "🎨",
+        "headerImage": "/production-style/mixed-media.png",
+        "features": ["Creative flexibility", "Engaging variety", "Unique brand voice"],
+        "bestFor": "Innovative brands, complex products, premium campaigns",
+        "examples": ["Hybrid storytelling", "Creative campaigns", "Multi-format content"]
+      }
+    },
+
+    "creativeDirections": {
+      "premiumMinimalism": {
+        "id": "premium-minimalism",
+        "name": "Premium Minimalism",
+        "description": "Clean, sophisticated, Apple-inspired aesthetic with focus on negative space and premium materials",
+        "colorPalette": ["#1a1a1a", "#f8f8f8", "#007AFF", "#34C759"],
+        "visualKeywords": ["Clean lines", "Negative space", "Premium materials", "Subtle shadows"],
+        "animationStyle": "Subtle Motion",
+        "examples": [
+          "Smooth product rotations",
+          "Gentle parallax scrolling",
+          "Fade-in text animations"
+        ]
+      },
+      "techDynamic": {
+        "id": "tech-dynamic",
+        "name": "Tech Dynamic",
+        "description": "Bold, energetic approach with vibrant colors and dynamic compositions for innovation-focused brands",
+        "colorPalette": ["#FF3B30", "#007AFF", "#5856D6", "#FF9500"],
+        "visualKeywords": ["Bold contrasts", "Dynamic angles", "Energy & motion", "Tech-inspired"],
+        "animationStyle": "Dynamic",
+        "examples": [
+          "Kinetic typography",
+          "Geometric transitions",
+          "Bold slide animations"
+        ]
+      },
+      "luxuryEditorial": {
+        "id": "luxury-editorial",
+        "name": "Luxury Editorial",
+        "description": "High-end magazine aesthetic with rich textures, dramatic lighting, and sophisticated compositions",
+        "colorPalette": ["#000000", "#B8860B", "#F5F5DC", "#8B4513"],
+        "visualKeywords": ["Dramatic lighting", "Rich textures", "Editorial quality", "Luxury positioning"],
+        "animationStyle": "Static",
+        "examples": [
+          "Classic product photography",
+          "Editorial-style layouts",
+          "Timeless compositions"
+        ]
+      },
+      "lifestyleAuthentic": {
+        "id": "lifestyle-authentic",
+        "name": "Lifestyle Authentic",
+        "description": "Warm, approachable style focusing on real-life contexts and human connections",
+        "colorPalette": ["#8B7355", "#F4A460", "#DEB887", "#A0522D"],
+        "visualKeywords": ["Natural lighting", "Authentic moments", "Warm tones", "Human-centered"],
+        "animationStyle": "Subtle Motion",
+        "examples": [
+          "Natural camera movements",
+          "Organic transitions",
+          "Lifestyle storytelling"
+        ]
+      }
+    },
+
+    "sceneArchitecture": {
+      "productHeroShot": {
+        "title": "Product Hero Shot",
+        "description": "Showcase your product in stunning detail with perfect lighting",
+        "duration": "3-4s",
+        "icon": "🎯",
+        "tips": "Close-up details, premium feel, hero lighting"
+      },
+      "lifestyleContext": {
+        "title": "Lifestyle Context",
+        "description": "Show how your product fits naturally into daily life",
+        "duration": "4-5s",
+        "icon": "🌟",
+        "tips": "Real environment, authentic usage, emotional connection"
+      },
+      "keyBenefitsHighlight": {
+        "title": "Key Benefits Highlight",
+        "description": "Visually demonstrate what makes your product special",
+        "duration": "3-4s",
+        "icon": "✨",
+        "tips": "Clear value prop, before/after, feature demonstration"
+      }
+    },
+
     "chat": {
       "title": "Creative Director Chat",
       "placeholder": "Discuss visual concepts, style preferences, or ask for creative recommendations...",

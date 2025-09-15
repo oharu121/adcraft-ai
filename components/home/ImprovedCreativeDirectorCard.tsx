@@ -99,12 +99,68 @@ export default function ImprovedCreativeDirectorCard({
   // Auto-load demo style options when card is first shown
   React.useEffect(() => {
     if (hasHandoffData && availableStyleOptions.length === 0) {
-      console.log("[David Card] Loading demo style options");
-      import("@/lib/agents/creative-director/demo/demo-data").then(({ demoStyleOptions }) => {
-        setAvailableStyleOptions(demoStyleOptions);
-      });
+      console.log("[David Card] Loading demo style options from dictionary");
+      const styleOptions = [
+        {
+          id: t.creativeDirections.premiumMinimalism.id,
+          name: t.creativeDirections.premiumMinimalism.name,
+          description: t.creativeDirections.premiumMinimalism.description,
+          colorPalette: t.creativeDirections.premiumMinimalism.colorPalette,
+          moodBoard: [
+            "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300&h=200&fit=crop",
+            "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&h=200&fit=crop",
+            "https://images.unsplash.com/photo-1560472355-a9a6ea6a2e64?w=300&h=200&fit=crop"
+          ],
+          visualKeywords: t.creativeDirections.premiumMinimalism.visualKeywords,
+          animationStyle: t.creativeDirections.premiumMinimalism.animationStyle,
+          examples: t.creativeDirections.premiumMinimalism.examples
+        },
+        {
+          id: t.creativeDirections.techDynamic.id,
+          name: t.creativeDirections.techDynamic.name,
+          description: t.creativeDirections.techDynamic.description,
+          colorPalette: t.creativeDirections.techDynamic.colorPalette,
+          moodBoard: [
+            "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=200&fit=crop",
+            "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=300&h=200&fit=crop",
+            "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=300&h=200&fit=crop"
+          ],
+          visualKeywords: t.creativeDirections.techDynamic.visualKeywords,
+          animationStyle: t.creativeDirections.techDynamic.animationStyle,
+          examples: t.creativeDirections.techDynamic.examples
+        },
+        {
+          id: t.creativeDirections.luxuryEditorial.id,
+          name: t.creativeDirections.luxuryEditorial.name,
+          description: t.creativeDirections.luxuryEditorial.description,
+          colorPalette: t.creativeDirections.luxuryEditorial.colorPalette,
+          moodBoard: [
+            "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=300&h=200&fit=crop",
+            "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=300&h=200&fit=crop",
+            "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=300&h=200&fit=crop"
+          ],
+          visualKeywords: t.creativeDirections.luxuryEditorial.visualKeywords,
+          animationStyle: t.creativeDirections.luxuryEditorial.animationStyle,
+          examples: t.creativeDirections.luxuryEditorial.examples
+        },
+        {
+          id: t.creativeDirections.lifestyleAuthentic.id,
+          name: t.creativeDirections.lifestyleAuthentic.name,
+          description: t.creativeDirections.lifestyleAuthentic.description,
+          colorPalette: t.creativeDirections.lifestyleAuthentic.colorPalette,
+          moodBoard: [
+            "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=300&h=200&fit=crop",
+            "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=300&h=200&fit=crop",
+            "https://images.unsplash.com/photo-1556745757-8d76bdb6984b?w=300&h=200&fit=crop"
+          ],
+          visualKeywords: t.creativeDirections.lifestyleAuthentic.visualKeywords,
+          animationStyle: t.creativeDirections.lifestyleAuthentic.animationStyle,
+          examples: t.creativeDirections.lifestyleAuthentic.examples
+        }
+      ];
+      setAvailableStyleOptions(styleOptions);
     }
-  }, [hasHandoffData, availableStyleOptions, setAvailableStyleOptions]);
+  }, [hasHandoffData, availableStyleOptions, setAvailableStyleOptions, t]);
 
   // Handle chat message sending
   const handleSendMessage = useCallback(
@@ -301,46 +357,44 @@ export default function ImprovedCreativeDirectorCard({
   const renderProductionStyle = () => {
     const productionStyles = [
       {
-        id: "live-action",
-        name: "Live-Action",
-        description:
-          "Cinematic filming with real people, products, and environments for authentic storytelling",
-        icon: "🎬",
-        headerImage: "/production-style/live-action.png",
-        features: ["Authentic feel", "Human connection", "Premium production value"],
-        bestFor: "Lifestyle products, emotional storytelling, brand trust",
-        examples: ["Product demonstrations", "Customer testimonials", "Brand stories"],
+        id: t.productionStyles.liveAction.id,
+        name: t.productionStyles.liveAction.name,
+        description: t.productionStyles.liveAction.description,
+        icon: t.productionStyles.liveAction.icon,
+        headerImage: t.productionStyles.liveAction.headerImage,
+        features: t.productionStyles.liveAction.features,
+        bestFor: t.productionStyles.liveAction.bestFor,
+        examples: t.productionStyles.liveAction.examples,
       },
       {
-        id: "motion-graphics",
-        name: "Motion Graphics",
-        description: "Clean 2D animations with sophisticated typography and graphic elements",
-        icon: "📐",
-        headerImage: "/production-style/motion-graphics.png",
-        features: ["Cost effective", "Clear messaging", "Brand consistency"],
-        bestFor: "Tech products, explainer content, feature highlights",
-        examples: ["Feature explanations", "Data visualization", "App walkthroughs"],
+        id: t.productionStyles.motionGraphics.id,
+        name: t.productionStyles.motionGraphics.name,
+        description: t.productionStyles.motionGraphics.description,
+        icon: t.productionStyles.motionGraphics.icon,
+        headerImage: t.productionStyles.motionGraphics.headerImage,
+        features: t.productionStyles.motionGraphics.features,
+        bestFor: t.productionStyles.motionGraphics.bestFor,
+        examples: t.productionStyles.motionGraphics.examples,
       },
       {
-        id: "3d-animation",
-        name: "3D Animation",
-        description:
-          "Stunning three-dimensional visuals showcasing products from impossible angles",
-        icon: "🎯",
-        headerImage: "/production-style/3d-animation.png",
-        features: ["Product focus", "Impossible shots", "Premium feel"],
-        bestFor: "Physical products, technical demonstrations, luxury positioning",
-        examples: ["Product reveals", "Technical breakdowns", "Feature spotlights"],
+        id: t.productionStyles["3dAnimation"].id,
+        name: t.productionStyles["3dAnimation"].name,
+        description: t.productionStyles["3dAnimation"].description,
+        icon: t.productionStyles["3dAnimation"].icon,
+        headerImage: t.productionStyles["3dAnimation"].headerImage,
+        features: t.productionStyles["3dAnimation"].features,
+        bestFor: t.productionStyles["3dAnimation"].bestFor,
+        examples: t.productionStyles["3dAnimation"].examples,
       },
       {
-        id: "mixed-media",
-        name: "Mixed Media",
-        description: "Combination of live-action, animation, and graphics for dynamic storytelling",
-        icon: "🎨",
-        headerImage: "/production-style/mixed-media.png",
-        features: ["Creative flexibility", "Engaging variety", "Unique brand voice"],
-        bestFor: "Innovative brands, complex products, premium campaigns",
-        examples: ["Hybrid storytelling", "Creative campaigns", "Multi-format content"],
+        id: t.productionStyles.mixedMedia.id,
+        name: t.productionStyles.mixedMedia.name,
+        description: t.productionStyles.mixedMedia.description,
+        icon: t.productionStyles.mixedMedia.icon,
+        headerImage: t.productionStyles.mixedMedia.headerImage,
+        features: t.productionStyles.mixedMedia.features,
+        bestFor: t.productionStyles.mixedMedia.bestFor,
+        examples: t.productionStyles.mixedMedia.examples,
       },
     ];
 
@@ -566,25 +620,25 @@ export default function ImprovedCreativeDirectorCard({
       <div className="space-y-4">
         {[
           {
-            title: "Product Hero Shot",
-            description: "Showcase your product in stunning detail with perfect lighting",
-            duration: "3-4s",
-            icon: "🎯",
-            tips: "Close-up details, premium feel, hero lighting",
+            title: t.sceneArchitecture.productHeroShot.title,
+            description: t.sceneArchitecture.productHeroShot.description,
+            duration: t.sceneArchitecture.productHeroShot.duration,
+            icon: t.sceneArchitecture.productHeroShot.icon,
+            tips: t.sceneArchitecture.productHeroShot.tips,
           },
           {
-            title: "Lifestyle Context",
-            description: "Show how your product fits naturally into daily life",
-            duration: "4-5s",
-            icon: "🌟",
-            tips: "Real environment, authentic usage, emotional connection",
+            title: t.sceneArchitecture.lifestyleContext.title,
+            description: t.sceneArchitecture.lifestyleContext.description,
+            duration: t.sceneArchitecture.lifestyleContext.duration,
+            icon: t.sceneArchitecture.lifestyleContext.icon,
+            tips: t.sceneArchitecture.lifestyleContext.tips,
           },
           {
-            title: "Key Benefits Highlight",
-            description: "Visually demonstrate what makes your product special",
-            duration: "3-4s",
-            icon: "✨",
-            tips: "Clear value prop, before/after, feature demonstration",
+            title: t.sceneArchitecture.keyBenefitsHighlight.title,
+            description: t.sceneArchitecture.keyBenefitsHighlight.description,
+            duration: t.sceneArchitecture.keyBenefitsHighlight.duration,
+            icon: t.sceneArchitecture.keyBenefitsHighlight.icon,
+            tips: t.sceneArchitecture.keyBenefitsHighlight.tips,
           },
         ].map((scene, index) => (
           <div
@@ -629,7 +683,7 @@ export default function ImprovedCreativeDirectorCard({
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
-        Back
+{t.workflow.navigation.back}
       </button>
 
       <div className="flex items-center gap-4">
@@ -648,7 +702,7 @@ export default function ImprovedCreativeDirectorCard({
               : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
           }`}
         >
-          Continue
+{t.workflow.navigation.continue}
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
@@ -664,25 +718,22 @@ export default function ImprovedCreativeDirectorCard({
         {/* Current Step Header */}
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold text-white mb-2">
-            {currentStep === "production-style" && "Choose Your Production Style"}
-            {currentStep === "creative-direction" && "Select Your Creative Direction"}
-            {currentStep === "scene-architecture" && "Plan Your Scene Architecture"}
+            {currentStep === WorkflowStep.PRODUCTION_STYLE && t.workflow.stepTitles.productionStyle}
+            {currentStep === WorkflowStep.CREATIVE_DIRECTION && t.workflow.stepTitles.creativeDirection}
+            {currentStep === WorkflowStep.SCENE_ARCHITECTURE && t.workflow.stepTitles.sceneArchitecture}
           </h2>
           <p className="text-purple-200 text-lg">
-            {currentStep === "production-style" &&
-              "Choose your preferred production method for the commercial"}
-            {currentStep === "creative-direction" &&
-              "Select the aesthetic approach that matches your vision"}
-            {currentStep === "scene-architecture" &&
-              "Review and refine the narrative flow and scene structure"}
+            {currentStep === WorkflowStep.PRODUCTION_STYLE && t.workflow.stepDescriptions.productionStyle}
+            {currentStep === WorkflowStep.CREATIVE_DIRECTION && t.workflow.stepDescriptions.creativeDirection}
+            {currentStep === WorkflowStep.SCENE_ARCHITECTURE && t.workflow.stepDescriptions.sceneArchitecture}
           </p>
         </div>
 
         {/* Current Step Content */}
         <div className="min-h-[400px]">
-          {currentStep === "production-style" && renderProductionStyle()}
-          {currentStep === "creative-direction" && renderCreativeDirection()}
-          {currentStep === "scene-architecture" && renderSceneArchitecture()}
+          {currentStep === WorkflowStep.PRODUCTION_STYLE && renderProductionStyle()}
+          {currentStep === WorkflowStep.CREATIVE_DIRECTION && renderCreativeDirection()}
+          {currentStep === WorkflowStep.SCENE_ARCHITECTURE && renderSceneArchitecture()}
         </div>
 
         {renderNavigation()}
@@ -693,9 +744,9 @@ export default function ImprovedCreativeDirectorCard({
         <div className="flex justify-between">
           <span>Creative Session: #{sessionId?.slice(-6) || "Loading..."}</span>
           <span>
-            {currentStep === "production-style" && "Step 1 of 3"}
-            {currentStep === "creative-direction" && "Step 2 of 3"}
-            {currentStep === "scene-architecture" && "Step 3 of 3"}
+            {currentStep === WorkflowStep.PRODUCTION_STYLE && t.workflow.navigation.stepOf.replace('{current}', '1').replace('{total}', '3')}
+            {currentStep === WorkflowStep.CREATIVE_DIRECTION && t.workflow.navigation.stepOf.replace('{current}', '2').replace('{total}', '3')}
+            {currentStep === WorkflowStep.SCENE_ARCHITECTURE && t.workflow.navigation.stepOf.replace('{current}', '3').replace('{total}', '3')}
           </span>
         </div>
       </div>

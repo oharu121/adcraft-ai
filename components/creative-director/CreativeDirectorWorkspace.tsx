@@ -185,13 +185,17 @@ export default function CreativeDirectorWorkspace({
           onNavigateToStep={handleNavigateToStep}
           expanded={workflowProgressExpanded}
           onToggleExpanded={handleToggleWorkflowProgress}
+          dict={dict}
+          locale={locale}
         />
 
         {/* Chat - Always visible, expands to fill remaining space after WorkflowProgress */}
         <div className="flex-1 mt-4 bg-gray-800/30 rounded-xl border border-gray-600/50 flex flex-col min-h-0">
           <div className="flex-shrink-0 p-4 border-b border-gray-600/50">
             <div className="flex items-center justify-between">
-              <h3 className="font-medium text-white">Chat with David</h3>
+              <h3 className="font-medium text-white">
+                {dict.creativeDirector.chat.toggleChat.replace('💬 ', '')}
+              </h3>
             </div>
           </div>
 
