@@ -220,8 +220,12 @@ export default function ImprovedCreativeDirectorCard({
   const renderStepper = () => (
     <div className="mb-8">
       <div className="flex items-center justify-between relative">
-        {/* Progress line */}
-        <div className="absolute top-6 left-0 right-0 h-0.5 bg-gray-700 -z-10">
+        {/* Progress line - positioned to connect step bubbles without exceeding them */}
+        <div className="absolute top-6 h-0.5 bg-gray-700 -z-10"
+             style={{
+               left: '24px', // Half of bubble width (48px / 2)
+               right: '24px' // Half of bubble width (48px / 2)
+             }}>
           <div
             className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500"
             style={{ width: `${(currentStepIndex / (steps.length - 1)) * 100}%` }}

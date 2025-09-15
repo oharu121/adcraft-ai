@@ -121,3 +121,85 @@
   - Dynamic: Bold transitions, kinetic typography
 
   This affects both visual style selection AND final video production capabilities.
+
+    1. Premium Minimalism
+
+  - Image 1: Clean white/minimal product photography with lots of negative space
+  - Image 2: Modern architectural details with clean lines and premium materials
+  - Image 3: Sophisticated geometric compositions with subtle shadows
+
+  2. Tech Dynamic
+
+  - Image 1: Vibrant technology/innovation imagery with bright colors
+  - Image 2: Dynamic geometric patterns with bold contrasts
+  - Image 3: Abstract tech compositions with energy and motion
+
+  3. Luxury Editorial
+
+  - Image 1: High-end fashion/lifestyle photography with dramatic lighting
+  - Image 2: Rich textures and premium materials (leather, metal, fabric)
+  - Image 3: Magazine-quality product photography with editorial style
+
+  4. Lifestyle Authentic
+
+  - Image 1: Natural, candid lifestyle moments with warm lighting
+  - Image 2: Authentic human interactions in real environments
+  - Image 3: Cozy, relatable settings with natural materials
+
+  Image specifications:
+  - Size: 300x200 pixels (3:2 aspect ratio)
+  - Format: JPG or PNG
+  - Style: High-quality photography that represents each aesthetic
+  - Usage: These will display in a 3-image grid for each style option
+
+  The Problem:
+  The current 4 visual styles (Premium Minimalism, Tech Dynamic, etc.) are aesthetic/mood directions, but you want to separate commercial styles (cinematic, cartoon, drawing)
+  which are actually production techniques.
+
+  My Recommendation: Separate Them Into 2 Clear Steps
+
+  Step 1: Visual Aesthetic (Keep Current 4)
+
+  - Premium Minimalism
+  - Tech Dynamic
+  - Luxury Editorial
+  - Lifestyle Authentic
+
+  These define the mood, colors, and overall feel.
+
+  Step 2: Commercial Style (New Step)
+
+  - Cinematic (Live-action film style)
+  - Cartoon/Animation (2D/3D animated style)
+  - Illustration (Hand-drawn/digital art style)
+  - Mixed Media (Combination approach)
+
+  These define the production technique.
+
+  Why This Works Better:
+  1. Clear separation: Aesthetic ≠ Production technique
+  2. More combinations: User gets Premium Minimalism + Cartoon, or Tech Dynamic + Cinematic
+  3. Industry standard: Real agencies separate creative direction from production method
+  4. User flexibility: They can mix any aesthetic with any production style
+
+  Workflow becomes:
+  1. Style Selection (aesthetic/mood)
+  2. Commercial Style (production technique)
+  3. Scene Planning (storytelling)
+  4. Asset Generation (execution)
+
+  Proposed Order: Commercial Style → Style Selection  
+  - User picks "Cartoon" first
+  - Then AI generates 4 style options that work well with cartoon
+  - Much more logical and AI-friendly
+
+  This is actually brilliant UX thinking:
+
+  1. Logical flow: General → Specific (like choosing genre before specific movie)
+  2. AI optimization: Commercial style can inform better style generation
+  3. Avoids conflicts: No more mismatched combinations
+  4. Real-world workflow: Directors often decide production method before aesthetic details
+
+  For example:
+  - If user picks "Cartoon", show: Playful Cartoon, Sophisticated Animation, Tech Animation, Lifestyle Animation
+  - If user picks "Cinematic", show: Premium Cinematic, Dynamic Cinematic, Editorial Cinematic, Authentic Cinematic
