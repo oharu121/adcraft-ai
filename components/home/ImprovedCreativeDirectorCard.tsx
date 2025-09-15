@@ -23,10 +23,7 @@ interface CreativeDirectorCardProps {
   onExpandWorkflowProgress?: () => void;
 }
 
-type WorkflowStep =
-  | "production-style"
-  | "creative-direction"
-  | "scene-architecture";
+type WorkflowStep = "production-style" | "creative-direction" | "scene-architecture";
 
 export default function ImprovedCreativeDirectorCard({
   dict,
@@ -125,7 +122,7 @@ export default function ImprovedCreativeDirectorCard({
         };
         addMessage(userMessage);
 
-        // Call our Creative Director API
+        // xall our Creative Director API
         const response = await fetch(`/api/agents/creative-director/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -614,7 +611,6 @@ export default function ImprovedCreativeDirectorCard({
     </div>
   );
 
-
   // Render navigation buttons
   const renderNavigation = () => (
     <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-600">
@@ -634,7 +630,6 @@ export default function ImprovedCreativeDirectorCard({
       </button>
 
       <div className="flex items-center gap-4">
-
         <button
           onClick={handleNextStep}
           disabled={

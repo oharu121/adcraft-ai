@@ -68,9 +68,12 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
   const t = dict.creativeDirector.chat;
 
   // Check if we're awaiting visual decision confirmation
-  const lastAgentMessage = messages.slice().reverse().find(msg => msg.type === "agent");
-  const isAwaitingDecisionConfirmation = lastAgentMessage && 
-    lastAgentMessage.messageType === "DIRECTION_CONFIRMATION";
+  const lastAgentMessage = messages
+    .slice()
+    .reverse()
+    .find((msg) => msg.type === "agent");
+  const isAwaitingDecisionConfirmation =
+    lastAgentMessage && lastAgentMessage.messageType === "DIRECTION_CONFIRMATION";
 
   // Handle visual decision confirmation
   const handleVisualDecisionConfirmation = useCallback(
@@ -128,7 +131,7 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
         }
       }, 100);
     }
-    
+
     if (messages.length > 0) {
       if (onScrollRequest) {
         onScrollRequest();
@@ -245,7 +248,13 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
     async (e: React.FormEvent) => {
       e.preventDefault();
 
-      if (!inputMessage.trim() || isSubmitting || !isConnected || isAwaitingDecisionConfirmation || isConfirmingDecision) {
+      if (
+        !inputMessage.trim() ||
+        isSubmitting ||
+        !isConnected ||
+        isAwaitingDecisionConfirmation ||
+        isConfirmingDecision
+      ) {
         return;
       }
 
@@ -263,7 +272,15 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
         setIsSubmitting(false);
       }
     },
-    [inputMessage, isSubmitting, isConnected, onSendMessage, isAwaitingDecisionConfirmation, isConfirmingDecision, onInputMessageChange]
+    [
+      inputMessage,
+      isSubmitting,
+      isConnected,
+      onSendMessage,
+      isAwaitingDecisionConfirmation,
+      isConfirmingDecision,
+      onInputMessageChange,
+    ]
   );
 
   // Handle keyboard shortcuts
@@ -278,7 +295,9 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
   );
 
   // Get avatar state for message
-  const getAvatarState = (message: CreativeChatMessage): "idle" | "thinking" | "speaking" | "creating" => {
+  const getAvatarState = (
+    message: CreativeChatMessage
+  ): "idle" | "thinking" | "speaking" | "creating" => {
     if (message.type !== "agent") return "idle";
     if (typingMessages.has(message.id)) return "speaking";
     if (message.messageType === "ASSET_GENERATION_UPDATE") return "creating";
@@ -325,57 +344,73 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
                   <span>Processed in {(message.processingTime / 1000).toFixed(1)}s</span>
                 )}
                 {message.cost && (
-                  <span className="ml-2">Cost: ${typeof message.cost === 'number' ? message.cost.toFixed(3) : message.cost}</span>
+                  <span className="ml-2">
+                    Cost: $
+                    {typeof message.cost === "number"
+                      ? message.cost.toFixed(3)
+                      : typeof message.cost === "object" &&
+                          message.cost &&
+                          "current" in message.cost
+                        ? (message.cost as { current: number }).current.toFixed(3)
+                        : message.cost}
+                  </span>
                 )}
                 {message.confidence && (
-                  <span className="ml-2">
-                    Confidence: {Math.round(message.confidence * 100)}%
-                  </span>
+                  <span className="ml-2">Confidence: {Math.round(message.confidence * 100)}%</span>
                 )}
               </div>
             )}
           </div>
 
           {/* Visual Decision Confirmation Buttons */}
-          {!isUser && isLastMessage && !isTyping && message.messageType === "DIRECTION_CONFIRMATION" && (
-            <div className="mt-3 space-y-2">
-              <p className="text-xs text-gray-600 mb-3">
-                {locale === "ja" ? "このビジュアルディレクションを承認しますか？" : "Do you approve this visual direction?"}
-              </p>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleVisualDecisionConfirmation(true)}
-                  disabled={isConfirmingDecision}
-                  className="cursor-pointer flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium disabled:opacity-50"
-                >
-                  {locale === "ja" ? "はい、承認します" : "Yes, approve direction"}
-                </button>
-                <button
-                  onClick={() => handleVisualDecisionConfirmation(false)}
-                  disabled={isConfirmingDecision}
-                  className="cursor-pointer flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium disabled:opacity-50"
-                >
-                  {locale === "ja" ? "いいえ、修正要求" : "No, request changes"}
-                </button>
+          {!isUser &&
+            isLastMessage &&
+            !isTyping &&
+            message.messageType === "DIRECTION_CONFIRMATION" && (
+              <div className="mt-3 space-y-2">
+                <p className="text-xs text-gray-600 mb-3">
+                  {locale === "ja"
+                    ? "このビジュアルディレクションを承認しますか？"
+                    : "Do you approve this visual direction?"}
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleVisualDecisionConfirmation(true)}
+                    disabled={isConfirmingDecision}
+                    className="cursor-pointer flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium disabled:opacity-50"
+                  >
+                    {locale === "ja" ? "はい、承認します" : "Yes, approve direction"}
+                  </button>
+                  <button
+                    onClick={() => handleVisualDecisionConfirmation(false)}
+                    disabled={isConfirmingDecision}
+                    className="cursor-pointer flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium disabled:opacity-50"
+                  >
+                    {locale === "ja" ? "いいえ、修正要求" : "No, request changes"}
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* Quick Actions for David's messages */}
-          {!isUser && isLastMessage && !isTyping && message.quickActions && message.messageType !== "DIRECTION_CONFIRMATION" && (
-            <div className="mt-2 space-y-1">
-              <p className="text-xs text-gray-500 mb-2">{t.quickActionsTitle}</p>
-              {message.quickActions.map((action, actionIndex) => (
-                <button
-                  key={actionIndex}
-                  onClick={() => onInputMessageChange && onInputMessageChange(action.label)}
-                  className="cursor-pointer block w-full text-left px-3 py-2 text-sm text-purple-700 bg-purple-50 border border-purple-200 rounded hover:bg-purple-100 transition-colors"
-                >
-                  {action.label}
-                </button>
-              ))}
-            </div>
-          )}
+          {!isUser &&
+            isLastMessage &&
+            !isTyping &&
+            message.quickActions &&
+            message.messageType !== "DIRECTION_CONFIRMATION" && (
+              <div className="mt-2 space-y-1">
+                <p className="text-xs text-gray-500 mb-2">{t.quickActionsTitle}</p>
+                {message.quickActions.map((action, actionIndex) => (
+                  <button
+                    key={actionIndex}
+                    onClick={() => onInputMessageChange && onInputMessageChange(action.label)}
+                    className="cursor-pointer block w-full text-left px-3 py-2 text-sm text-purple-700 bg-purple-50 border border-purple-200 rounded hover:bg-purple-100 transition-colors"
+                  >
+                    {action.label}
+                  </button>
+                ))}
+              </div>
+            )}
 
           {/* Timestamp */}
           <div className={`text-xs text-gray-400 mt-1 ${isUser ? "text-right" : "text-left"}`}>
@@ -421,25 +456,21 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
     );
   };
 
-  // Render quick suggestions
-  const renderSuggestions = () => {
+  // Render greeting message when no messages exist (like Maya's suggestions)
+  const renderGreeting = () => {
     if (messages.length > 0) return null;
 
     return (
-      <div className="mb-4 p-4 bg-purple-50 rounded-lg">
-        <p className="text-purple-900 font-medium mb-2">{t.welcomeMessage}</p>
-        <p className="text-purple-700 text-sm mb-3">{t.suggestionPrefix}</p>
-        <div className="space-y-2">
-          {t.suggestions.map((suggestion, index) => (
-            <button
-              key={index}
-              onClick={() => onInputMessageChange && onInputMessageChange(suggestion)}
-              className="cursor-pointer block w-full text-left px-3 py-2 text-sm text-purple-700 bg-white border border-purple-200 rounded hover:bg-purple-50 transition-colors"
-            >
-              {suggestion}
-            </button>
-          ))}
+      <div className="mb-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+        <div className="flex items-center mb-2">
+          <div className="mr-2">
+            <AgentAvatar agent="david" size="md" state="idle" />
+          </div>
+          <span className="text-purple-900 font-medium text-sm">David</span>
         </div>
+        <p className="text-purple-800 text-sm whitespace-pre-wrap">
+          {dict.creativeDirector.chat.welcomeMessage}
+        </p>
       </div>
     );
   };
@@ -466,8 +497,7 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
         ref={messagesContainerRef}
         className="flex-1 overflow-y-auto p-4 space-y-0 bg-white scrollbar-hidden"
       >
-        {renderSuggestions()}
-
+        {renderGreeting()}
         {messages.map(renderMessage)}
         {renderTypingIndicator()}
 
@@ -484,11 +514,21 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
               onChange={(e) => onInputMessageChange && onInputMessageChange(e.target.value)}
               onKeyDown={handleKeyDown}
               onFocus={() => onTextareaFocus && onTextareaFocus()}
-              placeholder={isAwaitingDecisionConfirmation 
-                ? (locale === "ja" ? "ビジュアル決定の承認をお待ちください..." : "Awaiting visual decision confirmation...")
-                : t.placeholder
+              placeholder={
+                isAwaitingDecisionConfirmation
+                  ? locale === "ja"
+                    ? "ビジュアル決定の承認をお待ちください..."
+                    : "Awaiting visual decision confirmation..."
+                  : t.placeholder
               }
-              disabled={!isConnected || isSubmitting || isAgentTyping || typingMessages.size > 0 || isAwaitingDecisionConfirmation || isConfirmingDecision}
+              disabled={
+                !isConnected ||
+                isSubmitting ||
+                isAgentTyping ||
+                typingMessages.size > 0 ||
+                isAwaitingDecisionConfirmation ||
+                isConfirmingDecision
+              }
               className="scrollbar-hidden w-full px-3 py-2 border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 placeholder-gray-500"
               rows={1}
               style={{
@@ -502,7 +542,15 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
           <Button
             type="submit"
             variant="primary"
-            disabled={!inputMessage.trim() || !isConnected || isSubmitting || isAgentTyping || typingMessages.size > 0 || isAwaitingDecisionConfirmation || isConfirmingDecision}
+            disabled={
+              !inputMessage.trim() ||
+              !isConnected ||
+              isSubmitting ||
+              isAgentTyping ||
+              typingMessages.size > 0 ||
+              isAwaitingDecisionConfirmation ||
+              isConfirmingDecision
+            }
             className="px-4 py-2 min-w-[80px] bg-purple-600 hover:bg-purple-700"
           >
             {isSubmitting || isConfirmingDecision ? <LoadingSpinner size="sm" /> : t.send}
