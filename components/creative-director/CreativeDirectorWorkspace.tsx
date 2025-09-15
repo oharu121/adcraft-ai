@@ -40,11 +40,18 @@ export default function CreativeDirectorWorkspace({
   // Handle step navigation from summary
   const handleNavigateToStep = useCallback((step: string) => {
     setCurrentStep(step);
+    // Expand workflow progress when navigating steps
+    setWorkflowProgressExpanded(true);
   }, []);
 
   // Handle workflow progress toggle
   const handleToggleWorkflowProgress = useCallback(() => {
     setWorkflowProgressExpanded(prev => !prev);
+  }, []);
+
+  // Handle expanding workflow progress (for navigation buttons)
+  const handleExpandWorkflowProgress = useCallback(() => {
+    setWorkflowProgressExpanded(true);
   }, []);
 
   // Measure main content height and sync sidebar
@@ -148,6 +155,7 @@ export default function CreativeDirectorWorkspace({
           onNavigateToStep={handleNavigateToStep}
           currentStep={currentStep}
           onStepChange={setCurrentStep}
+          onExpandWorkflowProgress={handleExpandWorkflowProgress}
         />
       </div>
 

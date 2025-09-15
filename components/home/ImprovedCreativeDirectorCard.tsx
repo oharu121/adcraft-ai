@@ -20,6 +20,7 @@ interface CreativeDirectorCardProps {
   onNavigateToStep?: (step: string) => void;
   currentStep?: string;
   onStepChange?: (step: string) => void;
+  onExpandWorkflowProgress?: () => void;
 }
 
 type WorkflowStep =
@@ -34,6 +35,7 @@ export default function ImprovedCreativeDirectorCard({
   onNavigateToStep,
   currentStep: externalCurrentStep,
   onStepChange,
+  onExpandWorkflowProgress,
 }: CreativeDirectorCardProps) {
   const {
     sessionId,
@@ -187,6 +189,9 @@ export default function ImprovedCreativeDirectorCard({
 
   // Handle step navigation with proper progression logic
   const handleNextStep = useCallback(async () => {
+    // Expand workflow progress to show navigation changes
+    if (onExpandWorkflowProgress) onExpandWorkflowProgress();
+
     if (currentStep === "production-style" && selectedProductionStyle) {
       // Mark production style as completed
       markStepCompleted("productionStyle");
@@ -249,9 +254,13 @@ export default function ImprovedCreativeDirectorCard({
     locale,
     mayaHandoffData,
     markStepCompleted,
+    onExpandWorkflowProgress,
   ]);
 
   const handlePrevStep = () => {
+    // Expand workflow progress to show navigation changes
+    if (onExpandWorkflowProgress) onExpandWorkflowProgress();
+
     if (currentStep === "creative-direction") {
       setCurrentStep("production-style");
     } else if (currentStep === "scene-architecture") {
