@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import ImprovedCreativeDirectorCard from "@/components/home/ImprovedCreativeDirectorCard";
 import WorkflowProgress from "./WorkflowProgress";
 import CreativeChatContainer from "./CreativeChatContainer";
@@ -20,6 +20,8 @@ export default function CreativeDirectorWorkspace({
 }: CreativeDirectorWorkspaceProps) {
   const [showChat, setShowChat] = useState(false);
   const [currentStep, setCurrentStep] = useState<string>("production-style");
+  const [mainContentHeight, setMainContentHeight] = useState<number | null>(null);
+  const mainContentRef = useRef<HTMLDivElement>(null);
 
   const {
     sessionId,
@@ -43,6 +45,33 @@ export default function CreativeDirectorWorkspace({
   // Handle chat toggle
   const handleToggleChat = useCallback(() => {
     setShowChat(prev => !prev);
+  }, []);
+
+  // Measure main content height and sync sidebar
+  useEffect(() => {
+    const measureHeight = () => {
+      if (mainContentRef.current) {
+        const height = mainContentRef.current.offsetHeight;
+        setMainContentHeight(height);
+      }
+    };
+
+    // Initial measurement
+    measureHeight();
+
+    // Setup ResizeObserver for dynamic height changes
+    const resizeObserver = new ResizeObserver(() => {
+      measureHeight();
+    });
+
+    if (mainContentRef.current) {
+      resizeObserver.observe(mainContentRef.current);
+    }
+
+    // Cleanup
+    return () => {
+      resizeObserver.disconnect();
+    };
   }, []);
 
   // Handle chat message sending
@@ -109,9 +138,9 @@ export default function CreativeDirectorWorkspace({
   );
 
   return (
-    <div className="flex gap-6 min-h-screen">
+    <div className="flex gap-6 min-h-screen items-start">
       {/* Left: Main Creative Director Card - Fully Expanded */}
-      <div className="flex-1">
+      <div className="flex-1" ref={mainContentRef}>
         <ImprovedCreativeDirectorCard
           dict={dict}
           locale={locale}
@@ -122,8 +151,13 @@ export default function CreativeDirectorWorkspace({
         />
       </div>
 
-      {/* Right: Sidebar matches main content height */}
-      <div className="w-80 flex flex-col">
+      {/* Right: Sidebar matches main content height exactly */}
+      <div
+        className="w-80 flex flex-col"
+        style={{
+          height: mainContentHeight ? `${mainContentHeight}px` : 'auto'
+        }}
+      >
         {/* Workflow Progress */}
         <WorkflowProgress
           onNavigateToStep={handleNavigateToStep}
