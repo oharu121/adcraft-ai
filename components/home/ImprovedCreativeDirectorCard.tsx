@@ -27,8 +27,7 @@ interface CreativeDirectorCardProps {
 type WorkflowStep =
   | "production-style"
   | "creative-direction"
-  | "scene-architecture"
-  | "asset-development";
+  | "scene-architecture";
 
 export default function ImprovedCreativeDirectorCard({
   dict,
@@ -245,11 +244,7 @@ export default function ImprovedCreativeDirectorCard({
     } else if (currentStep === "scene-architecture") {
       // Mark scene architecture as completed
       markStepCompleted("sceneArchitecture");
-      setCurrentStep("asset-development");
-    } else if (currentStep === "asset-development") {
-      // Mark asset development as completed
-      markStepCompleted("assetDevelopment");
-      // Asset development is the final step - could add success message or handoff
+      // Scene architecture is the final step - ready for video production handoff
     }
   }, [
     currentStep,
@@ -271,8 +266,6 @@ export default function ImprovedCreativeDirectorCard({
       setCurrentStep("production-style");
     } else if (currentStep === "scene-architecture") {
       setCurrentStep("creative-direction");
-    } else if (currentStep === "asset-development") {
-      setCurrentStep("scene-architecture");
     }
   };
 
@@ -622,74 +615,6 @@ export default function ImprovedCreativeDirectorCard({
     </div>
   );
 
-  // Render asset development step
-  const renderAssetDevelopment = () => (
-    <div className="space-y-6">
-      {/* Asset Grid */}
-      {assets.generated.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {assets.generated.slice(0, 6).map((asset: any, index: number) => (
-            <div
-              key={asset.id}
-              className="group relative aspect-square bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-600 overflow-hidden hover:border-purple-500/50 transition-all duration-300"
-            >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center text-gray-400 group-hover:text-purple-300 transition-colors">
-                  <div className="text-3xl mb-2">🎨</div>
-                  <div className="text-xs font-medium">{asset.name || `Asset ${index + 1}`}</div>
-                </div>
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <div className="animate-pulse text-6xl mb-4">🎨</div>
-          <div className="text-lg text-white mb-2">Assets Being Generated...</div>
-          <div className="text-sm text-gray-400">This will take a moment to complete</div>
-        </div>
-      )}
-
-      {/* Generation Progress */}
-      <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-600/50">
-        <h4 className="text-white font-medium mb-4">Generation Progress</h4>
-        <div className="space-y-3">
-          {[
-            { name: "Background Designs", progress: 100, status: "complete" },
-            { name: "Product Compositions", progress: 85, status: "generating" },
-            { name: "Color Palettes", progress: 60, status: "generating" },
-            { name: "Visual Overlays", progress: 20, status: "processing" },
-          ].map((item, index) => (
-            <div key={index} className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-300">{item.name}</span>
-                <span
-                  className={`px-2 py-1 rounded text-xs ${
-                    item.status === "complete"
-                      ? "bg-green-900/40 text-green-300"
-                      : "bg-purple-900/40 text-purple-300"
-                  }`}
-                >
-                  {item.status === "complete" ? "✓ Complete" : "⟳ Processing"}
-                </span>
-              </div>
-              <div className="w-full bg-gray-700 rounded-full h-2">
-                <div
-                  className={`h-2 rounded-full transition-all duration-1000 ${
-                    item.status === "complete"
-                      ? "bg-gradient-to-r from-green-400 to-green-500"
-                      : "bg-gradient-to-r from-purple-400 to-pink-400"
-                  }`}
-                  style={{ width: `${item.progress}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
 
   // Render navigation buttons
   const renderNavigation = () => (
@@ -728,12 +653,12 @@ export default function ImprovedCreativeDirectorCard({
         <button
           onClick={handleNextStep}
           disabled={
-            currentStep === "asset-development" ||
+            (currentStep === "scene-architecture" && completedSteps.sceneArchitecture) ||
             (currentStep === "production-style" && !selectedProductionStyle) ||
             (currentStep === "creative-direction" && !selectedStyleOption)
           }
           className={`magical-button cursor-pointer flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
-            currentStep === "asset-development" ||
+            (currentStep === "scene-architecture" && completedSteps.sceneArchitecture) ||
             (currentStep === "production-style" && !selectedProductionStyle) ||
             (currentStep === "creative-direction" && !selectedStyleOption)
               ? "bg-gray-700 text-gray-400 cursor-not-allowed"
@@ -759,7 +684,6 @@ export default function ImprovedCreativeDirectorCard({
             {currentStep === "production-style" && "Choose Your Production Style"}
             {currentStep === "creative-direction" && "Select Your Creative Direction"}
             {currentStep === "scene-architecture" && "Plan Your Scene Architecture"}
-            {currentStep === "asset-development" && "Generate Your Visual Assets"}
           </h2>
           <p className="text-purple-200 text-lg">
             {currentStep === "production-style" &&
@@ -768,8 +692,6 @@ export default function ImprovedCreativeDirectorCard({
               "Select the aesthetic approach that matches your vision"}
             {currentStep === "scene-architecture" &&
               "Review and refine the narrative flow and scene structure"}
-            {currentStep === "asset-development" &&
-              "Generate the visual assets needed for production"}
           </p>
         </div>
 
@@ -778,7 +700,6 @@ export default function ImprovedCreativeDirectorCard({
           {currentStep === "production-style" && renderProductionStyle()}
           {currentStep === "creative-direction" && renderCreativeDirection()}
           {currentStep === "scene-architecture" && renderSceneArchitecture()}
-          {currentStep === "asset-development" && renderAssetDevelopment()}
         </div>
 
         {renderNavigation()}
@@ -789,10 +710,9 @@ export default function ImprovedCreativeDirectorCard({
         <div className="flex justify-between">
           <span>Creative Session: #{sessionId?.slice(-6) || "Loading..."}</span>
           <span>
-            {currentStep === "production-style" && "Step 1 of 4"}
-            {currentStep === "creative-direction" && "Step 2 of 4"}
-            {currentStep === "scene-architecture" && "Step 3 of 4"}
-            {currentStep === "asset-development" && "Step 4 of 4"}
+            {currentStep === "production-style" && "Step 1 of 3"}
+            {currentStep === "creative-direction" && "Step 2 of 3"}
+            {currentStep === "scene-architecture" && "Step 3 of 3"}
           </span>
         </div>
       </div>
