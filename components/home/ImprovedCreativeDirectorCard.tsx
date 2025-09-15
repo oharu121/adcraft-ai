@@ -20,6 +20,8 @@ interface CreativeDirectorCardProps {
   onNavigateToStep?: (step: string) => void;
   showChat?: boolean;
   onToggleChat?: () => void;
+  currentStep?: string;
+  onStepChange?: (step: string) => void;
 }
 
 type WorkflowStep =
@@ -35,6 +37,8 @@ export default function ImprovedCreativeDirectorCard({
   onNavigateToStep,
   showChat: externalShowChat,
   onToggleChat,
+  currentStep: externalCurrentStep,
+  onStepChange,
 }: CreativeDirectorCardProps) {
   const {
     sessionId,
@@ -75,7 +79,10 @@ export default function ImprovedCreativeDirectorCard({
     markStepCompleted,
   } = useCreativeDirectorStore();
 
-  const [currentStep, setCurrentStep] = useState<WorkflowStep>("production-style");
+  // Use external step state if provided, fallback to internal state
+  const [internalCurrentStep, setInternalCurrentStep] = useState<WorkflowStep>("production-style");
+  const currentStep = (externalCurrentStep as WorkflowStep) || internalCurrentStep;
+  const setCurrentStep = onStepChange || setInternalCurrentStep;
 
   // Now using Zustand store for selectedProductionStyle - no local state needed!
 

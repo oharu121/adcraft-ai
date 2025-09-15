@@ -148,6 +148,8 @@ export default function CreativeDirectorWorkspace({
           onNavigateToStep={handleNavigateToStep}
           showChat={showChat}
           onToggleChat={handleToggleChat}
+          currentStep={currentStep}
+          onStepChange={setCurrentStep}
         />
       </div>
 
