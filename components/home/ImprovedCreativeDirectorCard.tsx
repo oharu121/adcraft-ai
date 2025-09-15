@@ -214,7 +214,6 @@ export default function ImprovedCreativeDirectorCard({
         };
         addMessage(agentMessage);
       }, 500);
-
     } else if (currentStep === "creative-direction" && selectedStyleOption) {
       // Mark creative direction as completed
       markStepCompleted("creativeDirection");
@@ -222,9 +221,7 @@ export default function ImprovedCreativeDirectorCard({
       setCurrentPhase(CreativePhase.ASSET_GENERATION);
 
       // Load demo assets
-      const { demoGeneratedAssets } = await import(
-        "@/lib/agents/creative-director/demo/demo-data"
-      );
+      const { demoGeneratedAssets } = await import("@/lib/agents/creative-director/demo/demo-data");
       demoGeneratedAssets.forEach((asset) => addAsset(asset));
 
       setCurrentStep("scene-architecture");
@@ -245,7 +242,6 @@ export default function ImprovedCreativeDirectorCard({
         };
         addMessage(agentMessage);
       }, 500);
-
     } else if (currentStep === "scene-architecture") {
       // Mark scene architecture as completed
       markStepCompleted("sceneArchitecture");
@@ -255,7 +251,20 @@ export default function ImprovedCreativeDirectorCard({
       markStepCompleted("assetDevelopment");
       // Asset development is the final step - could add success message or handoff
     }
-  }, [currentStep, selectedProductionStyle, selectedStyleOption, setCurrentPhase, addAsset, onToggleChat, externalShowChat, addMessage, sessionId, locale, mayaHandoffData, markStepCompleted]);
+  }, [
+    currentStep,
+    selectedProductionStyle,
+    selectedStyleOption,
+    setCurrentPhase,
+    addAsset,
+    onToggleChat,
+    externalShowChat,
+    addMessage,
+    sessionId,
+    locale,
+    mayaHandoffData,
+    markStepCompleted,
+  ]);
 
   const handlePrevStep = () => {
     if (currentStep === "creative-direction") {
@@ -281,89 +290,20 @@ export default function ImprovedCreativeDirectorCard({
   }, [onNavigateToStep]);
 
   // Expose current selections to parent
-  const selections = React.useMemo(() => ({
-    selectedProductionStyle,
-    selectedStyleOption,
-    currentStep,
-    assets
-  }), [selectedProductionStyle, selectedStyleOption, currentStep, assets]);
+  const selections = React.useMemo(
+    () => ({
+      selectedProductionStyle,
+      selectedStyleOption,
+      currentStep,
+      assets,
+    }),
+    [selectedProductionStyle, selectedStyleOption, currentStep, assets]
+  );
 
   // Don't show card if no handoff data from Maya
   if (!hasHandoffData) {
     return null;
   }
-
-  // Stepper configuration
-  const steps = [
-    { id: "production-style", label: "Production Style", description: "Choose production method" },
-    {
-      id: "creative-direction",
-      label: "Creative Direction",
-      description: "Select aesthetic approach",
-    },
-    { id: "scene-architecture", label: "Scene Architecture", description: "Plan narrative flow" },
-    { id: "asset-development", label: "Asset Development", description: "Create visual assets" },
-  ];
-
-  const currentStepIndex = steps.findIndex((step) => step.id === currentStep);
-
-  // Render stepper
-  const renderStepper = () => (
-    <div className="mb-8">
-      <div className="flex items-center justify-between relative">
-        {/* Progress line - positioned to connect step bubbles without exceeding them */}
-        <div
-          className="absolute top-6 h-0.5 bg-gray-700 -z-10"
-          style={{
-            left: "24px", // Half of bubble width (48px / 2)
-            right: "24px", // Half of bubble width (48px / 2)
-          }}
-        >
-          <div
-            className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500"
-            style={{ width: `${(currentStepIndex / (steps.length - 1)) * 100}%` }}
-          />
-        </div>
-
-        {steps.map((step, index) => (
-          <div key={step.id} className="flex flex-col items-center relative">
-            {/* Step circle */}
-            <div
-              className={`w-12 h-12 rounded-full border-2 flex items-center justify-center font-semibold text-sm transition-all duration-300 ${
-                index <= currentStepIndex
-                  ? "bg-gradient-to-r from-purple-500 to-pink-500 border-purple-500 text-white shadow-lg"
-                  : "bg-gray-800 border-gray-600 text-gray-400"
-              }`}
-            >
-              {index < currentStepIndex ? (
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              ) : (
-                index + 1
-              )}
-            </div>
-
-            {/* Step label */}
-            <div className="mt-3 text-center">
-              <div
-                className={`font-medium text-sm ${
-                  index <= currentStepIndex ? "text-white" : "text-gray-400"
-                }`}
-              >
-                {step.label}
-              </div>
-              <div className="text-xs text-gray-500 mt-1">{step.description}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
 
   // Render production style step
   const renderProductionStyle = () => {
@@ -414,13 +354,6 @@ export default function ImprovedCreativeDirectorCard({
 
     return (
       <div className="space-y-6">
-        <div className="text-center mb-6">
-          <h3 className="text-2xl font-bold text-white mb-2">Choose Your Production Style</h3>
-          <p className="text-purple-200 text-lg">
-            Select how you want to bring your commercial to life
-          </p>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {productionStyles.map((style) => (
             <div
@@ -517,13 +450,6 @@ export default function ImprovedCreativeDirectorCard({
   // Render creative direction step (updated from style selection)
   const renderCreativeDirection = () => (
     <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h3 className="text-2xl font-bold text-white mb-2">Choose Your Visual Direction</h3>
-        <p className="text-purple-200 text-lg">
-          Select the style that best captures your product's personality
-        </p>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {availableStyleOptions.map((styleOption) => (
           <div
@@ -644,13 +570,6 @@ export default function ImprovedCreativeDirectorCard({
   // Render scene architecture step
   const renderSceneArchitecture = () => (
     <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h3 className="text-2xl font-bold text-white mb-2">Plan Your Key Scenes</h3>
-        <p className="text-purple-200 text-lg">
-          I'll create these compelling moments for your commercial
-        </p>
-      </div>
-
       {/* Scene Cards */}
       <div className="space-y-4">
         {[
@@ -706,13 +625,6 @@ export default function ImprovedCreativeDirectorCard({
   // Render asset development step
   const renderAssetDevelopment = () => (
     <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h3 className="text-2xl font-bold text-white mb-2">Generating Visual Assets</h3>
-        <p className="text-purple-200 text-lg">
-          Creating backgrounds, compositions, and visual elements
-        </p>
-      </div>
-
       {/* Asset Grid */}
       {assets.generated.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -784,9 +696,9 @@ export default function ImprovedCreativeDirectorCard({
     <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-600">
       <button
         onClick={handlePrevStep}
-        disabled={currentStepIndex === 0}
+        disabled={currentStep === "production-style"}
         className={`cursor-pointer flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
-          currentStepIndex === 0
+          currentStep === "production-style"
             ? "text-gray-500 cursor-not-allowed"
             : "text-gray-300 hover:text-white border border-gray-600 hover:border-gray-500"
         }`}
@@ -816,12 +728,12 @@ export default function ImprovedCreativeDirectorCard({
         <button
           onClick={handleNextStep}
           disabled={
-            currentStepIndex === steps.length - 1 ||
+            currentStep === "asset-development" ||
             (currentStep === "production-style" && !selectedProductionStyle) ||
             (currentStep === "creative-direction" && !selectedStyleOption)
           }
           className={`cursor-pointer flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
-            currentStepIndex === steps.length - 1 ||
+            currentStep === "asset-development" ||
             (currentStep === "production-style" && !selectedProductionStyle) ||
             (currentStep === "creative-direction" && !selectedStyleOption)
               ? "bg-gray-700 text-gray-400 cursor-not-allowed"
@@ -839,23 +751,29 @@ export default function ImprovedCreativeDirectorCard({
 
   return (
     <Card variant="magical" className="p-8">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-4 mb-4">
-          <AgentAvatar agent="david" size="lg" state="idle" />
-          <div>
-            <h2 className="text-2xl font-bold text-white">David - Creative Director</h2>
-            <p className="text-purple-200">
-              I'll guide you through creating stunning visuals for your commercial
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Main Workflow Content */}
       <div className="w-full">
-        {renderStepper()}
+        {/* Current Step Header */}
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold text-white mb-2">
+            {currentStep === "production-style" && "Choose Your Production Style"}
+            {currentStep === "creative-direction" && "Select Your Creative Direction"}
+            {currentStep === "scene-architecture" && "Plan Your Scene Architecture"}
+            {currentStep === "asset-development" && "Generate Your Visual Assets"}
+          </h2>
+          <p className="text-purple-200 text-lg">
+            {currentStep === "production-style" &&
+              "Choose your preferred production method for the commercial"}
+            {currentStep === "creative-direction" &&
+              "Select the aesthetic approach that matches your vision"}
+            {currentStep === "scene-architecture" &&
+              "Review and refine the narrative flow and scene structure"}
+            {currentStep === "asset-development" &&
+              "Generate the visual assets needed for production"}
+          </p>
+        </div>
 
+        {/* Current Step Content */}
         <div className="min-h-[400px]">
           {currentStep === "production-style" && renderProductionStyle()}
           {currentStep === "creative-direction" && renderCreativeDirection()}
@@ -871,7 +789,10 @@ export default function ImprovedCreativeDirectorCard({
         <div className="flex justify-between">
           <span>Creative Session: #{sessionId?.slice(-6) || "Loading..."}</span>
           <span>
-            Step {currentStepIndex + 1} of {steps.length}
+            {currentStep === "production-style" && "Step 1 of 4"}
+            {currentStep === "creative-direction" && "Step 2 of 4"}
+            {currentStep === "scene-architecture" && "Step 3 of 4"}
+            {currentStep === "asset-development" && "Step 4 of 4"}
           </span>
         </div>
       </div>
