@@ -8,6 +8,8 @@
 
 import type { StyleOption } from '../types/api-types';
 import { AppModeConfig } from '@/lib/config/app-mode';
+import { VertexAIService } from '@/lib/services/vertex-ai';
+import { GeminiClient } from '@/lib/services/gemini';
 
 /**
  * Generate style options for Creative Director - follows Maya's quickActions pattern
@@ -151,14 +153,9 @@ async function generateRealStyleOptions(
   locale: 'en' | 'ja'
 ): Promise<StyleOption[]> {
   try {
-    // For now, return demo options + one AI-generated custom option
-    // TODO: Implement full AI generation using Vertex AI
-    const demoOptions = generateDemoStyleOptions(locale);
-
-    // Generate one AI-customized option based on Maya's analysis
-    const customOption = generateAICustomizedOption(mayaHandoffData, locale);
-
-    return [customOption, ...demoOptions.slice(0, 2)]; // Custom first, then 2 demos
+    // Use AI to generate fully dynamic style options based on Maya's product analysis
+    const aiGeneratedOptions = await generateAIStyleOptions(mayaHandoffData, locale);
+    return aiGeneratedOptions;
 
   } catch (error) {
     console.error('[Style Options Generator] AI generation failed, falling back to demo options:', error);
@@ -167,57 +164,108 @@ async function generateRealStyleOptions(
 }
 
 /**
- * Generate AI-customized style option based on Maya's product analysis
+ * Generate fully AI-based style options using Gemini (following Maya's generateContextualQuickActions pattern)
  */
-function generateAICustomizedOption(mayaHandoffData: any, locale: 'en' | 'ja'): StyleOption {
-  const productName = mayaHandoffData?.productAnalysis?.product?.name || 'Product';
-  const category = mayaHandoffData?.productAnalysis?.product?.category || 'Consumer';
-  const keyFeatures = mayaHandoffData?.productAnalysis?.product?.keyFeatures || [];
+async function generateAIStyleOptions(
+  mayaHandoffData: any,
+  locale: 'en' | 'ja'
+): Promise<StyleOption[]> {
+  const isJapanese = locale === 'ja';
+  const productAnalysis = mayaHandoffData?.productAnalysis;
 
-  // Simple AI-like customization based on product analysis
-  const isHealthBeauty = category.toLowerCase().includes('health') ||
-                        category.toLowerCase().includes('beauty') ||
-                        keyFeatures.some((f: string) => f.toLowerCase().includes('natural'));
-
-  const isTech = category.toLowerCase().includes('tech') ||
-                keyFeatures.some((f: string) => f.toLowerCase().includes('smart'));
-
-  if (isHealthBeauty) {
-    return locale === 'ja' ? {
-      id: "natural-wellness-custom",
-      name: `${productName} ナチュラル・ウェルネス`,
-      description: `${productName}の自然で健康的な特性を強調する、穏やかで癒しのビジュアルアプローチ`,
-      colorPalette: ["#8FBC8F", "#F5F5DC", "#DEB887", "#98FB98"],
-      visualKeywords: ["自然の色調", "有機的な形", "穏やかな照明", "健康的なライフスタイル"],
-      animationStyle: "Gentle",
-      examples: ["自然な製品動き", "穏やかなフェード効果", "有機的なトランジション"]
-    } : {
-      id: "natural-wellness-custom",
-      name: `${productName} Natural Wellness`,
-      description: `Gentle, healing visual approach that emphasizes ${productName}'s natural and wellness qualities`,
-      colorPalette: ["#8FBC8F", "#F5F5DC", "#DEB887", "#98FB98"],
-      visualKeywords: ["Natural tones", "Organic shapes", "Soft lighting", "Wellness lifestyle"],
-      animationStyle: "Gentle",
-      examples: ["Natural product movements", "Gentle fade effects", "Organic transitions"]
-    };
+  if (!productAnalysis) {
+    throw new Error('No product analysis available for AI style generation');
   }
 
-  // Default tech-oriented custom option
-  return locale === 'ja' ? {
-    id: "product-focused-custom",
-    name: `${productName} プロダクト・フォーカス`,
-    description: `${productName}の独特な特徴と価値提案を強調するカスタマイズされたビジュアルアプローチ`,
-    colorPalette: ["#2C3E50", "#3498DB", "#ECF0F1", "#E74C3C"],
-    visualKeywords: ["製品中心", "クリーンなデザイン", "プロフェッショナル", "価値重視"],
-    animationStyle: "Professional",
-    examples: ["製品ハイライト", "機能デモンストレーション", "クリーンなトランジション"]
-  } : {
-    id: "product-focused-custom",
-    name: `${productName} Product-Focused`,
-    description: `Customized visual approach that highlights ${productName}'s unique features and value proposition`,
-    colorPalette: ["#2C3E50", "#3498DB", "#ECF0F1", "#E74C3C"],
-    visualKeywords: ["Product-centric", "Clean design", "Professional", "Value-focused"],
-    animationStyle: "Professional",
-    examples: ["Product highlights", "Feature demonstrations", "Clean transitions"]
-  };
+  const prompt = isJapanese ?
+    `あなたは創造的なビジュアルディレクターです。Maya（プロダクト・インテリジェンス・アシスタント）の商品分析に基づいて、4つの独特なビジュアルスタイルオプションを生成してください。
+
+商品分析:
+商品名: ${productAnalysis.product?.name || '商品'}
+カテゴリ: ${productAnalysis.product?.category || 'その他'}
+主要機能: ${productAnalysis.product?.keyFeatures?.join(', ') || 'なし'}
+ターゲット層: ${productAnalysis.targetAudience?.description || '一般消費者'}
+ブランドトーン: ${productAnalysis.brandPersonality?.join(', ') || '親しみやすい'}
+主要メッセージ: ${productAnalysis.keyMessages?.headline || '革新的な商品'}
+
+各スタイルオプションには以下が必要です:
+- id: ユニークなID（kebab-case）
+- name: スタイル名（15文字以内）
+- description: 詳細説明（80文字以内）
+- colorPalette: 4つのhexカラーコード
+- visualKeywords: 4つのキーワード（各10文字以内）
+- animationStyle: "Static" | "Subtle Motion" | "Dynamic" | "Gentle" | "Professional"のいずれか
+- examples: 3つの具体例（各20文字以内）
+
+4つの異なる方向性を提案してください:
+1. プレミアム/洗練系
+2. エネルギッシュ/ダイナミック系
+3. 親しみやすい/ライフスタイル系
+4. 商品の特性に最も合うカスタム系
+
+有効なJSONとして返してください:
+[{"id": "style-1", "name": "スタイル名", "description": "説明", "colorPalette": ["#000000", "#ffffff", "#ff0000", "#00ff00"], "visualKeywords": ["キーワード1", "キーワード2", "キーワード3", "キーワード4"], "animationStyle": "Dynamic", "examples": ["例1", "例2", "例3"]}, ...]` :
+
+    `You are a creative visual director. Based on Maya's (Product Intelligence Assistant) product analysis, generate 4 unique visual style options for this commercial video.
+
+Product Analysis:
+Product: ${productAnalysis.product?.name || 'Product'}
+Category: ${productAnalysis.product?.category || 'General'}
+Key Features: ${productAnalysis.product?.keyFeatures?.join(', ') || 'None'}
+Target Audience: ${productAnalysis.targetAudience?.description || 'General consumers'}
+Brand Tone: ${productAnalysis.brandPersonality?.join(', ') || 'Friendly'}
+Key Message: ${productAnalysis.keyMessages?.headline || 'Innovative product'}
+
+Each style option must include:
+- id: Unique ID (kebab-case)
+- name: Style name (under 25 characters)
+- description: Detailed description (under 120 characters)
+- colorPalette: 4 hex color codes
+- visualKeywords: 4 keywords (each under 15 characters)
+- animationStyle: One of "Static" | "Subtle Motion" | "Dynamic" | "Gentle" | "Professional"
+- examples: 3 specific examples (each under 30 characters)
+
+Create 4 different directions:
+1. Premium/Sophisticated approach
+2. Energetic/Dynamic approach
+3. Approachable/Lifestyle approach
+4. Custom approach best suited to this specific product
+
+Return as valid JSON:
+[{"id": "style-1", "name": "Style Name", "description": "Description", "colorPalette": ["#000000", "#ffffff", "#ff0000", "#00ff00"], "visualKeywords": ["keyword1", "keyword2", "keyword3", "keyword4"], "animationStyle": "Dynamic", "examples": ["example1", "example2", "example3"]}, ...]`;
+
+  try {
+    // Create Gemini client using singleton instance (following Maya's pattern)
+    const vertexAIService = VertexAIService.getInstance();
+    const geminiClient = new GeminiClient(vertexAIService);
+
+    // Call Gemini API for dynamic style options
+    const response = await geminiClient.generateTextOnly(prompt);
+
+    // Parse JSON response (following Maya's parsing pattern)
+    const cleanedText = response.text.replace(/```json\n?|\n?```/g, '').trim();
+    const styleOptions = JSON.parse(cleanedText);
+
+    // Validate the response is an array of valid StyleOption objects
+    if (Array.isArray(styleOptions) &&
+        styleOptions.length >= 3 &&
+        styleOptions.every(option =>
+          option.id &&
+          option.name &&
+          option.description &&
+          Array.isArray(option.colorPalette) &&
+          Array.isArray(option.visualKeywords) &&
+          Array.isArray(option.examples) &&
+          option.animationStyle
+        )) {
+      // Return exactly 4 options for consistency
+      return styleOptions.slice(0, 4);
+    } else {
+      throw new Error('Invalid response format from Gemini');
+    }
+
+  } catch (error) {
+    console.error('Error generating AI style options:', error);
+    throw error; // Re-throw to trigger fallback in parent function
+  }
 }
