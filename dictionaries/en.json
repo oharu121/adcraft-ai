@@ -946,7 +946,19 @@
       "offerCreativeAlternatives": "Would you like to explore alternative creative directions?",
       "validateCulturalApproach": "Let's ensure this creative approach resonates with your target culture.",
       "optimizeForBrand": "We can optimize this creative approach for stronger brand alignment."
-    }
+    },
+
+    "confirmHandoff": "Proceed to Video Producer",
+    "handoffToVideoProducer": "Hand off to Video Producer for final production",
+    "handoffDescription": "Your creative direction is ready to be handed off to Alex, our Video Producer. Alex will use your visual strategy, scene composition, and production specifications to create the final commercial video.",
+    "transferSummary": "Transfer Summary",
+    "visualStrategy": "Visual Strategy",
+    "sceneComposition": "Scene Composition",
+    "creativeDirection": "Creative Direction",
+    "productionReady": "Production Ready",
+    "reviewMore": "Review More",
+    "proceedToVideoProducer": "Proceed to Video Producer",
+    "initializing": "Initializing..."
   },
   "videoProducer": {
     "title": "Video Producer (Alex)",

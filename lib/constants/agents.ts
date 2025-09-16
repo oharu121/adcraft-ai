@@ -46,8 +46,17 @@ export const AGENTS = {
     },
     color: "#8B5CF6" // Purple theme for creative director
   },
+  alex: {
+    name: "Alex",
+    persona: DAVID_PERSONA, // Temporary: using David's persona until Alex persona is created
+    assets: {
+      idle: "/agent-avatar/david-idling.gif", // Temporary: using David's assets until Alex assets are created
+      thinking: "/agent-avatar/david-thinking.gif",
+      speaking: "/agent-avatar/david-speaking.gif",
+    },
+    color: "#EF4444" // Red theme for video producer
+  },
   // Future agents can be added here:
-  // alex: {
   //   name: "Alex", 
   //   persona: ALEX_PERSONA,
   //   assets: {

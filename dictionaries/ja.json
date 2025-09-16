@@ -946,7 +946,19 @@
       "offerCreativeAlternatives": "代替のクリエイティブディレクションを探索しますか？",
       "validateCulturalApproach": "このクリエイティブアプローチがあなたのターゲット文化に響くことを確実にしましょう。",
       "optimizeForBrand": "より強いブランド整合性のためにこのクリエイティブアプローチを最適化できます。"
-    }
+    },
+
+    "confirmHandoff": "ビデオプロデューサーに進む",
+    "handoffToVideoProducer": "最終制作のためビデオプロデューサーに引き渡し",
+    "handoffDescription": "あなたのクリエイティブディレクションは、ビデオプロデューサーのアレックスに引き渡す準備ができました。アレックスはあなたのビジュアル戦略、シーン構成、制作仕様を使用して最終的なコマーシャル動画を作成します。",
+    "transferSummary": "転送サマリー",
+    "visualStrategy": "ビジュアル戦略",
+    "sceneComposition": "シーン構成",
+    "creativeDirection": "クリエイティブディレクション",
+    "productionReady": "制作準備完了",
+    "reviewMore": "さらに確認",
+    "proceedToVideoProducer": "ビデオプロデューサーに進む",
+    "initializing": "初期化中..."
   },
   "videoProducer": {
     "title": "ビデオプロデューサー（アレックス）",

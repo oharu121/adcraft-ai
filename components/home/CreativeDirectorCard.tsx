@@ -5,6 +5,7 @@ import { Card } from "@/components/ui";
 import { useCreativeDirectorStore } from "@/lib/stores/creative-director-store";
 import AgentAvatar from "@/components/ui/AgentAvatar";
 import CreativeChatContainer from "@/components/creative-director/CreativeChatContainer";
+import CreativeDirectorHandoffModal from "@/components/modals/CreativeDirectorHandoffModal";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
 import {
   CreativePhase,
@@ -82,6 +83,9 @@ export default function CreativeDirectorCard({
   );
   const currentStep = externalCurrentStep || internalCurrentStep;
   const setCurrentStep = onStepChange || setInternalCurrentStep;
+
+  // Handoff modal state
+  const [showHandoffModal, setShowHandoffModal] = useState(false);
 
   // Now using Zustand store for selectedProductionStyle - no local state needed!
 
@@ -372,6 +376,191 @@ export default function CreativeDirectorCard({
     }),
     [selectedProductionStyle, selectedStyleOption, currentStep, assets]
   );
+
+  // Check if all steps are completed and ready for handoff
+  const isReadyForHandoff = React.useMemo(() => {
+    return (
+      completedSteps.productionStyle &&
+      completedSteps.creativeDirection &&
+      completedSteps.sceneArchitecture &&
+      selectedProductionStyle &&
+      selectedStyleOption &&
+      generatedScenes.length > 0
+    );
+  }, [completedSteps, selectedProductionStyle, selectedStyleOption, generatedScenes]);
+
+  // Create creative direction object for handoff
+  const creativeDirection = React.useMemo(() => {
+    if (!isReadyForHandoff || !sessionId) return null;
+
+    // Create a simplified creative direction object based on current state
+    return {
+      id: crypto.randomUUID(),
+      sessionId,
+      status: "finalized" as const,
+      strategy: {
+        visualTheme: selectedStyleOption?.name || "Professional",
+        emotionalTone: selectedStyleOption?.description || "Modern and engaging",
+        brandMessage: mayaHandoffData?.productAnalysis?.keyMessages?.[0] || "Quality and innovation",
+        targetAudienceAlignment: mayaHandoffData?.productAnalysis?.targetAudience || "General consumers",
+        competitiveDifferentiation: "Unique visual storytelling approach"
+      },
+      // Required visual specs (simplified)
+      visualSpecs: {
+        styleDirection: {
+          primary: selectedStyleOption?.name || "Professional",
+          secondary: [],
+          influences: [],
+          mood: "modern",
+          energy: "medium" as const,
+          sophistication: "professional" as const,
+          innovation: "contemporary" as const,
+          culturalContext: "universal" as const
+        },
+        colorPalette: {
+          id: crypto.randomUUID(),
+          name: `${selectedStyleOption?.name || "Default"} Palette`,
+          description: "Creative direction color palette",
+          colors: {
+            primary: [],
+            secondary: [],
+            accent: [],
+            neutral: [],
+            supporting: []
+          },
+          harmony: {
+            type: "complementary" as const,
+            temperature: "neutral" as const,
+            contrast: "medium" as const,
+            saturation: "balanced" as const
+          },
+          psychology: {
+            emotions: [],
+            brandAssociations: [],
+            culturalMeaning: "",
+            targetAudienceResonance: 0.8
+          },
+          usage: {
+            primary: "",
+            secondary: "",
+            accent: "",
+            backgrounds: [],
+            text: [],
+            restrictions: []
+          }
+        },
+        typographyGuideline: {
+          primary: {
+            family: "System UI",
+            weights: [400, 600],
+            styles: ["normal"],
+            fallbacks: ["Arial", "sans-serif"],
+            characteristics: [],
+            mood: "professional",
+            usage: "headers"
+          },
+          hierarchy: {
+            headline: { size: "2rem", weight: 600, lineHeight: "1.2" },
+            subheadline: { size: "1.5rem", weight: 600, lineHeight: "1.3" },
+            body: { size: "1rem", weight: 400, lineHeight: "1.5" },
+            caption: { size: "0.875rem", weight: 400, lineHeight: "1.4" },
+            callout: { size: "1.125rem", weight: 600, lineHeight: "1.3" }
+          },
+          spacing: {
+            letterSpacing: { tight: "-0.025em", normal: "0", wide: "0.025em" },
+            wordSpacing: "0.25em",
+            lineHeight: { tight: "1.25", normal: "1.5", loose: "1.75" },
+            paragraphSpacing: "1rem"
+          },
+          treatment: {
+            effects: [],
+            alignment: ["left", "center"],
+            emphasis: ["bold", "italic"],
+            decorative: []
+          }
+        },
+        compositionRules: {
+          layout: {
+            grid: "12-column",
+            balance: "asymmetrical" as const,
+            emphasis: "rule-of-thirds" as const,
+            flow: "left-to-right" as const
+          },
+          hierarchy: {
+            primary: "center focus",
+            secondary: "supporting elements",
+            supporting: "background context"
+          },
+          spacing: {
+            margins: "2rem",
+            padding: "1rem",
+            gutters: "1.5rem",
+            rhythm: "1.5rem"
+          },
+          proportions: {
+            ratios: ["16:9", "4:3"],
+            scaling: "golden ratio",
+            relationships: "hierarchical"
+          }
+        },
+        lightingDirection: {
+          mood: "natural" as const,
+          temperature: "neutral" as const,
+          intensity: "medium" as const,
+          direction: "front" as const,
+          quality: "soft" as const,
+          shadows: "moderate" as const
+        }
+      },
+      // Required asset requirements (simplified)
+      assetRequirements: {
+        primary: [],
+        secondary: [],
+        optional: []
+      },
+      // Required production guidelines (simplified)
+      productionGuidelines: {
+        videoSpecifications: {
+          resolution: "1920x1080",
+          frameRate: 30,
+          aspectRatio: "16:9",
+          duration: 15,
+          format: "MP4",
+          codec: "H.264",
+          colorSpace: "sRGB"
+        },
+        technicalRequirements: [],
+        qualityStandards: [],
+        deliveryFormat: []
+      },
+      alexHandoffData: {
+        narrativeFlow: generatedScenes.map(scene => scene.description),
+        sceneBreakdown: generatedScenes,
+        assetMapping: [],
+        productionNotes: [`Production style: ${selectedProductionStyle?.name}`, `Creative direction: ${selectedStyleOption?.name}`],
+        timingGuidelines: []
+      },
+      validation: {
+        isComplete: true,
+        brandApproved: true,
+        technicallyValid: true,
+        creativelySound: true,
+        readyForProduction: true,
+        validationErrors: []
+      },
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      version: 1,
+      cost: { current: 0, total: 0, remaining: 0, breakdown: { assetGeneration: 0, processing: 0, storage: 0, aiProcessing: 0 }, budget: { allocated: 300, utilized: 0, percentage: 0, alerts: [] } },
+      locale
+    };
+  }, [isReadyForHandoff, sessionId, selectedStyleOption, selectedProductionStyle, generatedScenes, mayaHandoffData, locale]);
+
+  // Handle handoff modal actions
+  const handleHandoffSuccess = useCallback(() => {
+    // TODO: Navigate to Video Producer or show success message
+    console.log('[Creative Director] Handoff to Alex successful!');
+  }, []);
 
   // Don't show card if no handoff data from Maya
   if (!hasHandoffData) {
@@ -716,77 +905,104 @@ export default function CreativeDirectorCard({
       </button>
 
       <div className="flex items-center gap-4">
-        <button
-          onClick={handleNextStep}
-          disabled={
-            (currentStep === "scene-architecture" && completedSteps.sceneArchitecture) ||
-            (currentStep === "production-style" && !selectedProductionStyle) ||
-            (currentStep === "creative-direction" && !selectedStyleOption)
-          }
-          className={`magical-button cursor-pointer flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
-            (currentStep === "scene-architecture" && completedSteps.sceneArchitecture) ||
-            (currentStep === "production-style" && !selectedProductionStyle) ||
-            (currentStep === "creative-direction" && !selectedStyleOption)
-              ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-              : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
-          }`}
-        >
-          {t.workflow.navigation.continue}
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
+        {/* Show handoff button if all steps are completed */}
+        {isReadyForHandoff ? (
+          <button
+            onClick={() => setShowHandoffModal(true)}
+            className="magical-button cursor-pointer flex items-center gap-3 px-8 py-3 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+          >
+            <span className="text-lg">🎬</span>
+            {t.confirmHandoff}
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </button>
+        ) : (
+          <button
+            onClick={handleNextStep}
+            disabled={
+              (currentStep === "scene-architecture" && completedSteps.sceneArchitecture) ||
+              (currentStep === "production-style" && !selectedProductionStyle) ||
+              (currentStep === "creative-direction" && !selectedStyleOption)
+            }
+            className={`magical-button cursor-pointer flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+              (currentStep === "scene-architecture" && completedSteps.sceneArchitecture) ||
+              (currentStep === "production-style" && !selectedProductionStyle) ||
+              (currentStep === "creative-direction" && !selectedStyleOption)
+                ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+            }`}
+          >
+            {t.workflow.navigation.continue}
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        )}
       </div>
     </div>
   );
 
   return (
-    <Card variant="magical" className="p-8">
-      {/* Main Workflow Content */}
-      <div className="w-full">
-        {/* Current Step Header */}
-        <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-white mb-2">
-            {currentStep === WorkflowStep.PRODUCTION_STYLE && t.workflow.stepTitles.productionStyle}
-            {currentStep === WorkflowStep.CREATIVE_DIRECTION &&
-              t.workflow.stepTitles.creativeDirection}
-            {currentStep === WorkflowStep.SCENE_ARCHITECTURE &&
-              t.workflow.stepTitles.sceneArchitecture}
-          </h2>
-          <p className="text-purple-200 text-lg">
-            {currentStep === WorkflowStep.PRODUCTION_STYLE &&
-              t.workflow.stepDescriptions.productionStyle}
-            {currentStep === WorkflowStep.CREATIVE_DIRECTION &&
-              t.workflow.stepDescriptions.creativeDirection}
-            {currentStep === WorkflowStep.SCENE_ARCHITECTURE &&
-              t.workflow.stepDescriptions.sceneArchitecture}
-          </p>
+    <>
+      <Card variant="magical" className="p-8">
+        {/* Main Workflow Content */}
+        <div className="w-full">
+          {/* Current Step Header */}
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-white mb-2">
+              {currentStep === WorkflowStep.PRODUCTION_STYLE && t.workflow.stepTitles.productionStyle}
+              {currentStep === WorkflowStep.CREATIVE_DIRECTION &&
+                t.workflow.stepTitles.creativeDirection}
+              {currentStep === WorkflowStep.SCENE_ARCHITECTURE &&
+                t.workflow.stepTitles.sceneArchitecture}
+            </h2>
+            <p className="text-purple-200 text-lg">
+              {currentStep === WorkflowStep.PRODUCTION_STYLE &&
+                t.workflow.stepDescriptions.productionStyle}
+              {currentStep === WorkflowStep.CREATIVE_DIRECTION &&
+                t.workflow.stepDescriptions.creativeDirection}
+              {currentStep === WorkflowStep.SCENE_ARCHITECTURE &&
+                t.workflow.stepDescriptions.sceneArchitecture}
+            </p>
+          </div>
+
+          {/* Current Step Content */}
+          <div className="min-h-[400px]">
+            {currentStep === WorkflowStep.PRODUCTION_STYLE && renderProductionStyle()}
+            {currentStep === WorkflowStep.CREATIVE_DIRECTION && renderCreativeDirection()}
+            {currentStep === WorkflowStep.SCENE_ARCHITECTURE && renderSceneArchitecture()}
+          </div>
+
+          {renderNavigation()}
         </div>
 
-        {/* Current Step Content */}
-        <div className="min-h-[400px]">
-          {currentStep === WorkflowStep.PRODUCTION_STYLE && renderProductionStyle()}
-          {currentStep === WorkflowStep.CREATIVE_DIRECTION && renderCreativeDirection()}
-          {currentStep === WorkflowStep.SCENE_ARCHITECTURE && renderSceneArchitecture()}
+        {/* Footer */}
+        <div className="mt-8 pt-4 text-xs text-gray-400">
+          <div className="flex justify-between">
+            <span>Creative Session: #{sessionId?.slice(-6) || "Loading..."}</span>
+            <span>
+              {currentStep === WorkflowStep.PRODUCTION_STYLE &&
+                t.workflow.navigation.stepOf.replace("{current}", "1").replace("{total}", "3")}
+              {currentStep === WorkflowStep.CREATIVE_DIRECTION &&
+                t.workflow.navigation.stepOf.replace("{current}", "2").replace("{total}", "3")}
+              {currentStep === WorkflowStep.SCENE_ARCHITECTURE &&
+                t.workflow.navigation.stepOf.replace("{current}", "3").replace("{total}", "3")}
+            </span>
+          </div>
         </div>
+      </Card>
 
-        {renderNavigation()}
-      </div>
-
-      {/* Footer */}
-      <div className="mt-8 pt-4 text-xs text-gray-400">
-        <div className="flex justify-between">
-          <span>Creative Session: #{sessionId?.slice(-6) || "Loading..."}</span>
-          <span>
-            {currentStep === WorkflowStep.PRODUCTION_STYLE &&
-              t.workflow.navigation.stepOf.replace("{current}", "1").replace("{total}", "3")}
-            {currentStep === WorkflowStep.CREATIVE_DIRECTION &&
-              t.workflow.navigation.stepOf.replace("{current}", "2").replace("{total}", "3")}
-            {currentStep === WorkflowStep.SCENE_ARCHITECTURE &&
-              t.workflow.navigation.stepOf.replace("{current}", "3").replace("{total}", "3")}
-          </span>
-        </div>
-      </div>
-    </Card>
+      {/* Handoff Modal */}
+      <CreativeDirectorHandoffModal
+        isOpen={showHandoffModal}
+        onClose={() => setShowHandoffModal(false)}
+        onSuccess={handleHandoffSuccess}
+        creativeDirection={creativeDirection}
+        sessionId={sessionId || ''}
+        dict={dict}
+        locale={locale}
+      />
+    </>
   );
 }
