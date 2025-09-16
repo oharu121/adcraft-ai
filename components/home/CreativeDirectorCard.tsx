@@ -24,7 +24,7 @@ interface CreativeDirectorCardProps {
   onExpandWorkflowProgress?: () => void;
 }
 
-export default function ImprovedCreativeDirectorCard({
+export default function CreativeDirectorCard({
   dict,
   locale = "en",
   onScrollToChatSection,
@@ -109,11 +109,11 @@ export default function ImprovedCreativeDirectorCard({
           moodBoard: [
             "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300&h=200&fit=crop",
             "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&h=200&fit=crop",
-            "https://images.unsplash.com/photo-1560472355-a9a6ea6a2e64?w=300&h=200&fit=crop"
+            "https://images.unsplash.com/photo-1560472355-a9a6ea6a2e64?w=300&h=200&fit=crop",
           ],
           visualKeywords: t.creativeDirections.premiumMinimalism.visualKeywords,
           animationStyle: t.creativeDirections.premiumMinimalism.animationStyle,
-          examples: t.creativeDirections.premiumMinimalism.examples
+          examples: t.creativeDirections.premiumMinimalism.examples,
         },
         {
           id: t.creativeDirections.techDynamic.id,
@@ -123,11 +123,11 @@ export default function ImprovedCreativeDirectorCard({
           moodBoard: [
             "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=200&fit=crop",
             "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=300&h=200&fit=crop",
-            "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=300&h=200&fit=crop"
+            "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=300&h=200&fit=crop",
           ],
           visualKeywords: t.creativeDirections.techDynamic.visualKeywords,
           animationStyle: t.creativeDirections.techDynamic.animationStyle,
-          examples: t.creativeDirections.techDynamic.examples
+          examples: t.creativeDirections.techDynamic.examples,
         },
         {
           id: t.creativeDirections.luxuryEditorial.id,
@@ -137,11 +137,11 @@ export default function ImprovedCreativeDirectorCard({
           moodBoard: [
             "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=300&h=200&fit=crop",
             "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=300&h=200&fit=crop",
-            "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=300&h=200&fit=crop"
+            "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=300&h=200&fit=crop",
           ],
           visualKeywords: t.creativeDirections.luxuryEditorial.visualKeywords,
           animationStyle: t.creativeDirections.luxuryEditorial.animationStyle,
-          examples: t.creativeDirections.luxuryEditorial.examples
+          examples: t.creativeDirections.luxuryEditorial.examples,
         },
         {
           id: t.creativeDirections.lifestyleAuthentic.id,
@@ -151,12 +151,12 @@ export default function ImprovedCreativeDirectorCard({
           moodBoard: [
             "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=300&h=200&fit=crop",
             "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=300&h=200&fit=crop",
-            "https://images.unsplash.com/photo-1556745757-8d76bdb6984b?w=300&h=200&fit=crop"
+            "https://images.unsplash.com/photo-1556745757-8d76bdb6984b?w=300&h=200&fit=crop",
           ],
           visualKeywords: t.creativeDirections.lifestyleAuthentic.visualKeywords,
           animationStyle: t.creativeDirections.lifestyleAuthentic.animationStyle,
-          examples: t.creativeDirections.lifestyleAuthentic.examples
-        }
+          examples: t.creativeDirections.lifestyleAuthentic.examples,
+        },
       ];
       setAvailableStyleOptions(styleOptions);
     }
@@ -683,7 +683,7 @@ export default function ImprovedCreativeDirectorCard({
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
-{t.workflow.navigation.back}
+        {t.workflow.navigation.back}
       </button>
 
       <div className="flex items-center gap-4">
@@ -702,7 +702,7 @@ export default function ImprovedCreativeDirectorCard({
               : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
           }`}
         >
-{t.workflow.navigation.continue}
+          {t.workflow.navigation.continue}
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
@@ -719,13 +719,18 @@ export default function ImprovedCreativeDirectorCard({
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold text-white mb-2">
             {currentStep === WorkflowStep.PRODUCTION_STYLE && t.workflow.stepTitles.productionStyle}
-            {currentStep === WorkflowStep.CREATIVE_DIRECTION && t.workflow.stepTitles.creativeDirection}
-            {currentStep === WorkflowStep.SCENE_ARCHITECTURE && t.workflow.stepTitles.sceneArchitecture}
+            {currentStep === WorkflowStep.CREATIVE_DIRECTION &&
+              t.workflow.stepTitles.creativeDirection}
+            {currentStep === WorkflowStep.SCENE_ARCHITECTURE &&
+              t.workflow.stepTitles.sceneArchitecture}
           </h2>
           <p className="text-purple-200 text-lg">
-            {currentStep === WorkflowStep.PRODUCTION_STYLE && t.workflow.stepDescriptions.productionStyle}
-            {currentStep === WorkflowStep.CREATIVE_DIRECTION && t.workflow.stepDescriptions.creativeDirection}
-            {currentStep === WorkflowStep.SCENE_ARCHITECTURE && t.workflow.stepDescriptions.sceneArchitecture}
+            {currentStep === WorkflowStep.PRODUCTION_STYLE &&
+              t.workflow.stepDescriptions.productionStyle}
+            {currentStep === WorkflowStep.CREATIVE_DIRECTION &&
+              t.workflow.stepDescriptions.creativeDirection}
+            {currentStep === WorkflowStep.SCENE_ARCHITECTURE &&
+              t.workflow.stepDescriptions.sceneArchitecture}
           </p>
         </div>
 
@@ -744,9 +749,12 @@ export default function ImprovedCreativeDirectorCard({
         <div className="flex justify-between">
           <span>Creative Session: #{sessionId?.slice(-6) || "Loading..."}</span>
           <span>
-            {currentStep === WorkflowStep.PRODUCTION_STYLE && t.workflow.navigation.stepOf.replace('{current}', '1').replace('{total}', '3')}
-            {currentStep === WorkflowStep.CREATIVE_DIRECTION && t.workflow.navigation.stepOf.replace('{current}', '2').replace('{total}', '3')}
-            {currentStep === WorkflowStep.SCENE_ARCHITECTURE && t.workflow.navigation.stepOf.replace('{current}', '3').replace('{total}', '3')}
+            {currentStep === WorkflowStep.PRODUCTION_STYLE &&
+              t.workflow.navigation.stepOf.replace("{current}", "1").replace("{total}", "3")}
+            {currentStep === WorkflowStep.CREATIVE_DIRECTION &&
+              t.workflow.navigation.stepOf.replace("{current}", "2").replace("{total}", "3")}
+            {currentStep === WorkflowStep.SCENE_ARCHITECTURE &&
+              t.workflow.navigation.stepOf.replace("{current}", "3").replace("{total}", "3")}
           </span>
         </div>
       </div>

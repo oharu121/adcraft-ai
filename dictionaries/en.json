@@ -769,8 +769,6 @@
       "disconnected": "Disconnected from David",
       "agentTyping": "David is thinking...",
       "userTyping": "You are typing...",
-      "toggleChat": "💬 Chat with David",
-      "toggleAssets": "🎨 View Assets",
       "welcomeMessage": "Hey there! I'm David, your Creative Director. I've received Maya's strategic insights about your product. Let's create some amazing visuals that capture your brand's essence and connect with your audience!",
       "suggestionPrefix": "Need creative inspiration? Try asking:",
       "quickActionsTitle": "Visual decisions to explore:",

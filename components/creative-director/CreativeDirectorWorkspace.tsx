@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import ImprovedCreativeDirectorCard from "@/components/home/ImprovedCreativeDirectorCard";
+import CreativeDirectorCard from "@/components/home/CreativeDirectorCard";
 import WorkflowProgress from "./WorkflowProgress";
 import CreativeChatContainer from "./CreativeChatContainer";
 import { useCreativeDirectorStore } from "@/lib/stores/creative-director-store";
@@ -162,7 +162,7 @@ export default function CreativeDirectorWorkspace({
     <div className="flex gap-6 min-h-screen items-start">
       {/* Left: Main Creative Director Card - Fully Expanded */}
       <div className="flex-1" ref={mainContentRef}>
-        <ImprovedCreativeDirectorCard
+        <CreativeDirectorCard
           dict={dict}
           locale={locale}
           onScrollToChatSection={onScrollToChatSection}
@@ -191,14 +191,6 @@ export default function CreativeDirectorWorkspace({
 
         {/* Chat - Always visible, expands to fill remaining space after WorkflowProgress */}
         <div className="flex-1 mt-4 bg-gray-800/30 rounded-xl border border-gray-600/50 flex flex-col min-h-0">
-          <div className="flex-shrink-0 p-4 border-b border-gray-600/50">
-            <div className="flex items-center justify-between">
-              <h3 className="font-medium text-white">
-                {dict.creativeDirector.chat.toggleChat.replace('💬 ', '')}
-              </h3>
-            </div>
-          </div>
-
           {/* Chat content expands to fill remaining space */}
           <div className="flex-1 overflow-y-auto">
             <CreativeChatContainer

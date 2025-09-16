@@ -769,8 +769,6 @@
       "disconnected": "切断",
       "agentTyping": "Davidが考えています...",
       "userTyping": "入力中...",
-      "toggleChat": "💬 デイビッドとチャット",
-      "toggleAssets": "🎨 アセットを表示",
       "welcomeMessage": "こんにちは！クリエイティブディレクターのデイビッドです。マヤからあなたの商品の戦略的洞察を受け取りました。あなたのブランドの本質を捉え、オーディエンスとつながる素晴らしいビジュアルを作りましょう！",
       "suggestionPrefix": "クリエイティブなインスピレーションが必要ですか？お試しください：",
       "quickActionsTitle": "探索するビジュアル決定：",

@@ -20,12 +20,8 @@ export default function WorkflowProgress({
   dict,
   locale = "en",
 }: WorkflowProgressProps) {
-  const {
-    selectedProductionStyle,
-    selectedStyleOption,
-    assets,
-    completedSteps,
-  } = useCreativeDirectorStore();
+  const { selectedProductionStyle, selectedStyleOption, assets, completedSteps } =
+    useCreativeDirectorStore();
 
   const t = dict.creativeDirector.workflowProgress;
 
@@ -33,7 +29,7 @@ export default function WorkflowProgress({
     {
       id: "production-style",
       label: t.steps.productionStyle.label,
-      description: t.steps.productionStyle.description
+      description: t.steps.productionStyle.description,
     },
     {
       id: "creative-direction",
@@ -43,14 +39,15 @@ export default function WorkflowProgress({
     {
       id: "scene-architecture",
       label: t.steps.sceneArchitecture.label,
-      description: t.steps.sceneArchitecture.description
+      description: t.steps.sceneArchitecture.description,
     },
   ];
 
-  const currentStepIndex = steps.findIndex(step =>
-    (step.id === "production-style" && completedSteps.productionStyle) ||
-    (step.id === "creative-direction" && completedSteps.creativeDirection) ||
-    (step.id === "scene-architecture" && completedSteps.sceneArchitecture)
+  const currentStepIndex = steps.findIndex(
+    (step) =>
+      (step.id === "production-style" && completedSteps.productionStyle) ||
+      (step.id === "creative-direction" && completedSteps.creativeDirection) ||
+      (step.id === "scene-architecture" && completedSteps.sceneArchitecture)
   );
 
   return (
@@ -66,7 +63,7 @@ export default function WorkflowProgress({
                 d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
               />
             </svg>
-{t.title}
+            {t.title}
           </h3>
           {onToggleExpanded && (
             <button
@@ -116,7 +113,7 @@ export default function WorkflowProgress({
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-white">Production Style</div>
+              <div className="text-sm font-medium text-white">{t.steps.productionStyle.label}</div>
               {selectedProductionStyle ? (
                 <div
                   className={`transition-all duration-300 ${expanded ? "space-y-1" : "space-y-0.5"}`}
@@ -133,7 +130,7 @@ export default function WorkflowProgress({
                     onClick={() => onNavigateToStep(WorkflowStep.PRODUCTION_STYLE)}
                     className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
                   >
-{expanded ? t.actions.changeSelection : t.actions.change}
+                    {expanded ? t.actions.changeSelection : t.actions.change}
                   </button>
                 </div>
               ) : (
@@ -164,7 +161,7 @@ export default function WorkflowProgress({
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-white">Creative Direction</div>
+              <div className="text-sm font-medium text-white">{t.steps.creativeDirection.label}</div>
               {selectedStyleOption ? (
                 <div
                   className={`transition-all duration-300 ${expanded ? "space-y-1" : "space-y-0.5"}`}
@@ -189,7 +186,7 @@ export default function WorkflowProgress({
                     onClick={() => onNavigateToStep(WorkflowStep.CREATIVE_DIRECTION)}
                     className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
                   >
-{expanded ? t.actions.changeSelection : t.actions.change}
+                    {expanded ? t.actions.changeSelection : t.actions.change}
                   </button>
                 </div>
               ) : (
@@ -222,7 +219,7 @@ export default function WorkflowProgress({
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-white">Scene Architecture</div>
+              <div className="text-sm font-medium text-white">{t.steps.sceneArchitecture.label}</div>
               {completedSteps.sceneArchitecture ? (
                 <div
                   className={`transition-all duration-300 ${expanded ? "space-y-1" : "space-y-0.5"}`}
@@ -235,7 +232,7 @@ export default function WorkflowProgress({
                     onClick={() => onNavigateToStep(WorkflowStep.SCENE_ARCHITECTURE)}
                     className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
                   >
-{expanded ? t.actions.reviewScenes : t.actions.review}
+                    {expanded ? t.actions.reviewScenes : t.actions.review}
                   </button>
                 </div>
               ) : completedSteps.creativeDirection ? (
@@ -247,7 +244,7 @@ export default function WorkflowProgress({
                     onClick={() => onNavigateToStep(WorkflowStep.SCENE_ARCHITECTURE)}
                     className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
                   >
-{expanded ? t.actions.startPlanning : t.actions.start}
+                    {expanded ? t.actions.startPlanning : t.actions.start}
                   </button>
                 </div>
               ) : (
