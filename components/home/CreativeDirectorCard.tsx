@@ -13,6 +13,7 @@ import {
   AssetStatus,
 } from "@/lib/agents/creative-director/enums";
 import { WorkflowStep } from "@/lib/agents/creative-director/enums";
+import type { StyleOption } from "@/lib/agents/creative-director/types/api-types";
 
 interface CreativeDirectorCardProps {
   dict: Dictionary;
@@ -48,6 +49,7 @@ export default function CreativeDirectorCard({
     availableStyleOptions,
     selectedStyleOption,
     selectedProductionStyle,
+    generatedScenes,
     visualDecisions,
     expandedSections,
     costTracking,
@@ -64,6 +66,8 @@ export default function CreativeDirectorCard({
     setAvailableStyleOptions,
     selectStyleOption,
     setSelectedProductionStyle,
+    setGeneratedScenes,
+    setSceneComposition,
     setChatInputMessage,
     toggleSection,
     addMessage,
@@ -137,6 +141,51 @@ export default function CreativeDirectorCard({
       initializeCreativeDirector();
     }
   }, [hasHandoffData, availableStyleOptions, sessionId, setAvailableStyleOptions, locale, mayaHandoffData]);
+
+  // Load scene composition when scene architecture step is accessed
+  React.useEffect(() => {
+    if (currentStep === WorkflowStep.SCENE_ARCHITECTURE &&
+        generatedScenes.length === 0 &&
+        sessionId &&
+        hasHandoffData &&
+        selectedStyleOption) {
+      const loadSceneComposition = async () => {
+        try {
+          console.log('[Creative Director] Loading scene composition...');
+          const response = await fetch('/api/agents/creative-director', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sessionId,
+              action: 'compose-scenes',
+              locale: locale || 'en',
+              data: {
+                selectedStyle: selectedStyleOption,
+                productInfo: mayaHandoffData?.productAnalysis?.product,
+                pacing: 'medium',
+                mood: selectedStyleOption.name?.toLowerCase() || 'professional',
+                storytelling: 'product-focused'
+              }
+            })
+          });
+
+          const data = await response.json();
+          console.log('[Creative Director] Scene composition response:', data);
+
+          if (data.success && data.data?.sceneComposition) {
+            setSceneComposition(data.data.sceneComposition);
+            console.log('[Creative Director] Scene composition loaded successfully');
+          } else {
+            console.error('[Creative Director] Scene composition failed:', data.error);
+          }
+        } catch (error) {
+          console.error('[Creative Director] Scene composition API error:', error);
+        }
+      };
+
+      loadSceneComposition();
+    }
+  }, [currentStep, generatedScenes, sessionId, hasHandoffData, selectedStyleOption, setSceneComposition, locale, mayaHandoffData]);
 
   // Handle chat message sending
   const handleSendMessage = useCallback(
@@ -416,7 +465,7 @@ export default function CreativeDirectorCard({
                 {/* Features and Details */}
                 <div className="space-y-3">
                   <div>
-                    <span className="text-xs text-gray-300 font-medium">Key Features:</span>
+                    <span className="text-xs text-gray-300 font-medium">{t.workflow.ui.keyFeatures}</span>
                     <div className="flex flex-wrap gap-1 mt-2">
                       {style.features.map((feature, idx) => (
                         <span
@@ -435,7 +484,7 @@ export default function CreativeDirectorCard({
                   </div>
 
                   <div>
-                    <span className="text-xs text-gray-300 font-medium">Examples:</span>
+                    <span className="text-xs text-gray-300 font-medium">{t.workflow.ui.examples}</span>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {style.examples.map((example, idx) => (
                         <span
@@ -537,27 +586,31 @@ export default function CreativeDirectorCard({
 
                 {/* Typography Style */}
                 <div>
-                  <span className="text-xs text-gray-400 font-medium mb-2 block">Typography:</span>
+                  <span className="text-xs text-gray-400 font-medium mb-2 block">{t.workflow.ui.typography}</span>
                   <span className="text-xs text-gray-300 bg-gray-700/50 px-3 py-1 rounded">
-                    {styleOption.animationStyle === "Static"
-                      ? "Classic & Refined"
-                      : styleOption.animationStyle === "Dynamic"
-                        ? "Bold & Modern"
-                        : "Clean & Minimal"}
+                    {styleOption.typographyStyle || (
+                      styleOption.animationStyle === "Static"
+                        ? "Classic & Refined"
+                        : styleOption.animationStyle === "Dynamic"
+                          ? "Bold & Modern"
+                          : "Clean & Minimal"
+                    )}
                   </span>
                 </div>
 
                 {/* Best For */}
                 <div>
-                  <span className="text-xs text-gray-400 font-medium mb-2 block">Perfect For:</span>
+                  <span className="text-xs text-gray-400 font-medium mb-2 block">{t.workflow.ui.perfectFor}</span>
                   <p className="text-xs text-gray-300 leading-relaxed">
-                    {styleOption.name === "Premium Minimalism"
-                      ? "Luxury brands, tech products, sophisticated audiences"
-                      : styleOption.name === "Tech Dynamic"
-                        ? "Innovation-focused brands, startups, modern products"
-                        : styleOption.name === "Luxury Editorial"
-                          ? "High-end products, premium positioning, elite markets"
-                          : "Lifestyle brands, authentic storytelling, human-centered products"}
+                    {styleOption.perfectFor || (
+                      styleOption.name === "Premium Minimalism"
+                        ? "Luxury brands, tech products, sophisticated audiences"
+                        : styleOption.name === "Tech Dynamic"
+                          ? "Innovation-focused brands, startups, modern products"
+                          : styleOption.name === "Luxury Editorial"
+                            ? "High-end products, premium positioning, elite markets"
+                            : "Lifestyle brands, authentic storytelling, human-centered products"
+                    )}
                   </p>
                 </div>
               </div>
@@ -582,67 +635,67 @@ export default function CreativeDirectorCard({
       {availableStyleOptions.length === 0 && (
         <div className="text-center py-12">
           <div className="animate-spin w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <div className="text-lg text-white mb-2">Loading Style Options...</div>
-          <div className="text-sm text-gray-400">David is preparing visual directions for you</div>
+          <div className="text-lg text-white mb-2">{t.workflow.ui.loadingStyleOptions}</div>
+          <div className="text-sm text-gray-400">{t.workflow.ui.preparingVisualDirections}</div>
         </div>
       )}
     </div>
   );
 
   // Render scene architecture step
-  const renderSceneArchitecture = () => (
-    <div className="space-y-6">
-      {/* Scene Cards */}
-      <div className="space-y-4">
-        {[
-          {
-            title: t.sceneArchitecture.productHeroShot.title,
-            description: t.sceneArchitecture.productHeroShot.description,
-            duration: t.sceneArchitecture.productHeroShot.duration,
-            icon: t.sceneArchitecture.productHeroShot.icon,
-            tips: t.sceneArchitecture.productHeroShot.tips,
-          },
-          {
-            title: t.sceneArchitecture.lifestyleContext.title,
-            description: t.sceneArchitecture.lifestyleContext.description,
-            duration: t.sceneArchitecture.lifestyleContext.duration,
-            icon: t.sceneArchitecture.lifestyleContext.icon,
-            tips: t.sceneArchitecture.lifestyleContext.tips,
-          },
-          {
-            title: t.sceneArchitecture.keyBenefitsHighlight.title,
-            description: t.sceneArchitecture.keyBenefitsHighlight.description,
-            duration: t.sceneArchitecture.keyBenefitsHighlight.duration,
-            icon: t.sceneArchitecture.keyBenefitsHighlight.icon,
-            tips: t.sceneArchitecture.keyBenefitsHighlight.tips,
-          },
-        ].map((scene, index) => (
+  const renderSceneArchitecture = () => {
+    // Check if we have generated scenes
+    if (generatedScenes.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <div className="animate-spin w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <div className="text-lg text-white mb-2">{t.workflow.ui.loadingScenes || "Loading Scenes..."}</div>
+          <div className="text-sm text-gray-400">{t.workflow.ui.preparingScenes || "David is composing your video scenes"}</div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-6">
+        {/* Scene Cards */}
+        <div className="space-y-4">
+          {generatedScenes.map((scene, index) => (
           <div
             key={index}
             className="bg-gradient-to-r from-gray-800/80 to-gray-900/80 rounded-xl p-6 border border-gray-600/50 hover:border-purple-500/50 transition-all duration-300"
           >
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-2xl shadow-lg">
-                {scene.icon}
+                {index === 0 ? "🎬" : index === 1 ? "🎯" : index === 2 ? "✨" : "📢"}
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-lg font-semibold text-white">{scene.title}</h4>
+                  <h4 className="text-lg font-semibold text-white">
+                    {t.workflow.ui.sceneLabel || "Scene"} {scene.sceneNumber}: {scene.description}
+                  </h4>
                   <span className="text-xs text-purple-300 bg-purple-900/30 px-3 py-1 rounded-full font-medium">
-                    {scene.duration}
+                    {scene.duration}s
                   </span>
                 </div>
-                <p className="text-gray-300 text-sm mb-3">{scene.description}</p>
-                <div className="text-xs text-gray-400 bg-gray-700/30 px-3 py-2 rounded">
-                  💡 {scene.tips}
+                <div className="flex items-center gap-4 mb-3">
+                  <span className="text-xs text-gray-400">{t.workflow.ui.mood || "Mood"}:</span>
+                  <span className="text-xs text-purple-300 bg-purple-900/20 px-2 py-1 rounded">{scene.mood}</span>
+                  <span className="text-xs text-gray-400">{t.workflow.ui.pacing || "Pacing"}:</span>
+                  <span className="text-xs text-blue-300 bg-blue-900/20 px-2 py-1 rounded">{scene.pacing}</span>
                 </div>
+                {scene.notes && scene.notes.length > 0 && (
+                  <div className="text-xs text-gray-400 bg-gray-700/30 px-3 py-2 rounded">
+                    💡 {scene.notes.join(" • ")}
+                  </div>
+                )}
               </div>
             </div>
           </div>
         ))}
       </div>
     </div>
-  );
+    );
+  };
 
   // Render navigation buttons
   const renderNavigation = () => (

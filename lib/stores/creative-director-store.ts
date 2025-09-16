@@ -49,6 +49,10 @@ interface CreativeDirectorStore {
   availableStyleOptions: any[]; // Style options from demo data
   selectedStyleOption: any | null;
 
+  // Phase 3: Scene Architecture State
+  generatedScenes: any[]; // AI-generated scenes
+  sceneComposition: any | null; // Full scene composition response
+
   // Step completion tracking
   completedSteps: {
     productionStyle: boolean;
@@ -143,6 +147,10 @@ interface CreativeDirectorStore {
   setAvailableStyleOptions: (options: any[]) => void;
   selectStyleOption: (styleOption: any) => void;
 
+  // Phase 3: Scene Architecture Actions
+  setGeneratedScenes: (scenes: any[]) => void;
+  setSceneComposition: (composition: any) => void;
+
   // Step completion actions
   markStepCompleted: (step: keyof CreativeDirectorStore['completedSteps']) => void;
 
@@ -211,6 +219,10 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
   // Phase 2: Style Selection Initial State
   availableStyleOptions: [],
   selectedStyleOption: null,
+
+  // Phase 3: Scene Architecture Initial State
+  generatedScenes: [],
+  sceneComposition: null,
 
   // Step completion initial state
   completedSteps: {
@@ -298,6 +310,13 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
       ...state.visualDecisions,
       selectedStyle: styleOption?.id || null
     }
+  })),
+
+  // Phase 3: Scene Architecture Actions
+  setGeneratedScenes: (scenes) => set({ generatedScenes: scenes }),
+  setSceneComposition: (composition) => set((state) => ({
+    sceneComposition: composition,
+    generatedScenes: composition?.sceneBreakdown || state.generatedScenes
   })),
 
   // Step completion actions

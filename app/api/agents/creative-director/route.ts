@@ -12,6 +12,8 @@ import { AppModeConfig } from "@/lib/config/app-mode";
 import { SessionStatus, AgentType, CreativeErrorType } from "@/lib/agents/creative-director/enums";
 import { FirestoreService } from "@/lib/services/firestore";
 import { generateStyleOptions } from "@/lib/agents/creative-director/tools/style-options-generator";
+import { composeScenes } from "@/lib/agents/creative-director/tools/scene-composer";
+import type { SceneCompositionRequest } from "@/lib/agents/creative-director/tools/scene-composer";
 import {
   ApiResponse,
   CreativeDirectorInitRequest,
@@ -26,7 +28,7 @@ import {
 // Request validation schema
 const CreativeDirectorRequestSchema = z.object({
   sessionId: z.string().uuid(),
-  action: z.enum(["initialize", "status", "chat", "handoff"]),
+  action: z.enum(["initialize", "status", "chat", "handoff", "compose-scenes"]),
   locale: z.enum(["en", "ja"]).default("en"),
   data: z.any().optional(),
   metadata: z.record(z.string(), z.any()).optional(),
@@ -63,6 +65,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
         break;
       case "handoff":
         response = await handleHandoffRequest(validatedRequest);
+        break;
+      case "compose-scenes":
+        response = await handleComposeScenes(validatedRequest);
         break;
       default:
         throw new Error("Invalid action type");
@@ -615,6 +620,74 @@ function validateHandoffReadiness(session: any): { ready: boolean; errors: strin
     ready: errors.length === 0,
     errors,
   };
+}
+
+/**
+ * Handle scene composition requests
+ */
+async function handleComposeScenes(validatedRequest: any): Promise<any> {
+  const { sessionId, data, locale } = validatedRequest;
+
+  try {
+    console.log(`[DAVID] Composing scenes for session: ${sessionId}`);
+
+    // Get session to extract context
+    const firestoreService = FirestoreService.getInstance();
+    const session = await firestoreService.getCreativeSession(sessionId);
+
+    if (!session) {
+      throw new Error(`Session ${sessionId} not found`);
+    }
+
+    // Build scene composition request
+    const sceneRequest: SceneCompositionRequest = {
+      sessionId,
+      context: {
+        productInfo: session.mayaHandoffData?.productAnalysis?.product || {},
+        brandDirection: {
+          brandPersonality: session.mayaHandoffData?.productAnalysis?.brandPersonality || [],
+          keyMessages: session.mayaHandoffData?.productAnalysis?.keyMessages || {}
+        },
+        targetAudience: session.mayaHandoffData?.productAnalysis?.targetAudience || {},
+        videoSpecs: {
+          duration: 30,
+          aspectRatio: "16:9",
+          format: "mp4",
+          purpose: "commercial"
+        }
+      },
+      availableAssets: session.assets || [],
+      preferences: {
+        pacing: data?.pacing || "medium",
+        mood: data?.mood || "professional",
+        storytelling: data?.storytelling || "product-focused",
+        constraints: data?.constraints || []
+      },
+      locale: locale || "en"
+    };
+
+    // Call scene composer
+    const sceneComposition = await composeScenes(sceneRequest);
+
+    // Update session with scene composition
+    await firestoreService.updateCreativeSession(sessionId, {
+      sceneComposition: sceneComposition,
+      lastActivity: new Date().toISOString(),
+    });
+
+    console.log(`[DAVID] Scene composition completed for session: ${sessionId}`);
+
+    return {
+      sceneComposition,
+      processingTime: sceneComposition.processingTime,
+      cost: sceneComposition.cost,
+      confidence: sceneComposition.confidence
+    };
+
+  } catch (error) {
+    console.error(`[DAVID] Scene composition failed for session ${sessionId}:`, error);
+    throw new Error(`Scene composition failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+  }
 }
 
 async function prepareCreativePackage(session: any): Promise<any> {

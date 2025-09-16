@@ -123,6 +123,9 @@ export interface StyleOption {
   visualKeywords: string[];
   animationStyle: string;
   examples: string[];
+  // Required fields for UI display (prevent fallback to English)
+  typographyStyle: string; // e.g. "Classic & Refined", "Bold & Modern"
+  perfectFor: string; // e.g. "Luxury brands, tech products, sophisticated audiences"
 }
 
 // Creative chat request

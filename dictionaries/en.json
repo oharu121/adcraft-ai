@@ -593,6 +593,19 @@
         "back": "Back",
         "continue": "Continue",
         "stepOf": "Step {current} of {total}"
+      },
+      "ui": {
+        "keyFeatures": "Key Features:",
+        "examples": "Examples:",
+        "typography": "Typography:",
+        "perfectFor": "Perfect For:",
+        "loadingStyleOptions": "Loading Style Options...",
+        "preparingVisualDirections": "David is preparing visual directions for you",
+        "loadingScenes": "Loading Scenes...",
+        "preparingScenes": "David is composing your video scenes",
+        "sceneLabel": "Scene",
+        "mood": "Mood",
+        "pacing": "Pacing"
       }
     },
 

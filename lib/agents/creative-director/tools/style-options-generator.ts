@@ -44,7 +44,9 @@ function generateDemoStyleOptions(locale: 'en' | 'ja'): StyleOption[] {
           "滑らかな製品回転",
           "穏やかなパララックススクロール",
           "フェードインテキストアニメーション"
-        ]
+        ],
+        typographyStyle: "クリーン＆ミニマル",
+        perfectFor: "ラグジュアリーブランド、テック商品、洗練されたオーディエンス"
       },
       {
         id: "tech-dynamic",
@@ -57,7 +59,9 @@ function generateDemoStyleOptions(locale: 'en' | 'ja'): StyleOption[] {
           "キネティック・タイポグラフィ",
           "幾何学的トランジション",
           "大胆なスライドアニメーション"
-        ]
+        ],
+        typographyStyle: "ボールド＆モダン",
+        perfectFor: "イノベーション重視ブランド、スタートアップ、モダン商品"
       },
       {
         id: "luxury-editorial",
@@ -70,7 +74,9 @@ function generateDemoStyleOptions(locale: 'en' | 'ja'): StyleOption[] {
           "シネマティック・フェード",
           "エレガントなワイプトランジション",
           "洗練されたタイポグラフィの出現"
-        ]
+        ],
+        typographyStyle: "クラシック＆洗練",
+        perfectFor: "高級商品、プレミアムポジショニング、エリート市場"
       },
       {
         id: "lifestyle-authentic",
@@ -83,7 +89,9 @@ function generateDemoStyleOptions(locale: 'en' | 'ja'): StyleOption[] {
           "自然なカメラムーブメント",
           "オーガニックトランジション",
           "ライフスタイルストーリーテリング"
-        ]
+        ],
+        typographyStyle: "ジェントル＆ウォーム",
+        perfectFor: "ライフスタイルブランド、オーセンティックストーリーテリング、人間中心商品"
       }
     ];
   }
@@ -101,7 +109,9 @@ function generateDemoStyleOptions(locale: 'en' | 'ja'): StyleOption[] {
         "Smooth product rotations",
         "Gentle parallax scrolling",
         "Fade-in text animations"
-      ]
+      ],
+      typographyStyle: "Clean & Minimal",
+      perfectFor: "Luxury brands, tech products, sophisticated audiences"
     },
     {
       id: "tech-dynamic",
@@ -114,7 +124,9 @@ function generateDemoStyleOptions(locale: 'en' | 'ja'): StyleOption[] {
         "Kinetic typography",
         "Geometric transitions",
         "Bold slide animations"
-      ]
+      ],
+      typographyStyle: "Bold & Modern",
+      perfectFor: "Innovation-focused brands, startups, modern products"
     },
     {
       id: "luxury-editorial",
@@ -127,7 +139,9 @@ function generateDemoStyleOptions(locale: 'en' | 'ja'): StyleOption[] {
         "Cinematic fades",
         "Elegant wipe transitions",
         "Sophisticated typography reveals"
-      ]
+      ],
+      typographyStyle: "Classic & Refined",
+      perfectFor: "High-end products, premium positioning, elite markets"
     },
     {
       id: "lifestyle-authentic",
@@ -140,7 +154,9 @@ function generateDemoStyleOptions(locale: 'en' | 'ja'): StyleOption[] {
         "Natural camera movements",
         "Organic transitions",
         "Lifestyle storytelling"
-      ]
+      ],
+      typographyStyle: "Gentle & Warm",
+      perfectFor: "Lifestyle brands, authentic storytelling, human-centered products"
     }
   ];
 }
@@ -196,6 +212,8 @@ async function generateAIStyleOptions(
 - visualKeywords: 4つのキーワード（各10文字以内）
 - animationStyle: "Static" | "Subtle Motion" | "Dynamic" | "Gentle" | "Professional"のいずれか
 - examples: 3つの具体例（各20文字以内）
+- typographyStyle: フォントスタイル名（15文字以内）例："クラシック&洗練"
+- perfectFor: 適用対象（40文字以内）例："ラグジュアリーブランド、テック商品"
 
 4つの異なる方向性を提案してください:
 1. プレミアム/洗練系
@@ -204,7 +222,7 @@ async function generateAIStyleOptions(
 4. 商品の特性に最も合うカスタム系
 
 有効なJSONとして返してください:
-[{"id": "style-1", "name": "スタイル名", "description": "説明", "colorPalette": ["#000000", "#ffffff", "#ff0000", "#00ff00"], "visualKeywords": ["キーワード1", "キーワード2", "キーワード3", "キーワード4"], "animationStyle": "Dynamic", "examples": ["例1", "例2", "例3"]}, ...]` :
+[{"id": "style-1", "name": "スタイル名", "description": "説明", "colorPalette": ["#000000", "#ffffff", "#ff0000", "#00ff00"], "visualKeywords": ["キーワード1", "キーワード2", "キーワード3", "キーワード4"], "animationStyle": "Dynamic", "examples": ["例1", "例2", "例3"], "typographyStyle": "ボールド&モダン", "perfectFor": "イノベーション重視ブランド"}, ...]` :
 
     `You are a creative visual director. Based on Maya's (Product Intelligence Assistant) product analysis, generate 4 unique visual style options for this commercial video.
 
@@ -224,6 +242,8 @@ Each style option must include:
 - visualKeywords: 4 keywords (each under 15 characters)
 - animationStyle: One of "Static" | "Subtle Motion" | "Dynamic" | "Gentle" | "Professional"
 - examples: 3 specific examples (each under 30 characters)
+- typographyStyle: Font style name (under 20 characters) e.g. "Classic & Refined"
+- perfectFor: Target use cases (under 60 characters) e.g. "Luxury brands, tech products"
 
 Create 4 different directions:
 1. Premium/Sophisticated approach
@@ -232,7 +252,7 @@ Create 4 different directions:
 4. Custom approach best suited to this specific product
 
 Return as valid JSON:
-[{"id": "style-1", "name": "Style Name", "description": "Description", "colorPalette": ["#000000", "#ffffff", "#ff0000", "#00ff00"], "visualKeywords": ["keyword1", "keyword2", "keyword3", "keyword4"], "animationStyle": "Dynamic", "examples": ["example1", "example2", "example3"]}, ...]`;
+[{"id": "style-1", "name": "Style Name", "description": "Description", "colorPalette": ["#000000", "#ffffff", "#ff0000", "#00ff00"], "visualKeywords": ["keyword1", "keyword2", "keyword3", "keyword4"], "animationStyle": "Dynamic", "examples": ["example1", "example2", "example3"], "typographyStyle": "Bold & Modern", "perfectFor": "Innovation-focused brands"}, ...]`;
 
   try {
     // Create Gemini client using singleton instance (following Maya's pattern)
@@ -256,7 +276,9 @@ Return as valid JSON:
           Array.isArray(option.colorPalette) &&
           Array.isArray(option.visualKeywords) &&
           Array.isArray(option.examples) &&
-          option.animationStyle
+          option.animationStyle &&
+          option.typographyStyle &&
+          option.perfectFor
         )) {
       // Return exactly 4 options for consistency
       return styleOptions.slice(0, 4);

@@ -593,6 +593,19 @@
         "back": "戻る",
         "continue": "続行",
         "stepOf": "ステップ {current} / {total}"
+      },
+      "ui": {
+        "keyFeatures": "主要機能：",
+        "examples": "例：",
+        "typography": "タイポグラフィ：",
+        "perfectFor": "最適な用途：",
+        "loadingStyleOptions": "スタイルオプション読み込み中...",
+        "preparingVisualDirections": "Davidがビジュアルディレクションを準備しています",
+        "loadingScenes": "シーン読み込み中...",
+        "preparingScenes": "Davidがビデオシーンを構成しています",
+        "sceneLabel": "シーン",
+        "mood": "ムード",
+        "pacing": "ペース"
       }
     },
 
