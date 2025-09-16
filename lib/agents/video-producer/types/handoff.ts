@@ -41,7 +41,6 @@ export interface VisualConcept {
   readonly theme: string;
   readonly colorPalette: any;
   readonly visualStyle: string;
-  readonly moodBoard: string[]; // URLs to reference images
 }
 
 // DEFERRED: Brand guidelines for production

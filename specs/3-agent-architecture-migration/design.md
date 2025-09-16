@@ -227,7 +227,6 @@ interface DavidExpandedScope {
   visualDirection: {
     styleRecommendation: VisualStyle;     // Import from Maya
     colorPalette: ColorPalette;           // Enhanced
-    moodBoard: MoodBoard;                 // New
     brandVisualIdentity: BrandVisual;     // New
   };
 
@@ -473,7 +472,6 @@ export interface CreativeDirectionEnhanced {
   visualDirection: {
     approvedStyle: VisualStyle;
     colorPalette: EnhancedColorPalette;
-    moodBoard: MoodBoard;
     brandVisualIdentity: BrandVisualIdentity;
     lightingDesign: LightingDesign;
   };

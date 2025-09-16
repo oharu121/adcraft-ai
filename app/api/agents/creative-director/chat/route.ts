@@ -12,6 +12,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { AppModeConfig } from "@/lib/config/app-mode";
 import { CreativeDirectorDemoHandler } from "@/lib/agents/creative-director/demo/demo-handler";
 import { CreativePhase } from "@/lib/agents/creative-director/enums";
+import { processRealCreativeMessage } from "@/lib/agents/creative-director/core/real-handler";
+import { FirestoreService } from "@/lib/services/firestore";
 
 interface SimplifiedChatRequest {
   sessionId: string;
@@ -103,28 +105,30 @@ export async function POST(request: NextRequest) {
       }
 
     } else {
-      // Real mode: Simple placeholder for future implementation
-      console.log(`[David Chat Real] Processing: "${message.slice(0, 50)}..."`);
+      // Real mode: Process with step-specific logic following Maya's pattern
+      console.log(`[David Chat Real] Processing: "${message.slice(0, 50)}..." | Phase: ${currentPhase}`);
 
-      // TODO: Implement real Creative Director AI integration
-      // For now, return a clear message about demo mode
+      const realResponse = await processRealMode({
+        sessionId,
+        message,
+        locale,
+        currentPhase,
+        selectedStyle,
+        context
+      }, startTime);
+
       return NextResponse.json({
-        success: true,
-        message: "David's real mode integration is coming soon! Please use demo mode to test the complete 4-phase creative workflow.",
+        success: realResponse.success,
+        message: realResponse.message,
         data: {
-          nextAction: "demo_mode_recommended",
-          quickActions: [
-            "Switch to demo mode",
-            "Test the style selection workflow",
-            "Experience asset generation",
-            "See the complete creative process"
-          ]
+          ...realResponse.data,
+          processingTime: realResponse.processingTime
         },
         metadata: {
+          ...realResponse.metadata,
           mode: "real",
           timestamp: Date.now(),
-          sessionId,
-          processingTime: Date.now() - startTime
+          sessionId
         }
       });
     }
@@ -198,4 +202,188 @@ export async function PUT() {
 
 export async function DELETE() {
   return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
+}
+
+/**
+ * Process real mode Creative Director chat - following Maya's pattern
+ */
+async function processRealMode(request: SimplifiedChatRequest, startTime: number) {
+  const { sessionId, message, locale = 'en', currentPhase, selectedStyle, context } = request;
+
+  try {
+    console.log(`[David Real Mode] Processing phase: ${currentPhase} for session: ${sessionId.slice(-6)}`);
+
+    // Retrieve session context from Firestore (like Maya does)
+    const firestoreService = FirestoreService.getInstance();
+    let creativeSession;
+
+    try {
+      // Try to get existing Creative Director session
+      creativeSession = await firestoreService.getCreativeSession(sessionId);
+    } catch (error) {
+      console.warn(`[David Real Mode] Creative Director session not found: ${sessionId}. Creating new session.`);
+      // Create session if it doesn't exist
+      await firestoreService.createCreativeSession(sessionId, { locale });
+      creativeSession = await firestoreService.getCreativeSession(sessionId);
+    }
+
+    // Determine which step we're in based on our finalized data flow
+    const step = determineCurrentStep(currentPhase || CreativePhase.ANALYSIS, selectedStyle, context);
+
+    if (step === 1) {
+      // Step 1: Production Style - No AI needed, this is UI selection only
+      return {
+        success: false,
+        message: "Production Style selection should be handled by UI, not chat",
+        data: { nextAction: "production_style_ui_only" },
+        metadata: { step: 1, phase: currentPhase },
+        processingTime: Date.now() - startTime
+      };
+    }
+
+    // Steps 2 & 3: Need AI processing with proper context
+    const creativeRequest = {
+      sessionId,
+      message,
+      locale,
+      currentPhase,
+      selectedStyle,
+      context: {
+        mayaHandoffData: context?.mayaHandoffData,
+        conversationHistory: context?.conversationHistory || [],
+        // Add step-specific context
+        selectedProductionStyle: extractSelectedProductionStyle(context),
+        selectedStyleOption: extractSelectedStyleOption(context),
+        currentStep: step
+      }
+    };
+
+    // Use existing real handler with step-specific context
+    const aiResponse = await processRealCreativeMessage(creativeRequest, startTime);
+
+    // Store conversation in Firestore (like Maya does)
+    if (creativeSession) {
+      const conversationHistory = creativeSession.conversationHistory || [];
+
+      // Add user message
+      conversationHistory.push({
+        type: 'user',
+        content: message,
+        timestamp: Date.now(),
+        step,
+        phase: currentPhase
+      });
+
+      // Add agent response
+      conversationHistory.push({
+        type: 'agent',
+        content: aiResponse.agentResponse,
+        timestamp: Date.now(),
+        step,
+        phase: currentPhase,
+        cost: aiResponse.cost,
+        confidence: aiResponse.confidence
+      });
+
+      // Update session with new conversation history
+      await firestoreService.updateCreativeSession(sessionId, {
+        conversationHistory,
+        lastActivity: Date.now(),
+        currentStep: step,
+        currentPhase
+      });
+    }
+
+    const processingTime = Date.now() - startTime;
+
+    return {
+      success: true,
+      message: aiResponse.agentResponse,
+      data: {
+        messageType: aiResponse.messageType,
+        nextAction: aiResponse.nextAction,
+        quickActions: aiResponse.quickActions || [],
+        suggestedActions: aiResponse.suggestedActions || [],
+        visualRecommendations: aiResponse.visualRecommendations,
+        currentStep: step,
+        cost: {
+          current: aiResponse.cost,
+          total: aiResponse.cost,
+          remaining: 300 - aiResponse.cost
+        }
+      },
+      metadata: {
+        step,
+        phase: currentPhase,
+        confidence: aiResponse.confidence,
+        modelUsed: (aiResponse.metadata as any)?.modelUsed,
+        tokensUsed: (aiResponse.metadata as any)?.tokensUsed
+      },
+      processingTime
+    };
+
+  } catch (error) {
+    console.error(`[David Real Mode] Error for session ${sessionId}:`, error);
+
+    // Fallback response like Maya does
+    const cost = 0.01;
+    const processingTime = Date.now() - startTime;
+
+    return {
+      success: false,
+      message: locale === 'ja'
+        ? "申し訳ございませんが、一時的に問題が発生しています。もう一度お試しください。"
+        : "I'm experiencing some technical difficulties. Please try again.",
+      data: {
+        nextAction: "retry",
+        canRetry: true,
+        cost: {
+          current: cost,
+          total: cost,
+          remaining: 300 - cost
+        }
+      },
+      metadata: {
+        error: error instanceof Error ? error.message : "Unknown error",
+        phase: currentPhase
+      },
+      processingTime
+    };
+  }
+}
+
+/**
+ * Determine current step based on context - following our finalized data flow
+ */
+function determineCurrentStep(currentPhase: CreativePhase, selectedStyle?: string, context?: any): number {
+  // Step 1: Production Style (UI only, no chat needed)
+  if (currentPhase === CreativePhase.ANALYSIS || !context?.mayaHandoffData) {
+    return 1;
+  }
+
+  // Step 2: Creative Direction (needs AI + production style context)
+  if (!selectedStyle && context?.mayaHandoffData) {
+    return 2;
+  }
+
+  // Step 3: Scene Architecture (needs AI + accumulated context)
+  if (selectedStyle && context?.mayaHandoffData) {
+    return 3;
+  }
+
+  return 2; // Default to step 2
+}
+
+/**
+ * Extract selected production style from context
+ */
+function extractSelectedProductionStyle(context: any) {
+  return context?.selectedProductionStyle || null;
+}
+
+/**
+ * Extract selected style option from context
+ */
+function extractSelectedStyleOption(context: any) {
+  return context?.selectedStyleOption || null;
 }

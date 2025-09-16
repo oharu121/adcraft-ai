@@ -79,7 +79,6 @@ interface CreativeDirectorStore {
   visualStyle: VisualStyleDecisions;
   sceneCompositions: SceneComposition[];
   colorPalette: ColorPalette;
-  selectedMoodBoard: MoodBoardOption | null;
   
   // Asset Generation State
   generatedAssets: GeneratedAsset[];
@@ -137,7 +136,6 @@ interface MayaHandoffData {
 ```typescript
 interface VisualStyleDecisions {
   overallStyle: VisualStyleType;
-  moodBoard: MoodBoardSelection;
   colorPalette: {
     primary: ColorSpec;
     secondary: ColorSpec;

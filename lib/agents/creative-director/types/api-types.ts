@@ -110,6 +110,19 @@ export interface CreativeDirectorInitResponse {
     estimated: number;
     remaining: number;
   };
+  // Add style options following Maya's quickActions pattern
+  styleOptions?: StyleOption[];
+}
+
+// Style option structure (following demo data pattern)
+export interface StyleOption {
+  id: string;
+  name: string;
+  description: string;
+  colorPalette: string[];
+  visualKeywords: string[];
+  animationStyle: string;
+  examples: string[];
 }
 
 // Creative chat request
@@ -122,6 +135,10 @@ export interface CreativeChatRequest {
     currentVisualDecisions?: any;
     assetPreferences?: any;
     conversationHistory?: any[];
+    // New fields for step-specific context
+    selectedProductionStyle?: any;
+    selectedStyleOption?: any;
+    currentStep?: number;
   };
   metadata?: Record<string, any>;
 }

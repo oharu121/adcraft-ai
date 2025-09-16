@@ -61,7 +61,6 @@ components/                  # Reusable React components
 │   ├── HeroSection.tsx          # Compelling hero section with CTA
 │   ├── InstructionsCard.tsx     # Step-by-step instructions
 │   ├── ProductAnalysisCard.tsx  # Dual input mode (image/text) interface
-│   ├── CommercialStrategyCard.tsx # Interactive strategy review with Maya's chat
 │   └── HandoffCard.tsx          # Agent transition and progress tracking
 ├── product-intelligence/        # Maya's Product Intelligence Agent components
 │   ├── ChatContainer.tsx        # Advanced chat with Maya's personality

@@ -802,7 +802,6 @@
       "designColorPalette": "カラーパレットをデザイン",
       "buildSceneComposition": "シーン構成を構築",
       "createStyleFrames": "スタイルフレームを作成",
-      "generateMoodBoard": "ムードボードを生成",
       "analyzeColorPsychology": "色彩心理を分析",
       "exploreCompositions": "構成を探索",
       "reviewBrandAlignment": "ブランド整合性をレビュー",
@@ -834,7 +833,6 @@
         "productHero": "商品ヒーローショット",
         "lifestyleScenes": "ライフスタイルコンテキストシーン",
         "overlays": "グラフィックオーバーレイ・エレメント",
-        "moodBoards": "ビジュアルムードボード",
         "styleFrames": "スタイルリファレンスフレーム",
         "colorPalettes": "カラーパレットシステム",
         "compositions": "コンポジションテンプレート"

@@ -55,11 +55,6 @@ export const demoStyleOptions = [
     name: "Premium Minimalism",
     description: "Clean, sophisticated, Apple-inspired aesthetic with focus on negative space and premium materials",
     colorPalette: ["#1a1a1a", "#f8f8f8", "#007AFF", "#34C759"],
-    moodBoard: [
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300&h=200&fit=crop",
-      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&h=200&fit=crop",
-      "https://images.unsplash.com/photo-1560472355-a9a6ea6a2e64?w=300&h=200&fit=crop"
-    ],
     visualKeywords: ["Clean lines", "Negative space", "Premium materials", "Subtle shadows"],
     animationStyle: "Subtle Motion" as const,
     examples: [
@@ -73,11 +68,6 @@ export const demoStyleOptions = [
     name: "Tech Dynamic",
     description: "Bold, energetic approach with vibrant colors and dynamic compositions for innovation-focused brands",
     colorPalette: ["#FF3B30", "#007AFF", "#5856D6", "#FF9500"],
-    moodBoard: [
-      "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=200&fit=crop",
-      "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=300&h=200&fit=crop",
-      "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=300&h=200&fit=crop"
-    ],
     visualKeywords: ["Bold contrasts", "Dynamic angles", "Energy & motion", "Tech-inspired"],
     animationStyle: "Dynamic" as const,
     examples: [
@@ -91,11 +81,6 @@ export const demoStyleOptions = [
     name: "Luxury Editorial",
     description: "High-end magazine aesthetic with rich textures, dramatic lighting, and sophisticated compositions",
     colorPalette: ["#000000", "#B8860B", "#F5F5DC", "#8B4513"],
-    moodBoard: [
-      "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=300&h=200&fit=crop",
-      "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=300&h=200&fit=crop",
-      "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=300&h=200&fit=crop"
-    ],
     visualKeywords: ["Dramatic lighting", "Rich textures", "Editorial quality", "Luxury positioning"],
     animationStyle: "Static" as const,
     examples: [
@@ -109,11 +94,6 @@ export const demoStyleOptions = [
     name: "Lifestyle Authentic",
     description: "Warm, approachable style focusing on real-life contexts and human connections",
     colorPalette: ["#8B7355", "#F4A460", "#DEB887", "#A0522D"],
-    moodBoard: [
-      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=300&h=200&fit=crop",
-      "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=300&h=200&fit=crop",
-      "https://images.unsplash.com/photo-1556745757-8d76bdb6984b?w=300&h=200&fit=crop"
-    ],
     visualKeywords: ["Natural lighting", "Authentic moments", "Warm tones", "Human-centered"],
     animationStyle: "Subtle Motion" as const,
     examples: [

@@ -157,7 +157,7 @@ Please respond as David with creative expertise, focusing on visual decisions an
 }
 
 /**
- * Build Maya handoff context for creative decisions
+ * Build Maya handoff context for creative decisions - following finalized data flow
  */
 function buildMayaHandoffContext(request: CreativeChatRequest): string {
   if (!request.context?.mayaHandoffData) {
@@ -165,19 +165,47 @@ function buildMayaHandoffContext(request: CreativeChatRequest): string {
   }
 
   const handoff = request.context.mayaHandoffData;
-  
-  return `MAYA'S STRATEGIC FOUNDATION:
+  const currentStep = request.context?.currentStep || 2;
+
+  let contextPrompt = `MAYA'S STRATEGIC FOUNDATION:
 Product Analysis: ${handoff.productAnalysis ? 'Complete' : 'Pending'}
-Strategic Insights: ${handoff.strategicInsights ? 'Available' : 'Pending'}
-Visual Opportunities: ${handoff.visualOpportunities ? 'Identified' : 'Pending'}
+Strategic Insights: Available for creative direction
 
 Key Strategic Elements:
-${handoff.productAnalysis ? `- Product: ${handoff.productAnalysis.product?.name || 'TBD'}` : ''}
-${handoff.productAnalysis ? `- Category: ${handoff.productAnalysis.product?.category || 'TBD'}` : ''}
-${handoff.strategicInsights ? `- Core Message: ${handoff.strategicInsights.coreMessage || 'TBD'}` : ''}
-${handoff.strategicInsights ? `- Target Audience: ${handoff.strategicInsights.targetAudience || 'TBD'}` : ''}
+- Product: ${handoff.productAnalysis?.product?.name || 'Product'}
+- Category: ${handoff.productAnalysis?.product?.category || 'Consumer Product'}
+- Core Message: ${handoff.productAnalysis?.keyMessages?.headline || 'Premium Quality'}
+- Target Audience: ${handoff.productAnalysis?.targetAudience?.description || 'Professional consumers'}
 
 `;
+
+  // Add step-specific context based on our finalized data flow
+  if (currentStep >= 2) {
+    const selectedProductionStyle = request.context?.selectedProductionStyle;
+    if (selectedProductionStyle) {
+      contextPrompt += `PRODUCTION STYLE DECISION (Step 1 Complete):
+- Selected Style: ${selectedProductionStyle.name}
+- Description: ${selectedProductionStyle.description}
+- This production style will guide all creative decisions
+
+`;
+    }
+  }
+
+  if (currentStep >= 3) {
+    const selectedStyleOption = request.context?.selectedStyleOption;
+    if (selectedStyleOption) {
+      contextPrompt += `CREATIVE DIRECTION DECISION (Step 2 Complete):
+- Selected Direction: ${selectedStyleOption.name}
+- Description: ${selectedStyleOption.description}
+- Color Palette: ${selectedStyleOption.colorPalette?.join(', ') || 'Premium colors'}
+- Visual Keywords: ${selectedStyleOption.visualKeywords?.join(', ') || 'Professional aesthetic'}
+
+`;
+    }
+  }
+
+  return contextPrompt;
 }
 
 /**
@@ -222,37 +250,61 @@ ${formattedHistory}
 }
 
 /**
- * Build contextual instructions based on request
+ * Build contextual instructions based on request and current step
  */
 function buildContextualInstructions(request: CreativeChatRequest, locale: "en" | "ja"): string {
   const message = request.message.toLowerCase();
-  
-  // Determine creative focus area
-  let focus = "general creative consultation";
+  const currentStep = request.context?.currentStep || 2;
+
+  // Step-specific instructions based on our finalized data flow
+  let stepContext = "";
+  let focus = "";
+
+  if (currentStep === 2) {
+    // Step 2: Creative Direction (needs Maya's analysis + production style)
+    focus = "creative direction selection and visual style guidance";
+    stepContext = locale === "ja"
+      ? "あなたは現在Step 2にいます：クリエイティブ方向性の決定。Mayaの分析と選択されたプロダクションスタイルを基に、ビジュアル方向性のオプションを提示してください。"
+      : "You are currently in Step 2: Creative Direction. Based on Maya's analysis and the selected production style, guide the user through visual direction options.";
+  } else if (currentStep === 3) {
+    // Step 3: Scene Architecture (needs accumulated context)
+    focus = "scene architecture and visual asset planning";
+    stepContext = locale === "ja"
+      ? "あなたは現在Step 3にいます：シーンアーキテクチャ。これまでの全ての決定を基に、具体的なシーン構成と視覚的アセットの計画を提案してください。"
+      : "You are currently in Step 3: Scene Architecture. Based on all previous decisions, provide specific scene composition and visual asset planning.";
+  } else {
+    // Default to Step 2 behavior
+    focus = "creative consultation and visual direction";
+    stepContext = locale === "ja"
+      ? "創作方向性について相談してください。"
+      : "Provide creative direction consultation.";
+  }
+
+  // Message-specific overrides
   if (message.includes("color") || message.includes("palette")) {
     focus = "color palette strategy and psychology";
-  } else if (message.includes("style") || message.includes("visual")) {
-    focus = "visual style direction and brand alignment";
   } else if (message.includes("composition") || message.includes("layout")) {
     focus = "composition principles and visual hierarchy";
-  } else if (message.includes("asset") || message.includes("generate")) {
-    focus = "asset generation specifications and creative direction";
+  } else if (message.includes("scene") || message.includes("shot")) {
+    focus = "scene composition and shot planning";
   }
 
   return locale === "ja"
     ? `特別な指示：
+- ${stepContext}
 - ${focus}に焦点を当てて回答してください
 - 商業的成功とクリエイティブな卓越性のバランスを保ってください
 - 具体的で実行可能な創作ガイダンスを提供してください
-- 必要に応じて次のステップを提案してください
+- 現在のステップに適した次のアクションを提案してください
 - David's 専門知識と自信を示してください
 
 `
     : `SPECIAL INSTRUCTIONS:
+- ${stepContext}
 - Focus on ${focus}
 - Balance commercial success with creative excellence
 - Provide specific, actionable creative guidance
-- Suggest next steps when appropriate
+- Suggest next actions appropriate for the current step
 - Demonstrate David's expertise and confidence
 
 `;

@@ -96,71 +96,47 @@ export default function CreativeDirectorCard({
     }
   }, [hasHandoffData, sessionId, setSessionId]);
 
-  // Auto-load demo style options when card is first shown
+  // Initialize Creative Director and load style options from API (following Maya's pattern)
   React.useEffect(() => {
-    if (hasHandoffData && availableStyleOptions.length === 0) {
-      console.log("[David Card] Loading demo style options from dictionary");
-      const styleOptions = [
-        {
-          id: t.creativeDirections.premiumMinimalism.id,
-          name: t.creativeDirections.premiumMinimalism.name,
-          description: t.creativeDirections.premiumMinimalism.description,
-          colorPalette: t.creativeDirections.premiumMinimalism.colorPalette,
-          moodBoard: [
-            "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300&h=200&fit=crop",
-            "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&h=200&fit=crop",
-            "https://images.unsplash.com/photo-1560472355-a9a6ea6a2e64?w=300&h=200&fit=crop",
-          ],
-          visualKeywords: t.creativeDirections.premiumMinimalism.visualKeywords,
-          animationStyle: t.creativeDirections.premiumMinimalism.animationStyle,
-          examples: t.creativeDirections.premiumMinimalism.examples,
-        },
-        {
-          id: t.creativeDirections.techDynamic.id,
-          name: t.creativeDirections.techDynamic.name,
-          description: t.creativeDirections.techDynamic.description,
-          colorPalette: t.creativeDirections.techDynamic.colorPalette,
-          moodBoard: [
-            "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=200&fit=crop",
-            "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=300&h=200&fit=crop",
-            "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=300&h=200&fit=crop",
-          ],
-          visualKeywords: t.creativeDirections.techDynamic.visualKeywords,
-          animationStyle: t.creativeDirections.techDynamic.animationStyle,
-          examples: t.creativeDirections.techDynamic.examples,
-        },
-        {
-          id: t.creativeDirections.luxuryEditorial.id,
-          name: t.creativeDirections.luxuryEditorial.name,
-          description: t.creativeDirections.luxuryEditorial.description,
-          colorPalette: t.creativeDirections.luxuryEditorial.colorPalette,
-          moodBoard: [
-            "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=300&h=200&fit=crop",
-            "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=300&h=200&fit=crop",
-            "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=300&h=200&fit=crop",
-          ],
-          visualKeywords: t.creativeDirections.luxuryEditorial.visualKeywords,
-          animationStyle: t.creativeDirections.luxuryEditorial.animationStyle,
-          examples: t.creativeDirections.luxuryEditorial.examples,
-        },
-        {
-          id: t.creativeDirections.lifestyleAuthentic.id,
-          name: t.creativeDirections.lifestyleAuthentic.name,
-          description: t.creativeDirections.lifestyleAuthentic.description,
-          colorPalette: t.creativeDirections.lifestyleAuthentic.colorPalette,
-          moodBoard: [
-            "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=300&h=200&fit=crop",
-            "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=300&h=200&fit=crop",
-            "https://images.unsplash.com/photo-1556745757-8d76bdb6984b?w=300&h=200&fit=crop",
-          ],
-          visualKeywords: t.creativeDirections.lifestyleAuthentic.visualKeywords,
-          animationStyle: t.creativeDirections.lifestyleAuthentic.animationStyle,
-          examples: t.creativeDirections.lifestyleAuthentic.examples,
-        },
-      ];
-      setAvailableStyleOptions(styleOptions);
+    if (hasHandoffData && availableStyleOptions.length === 0 && sessionId) {
+      console.log("[David Card] Initializing Creative Director via API");
+
+      const initializeCreativeDirector = async () => {
+        try {
+          const response = await fetch('/api/agents/creative-director', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sessionId,
+              action: 'initialize',
+              locale: locale || 'en',
+              data: { mayaHandoffData }
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log("[David Card] API response:", data);
+
+          // Store API-generated style options (following Maya's quickActions pattern)
+          if (data.data?.styleOptions) {
+            console.log("[David Card] Setting API-generated style options:", data.data.styleOptions);
+            setAvailableStyleOptions(data.data.styleOptions);
+          } else {
+            console.warn("[David Card] No style options received from API");
+          }
+
+        } catch (error) {
+          console.error("[David Card] Failed to initialize Creative Director:", error);
+        }
+      };
+
+      initializeCreativeDirector();
     }
-  }, [hasHandoffData, availableStyleOptions, setAvailableStyleOptions, t]);
+  }, [hasHandoffData, availableStyleOptions, sessionId, setAvailableStyleOptions, locale, mayaHandoffData]);
 
   // Handle chat message sending
   const handleSendMessage = useCallback(

@@ -29,7 +29,6 @@
     name: string;                    // "Premium Minimalism"
     description: string;             // "Clean, sophisticated, Apple-inspired"
     colorPalette: string[];          // ["#1a1a1a", "#f8f8f8", "#007AFF"]
-    moodBoard: string[];             // Generated mood board images
     visualKeywords: string[];        // "Clean lines", "Negative space"
     animationStyle?: "Static" | "Subtle Motion" | "Dynamic";
     examples: string[];              // Reference image URLs
@@ -105,13 +104,6 @@
   // David: "I'm thinking 3 key scenes: Hero product shot, lifestyle context, and detail focus. What resonates with your brand story?"
   // User: "Love the lifestyle context - make it more urban"
   // David: Updates scene plan accordingly
-
-  Phase 4: Asset Generation (Multi-step process)
-
-  // 1. Generate 3-4 variants per asset type
-  // 2. User selects preferred versions
-  // 3. Chat refinement: "Make the lighting warmer"
-  // 4. Final approval for Alex handoff
 
   💡 Animation Style Inclusion:
 
@@ -203,3 +195,166 @@
   For example:
   - If user picks "Cartoon", show: Playful Cartoon, Sophisticated Animation, Tech Animation, Lifestyle Animation
   - If user picks "Cinematic", show: Premium Cinematic, Dynamic Cinematic, Editorial Cinematic, Authentic Cinematic
+
+● Creative Director Prompt Data Flow & Data Structure
+
+  🔄 PROMPT DATA FLOW
+
+  Pre-Creative Director: No prompt needed ✓
+
+  Step 1: Production Style (Fixed options, no prompt)
+  ├─ Input: user choice on production style
+  ├─ Stored: selectedProductionStyle object
+  └─ Prompt: N/A (fixed options)
+
+  Step 2: Creative Direction (Dynamic, needs prompt)
+  ├─ Input: user choice on creative direction + optional chat feedback
+  ├─ Prompt: product image + Maya's analysis + selected production style
+  └─ Stored: selectedStyleOption object
+
+  Step 3: Scene Architecture (Dynamic, needs accumulated context)
+  ├─ Input: user feedback via chat (if needed)
+  ├─ Prompt: product image + Maya's analysis + production style + creative direction
+  └─ Stored: assets.generated array
+
+  Handover to Alex:
+  ├─ Product image (from Maya)
+  ├─ Maya's product analysis
+  ├─ Selected production style
+  ├─ Selected creative direction
+  └─ Final scene architecture (assets.generated)
+
+  📊 DATA STRUCTURE (Keep Current)
+
+  Zustand Store Structure
+
+  // Step 1: Production Style
+  selectedProductionStyle: {
+    id: string,
+    name: string,
+    description: string,
+    // ... other production style fields
+  } | null
+
+  // Step 2: Creative Direction
+  selectedStyleOption: {
+    id: string,
+    name: string,
+    description: string,
+    colorPalette: string[],
+    visualKeywords: string[],
+    animationStyle: string,
+    examples: string[]
+  } | null
+
+  // Step 3: Scene Architecture Results
+  assets: {
+    generated: VisualAsset[], // Final scene architecture
+    inProgress: string[],
+    failed: string[],
+    approved: string[]
+  }
+
+  // Progress Tracking
+  completedSteps: {
+    productionStyle: boolean,
+    creativeDirection: boolean,
+    sceneArchitecture: boolean,
+    assetDevelopment: boolean
+  }
+
+  Alex Handoff Data Structure
+
+  const alexHandoffData = {
+    // From Maya
+    productImage: mayaHandoffData.originalImage,
+    productAnalysis: mayaHandoffData.productAnalysis,
+
+    // From David (Creative Director)
+    productionStyle: selectedProductionStyle,
+    creativeDirection: selectedStyleOption,
+    sceneArchitecture: assets.generated,
+
+    // Meta
+    sessionId: string,
+    locale: 'en' | 'ja'
+  }
+
+  🎯 KEY PRINCIPLES
+
+  1. Linear Flow: No feedback loops in Steps 1-2, optional chat refinement in Step 3
+  2. Context Accumulation: Each step builds on previous decisions via prompt
+  3. Final Decisions Only: Pass structured decisions, not full conversation history
+  4. Session Storage: Store decisions in Zustand, pass context via prompts
+  5. Cost Efficiency: Lean prompts with essential context only
+  6. Chat-Driven Refinement: User feedback handled through chat system, not separate fields
+
+  ⚡ IMPLEMENTATION NOTES
+
+  - Step 1: Pure UI selection, no AI prompt needed
+  - Step 2: First AI interaction, needs product context + style choice
+  - Step 3: Most complex prompt, needs full accumulated context
+  - Real Mode: Mirror demo structure exactly, replace mock responses with AI calls
+  - Error Handling: Maintain same error patterns as demo mode
+  - State Management: Current Zustand structure works perfectly - don't change
+
+  This structure is demo-tested, UI-aligned, and ready for real mode implementation.
+
+    Maya's Pattern (Correct Approach):
+
+  - Demo Mode: API returns dictionary-based quickActions via PromptBuilder.getQuickActions()
+  - Real Mode: API generates dynamic quickActions via AI
+  - UI: Always displays whatever quickActions the API returns
+
+  David's Current Problem:
+
+  - Demo Mode: UI loads dictionary-based style options directly in component
+  - Real Mode: UI still loads dictionary-based style options (wrong!)
+  - API: Doesn't return style options, just general recommendations
+
+  My Honest Opinion:
+
+  You're absolutely right! We should follow Maya's pattern:
+
+  ✅ Correct Approach:
+  - API should return structured styleOptions in both modes
+  - Demo mode: API returns pre-built dictionary-based style options
+  - Real mode: API generates custom style options via AI
+  - UI: Always renders whatever styleOptions the API returns
+
+  ❌ Current Wrong Approach:
+  - UI directly loading dictionary data breaks the agent pattern
+  - Makes real/demo mode logic split between UI and API
+  - Inconsistent with Maya's clean API-driven approach
+
+  The fix: Move the style options generation logic from UI to API, and make the API return styleOptions in the
+  initialization response, just like Maya returns quickActions.
+
+  This maintains clean separation: API handles all logic, UI just renders the response.
+
+   What I Fixed:
+
+  1. ✅ Created Style Options Generator (/lib/agents/creative-director/tools/style-options-generator.ts)
+    - Demo Mode: Returns dictionary-based style options (like Maya's static quickActions)
+    - Real Mode: Generates AI-customized options based on Maya's product analysis
+    - Proper localization for Japanese/English
+  2. ✅ Updated API Response (/app/api/agents/creative-director/route.ts)
+    - Added StyleOption interface following demo data structure
+    - Both demo and real mode initialization now return styleOptions in response
+    - Follows Maya's quickActions pattern exactly
+  3. ✅ Fixed UI Logic (/components/home/CreativeDirectorCard.tsx)
+    - Removed: Dictionary-based style loading from UI
+    - Added: API initialization call to get style options
+    - UI now uses setAvailableStyleOptions() from API response
+    - Follows Maya's pattern: API generates, UI renders
+
+  The Result:
+
+  - Demo Mode: API returns dictionary-based style options (consistent experience)
+  - Real Mode: API returns AI-generated custom style option + 2 demo options
+  - UI: Always renders whatever styleOptions the API returns (no mode logic in UI)
+
+  Key Benefits:
+
+  ✅ Consistent with Maya's architecture✅ Clean separation: API handles logic, UI handles rendering✅ Real mode        
+  will now show AI-customized style options✅ Demo mode maintains existing UX

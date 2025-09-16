@@ -48,7 +48,6 @@ export interface CacheStrategy {
     productHero: 'high' | 'medium' | 'low';
     lifestyleScene: 'high' | 'medium' | 'low';
     background: 'high' | 'medium' | 'low';
-    moodBoard: 'high' | 'medium' | 'low';
     styleFrame: 'high' | 'medium' | 'low';
   };
 }
@@ -683,7 +682,6 @@ export class CreativeDirectorAssetCacheManager {
         productHero: 'high',
         lifestyleScene: 'high',
         background: 'medium',
-        moodBoard: 'medium',
         styleFrame: 'low'
       }
     };

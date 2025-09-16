@@ -11,6 +11,7 @@ import { processCreativeMessage } from "@/lib/agents/creative-director/core/chat
 import { AppModeConfig } from "@/lib/config/app-mode";
 import { SessionStatus, AgentType, CreativeErrorType } from "@/lib/agents/creative-director/enums";
 import { FirestoreService } from "@/lib/services/firestore";
+import { generateStyleOptions } from "@/lib/agents/creative-director/tools/style-options-generator";
 import {
   ApiResponse,
   CreativeDirectorInitRequest,
@@ -206,10 +207,14 @@ async function initializeDemoMode(
     estimatedGenerationTime: 300000, // 5 minutes
   };
 
+  // Generate style options following Maya's quickActions pattern
+  const styleOptions = await generateStyleOptions(mayaHandoffData, locale);
+
   return {
     sessionId,
     agentStatus: "ready",
     creativeAssessment,
+    styleOptions, // Add style options to response
     cost: {
       estimated: 1.5, // Estimated cost for creative direction and asset generation
       remaining: 298.5,
@@ -242,6 +247,9 @@ async function initializeRealMode(
   const styleRecommendations = await generateStyleRecommendations(mayaHandoffData, locale);
   const assetNeeds = await assessAssetNeeds(mayaHandoffData, locale);
 
+  // Generate style options following Maya's quickActions pattern (real mode with AI customization)
+  const styleOptions = await generateStyleOptions(mayaHandoffData, locale);
+
   return {
     sessionId,
     agentStatus: "ready",
@@ -251,6 +259,7 @@ async function initializeRealMode(
       assetNeeds,
       estimatedGenerationTime: 300000, // 5 minutes
     },
+    styleOptions, // Add style options to response
     cost: {
       estimated: 2.0, // Real mode may be slightly higher due to AI processing
       remaining: 298.0,

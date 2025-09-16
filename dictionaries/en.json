@@ -802,7 +802,6 @@
       "designColorPalette": "Design Color Palette",
       "buildSceneComposition": "Build Scene Composition",
       "createStyleFrames": "Create Style Frames",
-      "generateMoodBoard": "Generate Mood Board",
       "analyzeColorPsychology": "Analyze Color Psychology",
       "exploreCompositions": "Explore Compositions",
       "reviewBrandAlignment": "Review Brand Alignment",
@@ -834,7 +833,6 @@
         "productHero": "Product Hero Shots",
         "lifestyleScenes": "Lifestyle Context Scenes",
         "overlays": "Graphic Overlays & Elements",
-        "moodBoards": "Visual Mood Boards",
         "styleFrames": "Style Reference Frames",
         "colorPalettes": "Color Palette Systems",
         "compositions": "Composition Templates"

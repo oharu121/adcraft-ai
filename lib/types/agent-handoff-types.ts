@@ -229,7 +229,6 @@ export interface VisualConcept {
   readonly colorPalette: ColorPalette;
   readonly visualStyle: string;
   readonly mood: string;
-  readonly moodBoard: string[]; // URLs to reference images
   readonly compositionStyle: string;
 }
 
