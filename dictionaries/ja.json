@@ -20,7 +20,24 @@
     "warning": "警告",
     "info": "情報",
     "confirmRestart": "現在、後のエージェントと作業中です。最初からやり直しますか？",
-    "handoffComplete": "引き継ぎ完了"
+    "handoffComplete": "引き継ぎ完了",
+    "preparingHandoff": "引き継ぎ準備中...",
+    "phaseTransitions": {
+      "productInput": "商品入力",
+      "mayaAnalysis": "Maya",
+      "commercialStrategy": "Maya",
+      "creativeDirection": "David",
+      "videoProduction": "Zara",
+      "complete": "完了"
+    },
+    "handoffMessages": {
+      "mayaToZara": "マヤの戦略が完了しました！ザラが最終的なコマーシャル動画を制作します",
+      "mayaToDavid": "マヤの戦略が完了しました！デビッドが素晴らしいビジュアルディレクションを作成します",
+      "davidToZara": "デビッドのクリエイティブディレクションが完了しました！ザラが最終的なコマーシャル動画を制作します",
+      "davidAnalysis": "デビッドがコマーシャルの素晴らしいビジュアルディレクションを作成します",
+      "zaraProduction": "ザラが最終的なコマーシャル動画を制作します",
+      "mayaAnalysis": "マヤが商品を分析しています"
+    }
   },
   "navigation": {
     "home": "生成",
@@ -592,7 +609,8 @@
       "navigation": {
         "back": "戻る",
         "continue": "続行",
-        "stepOf": "ステップ {current} / {total}"
+        "stepOf": "ステップ {current} / {total}",
+        "proceedToNextAgent": "次のエージェントに進む"
       },
       "ui": {
         "keyFeatures": "主要機能：",
@@ -978,8 +996,9 @@
     "title": "ビデオプロデューサー（ザラ）",
     "subtitle": "クリエイティブビジョンを素晴らしい動画に変換",
     "description": "クリエイティブディレクションを高度なAI動画生成技術によりプロフェッショナルな動画制作に変換",
-    "waitingForHandoff": "クリエイティブディレクターからの引き継ぎ待ち",
-    "handoffDescription": "デビッドがクリエイティブディレクション段階を完了次第、ザラが開始します",
+    "waitingForHandoff": "デビッドからのクリエイティブディレクション待ち...",
+    "handoffDescription": "動画制作のロックを解除するには、まずクリエイティブディレクターのワークフローを完了してください。",
+    "waitingTitle": "ビデオプロデューサー - ザラ",
 
     "workflowMode": "ワークフロー",
     "chatMode": "チャット",
@@ -988,7 +1007,140 @@
     "steps": {
       "narrativeStyle": "ナラティブスタイル",
       "musicTone": "音楽&トーン",
+      "videoFormat": "動画フォーマット",
       "finalProduction": "最終制作"
+    },
+
+    "stepDescriptions": {
+      "narrativeStyle": "ストーリーテリングアプローチを選択",
+      "musicTone": "音楽とトーンを選択",
+      "videoFormat": "出力フォーマットを選択",
+      "finalProduction": "最終動画を制作"
+    },
+
+    "narrativeStyles": {
+      "heroJourney": {
+        "name": "ヒーローズジャーニー",
+        "description": "問題解決型ナラティブを含む古典的なストーリーテリング",
+        "features": ["問題の提示", "解決への道のり", "変革", "行動喚起"],
+        "bestFor": "明確な問題を解決する商品",
+        "pacing": "強力なフィナーレへ向けた段階的な構築"
+      },
+      "lifestyleAspiration": {
+        "name": "ライフスタイル志向",
+        "description": "憧れのライフスタイルと感情的なつながり",
+        "features": ["ライフスタイルショーケース", "感情的なつながり", "商品統合", "憧れ"],
+        "bestFor": "ライフスタイルと高級商品",
+        "pacing": "なめらかで流れるようなナラティブ"
+      },
+      "productShowcase": {
+        "name": "商品ショーケース",
+        "description": "直接的な機能実演とメリット",
+        "features": ["機能ハイライト", "メリットフォーカス", "明確な実演", "直接的アピール"],
+        "bestFor": "技術的で機能的な商品",
+        "pacing": "簡潔で情報的"
+      }
+    },
+
+    "musicGenres": {
+      "upbeatEnergetic": {
+        "name": "アップビート&エネルギッシュ",
+        "description": "ダイナミックで刺激的なプレゼンテーション用の高エネルギー音楽",
+        "mood": "刺激的、モチベーショナル",
+        "tempo": "120-140 BPM",
+        "instruments": ["エレクトロニックビート", "シンセサイザー", "アップリフティングメロディー"],
+        "bestFor": "テック商品、フィットネス、イノベーション"
+      },
+      "calmSophisticated": {
+        "name": "落ち着いた&洗練された",
+        "description": "プレミアムで高級なプレゼンテーション用の洗練された背景音楽",
+        "mood": "エレガント、プロフェッショナル",
+        "tempo": "80-100 BPM",
+        "instruments": ["ピアノ", "ストリングス", "アンビエントテクスチャー"],
+        "bestFor": "高級商品、プロフェッショナルサービス"
+      },
+      "warmInviting": {
+        "name": "温かい&親しみやすい",
+        "description": "ライフスタイルとファミリー商品向けの親しみやすく温かい音楽",
+        "mood": "親しみやすい、心地よい",
+        "tempo": "90-110 BPM",
+        "instruments": ["アコースティックギター", "軽いパーカッション", "温かいパッド"],
+        "bestFor": "ファミリー商品、ライフスタイルブランド"
+      }
+    },
+
+    "videoFormats": {
+      "professionalLandscape": {
+        "name": "プロフェッショナル横長",
+        "description": "デスクトップとTV表示用の高品質ワイドスクリーンフォーマット",
+        "platforms": ["YouTube", "LinkedIn", "ウェブサイト", "プレゼンテーション"],
+        "bestFor": "プロフェッショナルプレゼンテーション、ウェブコンテンツ、デスクトップ視聴",
+        "specs": "1920×1080 • 16:9 • 8秒"
+      },
+      "standardLandscape": {
+        "name": "標準横長",
+        "description": "ソーシャルメディアとウェブ用に最適化されたワイドスクリーンフォーマット",
+        "platforms": ["Facebook", "Twitter", "ウェブサイト", "メール"],
+        "bestFor": "ソーシャルメディア、メールキャンペーン、一般的なウェブ使用",
+        "specs": "1280×720 • 16:9 • 8秒"
+      },
+      "mobilePortrait": {
+        "name": "モバイル縦型",
+        "description": "モバイルファーストプラットフォーム用に最適化された縦型フォーマット",
+        "platforms": ["TikTok", "Instagram Stories", "YouTube Shorts"],
+        "bestFor": "モバイルアプリ、ストーリー、ショートフォームコンテンツ",
+        "specs": "720×1280 • 9:16 • 8秒"
+      }
+    },
+
+    "production": {
+      "complete": "動画制作完了！",
+      "ready": "あなたのコマーシャル動画が完成しました！下で作品をご覧ください。",
+      "downloading": "動画をダウンロード",
+      "copyLink": "リンクをコピー",
+      "specifications": "動画仕様：",
+      "format": "フォーマット：",
+      "duration": "再生時間：",
+      "narrative": "ナラティブ：",
+      "music": "音楽：",
+      "producing": "動画制作中...",
+      "crafting": "ザラが選択されたナラティブスタイルと音楽でコマーシャルを制作しています。",
+      "progress": "% 完了",
+      "timeRemaining": "推定残り時間：",
+      "seconds": "秒",
+      "readyTitle": "動画制作準備完了",
+      "readyDescription": "すべてのクリエイティブ決定が確定しました。動画制作プロセスを開始しましょう！",
+      "summary": "制作サマリー：",
+      "estimatedDuration": "再生時間：",
+      "productionCost": "制作コスト：",
+      "startProduction": "動画制作開始"
+    },
+
+    "progress": {
+      "title": "動画制作進捗",
+      "collapse": "折りたたみ",
+      "expand": "展開",
+      "changeSelection": "選択変更",
+      "change": "変更",
+      "selectMusicGenre": "音楽ジャンルを選択",
+      "select": "選択",
+      "selectVideoFormat": "動画フォーマットを選択",
+      "viewVideo": "動画を表示",
+      "view": "表示",
+      "startProduction": "制作開始",
+      "start": "開始",
+      "estimatedCost": "推定制作コスト",
+      "cost": "コスト",
+      "videoComplete": "動画完成！",
+      "readyToDownload": "ダウンロード準備完了",
+      "producing": "制作中...",
+      "readyToSelect": "音楽選択準備完了",
+      "readyToSelectMusic": "音楽選択準備完了",
+      "readyToSelectFormat": "フォーマット選択準備完了",
+      "readyToStartProduction": "制作開始準備完了",
+      "notSelected": "未選択",
+      "notStarted": "未開始",
+      "estimatedTime": "推定 5-8 分"
     },
 
     "narrativeStyleSelection": {
@@ -1070,6 +1222,17 @@
       "processing": "動画品質を処理・最適化中...",
       "reviewing": "品質レビューと最終チェックを実施中...",
       "complete": "動画制作完了、配信準備完了"
+    },
+
+    "labels": {
+      "keyElements": "主要要素：",
+      "bestFor": "最適な用途：",
+      "pacing": "ペーシング：",
+      "mood": "ムード：",
+      "tempo": "テンポ：",
+      "instruments": "楽器：",
+      "specifications": "仕様：",
+      "platforms": "プラットフォーム："
     }
   },
   "chat": {

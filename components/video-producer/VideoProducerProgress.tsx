@@ -34,26 +34,26 @@ export default function VideoProducerProgress({
   const steps = [
     {
       id: "narrative-style",
-      label: t.steps?.narrativeStyle || "Narrative Style",
-      description: "Choose storytelling approach",
+      label: t.steps.narrativeStyle,
+      description: t.stepDescriptions.narrativeStyle,
       completed: completedSteps.narrativeStyle,
     },
     {
       id: "music-tone",
-      label: t.steps?.musicTone || "Music & Tone",
-      description: "Select music and tone",
+      label: t.steps.musicTone,
+      description: t.stepDescriptions.musicTone,
       completed: completedSteps.musicTone,
     },
     {
       id: "video-format",
-      label: "Video Format",
-      description: "Choose output format",
+      label: t.steps.videoFormat,
+      description: t.stepDescriptions.videoFormat,
       completed: completedSteps.videoFormat,
     },
     {
       id: "final-production",
-      label: t.steps?.finalProduction || "Final Production",
-      description: "Produce final video",
+      label: t.steps.finalProduction,
+      description: t.stepDescriptions.finalProduction,
       completed: completedSteps.finalProduction,
     },
   ];
@@ -78,13 +78,13 @@ export default function VideoProducerProgress({
                 d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
               />
             </svg>
-            Video Production Progress
+            {t.progress.title}
           </h3>
           {onToggleExpanded && (
             <button
               onClick={onToggleExpanded}
               className="cursor-pointer text-gray-400 hover:text-white transition-colors p-1 rounded hover:bg-gray-700/50"
-              aria-label={expanded ? "Collapse" : "Expand"}
+              aria-label={expanded ? t.progress.collapse : t.progress.expand}
             >
               <svg
                 className={`w-4 h-4 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
@@ -143,11 +143,11 @@ export default function VideoProducerProgress({
                     onClick={() => onNavigateToStep(VideoProducerWorkflowStep.NARRATIVE_STYLE)}
                     className="text-xs text-red-400 hover:text-red-300 cursor-pointer"
                   >
-                    {expanded ? "Change Selection" : "Change"}
+                    {expanded ? t.progress.changeSelection : t.progress.change}
                   </button>
                 </div>
               ) : (
-                <div className="text-xs text-gray-500">Not Selected</div>
+                <div className="text-xs text-gray-500">{t.progress.notSelected}</div>
               )}
             </div>
           </div>
@@ -191,21 +191,21 @@ export default function VideoProducerProgress({
                     onClick={() => onNavigateToStep(VideoProducerWorkflowStep.MUSIC_TONE)}
                     className="text-xs text-red-400 hover:text-red-300 cursor-pointer"
                   >
-                    {expanded ? "Change Selection" : "Change"}
+                    {expanded ? t.progress.changeSelection : t.progress.change}
                   </button>
                 </div>
               ) : completedSteps.narrativeStyle ? (
                 <div className={`transition-all duration-300 ${expanded ? "space-y-1" : "space-y-0.5"}`}>
-                  {expanded && <div className="text-xs text-gray-400">Ready to Select Music</div>}
+                  {expanded && <div className="text-xs text-gray-400">{t.progress.readyToSelectMusic}</div>}
                   <button
                     onClick={() => onNavigateToStep(VideoProducerWorkflowStep.MUSIC_TONE)}
                     className="text-xs text-red-400 hover:text-red-300 cursor-pointer"
                   >
-                    {expanded ? "Select Music Genre" : "Select"}
+                    {expanded ? t.progress.selectMusicGenre : t.progress.select}
                   </button>
                 </div>
               ) : (
-                <div className="text-xs text-gray-500">Not Started</div>
+                <div className="text-xs text-gray-500">{t.progress.notStarted}</div>
               )}
             </div>
           </div>
@@ -234,7 +234,7 @@ export default function VideoProducerProgress({
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-white">Video Format</div>
+              <div className="text-sm font-medium text-white">{t.steps.videoFormat}</div>
               {selectedVideoFormat ? (
                 <div className={`transition-all duration-300 ${expanded ? "space-y-1" : "space-y-0.5"}`}>
                   <div className="text-xs text-red-300 font-medium">
@@ -249,21 +249,21 @@ export default function VideoProducerProgress({
                     onClick={() => onNavigateToStep(VideoProducerWorkflowStep.VIDEO_FORMAT)}
                     className="text-xs text-red-400 hover:text-red-300 cursor-pointer"
                   >
-                    {expanded ? "Change Selection" : "Change"}
+                    {expanded ? t.progress.changeSelection : t.progress.change}
                   </button>
                 </div>
               ) : completedSteps.musicTone ? (
                 <div className={`transition-all duration-300 ${expanded ? "space-y-1" : "space-y-0.5"}`}>
-                  {expanded && <div className="text-xs text-gray-400">Ready to Select Format</div>}
+                  {expanded && <div className="text-xs text-gray-400">{t.progress.readyToSelectFormat}</div>}
                   <button
                     onClick={() => onNavigateToStep(VideoProducerWorkflowStep.VIDEO_FORMAT)}
                     className="text-xs text-red-400 hover:text-red-300 cursor-pointer"
                   >
-                    {expanded ? "Select Video Format" : "Select"}
+                    {expanded ? t.progress.selectVideoFormat : t.progress.select}
                   </button>
                 </div>
               ) : (
-                <div className="text-xs text-gray-500">Not Started</div>
+                <div className="text-xs text-gray-500">{t.progress.notStarted}</div>
               )}
             </div>
           </div>
@@ -292,23 +292,23 @@ export default function VideoProducerProgress({
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-white">{t.steps?.finalProduction || "Final Production"}</div>
+              <div className="text-sm font-medium text-white">{t.steps.finalProduction}</div>
               {finalVideoUrl ? (
                 <div className={`transition-all duration-300 ${expanded ? "space-y-1" : "space-y-0.5"}`}>
-                  <div className="text-xs text-green-300 font-medium">Video Complete!</div>
+                  <div className="text-xs text-green-300 font-medium">{t.progress.videoComplete}</div>
                   {expanded && (
-                    <div className="text-xs text-gray-400">Ready for download</div>
+                    <div className="text-xs text-gray-400">{t.progress.readyToDownload}</div>
                   )}
                   <button
                     onClick={() => onNavigateToStep(VideoProducerWorkflowStep.FINAL_PRODUCTION)}
                     className="text-xs text-red-400 hover:text-red-300 cursor-pointer"
                   >
-                    {expanded ? "View Video" : "View"}
+                    {expanded ? t.progress.viewVideo : t.progress.view}
                   </button>
                 </div>
               ) : isProducing ? (
                 <div className={`transition-all duration-300 ${expanded ? "space-y-1" : "space-y-0.5"}`}>
-                  <div className="text-xs text-red-300 font-medium">Producing... {Math.round(productionProgress)}%</div>
+                  <div className="text-xs text-red-300 font-medium">{t.progress.producing} {Math.round(productionProgress)}%</div>
                   {expanded && (
                     <div className="w-full bg-gray-700 rounded-full h-1">
                       <div
@@ -320,16 +320,16 @@ export default function VideoProducerProgress({
                 </div>
               ) : completedSteps.videoFormat ? (
                 <div className={`transition-all duration-300 ${expanded ? "space-y-1" : "space-y-0.5"}`}>
-                  {expanded && <div className="text-xs text-gray-400">Ready to Start Production</div>}
+                  {expanded && <div className="text-xs text-gray-400">{t.progress.readyToStartProduction}</div>}
                   <button
                     onClick={() => onNavigateToStep(VideoProducerWorkflowStep.FINAL_PRODUCTION)}
                     className="text-xs text-red-400 hover:text-red-300 cursor-pointer"
                   >
-                    {expanded ? "Start Production" : "Start"}
+                    {expanded ? t.progress.startProduction : t.progress.start}
                   </button>
                 </div>
               ) : (
-                <div className="text-xs text-gray-500">Not Started</div>
+                <div className="text-xs text-gray-500">{t.progress.notStarted}</div>
               )}
             </div>
           </div>
@@ -340,12 +340,12 @@ export default function VideoProducerProgress({
       {expanded && (
         <div className={`border-t border-gray-600/50 p-4 transition-all duration-300 ${expanded ? "space-y-2" : "space-y-1"}`}>
           <div className="text-xs text-gray-400 mb-2">
-            {expanded ? "Estimated Production Cost" : "Cost"}
+            {expanded ? t.progress.estimatedCost : t.progress.cost}
           </div>
           <div className={`font-semibold text-white ${expanded ? "text-lg" : "text-base"}`}>
             $2.50
           </div>
-          {expanded && <div className="text-xs text-gray-500">Est. 5-8 minutes</div>}
+          {expanded && <div className="text-xs text-gray-500">{t.progress.estimatedTime}</div>}
         </div>
       )}
     </div>

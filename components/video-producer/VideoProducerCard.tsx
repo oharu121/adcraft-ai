@@ -95,7 +95,11 @@ export default function VideoProducerCard({
     } else if (currentStep === VideoProducerWorkflowStep.VIDEO_FORMAT && selectedVideoFormat) {
       // Progress from video format to final production
       setCurrentStep(VideoProducerWorkflowStep.FINAL_PRODUCTION);
-    } else if (currentStep === VideoProducerWorkflowStep.FINAL_PRODUCTION && !isProducing && !finalVideoUrl) {
+    } else if (
+      currentStep === VideoProducerWorkflowStep.FINAL_PRODUCTION &&
+      !isProducing &&
+      !finalVideoUrl
+    ) {
       // Start video production
       startVideoProduction();
     }
@@ -130,11 +134,11 @@ export default function VideoProducerCard({
       <Card variant="magical" className="p-8">
         <div className="text-center">
           <div className="text-6xl mb-4">🎬</div>
-          <h2 className="text-2xl font-bold text-white mb-2">Video Producer - Zara</h2>
-          <p className="text-red-200 text-lg mb-6">Waiting for creative direction from David...</p>
+          <h2 className="text-2xl font-bold text-white mb-2">{t.waitingTitle}</h2>
+          <p className="text-red-200 text-lg mb-6">{t.waitingForHandoff}</p>
 
           <div className="bg-gray-800/50 rounded-lg p-6">
-            <p className="text-gray-400">Complete the Creative Director workflow first to unlock video production.</p>
+            <p className="text-gray-400">{t.handoffDescription}</p>
           </div>
         </div>
       </Card>
@@ -146,30 +150,30 @@ export default function VideoProducerCard({
     const narrativeStyles = [
       {
         id: "hero-journey",
-        name: "Hero's Journey",
-        description: "Classic storytelling with problem-solution narrative",
+        name: t.narrativeStyles.heroJourney.name,
+        description: t.narrativeStyles.heroJourney.description,
         icon: "🎭",
-        features: ["Problem Introduction", "Journey to Solution", "Transformation", "Call to Action"],
-        bestFor: "Products that solve clear problems",
-        pacing: "Gradual build-up with strong finale",
+        features: t.narrativeStyles.heroJourney.features,
+        bestFor: t.narrativeStyles.heroJourney.bestFor,
+        pacing: t.narrativeStyles.heroJourney.pacing,
       },
       {
         id: "lifestyle-aspiration",
-        name: "Lifestyle Aspiration",
-        description: "Aspirational lifestyle and emotional connection",
+        name: t.narrativeStyles.lifestyleAspiration.name,
+        description: t.narrativeStyles.lifestyleAspiration.description,
         icon: "✨",
-        features: ["Lifestyle Showcase", "Emotional Connection", "Product Integration", "Aspiration"],
-        bestFor: "Lifestyle and luxury products",
-        pacing: "Smooth, flowing narrative",
+        features: t.narrativeStyles.lifestyleAspiration.features,
+        bestFor: t.narrativeStyles.lifestyleAspiration.bestFor,
+        pacing: t.narrativeStyles.lifestyleAspiration.pacing,
       },
       {
         id: "product-showcase",
-        name: "Product Showcase",
-        description: "Direct feature demonstration and benefits",
+        name: t.narrativeStyles.productShowcase.name,
+        description: t.narrativeStyles.productShowcase.description,
         icon: "🎯",
-        features: ["Feature Highlights", "Benefit Focus", "Clear Demonstration", "Direct Appeal"],
-        bestFor: "Technical and functional products",
-        pacing: "Concise and informative",
+        features: t.narrativeStyles.productShowcase.features,
+        bestFor: t.narrativeStyles.productShowcase.bestFor,
+        pacing: t.narrativeStyles.productShowcase.pacing,
       },
     ];
 
@@ -198,14 +202,12 @@ export default function VideoProducerCard({
                 </div>
 
                 {/* Description */}
-                <p className="text-gray-300 text-sm leading-relaxed mb-4">
-                  {style.description}
-                </p>
+                <p className="text-gray-300 text-sm leading-relaxed mb-4">{style.description}</p>
 
                 {/* Features */}
                 <div className="space-y-3">
                   <div>
-                    <span className="text-xs text-gray-300 font-medium">Key Elements:</span>
+                    <span className="text-xs text-gray-300 font-medium">{t.labels.keyElements}</span>
                     <div className="flex flex-wrap gap-1 mt-2">
                       {style.features.map((feature, idx) => (
                         <span
@@ -219,12 +221,12 @@ export default function VideoProducerCard({
                   </div>
 
                   <div>
-                    <span className="text-xs text-gray-300 font-medium">Best For:</span>
+                    <span className="text-xs text-gray-300 font-medium">{t.labels.bestFor}</span>
                     <p className="text-xs text-gray-100 mt-1">{style.bestFor}</p>
                   </div>
 
                   <div>
-                    <span className="text-xs text-gray-300 font-medium">Pacing:</span>
+                    <span className="text-xs text-gray-300 font-medium">{t.labels.pacing}</span>
                     <p className="text-xs text-gray-100 mt-1">{style.pacing}</p>
                   </div>
                 </div>
@@ -254,33 +256,30 @@ export default function VideoProducerCard({
     const musicGenres = [
       {
         id: "upbeat-energetic",
-        name: "Upbeat & Energetic",
-        description: "High energy music for dynamic and exciting presentations",
-        icon: "🎵",
-        mood: "Exciting, Motivational",
-        tempo: "120-140 BPM",
-        instruments: ["Electronic Beats", "Synthesizers", "Uplifting Melodies"],
-        bestFor: "Tech products, fitness, innovation",
+        name: t.musicGenres.upbeatEnergetic.name,
+        description: t.musicGenres.upbeatEnergetic.description,
+        mood: t.musicGenres.upbeatEnergetic.mood,
+        tempo: t.musicGenres.upbeatEnergetic.tempo,
+        instruments: t.musicGenres.upbeatEnergetic.instruments,
+        bestFor: t.musicGenres.upbeatEnergetic.bestFor,
       },
       {
         id: "calm-sophisticated",
-        name: "Calm & Sophisticated",
-        description: "Refined background music for premium and luxury presentations",
-        icon: "🎼",
-        mood: "Elegant, Professional",
-        tempo: "80-100 BPM",
-        instruments: ["Piano", "Strings", "Ambient Textures"],
-        bestFor: "Luxury goods, professional services",
+        name: t.musicGenres.calmSophisticated.name,
+        description: t.musicGenres.calmSophisticated.description,
+        mood: t.musicGenres.calmSophisticated.mood,
+        tempo: t.musicGenres.calmSophisticated.tempo,
+        instruments: t.musicGenres.calmSophisticated.instruments,
+        bestFor: t.musicGenres.calmSophisticated.bestFor,
       },
       {
         id: "warm-inviting",
-        name: "Warm & Inviting",
-        description: "Friendly and approachable music for lifestyle and family products",
-        icon: "🎶",
-        mood: "Friendly, Comforting",
-        tempo: "90-110 BPM",
-        instruments: ["Acoustic Guitar", "Light Percussion", "Warm Pads"],
-        bestFor: "Family products, lifestyle brands",
+        name: t.musicGenres.warmInviting.name,
+        description: t.musicGenres.warmInviting.description,
+        mood: t.musicGenres.warmInviting.mood,
+        tempo: t.musicGenres.warmInviting.tempo,
+        instruments: t.musicGenres.warmInviting.instruments,
+        bestFor: t.musicGenres.warmInviting.bestFor,
       },
     ];
 
@@ -300,7 +299,6 @@ export default function VideoProducerCard({
               <div className="p-6">
                 {/* Icon and Title */}
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="text-3xl">{genre.icon}</span>
                   <div>
                     <h4 className="text-xl font-bold text-white group-hover:text-red-200 transition-colors">
                       {genre.name}
@@ -309,24 +307,22 @@ export default function VideoProducerCard({
                 </div>
 
                 {/* Description */}
-                <p className="text-gray-300 text-sm leading-relaxed mb-4">
-                  {genre.description}
-                </p>
+                <p className="text-gray-300 text-sm leading-relaxed mb-4">{genre.description}</p>
 
                 {/* Details */}
                 <div className="space-y-3">
                   <div>
-                    <span className="text-xs text-gray-300 font-medium">Mood:</span>
+                    <span className="text-xs text-gray-300 font-medium">{t.labels.mood}</span>
                     <p className="text-xs text-red-300 mt-1">{genre.mood}</p>
                   </div>
 
                   <div>
-                    <span className="text-xs text-gray-300 font-medium">Tempo:</span>
+                    <span className="text-xs text-gray-300 font-medium">{t.labels.tempo}</span>
                     <p className="text-xs text-gray-100 mt-1">{genre.tempo}</p>
                   </div>
 
                   <div>
-                    <span className="text-xs text-gray-300 font-medium">Instruments:</span>
+                    <span className="text-xs text-gray-300 font-medium">{t.labels.instruments}</span>
                     <div className="flex flex-wrap gap-1 mt-2">
                       {genre.instruments.map((instrument, idx) => (
                         <span
@@ -340,7 +336,7 @@ export default function VideoProducerCard({
                   </div>
 
                   <div>
-                    <span className="text-xs text-gray-300 font-medium">Best For:</span>
+                    <span className="text-xs text-gray-300 font-medium">{t.labels.bestFor}</span>
                     <p className="text-xs text-gray-100 mt-1">{genre.bestFor}</p>
                   </div>
                 </div>
@@ -370,40 +366,40 @@ export default function VideoProducerCard({
     const videoFormats = [
       {
         id: "professional-landscape",
-        name: "Professional Landscape",
-        description: "High-quality widescreen format for desktop and TV displays",
+        name: t.videoFormats.professionalLandscape.name,
+        description: t.videoFormats.professionalLandscape.description,
         aspectRatio: "16:9" as const,
         resolution: "1080p" as const,
         durationSeconds: 8 as const,
         icon: "💻",
-        platforms: ["YouTube", "LinkedIn", "Website", "Presentations"],
-        bestFor: "Professional presentations, web content, desktop viewing",
-        specs: "1920×1080 • 16:9 • 8 seconds"
+        platforms: t.videoFormats.professionalLandscape.platforms,
+        bestFor: t.videoFormats.professionalLandscape.bestFor,
+        specs: t.videoFormats.professionalLandscape.specs,
       },
       {
         id: "standard-landscape",
-        name: "Standard Landscape",
-        description: "Optimized widescreen format for social media and web",
+        name: t.videoFormats.standardLandscape.name,
+        description: t.videoFormats.standardLandscape.description,
         aspectRatio: "16:9" as const,
         resolution: "720p" as const,
         durationSeconds: 8 as const,
         icon: "📺",
-        platforms: ["Facebook", "Twitter", "Website", "Email"],
-        bestFor: "Social media, email campaigns, general web use",
-        specs: "1280×720 • 16:9 • 8 seconds"
+        platforms: t.videoFormats.standardLandscape.platforms,
+        bestFor: t.videoFormats.standardLandscape.bestFor,
+        specs: t.videoFormats.standardLandscape.specs,
       },
       {
         id: "mobile-portrait",
-        name: "Mobile Portrait",
-        description: "Vertical format optimized for mobile-first platforms",
+        name: t.videoFormats.mobilePortrait.name,
+        description: t.videoFormats.mobilePortrait.description,
         aspectRatio: "9:16" as const,
         resolution: "720p" as const,
         durationSeconds: 8 as const,
         icon: "📱",
-        platforms: ["TikTok", "Instagram Stories", "YouTube Shorts"],
-        bestFor: "Mobile apps, stories, short-form content",
-        specs: "720×1280 • 9:16 • 8 seconds"
-      }
+        platforms: t.videoFormats.mobilePortrait.platforms,
+        bestFor: t.videoFormats.mobilePortrait.bestFor,
+        specs: t.videoFormats.mobilePortrait.specs,
+      },
     ];
 
     return (
@@ -431,19 +427,17 @@ export default function VideoProducerCard({
                 </div>
 
                 {/* Description */}
-                <p className="text-gray-300 text-sm leading-relaxed mb-4">
-                  {format.description}
-                </p>
+                <p className="text-gray-300 text-sm leading-relaxed mb-4">{format.description}</p>
 
                 {/* Specs and Details */}
                 <div className="space-y-3">
                   <div>
-                    <span className="text-xs text-gray-300 font-medium">Specifications:</span>
+                    <span className="text-xs text-gray-300 font-medium">{t.labels.specifications}</span>
                     <p className="text-xs text-red-300 mt-1">{format.specs}</p>
                   </div>
 
                   <div>
-                    <span className="text-xs text-gray-300 font-medium">Platforms:</span>
+                    <span className="text-xs text-gray-300 font-medium">{t.labels.platforms}</span>
                     <div className="flex flex-wrap gap-1 mt-2">
                       {format.platforms.map((platform, idx) => (
                         <span
@@ -457,7 +451,7 @@ export default function VideoProducerCard({
                   </div>
 
                   <div>
-                    <span className="text-xs text-gray-300 font-medium">Best For:</span>
+                    <span className="text-xs text-gray-300 font-medium">{t.labels.bestFor}</span>
                     <p className="text-xs text-gray-100 mt-1">{format.bestFor}</p>
                   </div>
                 </div>
@@ -489,8 +483,8 @@ export default function VideoProducerCard({
         <div className="text-center space-y-6">
           <div className="bg-green-900/20 border border-green-500/50 rounded-xl p-8">
             <div className="text-6xl mb-4">🎬</div>
-            <h3 className="text-2xl font-bold text-green-300 mb-4">Video Production Complete!</h3>
-            <p className="text-gray-300 mb-6">Your commercial video is ready! Watch your creation below.</p>
+            <h3 className="text-2xl font-bold text-green-300 mb-4">{t.production.complete}</h3>
+            <p className="text-gray-300 mb-6">{t.production.ready}</p>
 
             {/* Video Player */}
             <div className="mb-6">
@@ -498,7 +492,7 @@ export default function VideoProducerCard({
                 <video
                   controls
                   className="w-full h-auto"
-                  style={{ maxHeight: '400px' }}
+                  style={{ maxHeight: "400px" }}
                   poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 450'%3E%3Crect width='800' height='450' fill='%23000'/%3E%3Ctext x='400' y='225' text-anchor='middle' fill='%23fff' font-size='24' font-family='Arial'%3EYour Commercial Video%3C/text%3E%3C/svg%3E"
                 >
                   <source src={finalVideoUrl} type="video/mp4" />
@@ -508,8 +502,12 @@ export default function VideoProducerCard({
                 {/* Video overlay with play icon (hidden when video is playing) */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 hover:opacity-100 transition-opacity">
                   <div className="w-16 h-16 bg-green-500/80 rounded-full flex items-center justify-center backdrop-blur-sm">
-                    <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z"/>
+                    <svg
+                      className="w-6 h-6 text-white ml-1"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M8 5v14l11-7z" />
                     </svg>
                   </div>
                 </div>
@@ -522,10 +520,10 @@ export default function VideoProducerCard({
                 <button
                   onClick={() => {
                     // Create a temporary link to download the video
-                    const link = document.createElement('a');
+                    const link = document.createElement("a");
                     link.href = finalVideoUrl;
                     link.download = `commercial-video-${Date.now()}.mp4`;
-                    link.target = '_blank';
+                    link.target = "_blank";
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
@@ -533,9 +531,14 @@ export default function VideoProducerCard({
                   className="magical-button cursor-pointer bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
                   </svg>
-                  Download Video
+                  {t.production.downloading}
                 </button>
 
                 <button
@@ -547,27 +550,37 @@ export default function VideoProducerCard({
                   className="cursor-pointer border border-green-500 text-green-400 hover:bg-green-500/10 px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                    />
                   </svg>
-                  Copy Link
+                  {t.production.copyLink}
                 </button>
               </div>
 
               {/* Video Specifications */}
               <div className="bg-gray-800/50 rounded-lg p-4 text-left">
-                <h4 className="font-semibold text-white mb-2">Video Specifications:</h4>
+                <h4 className="font-semibold text-white mb-2">{t.production.specifications}</h4>
                 <div className="grid grid-cols-2 gap-4 text-sm text-gray-300">
                   <div>
-                    <span className="text-green-300">Format:</span> {selectedVideoFormat?.aspectRatio || '16:9'} • {selectedVideoFormat?.resolution || '1080p'}
+                    <span className="text-green-300">{t.production.format}</span>{" "}
+                    {selectedVideoFormat?.aspectRatio || "16:9"} •{" "}
+                    {selectedVideoFormat?.resolution || "1080p"}
                   </div>
                   <div>
-                    <span className="text-green-300">Duration:</span> 8 seconds
+                    <span className="text-green-300">{t.production.duration}</span> 8{" "}
+                    {t.production.seconds}
                   </div>
                   <div>
-                    <span className="text-green-300">Narrative:</span> {selectedNarrativeStyle?.name}
+                    <span className="text-green-300">{t.production.narrative}</span>{" "}
+                    {selectedNarrativeStyle?.name}
                   </div>
                   <div>
-                    <span className="text-green-300">Music:</span> {selectedMusicGenre?.name}
+                    <span className="text-green-300">{t.production.music}</span>{" "}
+                    {selectedMusicGenre?.name}
                   </div>
                 </div>
               </div>
@@ -582,8 +595,8 @@ export default function VideoProducerCard({
         <div className="text-center space-y-6">
           <div className="bg-red-900/20 border border-red-500/50 rounded-xl p-8">
             <div className="text-6xl mb-4 animate-pulse">🎬</div>
-            <h3 className="text-2xl font-bold text-red-300 mb-2">Producing Your Video...</h3>
-            <p className="text-gray-300 mb-6">Zara is crafting your commercial with your selected narrative style and music.</p>
+            <h3 className="text-2xl font-bold text-red-300 mb-2">{t.production.producing}</h3>
+            <p className="text-gray-300 mb-6">{t.production.crafting}</p>
 
             <div className="space-y-4">
               <div className="w-full bg-gray-700 rounded-full h-4">
@@ -592,8 +605,14 @@ export default function VideoProducerCard({
                   style={{ width: `${productionProgress}%` }}
                 />
               </div>
-              <p className="text-lg font-semibold text-red-300">{Math.round(productionProgress)}% Complete</p>
-              <p className="text-sm text-gray-400">Estimated time remaining: {Math.max(1, Math.round((100 - productionProgress) / 20))} seconds</p>
+              <p className="text-lg font-semibold text-red-300">
+                {Math.round(productionProgress)}
+                {t.production.progress}
+              </p>
+              <p className="text-sm text-gray-400">
+                {t.production.timeRemaining}{" "}
+                {Math.max(1, Math.round((100 - productionProgress) / 20))} {t.production.seconds}
+              </p>
             </div>
           </div>
         </div>
@@ -604,18 +623,32 @@ export default function VideoProducerCard({
       <div className="text-center space-y-6">
         <div className="bg-red-900/20 border border-red-500/50 rounded-xl p-8">
           <div className="text-6xl mb-4">🎬</div>
-          <h3 className="text-2xl font-bold text-red-300 mb-2">Ready for Video Production</h3>
-          <p className="text-gray-300 mb-6">All creative decisions are finalized. Start the video production process!</p>
+          <h3 className="text-2xl font-bold text-red-300 mb-2">{t.production.readyTitle}</h3>
+          <p className="text-gray-300 mb-6">{t.production.readyDescription}</p>
 
           <div className="space-y-4">
             <div className="bg-gray-800/50 rounded-lg p-4 text-left">
-              <h4 className="font-semibold text-white mb-2">Production Summary:</h4>
+              <h4 className="font-semibold text-white mb-2">{t.production.summary}</h4>
               <div className="space-y-2 text-sm text-gray-300">
-                <p><span className="text-red-300">Narrative Style:</span> {selectedNarrativeStyle?.name}</p>
-                <p><span className="text-red-300">Music & Tone:</span> {selectedMusicGenre?.name}</p>
-                <p><span className="text-red-300">Video Format:</span> {selectedVideoFormat?.name} ({selectedVideoFormat?.aspectRatio})</p>
-                <p><span className="text-red-300">Duration:</span> 8 seconds</p>
-                <p><span className="text-red-300">Production Cost:</span> $2.50</p>
+                <p>
+                  <span className="text-red-300">{t.steps.narrativeStyle}:</span>{" "}
+                  {selectedNarrativeStyle?.name}
+                </p>
+                <p>
+                  <span className="text-red-300">{t.steps.musicTone}:</span>{" "}
+                  {selectedMusicGenre?.name}
+                </p>
+                <p>
+                  <span className="text-red-300">{t.steps.videoFormat}:</span>{" "}
+                  {selectedVideoFormat?.name} ({selectedVideoFormat?.aspectRatio})
+                </p>
+                <p>
+                  <span className="text-red-300">{t.production.duration}</span> 8{" "}
+                  {t.production.seconds}
+                </p>
+                <p>
+                  <span className="text-red-300">{t.production.productionCost}</span> $2.50
+                </p>
               </div>
             </div>
 
@@ -623,7 +656,7 @@ export default function VideoProducerCard({
               onClick={handleNextStep}
               className="magical-button cursor-pointer bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
-              Start Video Production
+              {t.production.startProduction}
             </button>
           </div>
         </div>
@@ -646,7 +679,7 @@ export default function VideoProducerCard({
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
-        Back
+        {dict.common.back}
       </button>
 
       <div className="flex items-center gap-4">
@@ -654,19 +687,21 @@ export default function VideoProducerCard({
           <button
             onClick={handleNextStep}
             disabled={
-              (currentStep === VideoProducerWorkflowStep.NARRATIVE_STYLE && !selectedNarrativeStyle) ||
+              (currentStep === VideoProducerWorkflowStep.NARRATIVE_STYLE &&
+                !selectedNarrativeStyle) ||
               (currentStep === VideoProducerWorkflowStep.MUSIC_TONE && !selectedMusicGenre) ||
               (currentStep === VideoProducerWorkflowStep.VIDEO_FORMAT && !selectedVideoFormat)
             }
             className={`magical-button cursor-pointer flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
-              (currentStep === VideoProducerWorkflowStep.NARRATIVE_STYLE && !selectedNarrativeStyle) ||
+              (currentStep === VideoProducerWorkflowStep.NARRATIVE_STYLE &&
+                !selectedNarrativeStyle) ||
               (currentStep === VideoProducerWorkflowStep.MUSIC_TONE && !selectedMusicGenre) ||
               (currentStep === VideoProducerWorkflowStep.VIDEO_FORMAT && !selectedVideoFormat)
                 ? "bg-gray-700 text-gray-400 cursor-not-allowed"
                 : "bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
             }`}
           >
-            Continue
+            {dict.common.continue}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
@@ -683,16 +718,19 @@ export default function VideoProducerCard({
         {/* Current Step Header */}
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold text-white mb-2">
-            {currentStep === VideoProducerWorkflowStep.NARRATIVE_STYLE && (t.steps?.narrativeStyle || "Choose Narrative Style")}
-            {currentStep === VideoProducerWorkflowStep.MUSIC_TONE && (t.steps?.musicTone || "Select Music & Tone")}
-            {currentStep === VideoProducerWorkflowStep.VIDEO_FORMAT && "Choose Video Format"}
-            {currentStep === VideoProducerWorkflowStep.FINAL_PRODUCTION && (t.steps?.finalProduction || "Final Production")}
+            {currentStep === VideoProducerWorkflowStep.NARRATIVE_STYLE && t.steps.narrativeStyle}
+            {currentStep === VideoProducerWorkflowStep.MUSIC_TONE && t.steps.musicTone}
+            {currentStep === VideoProducerWorkflowStep.VIDEO_FORMAT && t.steps.videoFormat}
+            {currentStep === VideoProducerWorkflowStep.FINAL_PRODUCTION && t.steps.finalProduction}
           </h2>
           <p className="text-red-200 text-lg">
-            {currentStep === VideoProducerWorkflowStep.NARRATIVE_STYLE && "Choose the storytelling approach for your video"}
-            {currentStep === VideoProducerWorkflowStep.MUSIC_TONE && "Select the perfect music and tone for your video"}
-            {currentStep === VideoProducerWorkflowStep.VIDEO_FORMAT && "Select the optimal format for your target platform"}
-            {currentStep === VideoProducerWorkflowStep.FINAL_PRODUCTION && "Review and produce your final video"}
+            {currentStep === VideoProducerWorkflowStep.NARRATIVE_STYLE &&
+              t.stepDescriptions.narrativeStyle}
+            {currentStep === VideoProducerWorkflowStep.MUSIC_TONE && t.stepDescriptions.musicTone}
+            {currentStep === VideoProducerWorkflowStep.VIDEO_FORMAT &&
+              t.stepDescriptions.videoFormat}
+            {currentStep === VideoProducerWorkflowStep.FINAL_PRODUCTION &&
+              t.stepDescriptions.finalProduction}
           </p>
         </div>
 

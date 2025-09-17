@@ -20,7 +20,24 @@
     "warning": "Warning",
     "info": "Information",
     "confirmRestart": "You're currently working with a later agent. Do you want to start over from the beginning?",
-    "handoffComplete": "Handoff Complete"
+    "handoffComplete": "Handoff Complete",
+    "preparingHandoff": "Preparing handoff...",
+    "phaseTransitions": {
+      "productInput": "Product Input",
+      "mayaAnalysis": "Maya",
+      "commercialStrategy": "Maya",
+      "creativeDirection": "David",
+      "videoProduction": "Zara",
+      "complete": "Complete"
+    },
+    "handoffMessages": {
+      "mayaToZara": "Maya's strategy is complete! Zara will now produce your final commercial video",
+      "mayaToDavid": "Maya's strategy is complete! David will now create stunning visual direction for your commercial",
+      "davidToZara": "David's creative direction is complete! Zara will now produce your final commercial video",
+      "davidAnalysis": "David will create stunning visual direction for your commercial",
+      "zaraProduction": "Zara will produce your final commercial video",
+      "mayaAnalysis": "Maya is analyzing your product"
+    }
   },
   "navigation": {
     "home": "Generate",
@@ -592,7 +609,8 @@
       "navigation": {
         "back": "Back",
         "continue": "Continue",
-        "stepOf": "Step {current} of {total}"
+        "stepOf": "Step {current} of {total}",
+        "proceedToNextAgent": "Proceed to Next Agent"
       },
       "ui": {
         "keyFeatures": "Key Features:",
@@ -961,8 +979,9 @@
     "title": "Video Producer (Zara)",
     "subtitle": "Transform creative vision into stunning video reality",
     "description": "Transform creative direction into professional video production with advanced AI video generation technology",
-    "waitingForHandoff": "Waiting for Creative Director Handoff",
-    "handoffDescription": "Zara will begin once David completes the creative direction phase",
+    "waitingForHandoff": "Waiting for creative direction from David...",
+    "handoffDescription": "Complete the Creative Director workflow first to unlock video production.",
+    "waitingTitle": "Video Producer - Zara",
 
     "workflowMode": "Workflow",
     "chatMode": "Chat",
@@ -971,7 +990,151 @@
     "steps": {
       "narrativeStyle": "Narrative Style",
       "musicTone": "Music & Tone",
+      "videoFormat": "Video Format",
       "finalProduction": "Final Production"
+    },
+
+    "stepDescriptions": {
+      "narrativeStyle": "Choose storytelling approach",
+      "musicTone": "Select music and tone",
+      "videoFormat": "Choose output format",
+      "finalProduction": "Produce final video"
+    },
+
+    "narrativeStyles": {
+      "heroJourney": {
+        "name": "Hero's Journey",
+        "description": "Classic storytelling with problem-solution narrative",
+        "features": ["Problem Introduction", "Journey to Solution", "Transformation", "Call to Action"],
+        "bestFor": "Products that solve clear problems",
+        "pacing": "Gradual build-up with strong finale"
+      },
+      "lifestyleAspiration": {
+        "name": "Lifestyle Aspiration",
+        "description": "Aspirational lifestyle and emotional connection",
+        "features": ["Lifestyle Showcase", "Emotional Connection", "Product Integration", "Aspiration"],
+        "bestFor": "Lifestyle and luxury products",
+        "pacing": "Smooth, flowing narrative"
+      },
+      "productShowcase": {
+        "name": "Product Showcase",
+        "description": "Direct feature demonstration and benefits",
+        "features": ["Feature Highlights", "Benefit Focus", "Clear Demonstration", "Direct Appeal"],
+        "bestFor": "Technical and functional products",
+        "pacing": "Concise and informative"
+      }
+    },
+
+    "musicGenres": {
+      "upbeatEnergetic": {
+        "name": "Upbeat & Energetic",
+        "description": "High energy music for dynamic and exciting presentations",
+        "mood": "Exciting, Motivational",
+        "tempo": "120-140 BPM",
+        "instruments": ["Electronic Beats", "Synthesizers", "Uplifting Melodies"],
+        "bestFor": "Tech products, fitness, innovation"
+      },
+      "calmSophisticated": {
+        "name": "Calm & Sophisticated",
+        "description": "Refined background music for premium and luxury presentations",
+        "mood": "Elegant, Professional",
+        "tempo": "80-100 BPM",
+        "instruments": ["Piano", "Strings", "Ambient Textures"],
+        "bestFor": "Luxury goods, professional services"
+      },
+      "warmInviting": {
+        "name": "Warm & Inviting",
+        "description": "Friendly and approachable music for lifestyle and family products",
+        "mood": "Friendly, Comforting",
+        "tempo": "90-110 BPM",
+        "instruments": ["Acoustic Guitar", "Light Percussion", "Warm Pads"],
+        "bestFor": "Family products, lifestyle brands"
+      }
+    },
+
+    "videoFormats": {
+      "professionalLandscape": {
+        "name": "Professional Landscape",
+        "description": "High-quality widescreen format for desktop and TV displays",
+        "platforms": ["YouTube", "LinkedIn", "Website", "Presentations"],
+        "bestFor": "Professional presentations, web content, desktop viewing",
+        "specs": "1920×1080 • 16:9 • 8 seconds"
+      },
+      "standardLandscape": {
+        "name": "Standard Landscape",
+        "description": "Optimized widescreen format for social media and web",
+        "platforms": ["Facebook", "Twitter", "Website", "Email"],
+        "bestFor": "Social media, email campaigns, general web use",
+        "specs": "1280×720 • 16:9 • 8 seconds"
+      },
+      "mobilePortrait": {
+        "name": "Mobile Portrait",
+        "description": "Vertical format optimized for mobile-first platforms",
+        "platforms": ["TikTok", "Instagram Stories", "YouTube Shorts"],
+        "bestFor": "Mobile apps, stories, short-form content",
+        "specs": "720×1280 • 9:16 • 8 seconds"
+      }
+    },
+
+    "production": {
+      "complete": "Video Production Complete!",
+      "ready": "Your commercial video is ready! Watch your creation below.",
+      "downloading": "Download Video",
+      "copyLink": "Copy Link",
+      "specifications": "Video Specifications:",
+      "format": "Format:",
+      "duration": "Duration:",
+      "narrative": "Narrative:",
+      "music": "Music:",
+      "producing": "Producing Your Video...",
+      "crafting": "Zara is crafting your commercial with your selected narrative style and music.",
+      "progress": "% Complete",
+      "timeRemaining": "Estimated time remaining:",
+      "seconds": "seconds",
+      "readyTitle": "Ready for Video Production",
+      "readyDescription": "All creative decisions are finalized. Start the video production process!",
+      "summary": "Production Summary:",
+      "estimatedDuration": "Duration:",
+      "productionCost": "Production Cost:",
+      "startProduction": "Start Video Production"
+    },
+
+    "progress": {
+      "title": "Video Production Progress",
+      "collapse": "Collapse",
+      "expand": "Expand",
+      "changeSelection": "Change Selection",
+      "change": "Change",
+      "selectMusicGenre": "Select Music Genre",
+      "select": "Select",
+      "selectVideoFormat": "Select Video Format",
+      "viewVideo": "View Video",
+      "view": "View",
+      "startProduction": "Start Production",
+      "start": "Start",
+      "estimatedCost": "Estimated Production Cost",
+      "cost": "Cost",
+      "videoComplete": "Video Complete!",
+      "readyToDownload": "Ready for download",
+      "producing": "Producing...",
+      "readyToSelect": "Ready to Select Music",
+      "readyToSelectMusic": "Ready to Select Music",
+      "readyToSelectFormat": "Ready to Select Format",
+      "readyToStartProduction": "Ready to Start Production",
+      "notSelected": "Not Selected",
+      "notStarted": "Not Started",
+      "estimatedTime": "Est. 5-8 minutes"
+    },
+
+    "labels": {
+      "keyElements": "Key Elements:",
+      "bestFor": "Best For:",
+      "pacing": "Pacing:",
+      "mood": "Mood:",
+      "tempo": "Tempo:",
+      "instruments": "Instruments:",
+      "specifications": "Specifications:",
+      "platforms": "Platforms:"
     },
 
     "narrativeStyleSelection": {

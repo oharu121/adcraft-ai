@@ -51,6 +51,8 @@ export default function CreativeDirectorCard({
     selectedStyleOption,
     selectedProductionStyle,
     generatedScenes,
+    sceneComposition,
+    isGeneratingScenes,
     visualDecisions,
     expandedSections,
     costTracking,
@@ -69,6 +71,7 @@ export default function CreativeDirectorCard({
     setSelectedProductionStyle,
     setGeneratedScenes,
     setSceneComposition,
+    setIsGeneratingScenes,
     setChatInputMessage,
     toggleSection,
     addMessage,
@@ -156,6 +159,7 @@ export default function CreativeDirectorCard({
       const loadSceneComposition = async () => {
         try {
           console.log('[Creative Director] Loading scene composition...');
+          setIsGeneratingScenes(true);
           const response = await fetch('/api/agents/creative-director', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -184,12 +188,14 @@ export default function CreativeDirectorCard({
           }
         } catch (error) {
           console.error('[Creative Director] Scene composition API error:', error);
+        } finally {
+          setIsGeneratingScenes(false);
         }
       };
 
       loadSceneComposition();
     }
-  }, [currentStep, generatedScenes, sessionId, hasHandoffData, selectedStyleOption, setSceneComposition, locale, mayaHandoffData]);
+  }, [currentStep, generatedScenes, sessionId, hasHandoffData, selectedStyleOption, setSceneComposition, setIsGeneratingScenes, locale, mayaHandoffData]);
 
   // Handle chat message sending
   const handleSendMessage = useCallback(
@@ -914,14 +920,20 @@ export default function CreativeDirectorCard({
       </button>
 
       <div className="flex items-center gap-4">
-        {/* Show handoff button if all steps are completed */}
-        {isReadyForHandoff ? (
+        {/* Show handoff button if all steps are completed OR if on final step with selection and not generating */}
+        {isReadyForHandoff || (currentStep === "scene-architecture" && completedSteps.productionStyle && completedSteps.creativeDirection && generatedScenes.length > 0 && !isGeneratingScenes) ? (
           <button
-            onClick={() => setShowHandoffModal(true)}
+            onClick={() => {
+              // If on final step but not yet marked complete, complete it first
+              if (currentStep === "scene-architecture" && !completedSteps.sceneArchitecture) {
+                markStepCompleted("sceneArchitecture");
+              }
+              setShowHandoffModal(true);
+            }}
             className="magical-button cursor-pointer flex items-center gap-3 px-8 py-3 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
             <span className="text-lg">🎬</span>
-            {t.confirmHandoff}
+            {t.workflow.navigation.proceedToNextAgent}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
@@ -930,19 +942,25 @@ export default function CreativeDirectorCard({
           <button
             onClick={handleNextStep}
             disabled={
-              (currentStep === "scene-architecture" && completedSteps.sceneArchitecture) ||
               (currentStep === "production-style" && !selectedProductionStyle) ||
-              (currentStep === "creative-direction" && !selectedStyleOption)
+              (currentStep === "creative-direction" && !selectedStyleOption) ||
+              (currentStep === "scene-architecture" && isGeneratingScenes)
             }
             className={`magical-button cursor-pointer flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
-              (currentStep === "scene-architecture" && completedSteps.sceneArchitecture) ||
               (currentStep === "production-style" && !selectedProductionStyle) ||
-              (currentStep === "creative-direction" && !selectedStyleOption)
+              (currentStep === "creative-direction" && !selectedStyleOption) ||
+              (currentStep === "scene-architecture" && isGeneratingScenes)
                 ? "bg-gray-700 text-gray-400 cursor-not-allowed"
                 : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
             }`}
           >
-            {t.workflow.navigation.continue}
+            {isGeneratingScenes ?
+              <span className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                Generating Scenes...
+              </span>
+              : t.workflow.navigation.continue
+            }
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>

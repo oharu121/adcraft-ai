@@ -50,6 +50,7 @@ interface CreativeDirectorStore {
   // Phase 3: Scene Architecture State
   generatedScenes: any[]; // AI-generated scenes
   sceneComposition: any | null; // Full scene composition response
+  isGeneratingScenes: boolean; // Loading state for scene generation
 
   // Step completion tracking
   completedSteps: {
@@ -151,6 +152,7 @@ interface CreativeDirectorStore {
   // Phase 3: Scene Architecture Actions
   setGeneratedScenes: (scenes: any[]) => void;
   setSceneComposition: (composition: any) => void;
+  setIsGeneratingScenes: (isGenerating: boolean) => void;
 
   // Step completion actions
   markStepCompleted: (step: keyof CreativeDirectorStore["completedSteps"]) => void;
@@ -224,6 +226,7 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
   // Phase 3: Scene Architecture Initial State
   generatedScenes: [],
   sceneComposition: null,
+  isGeneratingScenes: false,
 
   // Step completion initial state
   completedSteps: {
@@ -321,6 +324,7 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
       sceneComposition: composition,
       generatedScenes: composition?.sceneBreakdown || state.generatedScenes,
     })),
+  setIsGeneratingScenes: (isGenerating) => set({ isGeneratingScenes: isGenerating }),
 
   // Step completion actions
   markStepCompleted: (step) =>
