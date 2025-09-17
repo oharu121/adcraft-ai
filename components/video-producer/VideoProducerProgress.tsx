@@ -22,6 +22,7 @@ export default function VideoProducerProgress({
   const {
     selectedNarrativeStyle,
     selectedMusicGenre,
+    selectedVideoFormat,
     completedSteps,
     isProducing,
     productionProgress,
@@ -33,20 +34,26 @@ export default function VideoProducerProgress({
   const steps = [
     {
       id: "narrative-style",
-      label: t.steps.narrativeStyle,
-      description: t.narrativeStyleSelection.description,
+      label: t.steps?.narrativeStyle || "Narrative Style",
+      description: "Choose storytelling approach",
       completed: completedSteps.narrativeStyle,
     },
     {
       id: "music-tone",
-      label: t.steps.musicTone,
-      description: t.musicSelection.description,
+      label: t.steps?.musicTone || "Music & Tone",
+      description: "Select music and tone",
       completed: completedSteps.musicTone,
     },
     {
+      id: "video-format",
+      label: "Video Format",
+      description: "Choose output format",
+      completed: completedSteps.videoFormat,
+    },
+    {
       id: "final-production",
-      label: t.steps.finalProduction,
-      description: t.finalProduction.description,
+      label: t.steps?.finalProduction || "Final Production",
+      description: "Produce final video",
       completed: completedSteps.finalProduction,
     },
   ];
@@ -54,7 +61,8 @@ export default function VideoProducerProgress({
   const currentStepIndex = steps.findIndex((step) =>
     (step.id === "narrative-style" && !completedSteps.narrativeStyle) ||
     (step.id === "music-tone" && completedSteps.narrativeStyle && !completedSteps.musicTone) ||
-    (step.id === "final-production" && completedSteps.musicTone && !completedSteps.finalProduction)
+    (step.id === "video-format" && completedSteps.musicTone && !completedSteps.videoFormat) ||
+    (step.id === "final-production" && completedSteps.videoFormat && !completedSteps.finalProduction)
   );
 
   return (
@@ -168,7 +176,7 @@ export default function VideoProducerProgress({
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-white">{t.steps.musicTone}</div>
+              <div className="text-sm font-medium text-white">{t.steps?.musicTone || "Music & Tone"}</div>
               {selectedMusicGenre ? (
                 <div className={`transition-all duration-300 ${expanded ? "space-y-1" : "space-y-0.5"}`}>
                   <div className="text-xs text-red-300 font-medium">
@@ -202,13 +210,71 @@ export default function VideoProducerProgress({
             </div>
           </div>
 
+          {/* Video Format Summary */}
+          <div className="flex items-start gap-3">
+            <div
+              className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-semibold transition-all ${
+                completedSteps.videoFormat
+                  ? "bg-gradient-to-r from-red-500 to-orange-500 border-red-500 text-white"
+                  : completedSteps.musicTone
+                    ? "bg-gray-700 border-gray-600 text-gray-400"
+                    : "bg-gray-800 border-gray-700 text-gray-500"
+              }`}
+            >
+              {completedSteps.videoFormat ? (
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              ) : (
+                "3"
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-white">Video Format</div>
+              {selectedVideoFormat ? (
+                <div className={`transition-all duration-300 ${expanded ? "space-y-1" : "space-y-0.5"}`}>
+                  <div className="text-xs text-red-300 font-medium">
+                    {selectedVideoFormat.name}
+                  </div>
+                  {expanded && (
+                    <div className="text-xs text-gray-400 truncate">
+                      {selectedVideoFormat.aspectRatio} • {selectedVideoFormat.resolution}
+                    </div>
+                  )}
+                  <button
+                    onClick={() => onNavigateToStep(VideoProducerWorkflowStep.VIDEO_FORMAT)}
+                    className="text-xs text-red-400 hover:text-red-300 cursor-pointer"
+                  >
+                    {expanded ? "Change Selection" : "Change"}
+                  </button>
+                </div>
+              ) : completedSteps.musicTone ? (
+                <div className={`transition-all duration-300 ${expanded ? "space-y-1" : "space-y-0.5"}`}>
+                  {expanded && <div className="text-xs text-gray-400">Ready to Select Format</div>}
+                  <button
+                    onClick={() => onNavigateToStep(VideoProducerWorkflowStep.VIDEO_FORMAT)}
+                    className="text-xs text-red-400 hover:text-red-300 cursor-pointer"
+                  >
+                    {expanded ? "Select Video Format" : "Select"}
+                  </button>
+                </div>
+              ) : (
+                <div className="text-xs text-gray-500">Not Started</div>
+              )}
+            </div>
+          </div>
+
           {/* Final Production Summary */}
           <div className="flex items-start gap-3">
             <div
               className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-semibold transition-all ${
                 completedSteps.finalProduction || finalVideoUrl
                   ? "bg-gradient-to-r from-red-500 to-orange-500 border-red-500 text-white"
-                  : completedSteps.musicTone
+                  : completedSteps.videoFormat
                     ? "bg-gray-700 border-gray-600 text-gray-400"
                     : "bg-gray-800 border-gray-700 text-gray-500"
               }`}
@@ -222,11 +288,11 @@ export default function VideoProducerProgress({
                   />
                 </svg>
               ) : (
-                "3"
+                "4"
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-white">{t.steps.finalProduction}</div>
+              <div className="text-sm font-medium text-white">{t.steps?.finalProduction || "Final Production"}</div>
               {finalVideoUrl ? (
                 <div className={`transition-all duration-300 ${expanded ? "space-y-1" : "space-y-0.5"}`}>
                   <div className="text-xs text-green-300 font-medium">Video Complete!</div>
@@ -252,7 +318,7 @@ export default function VideoProducerProgress({
                     </div>
                   )}
                 </div>
-              ) : completedSteps.musicTone ? (
+              ) : completedSteps.videoFormat ? (
                 <div className={`transition-all duration-300 ${expanded ? "space-y-1" : "space-y-0.5"}`}>
                   {expanded && <div className="text-xs text-gray-400">Ready to Start Production</div>}
                   <button

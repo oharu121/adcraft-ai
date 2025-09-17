@@ -11,6 +11,7 @@ import type { Locale } from '@/lib/dictionaries';
 export enum VideoProducerWorkflowStep {
   NARRATIVE_STYLE = "narrative-style",
   MUSIC_TONE = "music-tone",
+  VIDEO_FORMAT = "video-format",
   FINAL_PRODUCTION = "final-production"
 }
 
@@ -35,6 +36,19 @@ export interface MusicGenre {
   energy: string;
   instruments: string[];
   bestFor: string;
+}
+
+// Video format interface
+export interface VideoFormat {
+  id: string;
+  name: string;
+  description: string;
+  aspectRatio: "16:9" | "9:16";
+  resolution: "720p" | "1080p";
+  durationSeconds: 8; // Fixed to 8 seconds
+  bestFor: string;
+  platforms: string[];
+  icon: string;
 }
 
 // Video production specs interface
@@ -70,17 +84,20 @@ interface VideoProducerStore {
   completedSteps: {
     narrativeStyle: boolean;
     musicTone: boolean;
+    videoFormat: boolean;
     finalProduction: boolean;
   };
 
   // User selections
   selectedNarrativeStyle: NarrativeStyle | null;
   selectedMusicGenre: MusicGenre | null;
+  selectedVideoFormat: VideoFormat | null;
   productionSpecs: VideoProductionSpecs | null;
 
   // Available options (from API or demo data)
   availableNarrativeStyles: NarrativeStyle[];
   availableMusicGenres: MusicGenre[];
+  availableVideoFormats: VideoFormat[];
 
   // Production state
   isProducing: boolean;
@@ -104,10 +121,12 @@ interface VideoProducerStore {
 
   setSelectedNarrativeStyle: (style: NarrativeStyle) => void;
   setSelectedMusicGenre: (genre: MusicGenre) => void;
+  setSelectedVideoFormat: (format: VideoFormat) => void;
   setProductionSpecs: (specs: VideoProductionSpecs) => void;
 
   setAvailableNarrativeStyles: (styles: NarrativeStyle[]) => void;
   setAvailableMusicGenres: (genres: MusicGenre[]) => void;
+  setAvailableVideoFormats: (formats: VideoFormat[]) => void;
 
   startVideoProduction: () => void;
   updateProductionProgress: (progress: number) => void;
@@ -134,15 +153,18 @@ const initialState = {
   completedSteps: {
     narrativeStyle: false,
     musicTone: false,
+    videoFormat: false,
     finalProduction: false,
   },
 
   selectedNarrativeStyle: null,
   selectedMusicGenre: null,
+  selectedVideoFormat: null,
   productionSpecs: null,
 
   availableNarrativeStyles: [],
   availableMusicGenres: [],
+  availableVideoFormats: [],
 
   isProducing: false,
   productionProgress: 0,
@@ -168,11 +190,13 @@ export const useVideoProducerStore = create<VideoProducerStore>((set, get) => ({
       completedSteps: {
         narrativeStyle: false,
         musicTone: false,
+        videoFormat: false,
         finalProduction: false,
       },
       // Reset selections for new session
       selectedNarrativeStyle: null,
       selectedMusicGenre: null,
+      selectedVideoFormat: null,
       productionSpecs: null,
       isProducing: false,
       productionProgress: 0,
@@ -206,6 +230,11 @@ export const useVideoProducerStore = create<VideoProducerStore>((set, get) => ({
     get().markStepCompleted('musicTone');
   },
 
+  setSelectedVideoFormat: (format) => {
+    set({ selectedVideoFormat: format });
+    get().markStepCompleted('videoFormat');
+  },
+
   setProductionSpecs: (specs) => {
     set({ productionSpecs: specs });
   },
@@ -217,6 +246,10 @@ export const useVideoProducerStore = create<VideoProducerStore>((set, get) => ({
 
   setAvailableMusicGenres: (genres) => {
     set({ availableMusicGenres: genres });
+  },
+
+  setAvailableVideoFormats: (formats) => {
+    set({ availableVideoFormats: formats });
   },
 
   // Video production management

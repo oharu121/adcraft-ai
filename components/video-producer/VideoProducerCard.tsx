@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from "react";
 import { Card } from "@/components/ui";
 import { useVideoProducerStore } from "@/lib/stores/video-producer-store";
-import { VideoProducerWorkflowStep } from "@/lib/stores/video-producer-store";
+import { VideoProducerWorkflowStep, VideoFormat } from "@/lib/stores/video-producer-store";
 import AgentAvatar from "@/components/ui/AgentAvatar";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
 
@@ -31,6 +31,7 @@ export default function VideoProducerCard({
     creativeDirectorHandoffData,
     selectedNarrativeStyle,
     selectedMusicGenre,
+    selectedVideoFormat,
     completedSteps,
     isProducing,
     productionProgress,
@@ -39,6 +40,7 @@ export default function VideoProducerCard({
     setCurrentStep: setStoreCurrentStep,
     setSelectedNarrativeStyle,
     setSelectedMusicGenre,
+    setSelectedVideoFormat,
     startVideoProduction,
   } = useVideoProducerStore();
 
@@ -70,6 +72,15 @@ export default function VideoProducerCard({
     [setSelectedMusicGenre, onExpandWorkflowProgress]
   );
 
+  // Handle video format selection
+  const handleVideoFormatSelection = useCallback(
+    (videoFormat: VideoFormat) => {
+      if (onExpandWorkflowProgress) onExpandWorkflowProgress();
+      setSelectedVideoFormat(videoFormat);
+    },
+    [setSelectedVideoFormat, onExpandWorkflowProgress]
+  );
+
   // Handle step navigation with proper progression logic
   const handleNextStep = useCallback(async () => {
     // Expand workflow progress to show navigation changes
@@ -79,7 +90,10 @@ export default function VideoProducerCard({
       // Progress from narrative style to music tone
       setCurrentStep(VideoProducerWorkflowStep.MUSIC_TONE);
     } else if (currentStep === VideoProducerWorkflowStep.MUSIC_TONE && selectedMusicGenre) {
-      // Progress from music tone to final production
+      // Progress from music tone to video format
+      setCurrentStep(VideoProducerWorkflowStep.VIDEO_FORMAT);
+    } else if (currentStep === VideoProducerWorkflowStep.VIDEO_FORMAT && selectedVideoFormat) {
+      // Progress from video format to final production
       setCurrentStep(VideoProducerWorkflowStep.FINAL_PRODUCTION);
     } else if (currentStep === VideoProducerWorkflowStep.FINAL_PRODUCTION && !isProducing && !finalVideoUrl) {
       // Start video production
@@ -89,6 +103,7 @@ export default function VideoProducerCard({
     currentStep,
     selectedNarrativeStyle,
     selectedMusicGenre,
+    selectedVideoFormat,
     isProducing,
     finalVideoUrl,
     setCurrentStep,
@@ -102,8 +117,10 @@ export default function VideoProducerCard({
 
     if (currentStep === VideoProducerWorkflowStep.MUSIC_TONE) {
       setCurrentStep(VideoProducerWorkflowStep.NARRATIVE_STYLE);
-    } else if (currentStep === VideoProducerWorkflowStep.FINAL_PRODUCTION) {
+    } else if (currentStep === VideoProducerWorkflowStep.VIDEO_FORMAT) {
       setCurrentStep(VideoProducerWorkflowStep.MUSIC_TONE);
+    } else if (currentStep === VideoProducerWorkflowStep.FINAL_PRODUCTION) {
+      setCurrentStep(VideoProducerWorkflowStep.VIDEO_FORMAT);
     }
   };
 
@@ -348,6 +365,123 @@ export default function VideoProducerCard({
     );
   };
 
+  // Render video format step
+  const renderVideoFormat = () => {
+    const videoFormats = [
+      {
+        id: "professional-landscape",
+        name: "Professional Landscape",
+        description: "High-quality widescreen format for desktop and TV displays",
+        aspectRatio: "16:9" as const,
+        resolution: "1080p" as const,
+        durationSeconds: 8 as const,
+        icon: "💻",
+        platforms: ["YouTube", "LinkedIn", "Website", "Presentations"],
+        bestFor: "Professional presentations, web content, desktop viewing",
+        specs: "1920×1080 • 16:9 • 8 seconds"
+      },
+      {
+        id: "standard-landscape",
+        name: "Standard Landscape",
+        description: "Optimized widescreen format for social media and web",
+        aspectRatio: "16:9" as const,
+        resolution: "720p" as const,
+        durationSeconds: 8 as const,
+        icon: "📺",
+        platforms: ["Facebook", "Twitter", "Website", "Email"],
+        bestFor: "Social media, email campaigns, general web use",
+        specs: "1280×720 • 16:9 • 8 seconds"
+      },
+      {
+        id: "mobile-portrait",
+        name: "Mobile Portrait",
+        description: "Vertical format optimized for mobile-first platforms",
+        aspectRatio: "9:16" as const,
+        resolution: "720p" as const,
+        durationSeconds: 8 as const,
+        icon: "📱",
+        platforms: ["TikTok", "Instagram Stories", "YouTube Shorts"],
+        bestFor: "Mobile apps, stories, short-form content",
+        specs: "720×1280 • 9:16 • 8 seconds"
+      }
+    ];
+
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {videoFormats.map((format) => (
+            <div
+              key={format.id}
+              className={`group relative rounded-xl border-2 transition-all duration-300 cursor-pointer hover:scale-105 overflow-hidden ${
+                selectedVideoFormat?.id === format.id
+                  ? "border-red-500 bg-red-900/20 shadow-lg shadow-red-500/25"
+                  : "border-gray-600 hover:border-red-400"
+              }`}
+              onClick={() => handleVideoFormatSelection(format)}
+            >
+              <div className="p-6">
+                {/* Icon and Title */}
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-3xl">{format.icon}</span>
+                  <div>
+                    <h4 className="text-xl font-bold text-white group-hover:text-red-200 transition-colors">
+                      {format.name}
+                    </h4>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                  {format.description}
+                </p>
+
+                {/* Specs and Details */}
+                <div className="space-y-3">
+                  <div>
+                    <span className="text-xs text-gray-300 font-medium">Specifications:</span>
+                    <p className="text-xs text-red-300 mt-1">{format.specs}</p>
+                  </div>
+
+                  <div>
+                    <span className="text-xs text-gray-300 font-medium">Platforms:</span>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {format.platforms.map((platform, idx) => (
+                        <span
+                          key={idx}
+                          className="text-xs text-white bg-red-600/80 px-2 py-1 rounded backdrop-blur-sm"
+                        >
+                          {platform}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-xs text-gray-300 font-medium">Best For:</span>
+                    <p className="text-xs text-gray-100 mt-1">{format.bestFor}</p>
+                  </div>
+                </div>
+
+                {/* Selection Indicator */}
+                {selectedVideoFormat?.id === format.id && (
+                  <div className="absolute top-4 right-4 w-8 h-8 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   // Render final production step
   const renderFinalProduction = () => {
     if (finalVideoUrl) {
@@ -408,7 +542,8 @@ export default function VideoProducerCard({
               <div className="space-y-2 text-sm text-gray-300">
                 <p><span className="text-red-300">Narrative Style:</span> {selectedNarrativeStyle?.name}</p>
                 <p><span className="text-red-300">Music & Tone:</span> {selectedMusicGenre?.name}</p>
-                <p><span className="text-red-300">Estimated Duration:</span> 15 seconds</p>
+                <p><span className="text-red-300">Video Format:</span> {selectedVideoFormat?.name} ({selectedVideoFormat?.aspectRatio})</p>
+                <p><span className="text-red-300">Duration:</span> 8 seconds</p>
                 <p><span className="text-red-300">Production Cost:</span> $2.50</p>
               </div>
             </div>
@@ -449,11 +584,13 @@ export default function VideoProducerCard({
             onClick={handleNextStep}
             disabled={
               (currentStep === VideoProducerWorkflowStep.NARRATIVE_STYLE && !selectedNarrativeStyle) ||
-              (currentStep === VideoProducerWorkflowStep.MUSIC_TONE && !selectedMusicGenre)
+              (currentStep === VideoProducerWorkflowStep.MUSIC_TONE && !selectedMusicGenre) ||
+              (currentStep === VideoProducerWorkflowStep.VIDEO_FORMAT && !selectedVideoFormat)
             }
             className={`magical-button cursor-pointer flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
               (currentStep === VideoProducerWorkflowStep.NARRATIVE_STYLE && !selectedNarrativeStyle) ||
-              (currentStep === VideoProducerWorkflowStep.MUSIC_TONE && !selectedMusicGenre)
+              (currentStep === VideoProducerWorkflowStep.MUSIC_TONE && !selectedMusicGenre) ||
+              (currentStep === VideoProducerWorkflowStep.VIDEO_FORMAT && !selectedVideoFormat)
                 ? "bg-gray-700 text-gray-400 cursor-not-allowed"
                 : "bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
             }`}
@@ -477,11 +614,13 @@ export default function VideoProducerCard({
           <h2 className="text-2xl font-bold text-white mb-2">
             {currentStep === VideoProducerWorkflowStep.NARRATIVE_STYLE && (t.steps?.narrativeStyle || "Choose Narrative Style")}
             {currentStep === VideoProducerWorkflowStep.MUSIC_TONE && (t.steps?.musicTone || "Select Music & Tone")}
+            {currentStep === VideoProducerWorkflowStep.VIDEO_FORMAT && "Choose Video Format"}
             {currentStep === VideoProducerWorkflowStep.FINAL_PRODUCTION && (t.steps?.finalProduction || "Final Production")}
           </h2>
           <p className="text-red-200 text-lg">
             {currentStep === VideoProducerWorkflowStep.NARRATIVE_STYLE && "Choose the storytelling approach for your video"}
             {currentStep === VideoProducerWorkflowStep.MUSIC_TONE && "Select the perfect music and tone for your video"}
+            {currentStep === VideoProducerWorkflowStep.VIDEO_FORMAT && "Select the optimal format for your target platform"}
             {currentStep === VideoProducerWorkflowStep.FINAL_PRODUCTION && "Review and produce your final video"}
           </p>
         </div>
@@ -490,6 +629,7 @@ export default function VideoProducerCard({
         <div className="min-h-[400px]">
           {currentStep === VideoProducerWorkflowStep.NARRATIVE_STYLE && renderNarrativeStyle()}
           {currentStep === VideoProducerWorkflowStep.MUSIC_TONE && renderMusicTone()}
+          {currentStep === VideoProducerWorkflowStep.VIDEO_FORMAT && renderVideoFormat()}
           {currentStep === VideoProducerWorkflowStep.FINAL_PRODUCTION && renderFinalProduction()}
         </div>
 
@@ -501,9 +641,10 @@ export default function VideoProducerCard({
         <div className="flex justify-between">
           <span>Video Production Session: #{sessionId?.slice(-6) || "Loading..."}</span>
           <span>
-            {currentStep === VideoProducerWorkflowStep.NARRATIVE_STYLE && "Step 1 of 3"}
-            {currentStep === VideoProducerWorkflowStep.MUSIC_TONE && "Step 2 of 3"}
-            {currentStep === VideoProducerWorkflowStep.FINAL_PRODUCTION && "Step 3 of 3"}
+            {currentStep === VideoProducerWorkflowStep.NARRATIVE_STYLE && "Step 1 of 4"}
+            {currentStep === VideoProducerWorkflowStep.MUSIC_TONE && "Step 2 of 4"}
+            {currentStep === VideoProducerWorkflowStep.VIDEO_FORMAT && "Step 3 of 4"}
+            {currentStep === VideoProducerWorkflowStep.FINAL_PRODUCTION && "Step 4 of 4"}
           </span>
         </div>
       </div>
