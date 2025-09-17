@@ -128,7 +128,8 @@ interface VideoProducerStore {
   setAvailableMusicGenres: (genres: MusicGenre[]) => void;
   setAvailableVideoFormats: (formats: VideoFormat[]) => void;
 
-  startVideoProduction: () => void;
+  startVideoProduction: () => Promise<void>;
+  simulateProductionProgress: (finalVideoUrl: string) => void;
   updateProductionProgress: (progress: number) => void;
   setFinalVideoUrl: (url: string) => void;
 
@@ -253,13 +254,73 @@ export const useVideoProducerStore = create<VideoProducerStore>((set, get) => ({
   },
 
   // Video production management
-  startVideoProduction: () => {
+  startVideoProduction: async () => {
+    const state = get();
+
     set({
       isProducing: true,
       productionProgress: 0,
       finalVideoUrl: null
     });
-    get().markStepCompleted('finalProduction');
+
+    try {
+      // Call the video producer API to start production
+      const response = await fetch('/api/agents/video-producer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'start-production',
+          sessionId: state.sessionId,
+          locale: state.locale,
+          data: {
+            selectedNarrativeStyle: state.selectedNarrativeStyle,
+            selectedMusicGenre: state.selectedMusicGenre,
+            selectedVideoFormat: state.selectedVideoFormat,
+            creativeDirectorHandoffData: state.creativeDirectorHandoffData
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Production API error: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        // Start progress simulation
+        get().simulateProductionProgress(result.data.videoUrl);
+        get().markStepCompleted('finalProduction');
+      } else {
+        throw new Error('Production failed: ' + (result.error || 'Unknown error'));
+      }
+
+    } catch (error) {
+      console.error('Video production error:', error);
+      set({
+        isProducing: false,
+        productionProgress: 0
+      });
+      // You might want to show an error message to the user here
+    }
+  },
+
+  // Simulate production progress for demo mode
+  simulateProductionProgress: (finalVideoUrl: string) => {
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 15 + 5; // Random progress between 5-20%
+
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        get().setFinalVideoUrl(finalVideoUrl);
+      } else {
+        get().updateProductionProgress(progress);
+      }
+    }, 1000); // Update every second
   },
 
   updateProductionProgress: (progress) => {

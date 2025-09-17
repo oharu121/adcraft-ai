@@ -239,11 +239,15 @@ async function startDemoProduction(sessionId: string, locale: Locale): Promise<a
   // Simulate video production
   await new Promise(resolve => setTimeout(resolve, 2000));
 
+  // Use a sample video URL for demo purposes
+  // In a real implementation, this would be the generated video
+  const demoVideoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+
   return {
     success: true,
     productionId: crypto.randomUUID(),
-    estimatedCompletion: Date.now() + (5 * 60 * 1000), // 5 minutes
-    videoUrl: "/demo-commercial-video.mp4", // Demo video URL
+    estimatedCompletion: Date.now() + (8 * 1000), // 8 seconds for demo
+    videoUrl: demoVideoUrl,
     status: "in_progress"
   };
 }
