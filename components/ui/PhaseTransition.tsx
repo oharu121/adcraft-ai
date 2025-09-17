@@ -108,7 +108,9 @@ export default function PhaseTransition({
 
             {/* Description */}
             <p className="text-purple-200 text-sm">
-              {toAgent === "david" &&
+              {toAgent === "david" && fromAgent === "maya" &&
+                "Maya's strategy is complete! David will now create stunning visual direction for your commercial"}
+              {toAgent === "david" && fromAgent !== "maya" &&
                 "David will create stunning visual direction for your commercial"}
               {toAgent === "zara" && "Zara will produce your final commercial video"}
               {toAgent === "maya" && "Maya is analyzing your product"}

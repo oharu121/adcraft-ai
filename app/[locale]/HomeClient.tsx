@@ -553,12 +553,6 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     [sessionId, messages, locale, analysis, setAnalysis, addMessage, dict]
   );
 
-  // Handle handoff modal actions
-  const handleHandoffSuccess = useCallback(() => {
-    // Successfully handed off to Creative Director
-    transitionToPhase("david-creative");
-  }, [transitionToPhase]);
-
   const handleHandoffClose = useCallback(() => {
     setShowHandoffModal(false);
   }, [setShowHandoffModal]);
@@ -623,6 +617,12 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     },
     [currentPhase]
   );
+
+  // Handle handoff modal actions
+  const handleHandoffSuccess = useCallback(() => {
+    // Successfully handed off to Creative Director with animation
+    transitionWithAnimation("david-creative");
+  }, [transitionWithAnimation]);
 
   // Handle transition to video producer from Creative Director
   useEffect(() => {
