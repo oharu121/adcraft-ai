@@ -36,6 +36,11 @@ export default function VideoProducerWorkspace({
     setCurrentStep,
     selectedNarrativeStyle,
     selectedMusicGenre,
+    isInitialized,
+    setIsInitialized,
+    setAvailableNarrativeStyles,
+    setAvailableMusicGenres,
+    setAvailableVideoFormats,
   } = useVideoProducerStore();
 
   // Handle step navigation from progress sidebar
@@ -84,6 +89,82 @@ export default function VideoProducerWorkspace({
       resizeObserver.disconnect();
     };
   }, []);
+
+  // Initialize Zara when Creative Director handoff data is available
+  useEffect(() => {
+    console.log('🔍 VideoProducerWorkspace: useEffect triggered', {
+      hasHandoffData: !!creativeDirectorHandoffData,
+      isInitialized,
+      locale,
+      handoffSessionId: creativeDirectorHandoffData?.creativeDirectorSessionId
+    });
+
+    const initializeZara = async () => {
+      if (creativeDirectorHandoffData && !isInitialized) {
+        console.log('🎬 VideoProducer: Starting initialization...', {
+          handoffData: creativeDirectorHandoffData,
+          locale
+        });
+
+        try {
+          const requestBody = {
+            sessionId,
+            action: 'initialize',
+            locale,
+            data: {
+              creativeDirectorHandoffData,
+            },
+          };
+          console.log('🎬 VideoProducer: Sending request:', requestBody);
+
+          const response = await fetch('/api/agents/video-producer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody),
+          });
+
+          console.log('🎬 VideoProducer: Response status:', response.status);
+          const result = await response.json();
+          console.log('🎬 VideoProducer: Full API response:', result);
+
+          if (result.success && result.data) {
+            console.log('🎬 VideoProducer: Processing API data...', {
+              narrativeStylesCount: result.data.narrativeStyles?.length || 0,
+              musicGenresCount: result.data.musicGenres?.length || 0,
+              videoFormatsCount: result.data.videoFormats?.length || 0
+            });
+
+            // Store the API-generated options in Zustand store
+            if (result.data.narrativeStyles) {
+              console.log('📝 Setting narrative styles:', result.data.narrativeStyles);
+              setAvailableNarrativeStyles(result.data.narrativeStyles);
+            }
+            if (result.data.musicGenres) {
+              console.log('📝 Setting music genres:', result.data.musicGenres);
+              setAvailableMusicGenres(result.data.musicGenres);
+            }
+            if (result.data.videoFormats) {
+              console.log('📝 Setting video formats:', result.data.videoFormats);
+              setAvailableVideoFormats(result.data.videoFormats);
+            }
+
+            setIsInitialized(true);
+            console.log('✅ VideoProducer: Initialization complete - store updated');
+          } else {
+            console.error('❌ VideoProducer: API returned failure:', result);
+          }
+        } catch (error) {
+          console.error('❌ VideoProducer: Initialization failed:', error);
+        }
+      } else {
+        console.log('⏭️ VideoProducer: Skipping initialization', {
+          reason: !creativeDirectorHandoffData ? 'no handoff data' : 'already initialized'
+        });
+      }
+    };
+
+    initializeZara();
+  }, [creativeDirectorHandoffData, isInitialized, locale, setIsInitialized, setAvailableNarrativeStyles, setAvailableMusicGenres, setAvailableVideoFormats]);
 
   // Handle chat message sending
   const handleSendMessage = useCallback(

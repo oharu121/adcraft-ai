@@ -26,6 +26,27 @@ export default function VideoProducerCard({
   onStepChange,
   onExpandWorkflowProgress,
 }: VideoProducerCardProps) {
+  // Helper function to get icon for narrative styles
+  const getIconForNarrativeStyle = (id: string) => {
+    if (id.includes('hero') || id.includes('journey')) return "🎭";
+    if (id.includes('lifestyle') || id.includes('aspiration')) return "✨";
+    if (id.includes('product') || id.includes('showcase')) return "🎯";
+    if (id.includes('custom') || id.includes('ai')) return "🤖";
+    if (id.includes('energetic') || id.includes('modern')) return "⚡";
+    if (id.includes('warm') || id.includes('authentic')) return "❤️";
+    if (id.includes('sophisticated') || id.includes('elegant')) return "👑";
+    return "🎬"; // Default
+  };
+
+  // Helper function to get icon for music genres
+  const getIconForMusicGenre = (id: string) => {
+    if (id.includes('cinematic') || id.includes('orchestral')) return "🎼";
+    if (id.includes('electronic') || id.includes('modern')) return "🎹";
+    if (id.includes('upbeat') || id.includes('pop')) return "🎵";
+    if (id.includes('ambient') || id.includes('minimal')) return "🎶";
+    return "🎵"; // Default
+  };
+
   const {
     sessionId,
     creativeDirectorHandoffData,
@@ -42,7 +63,22 @@ export default function VideoProducerCard({
     setSelectedMusicGenre,
     setSelectedVideoFormat,
     startVideoProduction,
+    availableNarrativeStyles,
+    availableMusicGenres,
+    availableVideoFormats,
+    isInitialized,
   } = useVideoProducerStore();
+
+  // Debug store state
+  console.log('🔍 VideoProducerCard: Store state debug:', {
+    sessionId,
+    isInitialized,
+    hasHandoffData: !!creativeDirectorHandoffData,
+    availableNarrativeStylesCount: availableNarrativeStyles.length,
+    availableMusicGenresCount: availableMusicGenres.length,
+    availableVideoFormatsCount: availableVideoFormats.length,
+    currentStep: storeCurrentStep
+  });
 
   // Use external step state if provided, fallback to store state
   const currentStep = externalCurrentStep || storeCurrentStep;
@@ -147,35 +183,48 @@ export default function VideoProducerCard({
 
   // Render narrative style step
   const renderNarrativeStyle = () => {
-    const narrativeStyles = [
-      {
-        id: "hero-journey",
-        name: t.narrativeStyles.heroJourney.name,
-        description: t.narrativeStyles.heroJourney.description,
-        icon: "🎭",
-        features: t.narrativeStyles.heroJourney.features,
-        bestFor: t.narrativeStyles.heroJourney.bestFor,
-        pacing: t.narrativeStyles.heroJourney.pacing,
-      },
-      {
-        id: "lifestyle-aspiration",
-        name: t.narrativeStyles.lifestyleAspiration.name,
-        description: t.narrativeStyles.lifestyleAspiration.description,
-        icon: "✨",
-        features: t.narrativeStyles.lifestyleAspiration.features,
-        bestFor: t.narrativeStyles.lifestyleAspiration.bestFor,
-        pacing: t.narrativeStyles.lifestyleAspiration.pacing,
-      },
-      {
-        id: "product-showcase",
-        name: t.narrativeStyles.productShowcase.name,
-        description: t.narrativeStyles.productShowcase.description,
-        icon: "🎯",
-        features: t.narrativeStyles.productShowcase.features,
-        bestFor: t.narrativeStyles.productShowcase.bestFor,
-        pacing: t.narrativeStyles.productShowcase.pacing,
-      },
-    ];
+    // Use API-generated narrative styles if available, fallback to dictionary data
+    const narrativeStyles = availableNarrativeStyles.length > 0 ?
+      availableNarrativeStyles.map(style => ({
+        ...style,
+        icon: getIconForNarrativeStyle(style.id),
+        features: style.examples || [], // Use examples as features
+      })) :
+      [
+        {
+          id: "hero-journey",
+          name: t.narrativeStyles.heroJourney.name,
+          description: t.narrativeStyles.heroJourney.description,
+          icon: "🎭",
+          features: t.narrativeStyles.heroJourney.features,
+          bestFor: t.narrativeStyles.heroJourney.bestFor,
+          pacing: t.narrativeStyles.heroJourney.pacing,
+        },
+        {
+          id: "lifestyle-aspiration",
+          name: t.narrativeStyles.lifestyleAspiration.name,
+          description: t.narrativeStyles.lifestyleAspiration.description,
+          icon: "✨",
+          features: t.narrativeStyles.lifestyleAspiration.features,
+          bestFor: t.narrativeStyles.lifestyleAspiration.bestFor,
+          pacing: t.narrativeStyles.lifestyleAspiration.pacing,
+        },
+        {
+          id: "product-showcase",
+          name: t.narrativeStyles.productShowcase.name,
+          description: t.narrativeStyles.productShowcase.description,
+          icon: "🎯",
+          features: t.narrativeStyles.productShowcase.features,
+          bestFor: t.narrativeStyles.productShowcase.bestFor,
+          pacing: t.narrativeStyles.productShowcase.pacing,
+        },
+      ];
+
+    console.log('🎬 VideoProducer: Using narrative styles:', {
+      fromAPI: availableNarrativeStyles.length > 0,
+      count: narrativeStyles.length,
+      styles: narrativeStyles.map(s => ({ id: s.id, name: s.name }))
+    });
 
     return (
       <div className="space-y-6">
@@ -253,35 +302,52 @@ export default function VideoProducerCard({
 
   // Render music & tone step
   const renderMusicTone = () => {
-    const musicGenres = [
-      {
-        id: "upbeat-energetic",
-        name: t.musicGenres.upbeatEnergetic.name,
-        description: t.musicGenres.upbeatEnergetic.description,
-        mood: t.musicGenres.upbeatEnergetic.mood,
-        tempo: t.musicGenres.upbeatEnergetic.tempo,
-        instruments: t.musicGenres.upbeatEnergetic.instruments,
-        bestFor: t.musicGenres.upbeatEnergetic.bestFor,
-      },
-      {
-        id: "calm-sophisticated",
-        name: t.musicGenres.calmSophisticated.name,
-        description: t.musicGenres.calmSophisticated.description,
-        mood: t.musicGenres.calmSophisticated.mood,
-        tempo: t.musicGenres.calmSophisticated.tempo,
-        instruments: t.musicGenres.calmSophisticated.instruments,
-        bestFor: t.musicGenres.calmSophisticated.bestFor,
-      },
-      {
-        id: "warm-inviting",
-        name: t.musicGenres.warmInviting.name,
-        description: t.musicGenres.warmInviting.description,
-        mood: t.musicGenres.warmInviting.mood,
-        tempo: t.musicGenres.warmInviting.tempo,
-        instruments: t.musicGenres.warmInviting.instruments,
-        bestFor: t.musicGenres.warmInviting.bestFor,
-      },
-    ];
+    // Use API-generated music genres if available, fallback to dictionary data
+    const musicGenres =
+      availableMusicGenres.length > 0
+        ? availableMusicGenres.map((genre) => ({
+            ...genre,
+            icon: getIconForMusicGenre(genre.id),
+            tempo: genre.energy || "Medium", // Map energy to tempo
+          }))
+        : [
+            {
+              id: "upbeat-energetic",
+              icon: "🎵",
+              name: t.musicGenres.upbeatEnergetic.name,
+              description: t.musicGenres.upbeatEnergetic.description,
+              mood: t.musicGenres.upbeatEnergetic.mood,
+              tempo: t.musicGenres.upbeatEnergetic.tempo,
+              instruments: t.musicGenres.upbeatEnergetic.instruments,
+              bestFor: t.musicGenres.upbeatEnergetic.bestFor,
+            },
+            {
+              id: "calm-sophisticated",
+              icon: "🎵",
+              name: t.musicGenres.calmSophisticated.name,
+              description: t.musicGenres.calmSophisticated.description,
+              mood: t.musicGenres.calmSophisticated.mood,
+              tempo: t.musicGenres.calmSophisticated.tempo,
+              instruments: t.musicGenres.calmSophisticated.instruments,
+              bestFor: t.musicGenres.calmSophisticated.bestFor,
+            },
+            {
+              id: "warm-inviting",
+              icon: "🎵",
+              name: t.musicGenres.warmInviting.name,
+              description: t.musicGenres.warmInviting.description,
+              mood: t.musicGenres.warmInviting.mood,
+              tempo: t.musicGenres.warmInviting.tempo,
+              instruments: t.musicGenres.warmInviting.instruments,
+              bestFor: t.musicGenres.warmInviting.bestFor,
+            },
+          ];
+
+    console.log('🎵 VideoProducer: Using music genres:', {
+      fromAPI: availableMusicGenres.length > 0,
+      count: musicGenres.length,
+      genres: musicGenres.map(g => ({ id: g.id, name: g.name }))
+    });
 
     return (
       <div className="space-y-6">
@@ -299,6 +365,7 @@ export default function VideoProducerCard({
               <div className="p-6">
                 {/* Icon and Title */}
                 <div className="flex items-center gap-3 mb-4">
+                  <span className="text-3xl">{genre.icon || "🎵"}</span>
                   <div>
                     <h4 className="text-xl font-bold text-white group-hover:text-red-200 transition-colors">
                       {genre.name}

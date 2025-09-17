@@ -331,3 +331,77 @@ The handoff system we built is the foundation - now we need to build Zara's inte
   - ✅ Maya analysis provides product context for narrative
   - ✅ Complete creative direction from David
   - ✅ All user preferences for personalization
+
+  ✅ Existing Infrastructure:
+  - Complete Veo API integration (VeoService)
+  - Cost tracking & budget management (CostTracker)
+  - Job tracking & status monitoring (JobTracker)
+  - Firestore session management
+  - Video storage & serving via proxy endpoint
+  - Rate limiting & validation
+
+  Recommended Approach: Reuse & Refine
+
+  Instead of building from scratch, let's adapt your existing system for Zara's flow:
+
+  What We Can Reuse Directly:
+
+  1. /api/generate-video - Core video generation endpoint
+  2. /api/video/[fileId] - Video serving infrastructure
+  3. VeoService, CostTracker, JobTracker - All the heavy lifting
+  4. Firestore schema - Session and job management
+  5. Budget monitoring & rate limiting
+
+  What We Need to Build for Zara:
+
+  1. Prompt Construction Logic - Convert David's handoff + Zara's selections into optimal Veo prompts
+  2. Context Accumulation - Steps 1-2 validation, Step 4 full context assembly
+  3. Extended API Actions - Add Zara-specific endpoints to existing /api/agents/video-producer
+  4. Integration Bridge - Connect Zara's Step 4 to your existing /api/generate-video
+
+  Refined Implementation Plan:
+
+  Step 1-2: Zara validates user selections with AI
+  Step 3: Pure UI (no API needed)Step 4: Zara builds comprehensive prompt → calls existing /api/generate-video    
+   → reuses entire pipeline
+
+  This approach:
+  - ✅ Leverages proven infrastructure
+  - ✅ Avoids duplication
+  - ✅ Maintains cost/budget controls
+  - ✅ Faster implementation
+
+● The remaining blob URL usages are either:
+  1. In ImageUploadArea.tsx - creating preview URLs for uploaded files (different use case)
+  2. In VideoDisplay.tsx - for file downloads (temporary usage)
+
+  These are appropriate uses since they create URLs for different purposes and have proper cleanup.
+
+● Fixed the blob URL recreation issue! The problem was that both ProductAnalysisCard.tsx and ImageModal.tsx
+  were calling URL.createObjectURL(uploadedImage) directly in their render functions, creating new blob URLs
+  on every re-render.
+
+  Changes made:
+
+  1. ProductAnalysisCard.tsx:118-122 - Added memoization and cleanup
+  2. ImageModal.tsx:18-33 - Added memoization and cleanup
+  3. ImageModal.tsx:60 - Changed from direct URL.createObjectURL() to memoized imageUrl
+
+  How it works now:
+  - useMemo creates blob URL only when uploadedImage changes, not on every render
+  - useEffect cleanup revokes blob URLs to prevent memory leaks
+  - Same product image will now use the same blob URL across re-renders
+
+  The blob URLs in ImageUploadArea.tsx and VideoDisplay.tsx are appropriate since they serve different
+  purposes (file previews and downloads) with proper cleanup patterns.
+
+● The blob URL recreation issue has been completely resolved. Now when you upload a product image and interact
+   with Maya's chat, you should see:
+
+  1. Only one blob URL request per product image upload
+  2. Same blob URL reused across component re-renders
+  3. Proper cleanup when switching images or unmounting components
+
+  The fix prevents multiple blob:http://localhost:3000/[different-ids] requests for the same product image
+  that you were seeing in Chrome dev console.
+  

@@ -3,6 +3,18 @@ import { AppModeConfig } from "@/lib/config/app-mode";
 import type { CreativeDirection } from "@/lib/agents/creative-director/types/asset-types";
 import type { Locale } from "@/lib/dictionaries";
 import type { NarrativeStyle, MusicGenre } from "@/lib/stores/video-producer-store";
+import {
+  buildNarrativeStyleValidationPrompt,
+  buildMusicToneValidationPrompt,
+  buildProductionContext,
+  validateProductionReadiness,
+  type DavidHandoffData
+} from "@/lib/agents/video-producer/tools/prompt-builder";
+import { ProductionBridgeService } from "@/lib/agents/video-producer/services/production-bridge";
+import {
+  processNarrativeStyleValidation,
+  processMusicToneValidation
+} from "@/lib/agents/video-producer/core/real-handler";
 
 // Video Producer initialization request
 interface VideoProducerInitRequest {
@@ -40,6 +52,9 @@ interface VideoProducerInitResponse {
     estimated: number;
     remaining: number;
   };
+  // Following Maya's pattern: API provides all options
+  narrativeStyles: NarrativeStyle[];
+  musicGenres: MusicGenre[];
 }
 
 // Demo mode video production handler
@@ -75,7 +90,10 @@ async function initializeDemoMode(
     cost: {
       estimated: 2.5, // Estimated cost for video generation
       remaining: 296.0
-    }
+    },
+    // Following Maya's pattern: API provides all options
+    narrativeStyles: getDemoNarrativeStyles(locale),
+    musicGenres: getDemoMusicGenres(locale)
   };
 
   return response;
@@ -97,7 +115,10 @@ async function initializeRealMode(
   // 3. Configuring production parameters
   // 4. Estimating real costs and timelines
 
-  // For now, return similar structure as demo mode
+  // Generate AI-customized options for real mode
+  const customNarrativeStyles = await generateRealModeNarrativeStyles(creativeDirection, locale);
+  const customMusicGenres = await generateRealModeMusicGenres(creativeDirection, locale);
+
   const response: VideoProducerInitResponse = {
     sessionId,
     agentStatus: "ready",
@@ -118,10 +139,71 @@ async function initializeRealMode(
     cost: {
       estimated: 2.8, // Real cost might be higher
       remaining: 295.7
-    }
+    },
+    // Real mode: AI-generated options based on David's creative direction
+    narrativeStyles: customNarrativeStyles,
+    musicGenres: customMusicGenres
   };
 
   return response;
+}
+
+// Generate AI-customized narrative styles for real mode
+async function generateRealModeNarrativeStyles(
+  creativeDirection: any,
+  locale: Locale
+): Promise<NarrativeStyle[]> {
+  try {
+    // TODO: Replace with actual AI generation based on David's creative direction
+    // For now, return demo styles with AI-customized first option
+    const demoStyles = getDemoNarrativeStyles(locale);
+
+    // In real implementation, this would analyze David's creative direction
+    // and generate 1 custom narrative style + 3 demo options
+    const customStyle: NarrativeStyle = {
+      ...demoStyles[0],
+      id: "ai-custom-narrative",
+      name: locale === 'ja' ? "AI カスタム・ナラティブ" : "AI Custom Narrative",
+      description: locale === 'ja'
+        ? "あなたのクリエイティブディレクションに特化したAI生成のナラティブスタイル"
+        : "AI-generated narrative style tailored to your creative direction"
+    };
+
+    return [customStyle, ...demoStyles.slice(1)];
+  } catch (error) {
+    console.error("[Video Producer Real] Failed to generate narrative styles:", error);
+    // Fallback to demo styles
+    return getDemoNarrativeStyles(locale);
+  }
+}
+
+// Generate AI-customized music genres for real mode
+async function generateRealModeMusicGenres(
+  creativeDirection: any,
+  locale: Locale
+): Promise<MusicGenre[]> {
+  try {
+    // TODO: Replace with actual AI generation based on David's creative direction
+    // For now, return demo genres with AI-customized first option
+    const demoGenres = getDemoMusicGenres(locale);
+
+    // In real implementation, this would analyze David's creative direction
+    // and generate 1 custom music genre + 3 demo options
+    const customGenre: MusicGenre = {
+      ...demoGenres[0],
+      id: "ai-custom-music",
+      name: locale === 'ja' ? "AI カスタム・ミュージック" : "AI Custom Music",
+      description: locale === 'ja'
+        ? "あなたのクリエイティブディレクションに合わせたAI生成の音楽スタイル"
+        : "AI-generated music style matched to your creative direction"
+    };
+
+    return [customGenre, ...demoGenres.slice(1)];
+  } catch (error) {
+    console.error("[Video Producer Real] Failed to generate music genres:", error);
+    // Fallback to demo genres
+    return getDemoMusicGenres(locale);
+  }
 }
 
 // Demo mode narrative styles
@@ -326,31 +408,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    if (action === "get-narrative-styles") {
-      const { locale } = body;
-      const isDemoMode = AppModeConfig.getMode() === 'demo';
-      const narrativeStyles = getDemoNarrativeStyles(locale);
-
-      return NextResponse.json({
-        success: true,
-        data: { narrativeStyles },
-        timestamp: Date.now(),
-        mode: isDemoMode ? 'demo' : 'real'
-      });
-    }
-
-    if (action === "get-music-genres") {
-      const { locale } = body;
-      const isDemoMode = AppModeConfig.getMode() === 'demo';
-      const musicGenres = getDemoMusicGenres(locale);
-
-      return NextResponse.json({
-        success: true,
-        data: { musicGenres },
-        timestamp: Date.now(),
-        mode: isDemoMode ? 'demo' : 'real'
-      });
-    }
+    // Note: narrative-styles and music-genres are now provided in initialization response
+    // following Maya's pattern where API provides all options upfront
 
     if (action === "start-production") {
       const { sessionId, locale } = body;
@@ -377,6 +436,242 @@ export async function POST(request: NextRequest) {
         timestamp: Date.now(),
         mode: isDemoMode ? 'demo' : 'real'
       });
+    }
+
+    // Real mode Step 1: Narrative Style Selection Validation
+    if (action === "select-narrative-style") {
+      const { sessionId, locale, data, context } = body;
+      const isDemoMode = AppModeConfig.getMode() === 'demo';
+
+      if (isDemoMode) {
+        // Demo mode: Simple approval
+        return NextResponse.json({
+          success: true,
+          data: {
+            validation: {
+              alignmentScore: 8.5,
+              strengths: ["Good pacing match", "Appropriate tone for product"],
+              recommendations: ["Consider emphasizing key benefits more prominently"]
+            },
+            confirmation: {
+              approved: true,
+              message: "Excellent narrative style choice! This aligns well with your product and creative direction.",
+              nextStepGuidance: "Now let's select the perfect music to complement this narrative approach."
+            }
+          },
+          timestamp: Date.now(),
+          mode: 'demo'
+        });
+      }
+
+      // Real mode: AI validation
+      try {
+        const prompt = buildNarrativeStyleValidationPrompt({
+          davidHandoff: context.davidHandoff,
+          locale
+        }, data.narrativeStyleId);
+
+        // Process with actual AI integration
+        const aiResult = await processNarrativeStyleValidation({
+          sessionId,
+          prompt,
+          locale,
+          context: {
+            davidHandoff: context.davidHandoff
+          }
+        });
+
+        if (!aiResult.success) {
+          return NextResponse.json({
+            success: false,
+            error: aiResult.error || "AI validation failed",
+            timestamp: Date.now(),
+            mode: 'real'
+          }, { status: 500 });
+        }
+
+        return NextResponse.json({
+          success: true,
+          data: aiResult.response,
+          cost: aiResult.cost,
+          confidence: aiResult.confidence,
+          processingTime: aiResult.processingTime,
+          timestamp: Date.now(),
+          mode: 'real'
+        });
+
+      } catch (error) {
+        console.error("[Video Producer Real] Narrative validation error:", error);
+        return NextResponse.json({
+          success: false,
+          error: "Failed to validate narrative style selection",
+          timestamp: Date.now()
+        }, { status: 500 });
+      }
+    }
+
+    // Real mode Step 2: Music & Tone Selection Validation
+    if (action === "select-music-genre") {
+      const { sessionId, locale, data, context } = body;
+      const isDemoMode = AppModeConfig.getMode() === 'demo';
+
+      if (isDemoMode) {
+        // Demo mode: Simple approval
+        return NextResponse.json({
+          success: true,
+          data: {
+            validation: {
+              harmonyScore: 9.0,
+              brandAlignment: 8.5,
+              emotionalImpact: "Creates strong emotional connection with audience",
+              recommendations: ["Perfect choice for your brand personality"]
+            },
+            confirmation: {
+              approved: true,
+              message: "Outstanding music selection! This will create the perfect atmosphere for your commercial.",
+              productionReadiness: "All creative elements are now in perfect harmony. Ready for video production!"
+            }
+          },
+          timestamp: Date.now(),
+          mode: 'demo'
+        });
+      }
+
+      // Real mode: AI validation with accumulated context
+      try {
+        const prompt = buildMusicToneValidationPrompt({
+          davidHandoff: context.davidHandoff,
+          selectedNarrativeStyle: context.selectedNarrativeStyle,
+          locale
+        }, data.musicGenreId);
+
+        // Process with actual AI integration
+        const aiResult = await processMusicToneValidation({
+          sessionId,
+          prompt,
+          locale,
+          context: {
+            davidHandoff: context.davidHandoff,
+            selectedNarrativeStyle: context.selectedNarrativeStyle
+          }
+        });
+
+        if (!aiResult.success) {
+          return NextResponse.json({
+            success: false,
+            error: aiResult.error || "AI validation failed",
+            timestamp: Date.now(),
+            mode: 'real'
+          }, { status: 500 });
+        }
+
+        return NextResponse.json({
+          success: true,
+          data: aiResult.response,
+          cost: aiResult.cost,
+          confidence: aiResult.confidence,
+          processingTime: aiResult.processingTime,
+          timestamp: Date.now(),
+          mode: 'real'
+        });
+
+      } catch (error) {
+        console.error("[Video Producer Real] Music validation error:", error);
+        return NextResponse.json({
+          success: false,
+          error: "Failed to validate music genre selection",
+          timestamp: Date.now()
+        }, { status: 500 });
+      }
+    }
+
+    // Real mode Step 4: Final Production - Bridge to existing video generation
+    if (action === "start-production") {
+      const { sessionId, locale, data } = body;
+      const isDemoMode = AppModeConfig.getMode() === 'demo';
+
+      if (isDemoMode) {
+        // Use existing demo production handler
+        const result = await startDemoProduction(sessionId, locale);
+        return NextResponse.json({
+          success: true,
+          data: result,
+          timestamp: Date.now(),
+          mode: 'demo'
+        });
+      }
+
+      // Real mode: Build comprehensive context and bridge to video generation
+      try {
+        // Validate all required context is present
+        const readinessCheck = validateProductionReadiness({
+          davidHandoff: data.davidHandoff,
+          selectedNarrativeStyle: data.selectedNarrativeStyle,
+          selectedMusicGenre: data.selectedMusicGenre,
+          selectedVideoFormat: data.selectedVideoFormat,
+          locale
+        });
+
+        if (!readinessCheck.ready) {
+          return NextResponse.json({
+            success: false,
+            error: "Missing required production context",
+            details: { missing: readinessCheck.missing },
+            timestamp: Date.now()
+          }, { status: 400 });
+        }
+
+        // Build production context for existing video generation API
+        const productionContext = buildProductionContext({
+          davidHandoff: data.davidHandoff,
+          selectedNarrativeStyle: data.selectedNarrativeStyle,
+          selectedMusicGenre: data.selectedMusicGenre,
+          selectedVideoFormat: data.selectedVideoFormat,
+          locale
+        });
+
+        console.log("[Video Producer Real] Production context built:", {
+          sessionId,
+          prompt: productionContext.videoGenerationRequest.prompt.substring(0, 200) + '...',
+          metadata: productionContext.productionMetadata
+        });
+
+        // Use ProductionBridgeService to integrate with existing video generation pipeline
+        const productionBridge = ProductionBridgeService.getInstance();
+
+        const productionResult = await productionBridge.startProduction({
+          sessionId,
+          locale,
+          davidHandoff: data.davidHandoff,
+          selectedNarrativeStyle: data.selectedNarrativeStyle,
+          selectedMusicGenre: data.selectedMusicGenre,
+          selectedVideoFormat: data.selectedVideoFormat
+        });
+
+        if (!productionResult.success) {
+          return NextResponse.json({
+            success: false,
+            error: productionResult.error?.message || "Video production failed to start",
+            details: productionResult.error?.details,
+            timestamp: Date.now()
+          }, { status: 500 });
+        }
+
+        return NextResponse.json({
+          success: true,
+          data: productionResult.data,
+          timestamp: Date.now(),
+          mode: 'real'
+        });
+
+      } catch (error) {
+        console.error("[Video Producer Real] Production preparation error:", error);
+        return NextResponse.json({
+          success: false,
+          error: "Failed to prepare video production",
+          timestamp: Date.now()
+        }, { status: 500 });
+      }
     }
 
     return NextResponse.json(

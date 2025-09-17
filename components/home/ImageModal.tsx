@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useProductIntelligenceStore } from "@/lib/stores/product-intelligence-store";
 import type { Dictionary } from "@/lib/dictionaries";
 
@@ -13,6 +14,9 @@ export default function ImageModal({ dict }: ImageModalProps) {
     uploadedImage,
     setShowImageModal,
   } = useProductIntelligenceStore();
+
+  // Just create blob URL directly, let browser garbage collect
+  const imageUrl = uploadedImage ? URL.createObjectURL(uploadedImage) : null;
 
   if (!showImageModal || !uploadedImage) {
     return null;
@@ -39,7 +43,7 @@ export default function ImageModal({ dict }: ImageModalProps) {
           </svg>
         </button>
         <img
-          src={URL.createObjectURL(uploadedImage)}
+          src={imageUrl || ''}
           alt={dict.productIntelligence.productFullSize}
           className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
           onClick={(e) => e.stopPropagation()}

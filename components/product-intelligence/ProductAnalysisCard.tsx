@@ -6,7 +6,7 @@
 
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Card } from "@/components/ui/Card";
 import type { Dictionary } from "@/lib/dictionaries";
 import { useProductIntelligenceStore } from "@/lib/stores/product-intelligence-store";
@@ -39,6 +39,16 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
     resetSession,
     transitionToPhase,
   } = useProductIntelligenceStore();
+
+  // Memoize blob URL - React Strict Mode safe
+  const imageUrl = useMemo(() => {
+    if (uploadedImage) {
+      const url = URL.createObjectURL(uploadedImage);
+      console.log('✅ ProductAnalysisCard: Created URL (Strict Mode safe):', url);
+      return url;
+    }
+    return null;
+  }, [uploadedImage]);
 
   // If no analysis available, show loading state
   if (!analysis) {
@@ -106,7 +116,7 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
               title="Click to enlarge"
             >
               <img
-                src={URL.createObjectURL(uploadedImage)}
+                src={imageUrl || ''}
                 alt="Product"
                 className="w-full max-h-48 object-contain bg-gray-800"
               />

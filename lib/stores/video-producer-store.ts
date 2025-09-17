@@ -110,6 +110,7 @@ interface VideoProducerStore {
   chatInputMessage: string;
 
   // Actions
+  setIsInitialized: (initialized: boolean) => void;
   initializeFromCreativeDirectorHandoff: (data: {
     sessionId: string;
     creativeDirectorHandoffData: CreativeDirectorHandoffData;
@@ -186,7 +187,7 @@ export const useVideoProducerStore = create<VideoProducerStore>((set, get) => ({
       sessionId: data.sessionId,
       creativeDirectorHandoffData: data.creativeDirectorHandoffData,
       locale: data.locale,
-      isInitialized: true,
+      isInitialized: false, // Changed: Let the API initialization set this to true
       currentStep: VideoProducerWorkflowStep.NARRATIVE_STYLE,
       completedSteps: {
         narrativeStyle: false,
@@ -238,6 +239,11 @@ export const useVideoProducerStore = create<VideoProducerStore>((set, get) => ({
 
   setProductionSpecs: (specs) => {
     set({ productionSpecs: specs });
+  },
+
+  // Initialization management
+  setIsInitialized: (initialized) => {
+    set({ isInitialized: initialized });
   },
 
   // Available options management
