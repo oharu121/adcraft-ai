@@ -481,14 +481,6 @@
       "collaboration": "I'm here to be your creative partner - bringing technical expertise while ensuring every decision aligns with your brand's authentic voice."
     },
 
-    "chat": {
-      "limitations": {
-        "title": "Chat Information",
-        "description": "I can answer questions about creative options, but workflow changes must be made using the selection cards above."
-      },
-      "placeholder": "Ask me questions about creative direction options..."
-    },
-
     "phases": {
       "analysis": "Analysis",
       "creativeDevelopment": "Creative Development",
