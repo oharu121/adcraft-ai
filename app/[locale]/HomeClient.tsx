@@ -1,20 +1,27 @@
 "use client";
 
-import { useCallback, useRef } from "react";
-import { Card, ToastContainer } from "@/components/ui";
+import { useCallback, useRef, useState, useEffect } from "react";
+import { Button, Card, ToastContainer } from "@/components/ui";
 import { ModeToggle } from "@/components/debug/ModeIndicator";
 import { useToast } from "@/hooks/useToast";
 import { useProductIntelligenceStore } from "@/lib/stores/product-intelligence-store";
+import { useCreativeDirectorStore } from "@/lib/stores/creative-director-store";
+import { useVideoProducerStore } from "@/lib/stores/video-producer-store";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
 import HeroSection from "@/components/home/HeroSection";
 import ProductInputForm from "@/components/home/ProductInputForm";
 import AnalysisProgressCard from "@/components/home/AnalysisProgressCard";
-import ProductInsightsCard from "@/components/home/ProductInsightsCard";
-import CommercialStrategyCard from "@/components/home/CommercialStrategyCard";
+import ProductAnalysisCard from "@/components/product-intelligence/ProductAnalysisCard";
+import CreativeDirectorWorkspace from "@/components/creative-director/CreativeDirectorWorkspace";
+import VideoProducerWorkspace from "@/components/video-producer/VideoProducerWorkspace";
 import InstructionsCard from "@/components/home/InstructionsCard";
 import ImageModal from "@/components/home/ImageModal";
+import PhaseTransition from "@/components/ui/PhaseTransition";
+import ChatContainer from "@/components/product-intelligence/ChatContainer";
+import HandoffConfirmationModal from "@/components/modals/HandoffConfirmationModal";
 import { SessionStatus } from "@/lib/agents/product-intelligence/enums";
 import { ChatMessage } from "@/lib/agents/product-intelligence/types";
+import { AppPhase } from "@/lib/types/app-phases";
 
 // Utility function to convert File to base64
 const fileToBase64 = (file: File): Promise<string> => {
@@ -42,33 +49,87 @@ interface HomeClientProps {
 export default function HomeClient({ dict, locale }: HomeClientProps) {
   // Toast system
   const { toasts, showErrorToast, hideToast } = useToast();
-  
+
+  // Creative Director state
+  const { mayaHandoffData } = useCreativeDirectorStore();
+
+  // Video Producer state
+  const { initializeFromCreativeDirectorHandoff } = useVideoProducerStore();
+
+  // Phase transition state
+  const [phaseTransition, setPhaseTransition] = useState<{
+    show: boolean;
+    from: AppPhase;
+    to: AppPhase;
+  } | null>(null);
+
   // 🚀 ZUSTAND POWER! All state in one beautiful store
   const {
     // Session state
-    sessionId, sessionStatus, isConnected, isAgentTyping,
-    setSessionId, setSessionStatus, setIsConnected, setIsAgentTyping,
-    
+    sessionId,
+    sessionStatus,
+    isConnected,
+    isAgentTyping,
+    setSessionId,
+    setSessionStatus,
+    setIsConnected,
+    setIsAgentTyping,
+
+    // Phase management state
+    currentPhase,
+    completedPhases,
+    canAccessPhase,
+    transitionToPhase,
+
     // Product input state
-    uploadedImage, productName, productDescription, inputMode,
-    setUploadedImage, setProductName, setProductDescription, setInputMode,
-    
+    uploadedImage,
+    productName,
+    productDescription,
+    inputMode,
+    setUploadedImage,
+    setProductName,
+    setProductDescription,
+    setInputMode,
+
     // UI flow state
-    currentStep, showCommercialChat, showImageModal, showAllFeatures, showProductNameError,
-    setCurrentStep, setShowCommercialChat, setShowImageModal, setShowAllFeatures, setShowProductNameError,
-    
+    currentStep,
+    showCommercialChat,
+    showImageModal,
+    showHandoffModal,
+    showAllFeatures,
+    showProductNameError,
+    setCurrentStep,
+    setShowCommercialChat,
+    setShowImageModal,
+    setShowHandoffModal,
+    setShowAllFeatures,
+    setShowProductNameError,
+
     // Analysis state
-    messages, analysis, analysisProgress, analysisStartTime, elapsedTime, errorMessage, analysisError,
-    setMessages, addMessage, setAnalysis, setAnalysisProgress, setAnalysisStartTime, setElapsedTime, setErrorMessage, setAnalysisError,
-    
+    messages,
+    analysis,
+    analysisProgress,
+    analysisStartTime,
+    elapsedTime,
+    errorMessage,
+    analysisError,
+    setMessages,
+    addMessage,
+    setAnalysis,
+    setAnalysisProgress,
+    setAnalysisStartTime,
+    setElapsedTime,
+    setErrorMessage,
+    setAnalysisError,
+
     // 🎯 THE HERO: Chat state that PERSISTS!
-    chatInputMessage, setChatInputMessage,
-    
-    // Accordion state
-    expandedSections, toggleSection,
-    
+    chatInputMessage,
+    setChatInputMessage,
+
     // Complex actions
-    resetSession, startAnalysis, completeAnalysis
+    resetSession,
+    startAnalysis,
+    completeAnalysis,
   } = useProductIntelligenceStore();
 
   // Ref for tracking analysis start time for progress calculation
@@ -91,6 +152,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     }
   }, [setSessionId, setIsConnected]);
 
+
   // Handle image upload
   const handleImageUpload = useCallback(
     async (file: File) => {
@@ -105,14 +167,15 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
         );
         return;
       }
-      
+
       // Clear error state if validation passes
       setShowProductNameError(false);
 
       setUploadedImage(file);
 
-      // 🚀 Use our beautiful startAnalysis action!
+      // 🚀 Use our beautiful startAnalysis action and transition to analysis phase!
       startAnalysis();
+      transitionToPhase("maya-analysis");
       const startTime = Date.now();
       setAnalysisStartTime(startTime);
       analysisStartRef.current = startTime;
@@ -205,6 +268,8 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
           setMessages([analysisMessage]);
           setCurrentStep("chat");
+          // Transition to Maya Strategy phase
+          transitionToPhase("maya-strategy");
         } else {
           throw new Error(
             `Analysis failed: ${analysisResponse.status} ${analysisResponse.statusText}`
@@ -232,14 +297,15 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
       );
       return;
     }
-    
+
     // Clear error state if validation passes
     setShowProductNameError(false);
 
     if (!productDescription.trim()) return;
 
-    // 🚀 Use our beautiful startAnalysis action!
+    // 🚀 Use our beautiful startAnalysis action and transition to analysis phase!
     startAnalysis();
+    transitionToPhase("maya-analysis");
     const startTime = Date.now();
     setAnalysisStartTime(startTime);
     analysisStartRef.current = startTime;
@@ -327,6 +393,8 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
         setMessages([systemMessage]);
         // currentStep already set by completeAnalysis()
+        // Transition to Maya Strategy phase
+        transitionToPhase("maya-strategy");
       } else {
         throw new Error(
           `Analysis failed: ${analysisResponse.status} ${analysisResponse.statusText}`
@@ -412,6 +480,89 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     [sessionId, locale, productName]
   );
 
+  // Handle strategy confirmation (Yes/No buttons) - using proven pattern
+  const handleStrategyConfirmation = useCallback(
+    async (confirmed: boolean) => {
+      if (!sessionId) return;
+
+      try {
+        const response = await fetch("/api/agents/product-intelligence/chat/confirm-strategy", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sessionId,
+            messageId: messages[messages.length - 1]?.id || "latest",
+            confirmed,
+            locale,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to confirm strategy");
+        }
+
+        const result = await response.json();
+
+        // If strategy was updated, update the store's analysis
+        if (confirmed && result.data.updatedStrategy && analysis) {
+          const updatedAnalysis = {
+            ...analysis,
+            ...result.data.updatedStrategy,
+          };
+
+          // Update the analysis in the store
+          setAnalysis(updatedAnalysis);
+        }
+
+        // Add Maya's confirmation message to the chat
+        const mayaMessage: ChatMessage = {
+          id: crypto.randomUUID(),
+          type: "agent",
+          content: result.data.message,
+          timestamp: Date.now(),
+          agentName: dict.agent.productIntelligenceAgent,
+          metadata: {
+            processingTime: 100,
+            cost: 0,
+          },
+        };
+        addMessage(mayaMessage);
+      } catch (error) {
+        console.error("Strategy confirmation error:", error);
+
+        // Add error message to chat
+        const errorMessage: ChatMessage = {
+          id: crypto.randomUUID(),
+          type: "system",
+          content:
+            locale === "ja"
+              ? "戦略の確認に失敗しました。もう一度お試しください。"
+              : "Failed to confirm strategy. Please try again.",
+          timestamp: Date.now(),
+          agentName: dict.agent.systemAgent,
+          metadata: {
+            processingTime: 0,
+            cost: 0,
+          },
+        };
+        addMessage(errorMessage);
+      }
+    },
+    [sessionId, messages, locale, analysis, setAnalysis, addMessage, dict]
+  );
+
+  // Handle handoff modal actions
+  const handleHandoffSuccess = useCallback(() => {
+    // Successfully handed off to Creative Director
+    transitionToPhase("david-creative");
+  }, [transitionToPhase]);
+
+  const handleHandoffClose = useCallback(() => {
+    setShowHandoffModal(false);
+  }, [setShowHandoffModal]);
+
   // 🚀 Reset session - ONE LINE with Zustand!
   const handleReset = useCallback(() => {
     resetSession();
@@ -433,119 +584,236 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     }, 500); // Small delay to ensure scroll completes first
   }, []);
 
+  // Smart CTA handler that respects current phase
+  const handleSmartCTA = useCallback(() => {
+    if (
+      currentPhase === "david-creative" ||
+      currentPhase === "zara-production" ||
+      currentPhase === "completed"
+    ) {
+      // Show confirmation modal for going back to start
+      const confirmed = window.confirm(
+        dict.common?.confirmRestart ||
+          "You're currently working with a later agent. Do you want to start over from the beginning?"
+      );
+
+      if (confirmed) {
+        resetSession();
+        scrollToProductIntelligence();
+        focusProductNameInput();
+      }
+    } else {
+      // Normal scroll behavior for early phases
+      scrollToProductIntelligence();
+      focusProductNameInput();
+    }
+  }, [currentPhase, dict, resetSession, scrollToProductIntelligence, focusProductNameInput]);
+
+  // Enhanced transition function with animation
+  const transitionWithAnimation = useCallback(
+    (toPhase: AppPhase) => {
+      const fromPhase = currentPhase;
+      if (fromPhase !== toPhase) {
+        setPhaseTransition({
+          show: true,
+          from: fromPhase,
+          to: toPhase,
+        });
+      }
+    },
+    [currentPhase]
+  );
+
+  // Handle transition to video producer from Creative Director
+  useEffect(() => {
+    const handleVideoProducerTransition = (event: CustomEvent) => {
+      const { creativeDirection } = event.detail;
+
+      // Initialize Video Producer store with handoff data
+      if (initializeFromCreativeDirectorHandoff && sessionId) {
+        const videoProducerSessionId = crypto.randomUUID();
+
+        initializeFromCreativeDirectorHandoff({
+          sessionId: videoProducerSessionId,
+          creativeDirectorHandoffData: {
+            creativeDirectorSessionId: sessionId,
+            creativeDirection: creativeDirection,
+            productAnalysis: analysis, // Pass along product analysis from Maya
+            handoffTimestamp: Date.now(),
+          },
+          locale,
+        });
+      }
+
+      // Transition to video producer phase with animation
+      transitionWithAnimation("zara-production");
+    };
+
+    window.addEventListener(
+      "transitionToVideoProducer",
+      handleVideoProducerTransition as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        "transitionToVideoProducer",
+        handleVideoProducerTransition as EventListener
+      );
+    };
+  }, [initializeFromCreativeDirectorHandoff, sessionId, analysis, locale, transitionWithAnimation]);
+
+  // Handle transition completion
+  const handleTransitionComplete = useCallback(() => {
+    if (phaseTransition) {
+      transitionToPhase(phaseTransition.to);
+      setPhaseTransition(null);
+
+      // Auto-scroll to new phase section
+      setTimeout(() => {
+        if (phaseTransition.to === "david-creative") {
+          const element = document.getElementById("creative-director-section");
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+          }
+        } else if (phaseTransition.to === "zara-production") {
+          const element = document.getElementById("video-producer-section");
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+          }
+        }
+      }, 100);
+    }
+  }, [phaseTransition, transitionToPhase]);
+
   return (
     <div className="min-h-screen">
       {/* 🚀 Hero Section - Now a clean server component! */}
-      <HeroSection 
-        dict={dict} 
-        onScrollToSection={scrollToProductIntelligence}
+      <HeroSection
+        dict={dict}
+        onScrollToSection={handleSmartCTA}
         onFocusProductName={focusProductNameInput}
       />
 
       {/* Product Intelligence Section */}
       <div id="product-intelligence-section" className="py-16 md:py-24">
         <div className="container mx-auto px-4 max-w-6xl relative">
-          {/* Section Header */}
+          {/* Dynamic Agent Section Header */}
           <div className="text-center mb-12 md:mb-16">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 magical-text">
-              {dict.productIntelligence.agentSection}
+              {currentPhase === "david-creative" && dict.creativeDirector.title}
+              {currentPhase === "zara-production" && dict.videoProducer.title}
+              {(currentPhase === "product-input" ||
+                currentPhase === "maya-analysis" ||
+                currentPhase === "maya-strategy") &&
+                dict.productIntelligence.agentSection}
             </h2>
             <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-3 md:mb-4 max-w-3xl mx-auto leading-relaxed">
-              {dict.productIntelligence.agentDescription}
-            </p>
-            <p className="text-sm md:text-base text-gray-400 mb-6 md:mb-8">
-              {dict.productIntelligence.costInfo}
+              {currentPhase === "david-creative" && dict.creativeDirector.description}
+              {currentPhase === "zara-production" && dict.videoProducer.description}
+              {(currentPhase === "product-input" ||
+                currentPhase === "maya-analysis" ||
+                currentPhase === "maya-strategy") &&
+                dict.productIntelligence.agentDescription}
             </p>
           </div>
 
-          {/* 🚀 Main Workflow - Now beautifully organized! */}
-          <div className="grid lg:grid-cols-2 gap-8">
-            {/* Left Column - Upload & Analysis */}
-            <div className="space-y-6">
-              {/* Step 1: Product Input */}
-              {currentStep === "upload" && (
-                <ProductInputForm
-                  dict={dict}
-                  locale={locale}
-                  onImageUpload={handleImageUpload}
-                  onTextSubmit={handleTextSubmit}
-                  productNameInputRef={productNameInputRef}
-                  onValidationError={(message) => {
-                    setShowProductNameError(true);
-                    productNameInputRef.current?.focus();
-                    showErrorToast(
-                      message,
-                      dict.productIntelligence.validationError || "Validation Error"
-                    );
-                  }}
-                />
-              )}
+          {/* 🚀 Main Workflow - Phase-based visibility! */}
 
-              {/* Step 2: Analysis Display */}
-              {currentStep === "analyze" && (
+          {/* Phase: Maya Analysis - Centered Progress */}
+          {currentPhase === "maya-analysis" && (
+            <div className="flex justify-center">
+              <div className="w-full max-w-md">
                 <AnalysisProgressCard dict={dict} />
-              )}
-
-              {/* 📊 Product Insights - Beautifully componentized */}
-              {currentStep === "chat" && (
-                <ProductInsightsCard 
-                  dict={dict} 
-                  onImageClick={() => setShowImageModal(true)} 
-                />
-              )}
+              </div>
             </div>
+          )}
 
-            {/* 🎨 Right Column - Now beautifully organized */}
-            <div className="space-y-6">
-              {/* 🎬 Step 3: Commercial Strategy - Beautifully componentized! */}
-              {currentStep === "chat" && (
-                <CommercialStrategyCard
-                  dict={dict}
-                  locale={locale}
-                  onSendMessage={handleSendMessage}
-                  onReset={handleReset}
-                  onProceedToHandoff={() => setCurrentStep("handoff")}
-                />
-              )}
+          {/* Phase: David Creative - Full Width Creative Director Interface */}
+          {currentPhase === "david-creative" && (
+            <div id="creative-director-section">
+              <CreativeDirectorWorkspace
+                dict={dict}
+                locale={locale}
+                onScrollToChatSection={() => {
+                  const element = document.getElementById("creative-director-section");
+                  if (element) {
+                    element.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+              />
+            </div>
+          )}
 
-              {/* Handoff Preparation */}
-              {currentStep === "handoff" && (
-                <Card variant="magical" glow className="p-6">
-                  <div className="text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-green-500 rounded-full flex items-center justify-center">
-                      <svg
-                        className="w-8 h-8 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-semibold text-white mb-2">
-                      {dict.productIntelligence.analysisComplete}
-                    </h3>
-                    <p className="text-gray-300 text-sm mb-4">
-                      {dict.productIntelligence.handoffToCreativeDirector}
-                    </p>
-                    <button className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:scale-105 transition-transform">
-                      {dict.productIntelligence.proceedToNextAgent}
-                    </button>
+          {/* Phase: Zara Video Producer - Full Width Video Producer Interface */}
+          {currentPhase === "zara-production" && (
+            <div id="video-producer-section">
+              <VideoProducerWorkspace
+                dict={dict}
+                locale={locale}
+                onScrollToChatSection={() => {
+                  const element = document.getElementById("video-producer-section");
+                  if (element) {
+                    element.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+              />
+            </div>
+          )}
+
+          {/* Phase: Product Input & Maya Strategy - 2-Column Layout */}
+          {(currentPhase === "product-input" || currentPhase === "maya-strategy") && (
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Left Column - Maya's Domain */}
+              <div className="space-y-6">
+                {/* Phase: Product Input */}
+                {currentPhase === "product-input" && (
+                  <ProductInputForm
+                    dict={dict}
+                    locale={locale}
+                    onImageUpload={handleImageUpload}
+                    onTextSubmit={handleTextSubmit}
+                    productNameInputRef={productNameInputRef}
+                    onValidationError={(message) => {
+                      setShowProductNameError(true);
+                      productNameInputRef.current?.focus();
+                      showErrorToast(
+                        message,
+                        dict.productIntelligence.validationError || "Validation Error"
+                      );
+                    }}
+                  />
+                )}
+
+                {/* Phase: Maya Strategy - Product Analysis */}
+                {currentPhase === "maya-strategy" && <ProductAnalysisCard dict={dict} />}
+              </div>
+
+              {/* Right Column - Phase-dependent content */}
+              <div className="space-y-6">
+                {/* Phase: Maya Strategy - Maya Chat (Right Panel) */}
+                {currentPhase === "maya-strategy" && (
+                  <div className="h-full">
+                    {/* Maya Chat Container for clean left/right layout */}
+                    <ChatContainer
+                      sessionId={sessionId}
+                      messages={messages}
+                      isConnected={isConnected}
+                      isAgentTyping={isAgentTyping}
+                      onSendMessage={handleSendMessage}
+                      onStrategyConfirmation={handleStrategyConfirmation}
+                      dict={dict}
+                      locale={locale}
+                      inputMessage={chatInputMessage}
+                      onInputMessageChange={setChatInputMessage}
+                    />
                   </div>
-                </Card>
-              )}
+                )}
 
-              {/* 📝 Instructions - Clean server component */}
-              {currentStep === "upload" && (
-                <InstructionsCard dict={dict} />
-              )}
+                {/* Phase: Product Input - Instructions */}
+                {currentPhase === "product-input" && <InstructionsCard dict={dict} />}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -555,8 +823,30 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
       {/* Toast Notifications */}
       <ToastContainer toasts={toasts} onRemoveToast={hideToast} position="top-center" />
 
+      {/* Handoff Confirmation Modal */}
+      <HandoffConfirmationModal
+        isOpen={showHandoffModal}
+        onClose={handleHandoffClose}
+        onSuccess={handleHandoffSuccess}
+        analysis={analysis}
+        sessionId={sessionId}
+        dict={dict}
+        locale={locale}
+      />
+
       {/* Development Mode Toggle */}
       <ModeToggle />
+
+      {/* Phase Transition Animation */}
+      {phaseTransition && (
+        <PhaseTransition
+          from={phaseTransition.from}
+          to={phaseTransition.to}
+          dict={dict}
+          show={phaseTransition.show}
+          onComplete={handleTransitionComplete}
+        />
+      )}
     </div>
   );
 }

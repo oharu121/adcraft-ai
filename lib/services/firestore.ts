@@ -46,7 +46,7 @@ export interface VideoJob {
 
 export interface CostEntry {
   id: string;
-  service: "veo" | "gemini" | "storage" | "other";
+  service: "veo" | "gemini" | "storage" | "imagen" | "vertex-ai" | "firestore" | "other";
   amount: number;
   currency: "USD";
   description: string;
@@ -81,12 +81,14 @@ export class FirestoreService {
   private jobsCollection: CollectionReference<DocumentData> | null = null;
   private costsCollection: CollectionReference<DocumentData> | null = null;
   private piSessionsCollection: CollectionReference<DocumentData> | null = null;
+  private creativeSessionsCollection: CollectionReference<DocumentData> | null = null;
 
   // Mock data stores for development (static to persist across instances)
   private static mockSessions: Map<string, VideoSession> = new Map();
   private static mockJobs: Map<string, VideoJob> = new Map();
   private static mockCosts: CostEntry[] = [];
   private static mockPISessions: Map<string, ProductIntelligenceSession> = new Map();
+  private static mockCreativeSessions: Map<string, any> = new Map();
 
   private constructor() {
     const projectId = process.env.GCP_PROJECT_ID;
@@ -103,6 +105,7 @@ export class FirestoreService {
       this.jobsCollection = this.db.collection("videoJobs");
       this.costsCollection = this.db.collection("costs");
       this.piSessionsCollection = this.db.collection("productIntelligenceSessions");
+      this.creativeSessionsCollection = this.db.collection("creativeDirectorSessions");
       console.log("[FIRESTORE] Initialized with real Firestore");
     } else {
       console.log(
@@ -900,8 +903,8 @@ export class FirestoreService {
           );
         }
         if (existingSession && existingSession.pendingStrategy && existingSession.productAnalysis) {
-          // Move pending strategy to confirmed strategy
-          existingSession.productAnalysis.commercialStrategy = existingSession.pendingStrategy;
+          // Move pending strategy to confirmed keyMessages (commercialStrategy moved to David)
+          existingSession.productAnalysis.keyMessages = existingSession.pendingStrategy;
           const updatedStrategy = existingSession.pendingStrategy;
           // Clear pending strategy
           delete existingSession.pendingStrategy;
@@ -936,7 +939,7 @@ export class FirestoreService {
 
       // Update confirmed strategy and clear pending
       await this.piSessionsCollection.doc(sessionId).update({
-        "productAnalysis.commercialStrategy": sessionData.pendingStrategy,
+        "productAnalysis.keyMessages": sessionData.pendingStrategy,
         pendingStrategy: FieldValue.delete(),
         pendingStrategyTimestamp: FieldValue.delete(),
         updatedAt: new Date(),
@@ -1057,6 +1060,170 @@ export class FirestoreService {
       return true;
     } catch (error) {
       console.error("Failed to update PI cost:", error);
+      return false;
+    }
+  }
+
+  // Creative Director Session Management
+
+  /**
+   * Create new creative director session
+   */
+  public async createCreativeSession(
+    sessionId: string,
+    sessionData: any
+  ): Promise<any> {
+    try {
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + 12 * 60 * 60 * 1000); // 12 hours
+
+      const finalSessionData = {
+        id: sessionId,
+        ...sessionData,
+        createdAt: now,
+        updatedAt: now,
+        expiresAt,
+      };
+
+      if (AppModeConfig.getMode() === "demo") {
+        FirestoreService.mockCreativeSessions.set(sessionId, finalSessionData);
+        console.log(`[MOCK MODE] Created Creative Director session: ${sessionId}`);
+        return finalSessionData;
+      }
+
+      if (!this.creativeSessionsCollection) {
+        throw new Error("Firestore not initialized");
+      }
+
+      // Filter out undefined values for Firestore
+      const firestoreData = Object.fromEntries(
+        Object.entries(finalSessionData).filter(([_, value]) => value !== undefined)
+      );
+
+      await this.creativeSessionsCollection.doc(sessionId).set(firestoreData);
+      console.log(`[FIRESTORE] Created Creative Director session: ${sessionId}`);
+
+      return finalSessionData;
+    } catch (error) {
+      console.error("Failed to create Creative Director session:", error);
+      throw new Error(
+        `Failed to create Creative Director session: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
+    }
+  }
+
+  /**
+   * Get creative director session by ID
+   */
+  public async getCreativeSession(sessionId: string): Promise<any> {
+    try {
+      if (AppModeConfig.getMode() === "demo") {
+        const session = FirestoreService.mockCreativeSessions.get(sessionId);
+        if (session) {
+          console.log(`[MOCK MODE] Retrieved Creative Director session: ${sessionId}`);
+          return session;
+        } else {
+          console.log(`[MOCK MODE] Creative Director session not found: ${sessionId}`);
+          return null;
+        }
+      }
+
+      if (!this.creativeSessionsCollection) {
+        throw new Error("Firestore not initialized");
+      }
+
+      const doc = await this.creativeSessionsCollection.doc(sessionId).get();
+
+      if (!doc.exists) {
+        console.log(`[FIRESTORE] Creative Director session not found: ${sessionId}`);
+        return null;
+      }
+
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: data?.createdAt?.toDate() || new Date(),
+        updatedAt: data?.updatedAt?.toDate() || new Date(),
+        expiresAt: data?.expiresAt?.toDate() || new Date(),
+      };
+    } catch (error) {
+      console.error("Failed to get Creative Director session:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Update creative director session
+   */
+  public async updateCreativeSession(sessionId: string, updates: any): Promise<boolean> {
+    try {
+      const updateData = {
+        ...updates,
+        updatedAt: new Date(),
+      };
+
+      if (AppModeConfig.getMode() === "demo") {
+        const existingSession = FirestoreService.mockCreativeSessions.get(sessionId);
+        if (existingSession) {
+          FirestoreService.mockCreativeSessions.set(sessionId, { ...existingSession, ...updateData });
+          console.log(`[MOCK MODE] Updated Creative Director session: ${sessionId}`);
+          return true;
+        } else {
+          console.warn(`[MOCK MODE] Creative Director session not found: ${sessionId}`);
+          return false;
+        }
+      }
+
+      if (!this.creativeSessionsCollection) {
+        throw new Error("Firestore not initialized");
+      }
+
+      // Filter out undefined values for Firestore
+      const firestoreUpdateData = Object.fromEntries(
+        Object.entries(updateData).filter(([_, value]) => value !== undefined)
+      );
+
+      await this.creativeSessionsCollection.doc(sessionId).update(firestoreUpdateData);
+      console.log(`[FIRESTORE] Updated Creative Director session: ${sessionId}`);
+      return true;
+    } catch (error) {
+      console.error("Failed to update Creative Director session:", error);
+      return false;
+    }
+  }
+
+  /**
+   * Create handoff record for agent transitions
+   */
+  public async createHandoffRecord(sessionId: string, handoffData: any): Promise<boolean> {
+    try {
+      const recordId = crypto.randomUUID();
+      const handoffRecord = {
+        id: recordId,
+        sessionId,
+        ...handoffData,
+        createdAt: new Date(),
+      };
+
+      if (AppModeConfig.getMode() === "demo") {
+        // In demo mode, just log the handoff record
+        console.log(`[MOCK MODE] Created handoff record for session: ${sessionId}`);
+        return true;
+      }
+
+      if (!this.db) {
+        throw new Error("Firestore not initialized");
+      }
+
+      // Store handoff record in a dedicated collection
+      const handoffCollection = this.db.collection("handoffRecords");
+      await handoffCollection.doc(recordId).set(handoffRecord);
+      console.log(`[FIRESTORE] Created handoff record: ${recordId} for session: ${sessionId}`);
+
+      return true;
+    } catch (error) {
+      console.error("Failed to create handoff record:", error);
       return false;
     }
   }

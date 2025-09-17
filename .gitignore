@@ -42,6 +42,4 @@ next-env.d.ts
 
 # ai related markdowns
 ENVIRONMENT.md
-CLAUDE.md
-
 gcp-credentials.json

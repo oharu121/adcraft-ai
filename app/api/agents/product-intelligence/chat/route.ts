@@ -222,10 +222,9 @@ async function processChatMessage(request: ChatMessageRequest): Promise<ChatMess
     // Generate updated strategy using our new method
     console.log("[DEBUG] sessionContext.analysis:", sessionContext.analysis);
     const strategyUpdate = await PromptBuilder.generateUpdatedStrategy(
-      sessionContext.analysis?.commercialStrategy || {},
+      sessionContext.analysis || {},
       request.message,
       sessionContext.messages?.map((m: any) => `${m.type}: ${m.content}`).join("\n") || "",
-      sessionContext.analysis,
       request.locale
     );
     console.log("[DEBUG] Strategy update result:", strategyUpdate);
@@ -326,22 +325,26 @@ async function getSessionContext(sessionId: string): Promise<any> {
  */
 function generateQuickActions(response: string, locale: "en" | "ja"): string[] {
   const lowerResponse = response.toLowerCase();
-  
+
   // Determine which category is most relevant
   if (lowerResponse.includes("headline") || lowerResponse.includes("tagline") || lowerResponse.includes("ヘッドライン") || lowerResponse.includes("タグライン")) {
     return PromptBuilder.getQuickActions("headline", locale).slice(0, 3);
   } else if (lowerResponse.includes("audience") || lowerResponse.includes("target") || lowerResponse.includes("ターゲット") || lowerResponse.includes("顧客")) {
     return PromptBuilder.getQuickActions("audience", locale).slice(0, 3);
+  } else if (lowerResponse.includes("description") || lowerResponse.includes("summary") || lowerResponse.includes("概要") || lowerResponse.includes("説明")) {
+    return PromptBuilder.getQuickActions("description", locale).slice(0, 3);
+  } else if (lowerResponse.includes("features") || lowerResponse.includes("feature") || lowerResponse.includes("機能") || lowerResponse.includes("特徴")) {
+    return PromptBuilder.getQuickActions("keyFeatures", locale).slice(0, 3);
   } else if (lowerResponse.includes("scene") || lowerResponse.includes("シーン") || lowerResponse.includes("video") || lowerResponse.includes("動画")) {
     return PromptBuilder.getQuickActions("scenes", locale).slice(0, 3);
   } else if (lowerResponse.includes("position") || lowerResponse.includes("ポジション") || lowerResponse.includes("brand") || lowerResponse.includes("ブランド")) {
     return PromptBuilder.getQuickActions("positioning", locale).slice(0, 3);
   }
-  
-  // Default to mixed quick actions
+
+  // Default to mixed quick actions focusing on core product fields
   return [
+    ...PromptBuilder.getQuickActions("description", locale).slice(0, 1),
     ...PromptBuilder.getQuickActions("headline", locale).slice(0, 1),
-    ...PromptBuilder.getQuickActions("positioning", locale).slice(0, 1), 
     ...PromptBuilder.getQuickActions("audience", locale).slice(0, 1),
   ];
 }

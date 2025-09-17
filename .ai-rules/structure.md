@@ -61,7 +61,6 @@ components/                  # Reusable React components
 │   ├── HeroSection.tsx          # Compelling hero section with CTA
 │   ├── InstructionsCard.tsx     # Step-by-step instructions
 │   ├── ProductAnalysisCard.tsx  # Dual input mode (image/text) interface
-│   ├── CommercialStrategyCard.tsx # Interactive strategy review with Maya's chat
 │   └── HandoffCard.tsx          # Agent transition and progress tracking
 ├── product-intelligence/        # Maya's Product Intelligence Agent components
 │   ├── ChatContainer.tsx        # Advanced chat with Maya's personality
@@ -73,9 +72,9 @@ components/                  # Reusable React components
 │   ├── Input.tsx                # Form input components
 │   ├── Modal.tsx                # Modal dialog component
 │   ├── LoadingSpinner.tsx       # Loading state indicator
-│   └── AgentAvatar.tsx          # Agent personality avatars (Maya, David, Alex)
+│   └── AgentAvatar.tsx          # Agent personality avatars (Maya, David, Zara)
 └── creative-director/           # David's Creative Director Agent components (future)
-    └── video-producer/          # Alex's Video Producer Agent components (future)
+    └── video-producer/          # Zara's Video Producer Agent components (future)
 ```
 
 ### Business Logic (`lib/`)
@@ -104,8 +103,8 @@ lib/                         # Core business logic and utilities
 │   │   ├── tools/             # Imagen API and visual tools
 │   │   ├── types/             # Creative-specific types
 │   │   └── index.ts           # Public API exports
-│   └── video-producer/         # Alex - Agent 3: Video Production (future)
-│       ├── core/              # Alex's production logic
+│   └── video-producer/         # Zara - Agent 3: Video Production (future)
+│       ├── core/              # Zara's production logic
 │       ├── tools/             # Veo API and video tools
 │       ├── types/             # Production-specific types
 │       └── index.ts           # Public API exports

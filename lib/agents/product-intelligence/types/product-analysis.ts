@@ -43,20 +43,11 @@ export interface PriceRange {
   currency: string;
 }
 
-// Basic product information structure
+// Simplified product information structure
 export interface ProductInfo {
-  id: string;
-  category: ProductCategory;
-  subcategory: string;
   name: string;
   description: string;
   keyFeatures: string[];
-  materials: string[];
-  colors: Color[];
-  dimensions?: ProductDimensions;
-  priceRange?: PriceRange;
-  usageContext: string[];
-  seasonality?: "spring" | "summer" | "fall" | "winter" | "year-round";
 }
 
 // Demographics for target audience
@@ -91,10 +82,10 @@ export interface TargetAudienceSegment {
   behaviors: Behaviors;
 }
 
-// Complete target audience analysis
+// Simplified target audience analysis
 export interface TargetAudience {
-  primary: TargetAudienceSegment;
-  secondary?: TargetAudienceSegment;
+  ageRange: string;
+  description: string;
 }
 
 // Brand personality traits
@@ -127,10 +118,9 @@ export interface MarketPosition {
 
 // Brand positioning strategy
 export interface Positioning {
-  brandPersonality: BrandPersonality;
-  valueProposition: ValueProposition;
-  competitiveAdvantages: CompetitiveAdvantages;
-  marketPosition: MarketPosition;
+  valueProposition: {
+    primaryBenefit: string;
+  };
 }
 
 // Key commercial messages
@@ -177,31 +167,9 @@ export interface KeyScenes {
   }>;
 }
 
-// Commercial strategy insights
-export interface CommercialStrategy {
-  keyMessages: KeyMessages;
-  emotionalTriggers: EmotionalTriggers;
-  callToAction: CallToAction;
-  storytelling: Storytelling;
-  keyScenes: KeyScenes;
-}
-
-// Color palette for visual direction
-export interface ColorPalette {
-  primary: Color[];
-  secondary: Color[];
-  accent: Color[];
-}
-
-// Visual preferences for creative direction
-export interface VisualPreferences {
-  overallStyle: VisualStyle;
-  colorPalette: ColorPalette;
-  mood: Mood;
-  composition: Composition;
-  lighting: Lighting;
-  environment: string[];
-}
+// Note: CommercialStrategy and VisualPreferences moved to David (Creative Director Agent)
+// EmotionalTriggers, CallToAction, Storytelling, KeyScenes will be handled by David/Zara
+// ColorPalette and visual elements will be handled by David
 
 // Cost breakdown tracking
 export interface CostBreakdown {
@@ -238,14 +206,8 @@ export interface ProductAnalysis {
   // Target audience analysis
   targetAudience: TargetAudience;
 
-  // Brand positioning strategy
-  positioning: Positioning;
-
-  // Commercial strategy insights
-  commercialStrategy: CommercialStrategy;
-
-  // Visual direction for Creative Director Agent
-  visualPreferences: VisualPreferences;
+  // Key messaging
+  keyMessages: KeyMessages;
 
   // Session and processing metadata
   metadata: AnalysisMetadata;

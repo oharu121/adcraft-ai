@@ -35,29 +35,8 @@ export class PositioningGenerator {
 
     const positioningMap = {
       [ProductCategory.ELECTRONICS]: {
-        brandPersonality: {
-          traits: ["innovative", "premium", "professional", "sophisticated"],
-          tone: BrandTone.LUXURY,
-          voice: localeConstants.brandVoices[ProductCategory.ELECTRONICS],
-        },
         valueProposition: {
           primaryBenefit: valueProps.primaryBenefit(productName),
-          supportingBenefits: valueProps.supportingBenefits,
-          differentiators: valueProps.differentiators,
-        },
-        competitiveAdvantages: {
-          functional: [
-            "superior AI processing",
-            "advanced capabilities",
-            "professional reliability",
-          ],
-          emotional: ["executive confidence", "innovation leadership", "professional prestige"],
-          experiential: ["seamless workflows", "premium quality", "exclusive features"],
-        },
-        marketPosition: {
-          tier: MarketTier.LUXURY,
-          niche: "professionals and innovators",
-          marketShare: "challenger" as const,
         },
       },
       [ProductCategory.FASHION]: {

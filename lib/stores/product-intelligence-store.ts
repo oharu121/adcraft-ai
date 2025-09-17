@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { SessionStatus } from '../agents/product-intelligence/enums';
 import { ChatMessage, ProductAnalysis } from '../agents/product-intelligence/types';
+import { AppPhase } from '../types/app-phases';
+import { PhaseManager } from '../utils/phase-manager';
 
 
 interface ProductIntelligenceStore {
@@ -9,6 +11,10 @@ interface ProductIntelligenceStore {
   sessionStatus: SessionStatus;
   isConnected: boolean;
   isAgentTyping: boolean;
+
+  // Phase management
+  currentPhase: AppPhase;
+  completedPhases: AppPhase[];
   
   // Product input state
   uploadedImage: File | null;
@@ -20,6 +26,7 @@ interface ProductIntelligenceStore {
   currentStep: 'upload' | 'analyze' | 'chat' | 'handoff';
   showCommercialChat: boolean;
   showImageModal: boolean;
+  showHandoffModal: boolean;
   showAllFeatures: boolean;
   showProductNameError: boolean;
   
@@ -35,20 +42,17 @@ interface ProductIntelligenceStore {
   // Chat state - THIS IS THE CRITICAL ONE FOR YOUR USE CASE!
   chatInputMessage: string;
   
-  // Accordion state
-  expandedSections: {
-    keyMessages: boolean;
-    visualStyle: boolean;
-    narrativeStructure: boolean;
-    keyScenes: boolean;
-    musicTone: boolean;
-  };
-  
   // Actions for session management
   setSessionId: (id: string) => void;
   setSessionStatus: (status: SessionStatus) => void;
   setIsConnected: (connected: boolean) => void;
   setIsAgentTyping: (typing: boolean) => void;
+
+  // Actions for phase management
+  setCurrentPhase: (phase: AppPhase) => void;
+  completePhase: (phase: AppPhase) => void;
+  canAccessPhase: (phase: AppPhase) => boolean;
+  transitionToPhase: (phase: AppPhase) => void;
   
   // Actions for product input
   setUploadedImage: (file: File | null) => void;
@@ -60,6 +64,7 @@ interface ProductIntelligenceStore {
   setCurrentStep: (step: 'upload' | 'analyze' | 'chat' | 'handoff') => void;
   setShowCommercialChat: (show: boolean) => void;
   setShowImageModal: (show: boolean) => void;
+  setShowHandoffModal: (show: boolean) => void;
   setShowAllFeatures: (show: boolean) => void;
   setShowProductNameError: (show: boolean) => void;
   
@@ -76,9 +81,6 @@ interface ProductIntelligenceStore {
   // Actions for chat - THE MONEY SHOT! 🎯
   setChatInputMessage: (message: string) => void;
   
-  // Actions for accordion
-  toggleSection: (section: keyof ProductIntelligenceStore['expandedSections']) => void;
-  
   // Complex actions
   resetSession: () => void;
   startAnalysis: () => void;
@@ -92,6 +94,10 @@ export const useProductIntelligenceStore = create<ProductIntelligenceStore>((set
   isConnected: false,
   isAgentTyping: false,
 
+  // Phase management initial state
+  currentPhase: 'product-input' as AppPhase,
+  completedPhases: [],
+
   uploadedImage: null,
   productName: "",
   productDescription: "",
@@ -100,6 +106,7 @@ export const useProductIntelligenceStore = create<ProductIntelligenceStore>((set
   currentStep: "upload",
   showCommercialChat: false,
   showImageModal: false,
+  showHandoffModal: false,
   showAllFeatures: false,
   showProductNameError: false,
 
@@ -114,19 +121,35 @@ export const useProductIntelligenceStore = create<ProductIntelligenceStore>((set
   // 🎯 THE CRITICAL CHAT STATE - persists across component unmounts!
   chatInputMessage: "",
 
-  expandedSections: {
-    keyMessages: true,
-    visualStyle: true,
-    narrativeStructure: true,
-    keyScenes: true,
-    musicTone: true,
-  },
-
   // Simple setters
   setSessionId: (id) => set({ sessionId: id }),
   setSessionStatus: (status) => set({ sessionStatus: status }),
   setIsConnected: (connected) => set({ isConnected: connected }),
   setIsAgentTyping: (typing) => set({ isAgentTyping: typing }),
+
+  // Phase management actions
+  setCurrentPhase: (phase) => set({ currentPhase: phase }),
+  completePhase: (phase) => set((state) => ({
+    completedPhases: state.completedPhases.includes(phase)
+      ? state.completedPhases
+      : [...state.completedPhases, phase]
+  })),
+  canAccessPhase: (phase) => {
+    const state = get();
+    return PhaseManager.canAccessPhase(phase, state.currentPhase);
+  },
+  transitionToPhase: (phase) => {
+    const state = get();
+    if (PhaseManager.isValidTransition(state.currentPhase, phase)) {
+      set({ currentPhase: phase });
+      // Auto-complete previous phase
+      if (!state.completedPhases.includes(state.currentPhase)) {
+        set((state) => ({
+          completedPhases: [...state.completedPhases, state.currentPhase]
+        }));
+      }
+    }
+  },
 
   setUploadedImage: (file) => set({ uploadedImage: file }),
   setProductName: (name) => set({ productName: name }),
@@ -136,6 +159,7 @@ export const useProductIntelligenceStore = create<ProductIntelligenceStore>((set
   setCurrentStep: (step) => set({ currentStep: step }),
   setShowCommercialChat: (show) => set({ showCommercialChat: show }),
   setShowImageModal: (show) => set({ showImageModal: show }),
+  setShowHandoffModal: (show) => set({ showHandoffModal: show }),
   setShowAllFeatures: (show) => set({ showAllFeatures: show }),
   setShowProductNameError: (show) => set({ showProductNameError: show }),
 
@@ -150,15 +174,6 @@ export const useProductIntelligenceStore = create<ProductIntelligenceStore>((set
 
   // 🚀 THE HERO METHOD - no more lost chat messages!
   setChatInputMessage: (message) => set({ chatInputMessage: message }),
-
-  // Toggle accordion sections
-  toggleSection: (section) =>
-    set((state) => ({
-      expandedSections: {
-        ...state.expandedSections,
-        [section]: !state.expandedSections[section],
-      },
-    })),
 
   // Complex actions that handle multiple state updates
   resetSession: () =>
@@ -182,13 +197,9 @@ export const useProductIntelligenceStore = create<ProductIntelligenceStore>((set
       analysisError: null,
       showProductNameError: false,
       showAllFeatures: false,
-      expandedSections: {
-        keyMessages: false,
-        visualStyle: false,
-        narrativeStructure: false,
-        keyScenes: false,
-        musicTone: false,
-      },
+      // Reset phase management
+      currentPhase: 'product-input' as AppPhase,
+      completedPhases: [],
     }),
 
   startAnalysis: () =>

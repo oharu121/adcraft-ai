@@ -161,9 +161,10 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
 
       // Generate initial quick actions for immediate user guidance
       const initialQuickActions = [
-        ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 2),
+        ...PromptBuilder.getQuickActions("description", locale || "en").slice(0, 1),
+        ...PromptBuilder.getQuickActions("keyFeatures", locale || "en").slice(0, 1),
+        ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 1),
         ...PromptBuilder.getQuickActions("audience", locale || "en").slice(0, 1),
-        ...PromptBuilder.getQuickActions("positioning", locale || "en").slice(0, 1),
       ];
 
       return {
@@ -263,7 +264,6 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
       try {
         initialQuickActions = await PromptBuilder.generateContextualQuickActions(
           analysisResult.analysis,
-          analysisResult.analysis.commercialStrategy,
           "", // Empty conversation history for first interaction
           locale || "en"
         );
@@ -271,17 +271,19 @@ async function handleAnalyzeRequest(request: SimpleRequest) {
         console.error("Error generating initial dynamic quick actions:", error);
         // Fallback to static actions
         initialQuickActions = [
-          ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 2),
+          ...PromptBuilder.getQuickActions("description", locale || "en").slice(0, 1),
+          ...PromptBuilder.getQuickActions("keyFeatures", locale || "en").slice(0, 1),
+          ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 1),
           ...PromptBuilder.getQuickActions("audience", locale || "en").slice(0, 1),
-          ...PromptBuilder.getQuickActions("positioning", locale || "en").slice(0, 1),
         ];
       }
     } else {
       // Demo mode: Use static actions for consistent experience
       initialQuickActions = [
-        ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 2),
+        ...PromptBuilder.getQuickActions("description", locale || "en").slice(0, 1),
+        ...PromptBuilder.getQuickActions("keyFeatures", locale || "en").slice(0, 1),
+        ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 1),
         ...PromptBuilder.getQuickActions("audience", locale || "en").slice(0, 1),
-        ...PromptBuilder.getQuickActions("positioning", locale || "en").slice(0, 1),
       ];
     }
 
@@ -415,10 +417,9 @@ async function handleChatRequest(request: SimpleRequest) {
       // Generate updated strategy using our new method
       console.log("[DEBUG] piSession?.productAnalysis:", piSession?.productAnalysis);
       const strategyUpdate = await PromptBuilder.generateUpdatedStrategy(
-        piSession?.productAnalysis?.commercialStrategy || {},
+        piSession?.productAnalysis || {},
         message,
         piSession?.conversationHistory?.map((m: any) => `${m.type}: ${m.content}`).join("\n") || "",
-        piSession?.productAnalysis,
         locale
       );
       console.log("[DEBUG] Strategy update result:", strategyUpdate);
@@ -442,7 +443,7 @@ async function handleChatRequest(request: SimpleRequest) {
         messageType: "STRATEGY_UPDATE_CONFIRMATION",
         metadata: {
           proposedStrategy: strategyUpdate.updatedStrategy,
-          originalStrategy: piSession?.productAnalysis?.commercialStrategy,
+          originalStrategy: piSession?.productAnalysis,
           requiresConfirmation: true,
         },
       };
@@ -470,7 +471,8 @@ async function handleChatRequest(request: SimpleRequest) {
 
     // Provide basic quick actions even in fallback
     const fallbackQuickActions = [
-      ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 2),
+      ...PromptBuilder.getQuickActions("description", locale || "en").slice(0, 1),
+      ...PromptBuilder.getQuickActions("headline", locale || "en").slice(0, 1),
       ...PromptBuilder.getQuickActions("audience", locale || "en").slice(0, 1),
     ];
 
@@ -509,110 +511,20 @@ async function handleDemoChat(request: SimpleRequest) {
   // Build context with stored analysis or fallback to mock for demo
   const mockContext: ChatContext = {
     productAnalysis: piSession?.productAnalysis || {
-      // Mock product analysis - this would come from session storage in real implementation
+      // Mock product analysis - simplified structure
       product: {
-        id: "demo-product-1",
         name: "Premium Wireless Headphones",
-        category: ProductCategory.ELECTRONICS,
-        subcategory: "audio",
-        description: "Premium wireless headphones designed for professionals",
-        keyFeatures: ["noise cancellation", "premium sound", "long battery"],
-        materials: ["aluminum", "leather"],
-        colors: [{ name: "black", hex: "#000000", role: "primary" as any }],
-        usageContext: ["office", "travel"],
-        seasonality: "year-round" as any,
+        description: "Premium wireless headphones designed for professionals with advanced noise cancellation",
+        keyFeatures: ["Active noise cancellation", "30-hour battery life", "Premium sound quality", "Comfortable design", "Fast charging"],
       },
-      commercialStrategy: {
-        keyMessages: {
-          headline: "Premium Sound for Professionals",
-          tagline: "Quality, Comfort, Performance",
-          supportingMessages: ["Professional grade audio", "All day comfort"],
-        },
-        emotionalTriggers: {
-          primary: {
-            type: "confidence" as any,
-            description: "Feel confident in every meeting",
-            intensity: "strong" as any,
-          },
-          secondary: [],
-        },
-        callToAction: {
-          primary: "Experience Premium Sound",
-          secondary: ["Learn More", "Shop Now"],
-        },
-        storytelling: {
-          narrative: "Professional excellence through superior audio",
-          conflict: "Poor audio quality disrupts productivity",
-          resolution: "Premium headphones deliver clarity and focus",
-        },
-        keyScenes: {
-          scenes: [
-            {
-              id: "opening",
-              title: "Opening Hook",
-              description: "Professional using headphones in office setting",
-              duration: "3-5 seconds" as any,
-              purpose: "capture attention" as any,
-            },
-          ],
-        },
+      keyMessages: {
+        headline: "Premium Sound for Professionals",
+        tagline: "Quality, Comfort, Performance",
+        supportingMessages: ["Professional grade audio", "All day comfort"],
       },
       targetAudience: {
-        primary: {
-          demographics: {
-            ageRange: "25-45",
-            gender: "unisex" as any,
-            incomeLevel: "high" as any,
-            location: ["urban"],
-            lifestyle: ["professional"],
-          },
-          psychographics: {
-            values: ["quality", "performance"],
-            interests: ["technology", "music"],
-            personalityTraits: ["sophisticated"],
-            motivations: ["productivity", "quality"],
-          },
-          behaviors: {
-            shoppingHabits: ["premium" as any],
-            mediaConsumption: ["digital"],
-            brandLoyalty: "high" as any,
-            decisionFactors: ["quality", "brand"],
-          },
-        },
-      },
-      positioning: {
-        brandPersonality: {
-          traits: ["professional", "reliable"],
-          tone: "confident" as any,
-          voice: "expert" as any,
-        },
-        valueProposition: {
-          primaryBenefit: "Perfect audio experience for professionals",
-          supportingBenefits: ["noise cancellation", "premium design"],
-          differentiators: ["professional grade", "superior comfort"],
-        },
-        competitiveAdvantages: {
-          functional: ["advanced technology", "superior sound"],
-          emotional: ["confidence", "prestige"],
-          experiential: ["seamless experience", "luxury feel"],
-        },
-        marketPosition: {
-          tier: "premium" as any,
-          niche: "professional audio" as any,
-          marketShare: "challenger" as any,
-        },
-      },
-      visualPreferences: {
-        overallStyle: "modern" as any,
-        colorPalette: {
-          primary: [{ name: "executive midnight", hex: "#1e293b", role: "primary" as any }],
-          secondary: [{ name: "platinum white", hex: "#f8fafc", role: "secondary" as any }],
-          accent: [{ name: "innovation gold", hex: "#f59e0b", role: "accent" as any }],
-        },
-        mood: "sophisticated" as any,
-        composition: "clean" as any,
-        lighting: "natural" as any,
-        environment: ["executive boardroom", "modern skyline"],
+        ageRange: "25-45",
+        description: "professional, tech-savvy individuals who value quality audio and productivity",
       },
       metadata: {
         sessionId: "demo-session",

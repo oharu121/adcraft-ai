@@ -17,7 +17,7 @@ inclusion: always
 - **Components**: React 19.1.0 + Lucide React icons + custom AgentAvatar components
 - **Forms**: React Hook Form + Zod validation for dual input modes (image/text)
 - **Real-Time**: Server-Sent Events (SSE) for agent conversations (HTTP-based implementation)
-- **Internationalization**: next-intl 4.3.5 for bilingual Maya, David, and Alex personalities
+- **Internationalization**: next-intl 4.3.5 for bilingual Maya, David, and Zara personalities
 
 ### Backend Stack
 
@@ -25,7 +25,7 @@ inclusion: always
 - **Framework**: Next.js API Routes with sophisticated agent orchestration
 - **Language**: TypeScript (strict mode) with comprehensive agent-specific type systems
 - **Architecture**: Demo-First Development with sophisticated mock implementations
-- **Agent Personalities**: Maya (Product Intelligence), David (Creative Director), Alex (Video Producer)
+- **Agent Personalities**: Maya (Product Intelligence), David (Creative Director), Zara (Video Producer)
 - **Real-Time**: HTTP-based chat system with advanced conversational AI
 - **File Processing**: Sharp 0.34.3 for dual input mode (image/text) optimization
 - **Validation**: Zod 4.1.1 for runtime type validation across all agent interactions
@@ -35,8 +35,8 @@ inclusion: always
 - **Vertex AI Gemini Pro Vision**: Maya's image analysis capabilities in real mode
 - **Vertex AI Gemini Pro**: Maya's text analysis and conversational intelligence
 - **Imagen API**: David's visual asset generation for commercials
-- **Veo API**: Alex's final commercial video generation
-- **Text-to-Speech API**: Multi-language narration for Alex's video production
+- **Veo API**: Zara's final commercial video generation
+- **Text-to-Speech API**: Multi-language narration for Zara's video production
 - **Cloud Storage**: Media file storage with signed URLs for all agent assets
 - **Firestore**: Advanced session management with strategy confirmation system
 - **Cloud Run**: Primary deployment platform (REQUIRED for hackathon judging)
@@ -90,7 +90,7 @@ app/api/agents/{agent-name}/
 
 export async function POST(request: Request) {
   // 1. Demo/Real mode detection via AppModeConfig
-  // 2. Agent personality routing (Maya/David/Alex)
+  // 2. Agent personality routing (Maya/David/Zara)
   // 3. Sophisticated conversation processing
   // 4. Strategy confirmation system
   // 5. Cost tracking and budget monitoring
@@ -168,7 +168,7 @@ try {
 
 - **Authentication**: Service account credentials (NEVER expose in frontend)
 - **Endpoint Format**: `{location}-aiplatform.googleapis.com` for all Vertex AI calls
-- **Agent-Specific APIs**: Maya (Gemini), David (Imagen), Alex (Veo)
+- **Agent-Specific APIs**: Maya (Gemini), David (Imagen), Zara (Veo)
 - **Rate Limiting**: Implement exponential backoff for quota management
 - **Cost Tracking**: Real-time monitoring with <$2.01 per commercial target
 
@@ -179,7 +179,7 @@ try {
 - **Agent Processing Pipeline**:
   - Maya (Product Intelligence): <5 seconds for analysis + strategy generation
   - David (Creative Director): <60 seconds for visual asset generation
-  - Alex (Video Producer): <300 seconds for final commercial creation
+  - Zara (Video Producer): <300 seconds for final commercial creation
 - **State Management**: Zustand persistence with <100ms state updates
 - **Concurrent Users**: Support 5+ simultaneous sessions across all agents
 
@@ -202,11 +202,11 @@ try {
 - **Module Structure**: Single responsibility principle with clear agent boundaries
 - **Import Strategy**: Prefer relative imports within agent modules
 - **Path Aliases**: Use `@/` prefix for cross-module dependencies
-- **Agent Isolation**: Each agent (Maya, David, Alex) is self-contained with clear interfaces
+- **Agent Isolation**: Each agent (Maya, David, Zara) is self-contained with clear interfaces
 
 ### Code Quality Standards
 
-- **TypeScript**: Strict mode with agent-specific type systems (Maya/David/Alex)
+- **TypeScript**: Strict mode with agent-specific type systems (Maya/David/Zara)
 - **State Management**: Zustand patterns with persistence and type safety
 - **Linting**: ESLint with Next.js and TypeScript rules
 - **Formatting**: Prettier with 2-space indentation

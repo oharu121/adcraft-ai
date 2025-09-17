@@ -18,7 +18,9 @@
     "error": "Error",
     "success": "Success",
     "warning": "Warning",
-    "info": "Information"
+    "info": "Information",
+    "confirmRestart": "You're currently working with a later agent. Do you want to start over from the beginning?",
+    "handoffComplete": "Handoff Complete"
   },
   "navigation": {
     "home": "Generate",
@@ -72,7 +74,7 @@
   },
   "duration": {
     "5seconds": "5 seconds",
-    "10seconds": "10 seconds", 
+    "10seconds": "10 seconds",
     "15seconds": "15 seconds"
   },
   "aspectRatio": {
@@ -271,7 +273,7 @@
       "connecting": "Connecting...",
       "connected": "Connected",
       "disconnected": "Disconnected",
-      "agentTyping": "Agent is thinking...",
+      "agentTyping": "Maya is thinking...",
       "userTyping": "You are typing...",
       "retry": "Retry",
       "errorSending": "Failed to send message",
@@ -343,7 +345,20 @@
       "experiential": "Experiential",
       "narrative": "Narrative",
       "conflict": "Conflict",
-      "resolution": "Resolution"
+      "resolution": "Resolution",
+      "commercialAssessment": "Commercial Assessment",
+      "purchaseDriver": "Purchase Driver",
+      "commercialViability": "Commercial Viability",
+      "primaryBuyers": "Primary Buyers",
+      "purchaseMotivation": "Purchase Motivation",
+      "marketingStrategy": "Marketing Strategy",
+      "uniqueAngle": "Unique Angle",
+      "emotionalAppeal": "Emotional Appeal",
+      "proofPoints": "Proof Points",
+      "askForDetails": "Ask for details",
+      "analysisQuality": "Analysis Quality",
+      "resetSession": "Reset",
+      "proceedToNextAgent": "Proceed to Creative Director"
     },
     "productAnalysisComplete": "Product analysis complete!\nFeel free to talk to me if you want to adjust anything!",
     "textAnalysisComplete": "Text analysis complete. Ask me anything about your product!",
@@ -368,6 +383,11 @@
     "proceedToNextAgent": "Proceed to Next Agent",
     "analysisCompleteReady": "Ready to hand off to Creative Director Agent for commercial creation?",
     "handoffToCreativeDirector": "Ready to hand off to Creative Director Agent for commercial creation?",
+    "confirmHandoff": "Proceed to Creative Director",
+    "handoffDescription": "Ready to transfer your product strategy to David, our Creative Director? He'll transform your insights into compelling visual direction for video production.",
+    "transferSummary": "What's being transferred:",
+    "reviewMore": "Back",
+    "initializing": "Handovering...",
     "commercialStrategy": "🎬 Commercial Strategy",
     "commercialStrategyWithProduct": "🎬 {productName} Commercial Strategy",
     "chatAboutStrategyGeneric": "💬 Chat About Strategy",
@@ -390,6 +410,7 @@
   "productAnalysis": {
     "title": "📦 Product Analysis",
     "subtitle": "AI-powered product insights",
+    "productInsights": "Product Insights",
     "chatAboutStrategy": "💬 Chat About Strategy",
     "productDescription": "Product Description",
     "productName": "Product Name",
@@ -399,8 +420,10 @@
     "showLess": "Show less",
     "analyzingFeatures": "Analyzing features...",
     "targetAudience": "Target Audience",
+    "ageRange": "Age Range",
+    "targetDescription": "Target Audience",
     "analyzingTargetAudience": "Analyzing target audience...",
-    "marketing": "Marketing",
+    "marketingStrategy": "Marketing Strategy",
     "analyzingMarketingStrategy": "Analyzing marketing strategy...",
     "keyMessages": "Key Messages",
     "headline": "Headline:",
@@ -427,6 +450,610 @@
     "composition": "Composition:",
     "brandTone": "Brand Tone:",
     "analyzingMusicTone": "Analyzing music & tone..."
+  },
+  "creativeDirector": {
+    "title": "Creative Director (David)",
+    "subtitle": "Turn strategy into visual excellence",
+    "description": "Receive Maya's insights and transform them into compelling visual direction and assets for your commercial.",
+
+    "personality": {
+      "greeting": "Hey there! I'm David, your Creative Director with 10+ years transforming brands through compelling visuals.",
+      "introduction": "I specialize in translating strategic insights into breakthrough creative that resonates across cultures and drives commercial success.",
+      "expertise": "My expertise spans visual storytelling, cross-cultural design psychology, and premium brand aesthetics.",
+      "approach": "I believe every pixel should serve both artistic vision and business objectives. Let's create something extraordinary together.",
+      "collaboration": "I'm here to be your creative partner - bringing technical expertise while ensuring every decision aligns with your brand's authentic voice."
+    },
+
+    "phases": {
+      "analysis": "Analysis",
+      "creativeDevelopment": "Creative Development",
+      "assetGeneration": "Asset Generation",
+      "productionPreparation": "Production Preparation"
+    },
+
+    "sections": {
+      "visualDirection": "Visual Direction",
+      "colorPalette": "Color Palette",
+      "assetGeneration": "Asset Generation",
+      "productionReady": "Production Ready",
+      "handoffPreparation": "Handoff Preparation"
+    },
+
+    "creativeTerminology": {
+      "visualStyles": {
+        "minimalist": "Minimalist",
+        "luxury": "Luxury",
+        "contemporary": "Contemporary",
+        "artisanal": "Artisanal",
+        "premium": "Premium",
+        "bold": "Bold",
+        "sophisticated": "Sophisticated",
+        "organic": "Organic",
+        "geometric": "Geometric",
+        "cinematic": "Cinematic"
+      },
+      "colorTheory": {
+        "harmony": "Color Harmony",
+        "contrast": "Visual Contrast",
+        "temperature": "Color Temperature",
+        "saturation": "Color Saturation",
+        "psychology": "Color Psychology",
+        "cultural": "Cultural Color Meaning",
+        "brand": "Brand Color Strategy",
+        "accessibility": "Color Accessibility",
+        "emotion": "Emotional Color Response",
+        "market": "Market Color Preferences"
+      },
+      "composition": {
+        "ruleOfThirds": "Rule of Thirds",
+        "goldenRatio": "Golden Ratio",
+        "leadingLines": "Leading Lines",
+        "symmetry": "Visual Symmetry",
+        "balance": "Visual Balance",
+        "hierarchy": "Visual Hierarchy",
+        "focal": "Focal Point Strategy",
+        "negative": "Negative Space",
+        "rhythm": "Visual Rhythm",
+        "proportion": "Visual Proportion"
+      },
+      "brandAlignment": {
+        "heritage": "Brand Heritage",
+        "personality": "Brand Personality",
+        "values": "Brand Values Expression",
+        "positioning": "Market Positioning",
+        "differentiation": "Visual Differentiation",
+        "consistency": "Brand Consistency",
+        "evolution": "Brand Evolution",
+        "authenticity": "Visual Authenticity",
+        "recognition": "Brand Recognition",
+        "trust": "Visual Trust Building"
+      }
+    },
+
+    "culturalSensitivity": {
+      "western": {
+        "preferences": "Western visual preferences emphasize bold contrast, individual expression, and direct messaging",
+        "colors": "High contrast palettes, primary colors for energy, monochrome for sophistication",
+        "composition": "Dynamic asymmetry, rule of thirds, strong focal points",
+        "typography": "Clean sans-serif, bold headlines, readable hierarchy",
+        "imagery": "Lifestyle-focused, personality-driven, emotional storytelling"
+      },
+      "japanese": {
+        "preferences": "Japanese aesthetics value harmony, subtlety, and respectful presentation",
+        "colors": "Muted tones, natural palettes, seasonal color considerations",
+        "composition": "Balanced asymmetry, thoughtful negative space, gentle visual flow",
+        "typography": "Clean, respectful hierarchy, balance of text and imagery",
+        "imagery": "Quality-focused, craftsmanship appreciation, subtle emotional expression"
+      },
+      "global": {
+        "universal": "Elements that transcend cultural boundaries while respecting local sensibilities",
+        "adaptable": "Visual approaches that can be culturally adapted while maintaining core brand identity",
+        "inclusive": "Imagery and design choices that welcome diverse audiences",
+        "respectful": "Cultural awareness in color choices, imagery, and visual metaphors"
+      }
+    },
+
+    "handoff": {
+      "fromMaya": {
+        "title": "Receiving from Maya",
+        "description": "Processing strategic insights and visual opportunities",
+        "processing": "Processing Maya's strategic insights...",
+        "complete": "Strategic handoff complete",
+        "viewStrategy": "View Strategy",
+        "beginCreativeWork": "Begin Creative Work",
+        "contextReceived": "Strategic context successfully received",
+        "opportunitiesIdentified": "Visual opportunities identified",
+        "readyToProceed": "Ready to proceed with creative development"
+      },
+      "toZara": {
+        "title": "Preparing for Zara",
+        "description": "Finalizing creative direction and production assets",
+        "preparing": "Preparing creative direction package...",
+        "complete": "Ready for Video Production",
+        "handoffToZara": "Hand off to Zara",
+        "reviewAssets": "Review Assets",
+        "packageComplete": "Creative direction package complete",
+        "assetsOrganized": "Assets organized for production",
+        "specificationsReady": "Production specifications ready"
+      }
+    },
+
+    "workflow": {
+      "stepTitles": {
+        "productionStyle": "Choose Your Production Style",
+        "creativeDirection": "Select Your Creative Direction",
+        "sceneArchitecture": "Plan Your Scene Architecture"
+      },
+      "stepDescriptions": {
+        "productionStyle": "Choose your preferred production method for the commercial",
+        "creativeDirection": "Select the aesthetic approach that matches your vision",
+        "sceneArchitecture": "Review and refine the narrative flow and scene structure"
+      },
+      "navigation": {
+        "back": "Back",
+        "continue": "Continue",
+        "stepOf": "Step {current} of {total}"
+      },
+      "ui": {
+        "keyFeatures": "Key Features:",
+        "examples": "Examples:",
+        "typography": "Typography:",
+        "perfectFor": "Perfect For:",
+        "loadingStyleOptions": "Loading Style Options...",
+        "preparingVisualDirections": "David is preparing visual directions for you",
+        "loadingScenes": "Loading Scenes...",
+        "preparingScenes": "David is composing your video scenes",
+        "sceneLabel": "Scene",
+        "mood": "Mood",
+        "pacing": "Pacing"
+      }
+    },
+
+    "workflowProgress": {
+      "title": "Workflow Progress",
+      "steps": {
+        "productionStyle": {
+          "label": "Production Style",
+          "description": "Choose production method"
+        },
+        "creativeDirection": {
+          "label": "Creative Direction",
+          "description": "Select aesthetic approach"
+        },
+        "sceneArchitecture": {
+          "label": "Scene Architecture",
+          "description": "Plan narrative flow"
+        }
+      },
+      "actions": {
+        "change": "Change",
+        "changeSelection": "Change selection",
+        "review": "Review",
+        "reviewScenes": "Review scenes",
+        "start": "Start",
+        "startPlanning": "Start planning"
+      },
+      "status": {
+        "notSelected": "Not selected",
+        "notStarted": "Not started",
+        "completed": "Completed",
+        "readyToPlan": "Ready to plan",
+        "readyForProduction": "Ready for video production"
+      },
+      "accessibility": {
+        "collapse": "Collapse workflow progress",
+        "expand": "Expand workflow progress"
+      },
+      "budget": {
+        "title": "Estimated Budget",
+        "titleShort": "Budget",
+        "timeEstimate": "~2-3 minutes to complete"
+      }
+    },
+
+    "productionStyles": {
+      "liveAction": {
+        "id": "live-action",
+        "name": "Live-Action",
+        "description": "Cinematic filming with real people, products, and environments for authentic storytelling",
+        "icon": "🎬",
+        "headerImage": "/production-style/live-action.png",
+        "features": ["Authentic feel", "Human connection", "Premium production value"],
+        "bestFor": "Lifestyle products, emotional storytelling, brand trust",
+        "examples": ["Product demonstrations", "Customer testimonials", "Brand stories"]
+      },
+      "motionGraphics": {
+        "id": "motion-graphics",
+        "name": "Motion Graphics",
+        "description": "Clean 2D animations with sophisticated typography and graphic elements",
+        "icon": "📐",
+        "headerImage": "/production-style/motion-graphics.png",
+        "features": ["Cost effective", "Clear messaging", "Brand consistency"],
+        "bestFor": "Tech products, explainer content, feature highlights",
+        "examples": ["Feature explanations", "Data visualization", "App walkthroughs"]
+      },
+      "3dAnimation": {
+        "id": "3d-animation",
+        "name": "3D Animation",
+        "description": "Stunning three-dimensional visuals showcasing products from impossible angles",
+        "icon": "🎯",
+        "headerImage": "/production-style/3d-animation.png",
+        "features": ["Product focus", "Impossible shots", "Premium feel"],
+        "bestFor": "Physical products, technical demonstrations, luxury positioning",
+        "examples": ["Product reveals", "Technical breakdowns", "Feature spotlights"]
+      },
+      "mixedMedia": {
+        "id": "mixed-media",
+        "name": "Mixed Media",
+        "description": "Combination of live-action, animation, and graphics for dynamic storytelling",
+        "icon": "🎨",
+        "headerImage": "/production-style/mixed-media.png",
+        "features": ["Creative flexibility", "Engaging variety", "Unique brand voice"],
+        "bestFor": "Innovative brands, complex products, premium campaigns",
+        "examples": ["Hybrid storytelling", "Creative campaigns", "Multi-format content"]
+      }
+    },
+
+    "creativeDirections": {
+      "premiumMinimalism": {
+        "id": "premium-minimalism",
+        "name": "Premium Minimalism",
+        "description": "Clean, sophisticated, Apple-inspired aesthetic with focus on negative space and premium materials",
+        "colorPalette": ["#1a1a1a", "#f8f8f8", "#007AFF", "#34C759"],
+        "visualKeywords": ["Clean lines", "Negative space", "Premium materials", "Subtle shadows"],
+        "animationStyle": "Subtle Motion",
+        "examples": [
+          "Smooth product rotations",
+          "Gentle parallax scrolling",
+          "Fade-in text animations"
+        ]
+      },
+      "techDynamic": {
+        "id": "tech-dynamic",
+        "name": "Tech Dynamic",
+        "description": "Bold, energetic approach with vibrant colors and dynamic compositions for innovation-focused brands",
+        "colorPalette": ["#FF3B30", "#007AFF", "#5856D6", "#FF9500"],
+        "visualKeywords": ["Bold contrasts", "Dynamic angles", "Energy & motion", "Tech-inspired"],
+        "animationStyle": "Dynamic",
+        "examples": ["Kinetic typography", "Geometric transitions", "Bold slide animations"]
+      },
+      "luxuryEditorial": {
+        "id": "luxury-editorial",
+        "name": "Luxury Editorial",
+        "description": "High-end magazine aesthetic with rich textures, dramatic lighting, and sophisticated compositions",
+        "colorPalette": ["#000000", "#B8860B", "#F5F5DC", "#8B4513"],
+        "visualKeywords": [
+          "Dramatic lighting",
+          "Rich textures",
+          "Editorial quality",
+          "Luxury positioning"
+        ],
+        "animationStyle": "Static",
+        "examples": [
+          "Classic product photography",
+          "Editorial-style layouts",
+          "Timeless compositions"
+        ]
+      },
+      "lifestyleAuthentic": {
+        "id": "lifestyle-authentic",
+        "name": "Lifestyle Authentic",
+        "description": "Warm, approachable style focusing on real-life contexts and human connections",
+        "colorPalette": ["#8B7355", "#F4A460", "#DEB887", "#A0522D"],
+        "visualKeywords": ["Natural lighting", "Authentic moments", "Warm tones", "Human-centered"],
+        "animationStyle": "Subtle Motion",
+        "examples": ["Natural camera movements", "Organic transitions", "Lifestyle storytelling"]
+      }
+    },
+
+    "sceneArchitecture": {
+      "productHeroShot": {
+        "title": "Product Hero Shot",
+        "description": "Showcase your product in stunning detail with perfect lighting",
+        "duration": "3-4s",
+        "icon": "🎯",
+        "tips": "Close-up details, premium feel, hero lighting"
+      },
+      "lifestyleContext": {
+        "title": "Lifestyle Context",
+        "description": "Show how your product fits naturally into daily life",
+        "duration": "4-5s",
+        "icon": "🌟",
+        "tips": "Real environment, authentic usage, emotional connection"
+      },
+      "keyBenefitsHighlight": {
+        "title": "Key Benefits Highlight",
+        "description": "Visually demonstrate what makes your product special",
+        "duration": "3-4s",
+        "icon": "✨",
+        "tips": "Clear value prop, before/after, feature demonstration"
+      }
+    },
+
+    "chat": {
+      "title": "Creative Director Chat",
+      "placeholder": "Discuss visual concepts, style preferences, or ask for creative recommendations...",
+      "send": "Send",
+      "connecting": "Connecting to David...",
+      "connected": "Connected to David",
+      "disconnected": "Disconnected from David",
+      "agentTyping": "David is thinking...",
+      "userTyping": "You are typing...",
+      "welcomeMessage": "Hey there! I'm David, your Creative Director. I've received Maya's strategic insights about your product. Let's create some amazing visuals that capture your brand's essence and connect with your audience!",
+      "suggestionPrefix": "Need creative inspiration? Try asking:",
+      "quickActionsTitle": "Visual decisions to explore:",
+      "suggestions": [
+        "What visual style best represents my brand personality?",
+        "Show me culturally appropriate color palette options",
+        "Generate background concepts that align with my target market",
+        "Create product hero shots that highlight key features",
+        "What scene compositions will maximize emotional impact?",
+        "How can we adapt this creative for different cultural markets?"
+      ],
+      "creativeFeedback": {
+        "positive": [
+          "Excellent creative direction! This perfectly captures your brand's vision.",
+          "I love how this visual approach will resonate with your target audience.",
+          "This creative solution brilliantly balances artistry with commercial appeal.",
+          "The cultural sensitivity in this approach will serve your global goals well."
+        ],
+        "constructive": [
+          "This has potential - let's refine the visual balance to strengthen the message.",
+          "Good direction, but we can enhance the cultural appropriateness for your market.",
+          "Solid concept - let's adjust the color psychology to better align with your brand values.",
+          "I see the vision - let's optimize the composition for maximum visual impact."
+        ]
+      }
+    },
+
+    "quickActions": {
+      "generateBackgrounds": "Generate Backgrounds",
+      "createProductHero": "Create Product Hero",
+      "designColorPalette": "Design Color Palette",
+      "buildSceneComposition": "Build Scene Composition",
+      "createStyleFrames": "Create Style Frames",
+      "analyzeColorPsychology": "Analyze Color Psychology",
+      "exploreCompositions": "Explore Compositions",
+      "reviewBrandAlignment": "Review Brand Alignment",
+      "adaptForCulture": "Adapt for Target Culture"
+    },
+
+    "visualDecisions": {
+      "title": "Visual Decisions",
+      "styleDirection": "Style Direction",
+      "colorMood": "Color Mood",
+      "approvedPalettes": "Approved Palettes",
+      "selectedCompositions": "Selected Compositions",
+      "brandAlignment": "Brand Alignment Score",
+      "culturalFit": "Cultural Appropriateness",
+      "marketAppeal": "Market Appeal Score",
+      "confirm": "Confirm Visual Direction",
+      "confirmMessage": "Do you approve this visual direction for your commercial?",
+      "approved": "Visual direction approved and ready for asset generation",
+      "makeChanges": "Request Creative Adjustments",
+      "reasoning": "Creative Reasoning",
+      "justification": "This visual direction works because it..."
+    },
+
+    "assetGallery": {
+      "title": "Generated Creative Assets",
+      "description": "Your professional visual assets for commercial production",
+      "types": {
+        "backgrounds": "Environmental Backgrounds",
+        "productHero": "Product Hero Shots",
+        "lifestyleScenes": "Lifestyle Context Scenes",
+        "overlays": "Graphic Overlays & Elements",
+        "styleFrames": "Style Reference Frames",
+        "colorPalettes": "Color Palette Systems",
+        "compositions": "Composition Templates"
+      },
+      "status": {
+        "generating": "Creating...",
+        "completed": "Ready",
+        "failed": "Generation Failed",
+        "approved": "Approved for Production",
+        "inReview": "Under Review",
+        "needsRevision": "Needs Revision"
+      },
+      "actions": {
+        "preview": "Preview Asset",
+        "download": "Download High-Res",
+        "approve": "Approve for Production",
+        "regenerate": "Generate Alternative",
+        "remove": "Remove from Gallery",
+        "feedback": "Provide Creative Feedback",
+        "iterate": "Create Variation",
+        "export": "Export Production File"
+      },
+      "empty": {
+        "title": "Your creative canvas awaits",
+        "description": "Start by discussing your vision or using quick actions to generate your first creative assets"
+      },
+      "generating": {
+        "title": "Crafting your visual story...",
+        "description": "David is applying creative expertise to generate your assets",
+        "estimated": "Estimated completion:",
+        "progress": "Creative progress:",
+        "currentStep": "Current step:"
+      },
+      "quality": {
+        "excellent": "Exceptional Creative Quality",
+        "good": "Strong Creative Execution",
+        "acceptable": "Meets Creative Standards",
+        "needsWork": "Requires Creative Refinement"
+      }
+    },
+
+    "creativeInsights": {
+      "title": "Creative Intelligence & Insights",
+      "visualOpportunities": "Visual Opportunities Analysis",
+      "styleRecommendations": "Strategic Style Recommendations",
+      "colorTheory": "Applied Color Theory Analysis",
+      "compositionGuidance": "Composition & Layout Guidance",
+      "brandConsiderations": "Brand Strategy Considerations",
+      "culturalInsights": "Cross-Cultural Visual Insights",
+      "marketAnalysis": "Visual Market Analysis",
+      "competitivePositioning": "Creative Competitive Analysis",
+      "trendAnalysis": "Current Design Trend Analysis",
+      "psychologyInsights": "Visual Psychology Insights"
+    },
+
+    "costTracking": {
+      "assetGeneration": "Creative Asset Generation",
+      "totalSpent": "Total Creative Investment",
+      "estimatedRemaining": "Budget Available for Zara",
+      "costPerAsset": "Cost per Creative Asset",
+      "budgetOptimization": "Creative Budget Optimization",
+      "valueAnalysis": "Creative ROI Analysis"
+    },
+
+    "status": {
+      "initializing": "Initializing Creative Director workspace...",
+      "analyzing": "Analyzing strategic context and creative opportunities...",
+      "ready": "Ready for creative collaboration and development",
+      "creating": "Generating visual assets with creative precision...",
+      "completing": "Finalizing creative direction package...",
+      "error": "Creative process encountered an issue",
+      "thinking": "Analyzing creative possibilities...",
+      "ideating": "Generating creative concepts...",
+      "refining": "Refining visual approach..."
+    },
+
+    "errors": {
+      "assetGenerationFailed": "Asset generation encountered a creative challenge. Let's try a different approach or adjust parameters.",
+      "visualAnalysisFailed": "Visual analysis couldn't process your request. Please check inputs and creative parameters.",
+      "handoffFailed": "Creative handoff processing failed. Please contact support for assistance.",
+      "insufficientBudget": "Insufficient budget remaining for additional asset generation. Consider optimizing current assets.",
+      "retryGeneration": "Try Different Creative Approach",
+      "contactSupport": "Get Creative Support",
+      "invalidParameters": "Creative parameters need adjustment. Please refine your visual requirements.",
+      "processingTimeout": "Creative processing is taking longer than expected. Please try again.",
+      "culturalMismatch": "The requested creative approach may not align with your target culture. Would you like alternative suggestions?",
+      "brandMisalignment": "This creative direction may not align with your brand strategy. Let's explore alternatives.",
+      "qualityIssue": "The generated asset doesn't meet our creative quality standards. Generating alternative...",
+      "technicalLimitation": "Technical limitations prevent this specific creative approach. Let me suggest alternatives."
+    },
+
+    "feedback": {
+      "requestCreativeInput": "I'd love your creative input on this direction. What aspects resonate with your vision?",
+      "clarifyCreativeDirection": "Could you help me understand your creative preferences better?",
+      "confirmCreativeChoices": "Let's confirm these creative choices align with your brand objectives.",
+      "suggestCreativeRefinements": "I have some creative refinements that could strengthen this approach.",
+      "explainCreativeReasoning": "Let me explain the creative reasoning behind this recommendation.",
+      "offerCreativeAlternatives": "Would you like to explore alternative creative directions?",
+      "validateCulturalApproach": "Let's ensure this creative approach resonates with your target culture.",
+      "optimizeForBrand": "We can optimize this creative approach for stronger brand alignment."
+    },
+
+    "confirmHandoff": "Proceed to Video Producer",
+    "handoffToVideoProducer": "Hand off to Video Producer for final production",
+    "handoffDescription": "Your creative direction is ready to be handed off to Zara, our Video Producer. Zara will use your visual strategy, scene composition, and production specifications to create the final commercial video.",
+    "transferSummary": "Transfer Summary",
+    "visualStrategy": "Visual Strategy",
+    "sceneComposition": "Scene Composition",
+    "creativeDirection": "Creative Direction",
+    "productionReady": "Production Ready",
+    "reviewMore": "Review More",
+    "proceedToVideoProducer": "Proceed to Video Producer",
+    "initializing": "Initializing..."
+  },
+  "videoProducer": {
+    "title": "Video Producer (Zara)",
+    "subtitle": "Transform creative vision into stunning video reality",
+    "description": "Transform creative direction into professional video production with advanced AI video generation technology",
+    "waitingForHandoff": "Waiting for Creative Director Handoff",
+    "handoffDescription": "Zara will begin once David completes the creative direction phase",
+
+    "workflowMode": "Workflow",
+    "chatMode": "Chat",
+    "chatPlaceholder": "Ask Zara about video production, pacing, or music choices...",
+
+    "steps": {
+      "narrativeStyle": "Narrative Style",
+      "musicTone": "Music & Tone",
+      "finalProduction": "Final Production"
+    },
+
+    "narrativeStyleSelection": {
+      "title": "Choose Your Narrative Style",
+      "description": "How should your story unfold? Select the pacing and narration style that best fits your commercial vision."
+    },
+
+    "musicSelection": {
+      "title": "Select Music & Tone",
+      "description": "What mood should we create? Choose the music genre and energy that will amplify your message."
+    },
+
+    "finalProduction": {
+      "title": "Ready for Video Production",
+      "description": "All elements are in place. Let's create your professional commercial video!"
+    },
+
+    "selectedNarrativeStyle": "Selected Narrative Style",
+    "selectedMusicGenre": "Selected Music Genre",
+    "startProduction": "Start Video Production",
+    "starting": "Starting Production...",
+    "producingVideo": "Producing Your Commercial Video",
+    "complete": "Complete",
+    "videoComplete": "🎉 Your Commercial Video is Ready!",
+    "downloadVideo": "Download Video",
+
+    "personality": {
+      "greeting": "Hey there! Ready to bring your vision to life? I'm Zara, your Video Producer with 8+ years creating high-impact commercial content.",
+      "introduction": "I specialize in turning great creative direction into incredible video content using cutting-edge AI video generation technology.",
+      "expertise": "My expertise spans video production planning, AI-powered generation workflows, and multi-platform optimization.",
+      "approach": "I believe in balancing technical excellence with creative vision - every frame should serve both artistic impact and business objectives.",
+      "collaboration": "I'm here to handle the technical complexity while keeping your creative vision intact. Let's make this commercial shine!"
+    },
+
+    "phases": {
+      "preProduction": "Pre-Production",
+      "production": "Production",
+      "postProduction": "Post-Production",
+      "delivery": "Delivery"
+    },
+
+    "sections": {
+      "videoGeneration": "Video Generation",
+      "sceneSequencing": "Scene Sequencing",
+      "technicalOptimization": "Technical Optimization",
+      "qualityControl": "Quality Control",
+      "finalDelivery": "Final Delivery"
+    },
+
+    "productionTerminology": {
+      "videoSpecs": {
+        "resolution": "Video Resolution",
+        "frameRate": "Frame Rate",
+        "aspectRatio": "Aspect Ratio",
+        "duration": "Duration",
+        "format": "Video Format",
+        "compression": "Compression",
+        "colorSpace": "Color Space",
+        "bitrate": "Bitrate"
+      },
+      "workflow": {
+        "storyboard": "Storyboard Planning",
+        "sequencing": "Scene Sequencing",
+        "generation": "AI Video Generation",
+        "editing": "Post-Production Editing",
+        "optimization": "Format Optimization",
+        "review": "Quality Review",
+        "delivery": "Final Delivery",
+        "distribution": "Multi-Platform Distribution"
+      }
+    },
+
+    "status": {
+      "initializing": "Initializing video production workspace...",
+      "analyzing": "Analyzing creative direction and production requirements...",
+      "ready": "Ready for video production collaboration",
+      "planning": "Planning scene sequences and technical specifications...",
+      "generating": "Generating video content with AI...",
+      "processing": "Processing and optimizing video quality...",
+      "reviewing": "Conducting quality review and final checks...",
+      "complete": "Video production complete and ready for delivery"
+    }
   },
   "chat": {
     "typeMessage": "Type your message...",

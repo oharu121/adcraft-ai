@@ -100,28 +100,22 @@ export class ResponseParser {
   public static calculateConfidence(analysis: ProductAnalysis, rawResponse: string): number {
     let score = 0.5; // Base score
 
-    // Check completeness of key sections
-    if (analysis.product.keyFeatures.length > 0) score += 0.1;
-    if (analysis.targetAudience.primary.demographics.ageRange !== "unknown") score += 0.1;
-    if (analysis.positioning.valueProposition.primaryBenefit !== "unknown") score += 0.1;
-    if (analysis.commercialStrategy.keyMessages.headline !== "unknown") score += 0.1;
-    if (analysis.visualPreferences.overallStyle !== "classic") score += 0.1;
+    // Check completeness of key sections (simplified structure)
+    if (analysis.product.keyFeatures.length > 0) score += 0.15;
+    if (analysis.targetAudience.ageRange !== "unknown") score += 0.15;
+    if (analysis.keyMessages.headline !== "unknown") score += 0.15;
 
     // Check response quality indicators
-    if (rawResponse.length > 2000) score += 0.05;
-    if (analysis.product.colors.length > 1) score += 0.05;
+    if (rawResponse.length > 1000) score += 0.1;
 
     // Check for product-specific details
-    if (analysis.product.description.length > 50) score += 0.05;
-    if (analysis.product.materials.length > 1) score += 0.05;
+    if (analysis.product.description.length > 50) score += 0.1;
 
     // Check target audience specificity
-    if (analysis.targetAudience.primary.demographics.incomeLevel !== "mid-range") score += 0.05;
-    if (analysis.targetAudience.primary.psychographics.values.length > 2) score += 0.05;
+    if (analysis.targetAudience.description.length > 20) score += 0.1;
 
-    // Check commercial strategy depth
-    if (analysis.commercialStrategy.emotionalTriggers.secondary.length > 0) score += 0.05;
-    if (analysis.commercialStrategy.keyMessages.supportingMessages?.length > 2) score += 0.05;
+    // Check key messages depth (commercialStrategy moved to David)
+    if (analysis.keyMessages.supportingMessages?.length > 2) score += 0.05;
 
     return Math.min(score, 0.95); // Cap at 95%
   }
@@ -132,46 +126,27 @@ export class ResponseParser {
   public static validateAnalysisCompleteness(analysis: ProductAnalysis): string[] {
     const warnings: string[] = [];
 
-    // Product validation
+    // Product validation (simplified structure)
     if (analysis.product.keyFeatures.length === 0) {
       warnings.push("No product features identified");
-    }
-
-    if (analysis.product.colors.length === 0) {
-      warnings.push("No product colors identified");
     }
 
     if (analysis.product.description.length < 20) {
       warnings.push("Product description is too brief");
     }
 
-    // Target audience validation
-    if (analysis.targetAudience.primary.demographics.ageRange === "unknown") {
+    // Target audience validation (simplified structure)
+    if (analysis.targetAudience.ageRange === "unknown") {
       warnings.push("Target age range not determined");
     }
 
-    if (analysis.targetAudience.primary.psychographics.values.length === 0) {
-      warnings.push("No target audience values identified");
+    if (analysis.targetAudience.description.length < 10) {
+      warnings.push("Target audience description is too brief");
     }
 
-    // Positioning validation
-    if (analysis.positioning.valueProposition.primaryBenefit === "unknown") {
-      warnings.push("Primary value proposition not identified");
-    }
-
-    if (analysis.positioning.competitiveAdvantages.functional.length === 0) {
-      warnings.push("No functional competitive advantages identified");
-    }
-
-    // Commercial strategy validation
-    if (analysis.commercialStrategy.keyMessages.headline === "unknown") {
+    // Key messages validation (commercialStrategy moved to David)
+    if (analysis.keyMessages.headline === "unknown") {
       warnings.push("No compelling headline generated");
-    }
-
-    if (!analysis.commercialStrategy.keyScenes.scenes || 
-        analysis.commercialStrategy.keyScenes.scenes.length === 0 ||
-        analysis.commercialStrategy.keyScenes.scenes[0]?.description === "unknown") {
-      warnings.push("Commercial scenes not properly generated");
     }
 
     // Overall confidence validation
@@ -211,8 +186,7 @@ export class ResponseParser {
         "product",
         "targetAudience",
         "positioning",
-        "commercialStrategy",
-        "visualPreferences",
+        "keyMessages",
       ];
 
       for (const prop of requiredProperties) {
