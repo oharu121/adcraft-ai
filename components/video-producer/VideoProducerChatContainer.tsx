@@ -412,7 +412,7 @@ const VideoProducerChatContainer: React.FC<VideoProducerChatContainerProps> = ({
     <div className={`w-full h-full flex flex-col ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white rounded-t-lg">
-        <h3 className="text-lg font-semibold text-gray-900">Chat with Zara</h3>
+        <h3 className="text-lg font-semibold text-gray-900">{t.chat.title}</h3>
 
         {/* Connection status */}
         <div className="flex items-center text-sm">
@@ -515,7 +515,7 @@ const VideoProducerChatContainer: React.FC<VideoProducerChatContainerProps> = ({
         </form>
 
         {/* User typing indicator */}
-        {userTyping && <div className="mt-1 text-xs text-gray-400">You are typing...</div>}
+        {userTyping && <div className="mt-1 text-xs text-gray-400">{t.chat.userTyping}</div>}
       </div>
     </div>
   );

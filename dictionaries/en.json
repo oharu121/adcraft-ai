@@ -1182,11 +1182,13 @@
     },
 
     "chat": {
+      "title": "Chat",
       "limitations": {
         "title": "Chat Information",
         "description": "I can answer questions about video production, but workflow changes must be made using the step buttons above."
       },
-      "placeholder": "Ask me questions about video production options..."
+      "placeholder": "Ask me questions about video production options...",
+      "userTyping": "You are typing..."
     },
 
     "phases": {
