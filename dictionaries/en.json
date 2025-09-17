@@ -481,6 +481,14 @@
       "collaboration": "I'm here to be your creative partner - bringing technical expertise while ensuring every decision aligns with your brand's authentic voice."
     },
 
+    "chat": {
+      "limitations": {
+        "title": "Chat Information",
+        "description": "I can answer questions about creative options, but workflow changes must be made using the selection cards above."
+      },
+      "placeholder": "Ask me questions about creative direction options..."
+    },
+
     "phases": {
       "analysis": "Analysis",
       "creativeDevelopment": "Creative Development",
@@ -790,6 +798,10 @@
 
     "chat": {
       "title": "Creative Director Chat",
+      "limitations": {
+        "title": "Chat Information",
+        "description": "I can answer questions about creative options, but workflow changes must be made using the selection cards above."
+      },
       "placeholder": "Discuss visual concepts, style preferences, or ask for creative recommendations...",
       "send": "Send",
       "connecting": "Connecting to David...",
@@ -1167,6 +1179,14 @@
       "expertise": "My expertise spans video production planning, AI-powered generation workflows, and multi-platform optimization.",
       "approach": "I believe in balancing technical excellence with creative vision - every frame should serve both artistic impact and business objectives.",
       "collaboration": "I'm here to handle the technical complexity while keeping your creative vision intact. Let's make this commercial shine!"
+    },
+
+    "chat": {
+      "limitations": {
+        "title": "Chat Information",
+        "description": "I can answer questions about video production, but workflow changes must be made using the step buttons above."
+      },
+      "placeholder": "Ask me questions about video production options..."
     },
 
     "phases": {

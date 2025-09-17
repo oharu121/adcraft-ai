@@ -124,3 +124,210 @@ The handoff system we built is the foundation - now we need to build Zara's inte
     - Best for: Social media stories, mobile-first campaigns
     - Platforms: TikTok, Instagram Stories, Snapchat
 
+● 🎬 ZARA'S UNIQUE CONSIDERATIONS
+
+  1. Video Production Complexity:
+
+  - Unlike David's asset generation, video production is computationally expensive
+  - Need realistic progress tracking (5-8 minutes for 8-second video)
+  - Production failures require graceful handling and retry mechanisms
+
+  2. Platform Optimization:
+
+  - Video format selection affects final video generation parameters
+  - Each format (YouTube landscape vs TikTok portrait) needs different Veo API calls
+  - Music and narrative must align with platform expectations
+
+  3. Cost Management:
+
+  - Video generation is the most expensive operation (~$2.50 per video)
+  - Need clear cost warnings before production
+  - Budget tracking integration with overall session costs
+
+ 🔄 ZARA (VIDEO PRODUCER) PROMPT DATA FLOW (Corrected)
+
+  Pre-Video Producer: Handoff from David ✓
+
+  Input: Complete creative direction package from David
+  - Product image + analysis (from Maya)
+  - Production style + creative direction (from David)
+  - Scene architecture with generated assets (from David)
+
+  Step 1: Narrative Style (Dynamic, needs prompt)
+
+  ├─ Input: user choice on narrative style (NO chat feedback)
+  ├─ Prompt: David's handoff + product context + user's narrative selection
+  └─ Stored: selectedNarrativeStyle object
+
+  Step 2: Music & Tone (Dynamic, needs accumulated context)
+
+  ├─ Input: user choice on music genre (NO chat feedback)
+  ├─ Prompt: David's handoff + narrative style + user's music selection
+  └─ Stored: selectedMusicGenre object
+
+  Step 3: Video Format (Fixed options, NO prompt needed)
+
+  ├─ Input: user choice on video format (aspect ratio/platform)
+  ├─ Prompt: N/A (fixed options)
+  └─ Stored: selectedVideoFormat object
+
+  Step 4: Final Production (Complex, needs full context including product image)
+
+  ├─ Input: user confirmation to start production
+  ├─ Prompt: Product image + Maya analysis + David's handoff + all Zara's selections
+  └─ Stored: finalVideoUrl + production metadata
+
+  📊 CORRECTED DATA STRUCTURE
+
+  Step 4: Final Production Prompt Context (Complete)
+
+  // Full Production Context (Most Important)
+  {
+    // Original product data
+    productImage: string, // ✅ ADDED - Essential for video generation
+    mayaAnalysis: {      // ✅ ADDED - Product context for video narrative
+      productAnalysis: object,
+      strategicInsights: object,
+      visualOpportunities: object
+    },
+
+    // David's creative direction
+    davidHandoff: {
+      productionStyle: selectedProductionStyle,
+      creativeDirection: selectedStyleOption,
+      sceneArchitecture: assets.generated
+    },
+
+    // Zara's selections
+    narrativeStyle: selectedNarrativeStyle,
+    musicGenre: selectedMusicGenre,
+    videoFormat: selectedVideoFormat,
+
+    // Production request
+    action: "start-production",
+    locale: "en" | "ja"
+  }
+
+  Updated API Flow
+
+  // Step 1: Narrative Style (AI validates choice)
+  POST /api/agents/video-producer
+  {
+    action: "select-narrative-style",
+    sessionId: string,
+    data: { narrativeStyleId: string },
+    context: {
+      davidHandoff: davidHandoffData
+    }
+  }
+
+  // Step 2: Music & Tone (AI validates choice)
+  POST /api/agents/video-producer
+  {
+    action: "select-music-genre",
+    sessionId: string,
+    data: { musicGenreId: string },
+    context: {
+      davidHandoff: davidHandoffData,
+      selectedNarrativeStyle: object
+    }
+  }
+
+  // Step 3: Video Format (Pure UI selection - no API call needed)
+  // Just store in Zustand: setSelectedVideoFormat(format)
+
+  // Step 4: Final Production (Full context)
+  POST /api/agents/video-producer
+  {
+    action: "start-production",
+    sessionId: string,
+    locale: string,
+    data: {
+      productImage: string,           // ✅ ADDED
+      mayaAnalysis: object,          // ✅ ADDED
+      davidHandoff: object,
+      selectedNarrativeStyle: object,
+      selectedMusicGenre: object,
+      selectedVideoFormat: object
+    }
+  }
+
+  🎯 REVISED KEY PRINCIPLES
+
+  1. Simplified Flow:
+
+  - Step 1-2: User selection → AI validation/confirmation (no chat)
+  - Step 3: Pure UI selection (no API call)
+  - Step 4: Full video production with complete context
+
+  2. Context Accumulation:
+
+  // Step 1: Basic validation
+  context = { davidHandoff }
+
+  // Step 2: Accumulated context
+  context = { davidHandoff, narrativeStyle }
+
+  // Step 3: No API call (just UI state)
+
+  // Step 4: FULL context for production
+  context = {
+    productImage,     // ✅ For visual reference
+    mayaAnalysis,     // ✅ For product understanding
+    davidHandoff,     // Creative direction
+    allZaraSelections // User's video preferences
+  }
+
+  3. Production Prompt Structure:
+
+  // What Zara's AI will receive for video generation:
+  {
+    productImage: "base64_image_data",
+
+    productContext: {
+      name: "Product name",
+      category: "Product category",
+      targetAudience: "Description",
+      keyMessages: ["message1", "message2"]
+    },
+
+    creativeDirection: {
+      visualStyle: "Premium Minimalism",
+      colorPalette: ["#color1", "#color2"],
+      mood: "sophisticated"
+    },
+
+    videoRequirements: {
+      narrativeStyle: "Hero's Journey",
+      musicGenre: "Upbeat & Energetic",
+      format: "16:9 landscape 1080p",
+      duration: 8,
+      platforms: ["YouTube", "LinkedIn"]
+    },
+
+    sceneArchitecture: [
+      { description: "Hero product shot...", composition: "..." },
+      { description: "Lifestyle context...", composition: "..." }
+    ]
+  }
+
+  ⚡ IMPLEMENTATION BENEFITS
+
+  Streamlined UX:
+
+  - ✅ Steps 1-2: Quick selection → AI confirmation (no lengthy chat)
+  - ✅ Step 3: Instant UI selection (no waiting)
+  - ✅ Step 4: Full production with complete context
+
+  Cost Efficiency:
+
+  - ✅ Reduced API calls (Step 3 has no API call)
+  - ✅ Focused prompts (Steps 1-2 are validation only)
+  - ✅ Single expensive call (Step 4 production)
+
+  Better Production Quality:
+
+  - ✅ Product image ensures visual consistency
+  - ✅ Maya analysis provides product context for narrative
+  - ✅ Complete creative direction from David
+  - ✅ All user preferences for personalization

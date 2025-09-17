@@ -60,6 +60,7 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
   const [visibleContent, setVisibleContent] = useState<Map<string, string>>(new Map());
   const [isConfirmingDecision, setIsConfirmingDecision] = useState(false);
   const [isGeneratingAsset, setIsGeneratingAsset] = useState(false);
+  const [showWarning, setShowWarning] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -70,11 +71,12 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
   const { currentStep } = useCreativeDirectorStore();
 
   // Use dictionary for localized text
-  const t = dict.creativeDirector.chat;
+  const t = dict.creativeDirector;
 
   // Determine chat mode based on current step
-  const isConsultativeMode = currentStep === WorkflowStep.PRODUCTION_STYLE ||
-                            currentStep === WorkflowStep.CREATIVE_DIRECTION;
+  const isConsultativeMode =
+    currentStep === WorkflowStep.PRODUCTION_STYLE ||
+    currentStep === WorkflowStep.CREATIVE_DIRECTION;
   const isInteractiveMode = currentStep === WorkflowStep.SCENE_ARCHITECTURE;
 
   // Check if we're awaiting visual decision confirmation
@@ -178,6 +180,32 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
       }
     };
   }, [inputMessage]);
+
+  // Reset warning when entering consultative steps, hide on scroll
+  useEffect(() => {
+    // Reset warning when entering a new consultative step
+    if (isConsultativeMode) {
+      setShowWarning(true);
+    } else {
+      setShowWarning(false);
+      return;
+    }
+
+    const handleScroll = () => {
+      if (messagesContainerRef.current && showWarning) {
+        const scrollTop = messagesContainerRef.current.scrollTop;
+        if (scrollTop > 30) {
+          setShowWarning(false);
+        }
+      }
+    };
+
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+      return () => container.removeEventListener("scroll", handleScroll);
+    }
+  }, [currentStep]);
 
   // Typing effect for agent messages
   const startTypingEffect = useCallback((message: CreativeChatMessage) => {
@@ -416,7 +444,7 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
             message.messageType !== "DIRECTION_CONFIRMATION" &&
             isInteractiveMode && (
               <div className="mt-2 space-y-1">
-                <p className="text-xs text-gray-500 mb-2">{t.quickActionsTitle}</p>
+                <p className="text-xs text-gray-500 mb-2">{t.chat.quickActionsTitle}</p>
                 {message.quickActions.map((action, actionIndex) => (
                   <button
                     key={actionIndex}
@@ -452,7 +480,7 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
             <div className="mr-2">
               <AgentAvatar agent="david" size="md" state="thinking" />
             </div>
-            <span className="text-xs text-gray-500">{t.agentTyping}</span>
+            <span className="text-xs text-gray-500">{t.chat.agentTyping}</span>
           </div>
 
           <div className="bg-white border border-gray-200 px-4 py-3 rounded-lg rounded-bl-sm">
@@ -496,13 +524,16 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
           </div>
           <span className="text-purple-900 font-medium text-sm">David</span>
           <span className="ml-2 text-xs text-purple-600 bg-purple-200 px-2 py-1 rounded">
-            {isConsultativeMode ? (locale === "ja" ? "相談モード" : "Consultative")
-                               : (locale === "ja" ? "対話モード" : "Interactive")}
+            {isConsultativeMode
+              ? locale === "ja"
+                ? "相談モード"
+                : "Consultative"
+              : locale === "ja"
+                ? "対話モード"
+                : "Interactive"}
           </span>
         </div>
-        <p className="text-purple-800 text-sm whitespace-pre-wrap">
-          {getGreetingMessage()}
-        </p>
+        <p className="text-purple-800 text-sm whitespace-pre-wrap">{getGreetingMessage()}</p>
       </div>
     );
   };
@@ -511,7 +542,7 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
     <div className={`w-full h-full flex flex-col ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white rounded-t-lg">
-        <h3 className="text-lg font-semibold text-gray-900">{t.title}</h3>
+        <h3 className="text-lg font-semibold text-gray-900">{t.chat.title}</h3>
 
         {/* Connection status */}
         <div className="flex items-center text-sm">
@@ -519,10 +550,31 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
             className={`w-2 h-2 rounded-full mr-2 ${isConnected ? "bg-purple-500" : "bg-red-500"}`}
           />
           <span className={isConnected ? "text-purple-600" : "text-red-600"}>
-            {isConnected ? t.connected : t.disconnected}
+            {isConnected ? t.chat.connected : t.chat.disconnected}
           </span>
         </div>
       </div>
+
+      {/* Chat Limitations Warning - Only show during consultative steps */}
+      {showWarning && isConsultativeMode && (
+        <div className="px-4 py-3 bg-blue-50 border-b border-blue-200 transition-all duration-300 ease-out">
+          <div className="flex items-start space-x-3">
+            <div className="flex-shrink-0">
+              <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h4 className="text-sm font-medium text-blue-800 mb-1">{t.chat.limitations.title}</h4>
+              <p className="text-sm text-blue-700">{t.chat.limitations.description}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Messages */}
       <div
@@ -555,7 +607,7 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
                     ? locale === "ja"
                       ? "現在のステップについて質問してください..."
                       : "Ask questions about the current step..."
-                    : t.placeholder
+                    : t.chat.placeholder
               }
               disabled={
                 !isConnected ||
@@ -589,12 +641,11 @@ const CreativeChatContainer: React.FC<CreativeChatContainerProps> = ({
             }
             className="px-4 py-2 min-w-[80px] bg-purple-600 hover:bg-purple-700"
           >
-            {isSubmitting || isConfirmingDecision ? <LoadingSpinner size="sm" /> : t.send}
+            {isSubmitting || isConfirmingDecision ? <LoadingSpinner size="sm" /> : t.chat.send}
           </Button>
         </form>
-
         {/* User typing indicator */}
-        {userTyping && <div className="mt-1 text-xs text-gray-400">{t.userTyping}</div>}
+        {userTyping && <div className="mt-1 text-xs text-gray-400">{t.chat.userTyping}</div>}d{" "}
       </div>
     </div>
   );
