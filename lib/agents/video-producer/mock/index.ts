@@ -1,12 +1,12 @@
 /**
- * Alex - Video Producer Agent Mock Data (DEFERRED)
+ * Zara - Video Producer Agent Mock Data (DEFERRED)
  *
  * IMPLEMENTATION STATUS: DEFERRED FOR FUTURE DEVELOPMENT
  */
 
 // DEFERRED: Mock video production data
 export const mockVideoProductionData = {
-  // This will contain realistic demo data for Alex agent
+  // This will contain realistic demo data for Zara agent
   // when implementation begins
 };
 

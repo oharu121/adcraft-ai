@@ -51,15 +51,16 @@ The AdCraft AI is an **interactive multi-agent AI system** that transforms a sin
    - **Agent 2 - David (Creative Director Agent)**
      - **Personality**: Visual perfectionist, artistic expertise, brand-focused storyteller
      - **Core Responsibilities**:
-       - **Visual Style**: Style refinement, mood board creation, color palette and lighting decisions
-       - **Key Scenes**: Scene composition, shot selection, visual storytelling structure
-       - **Visual Asset Generation**: Imagen API integration for backgrounds, product shots, lifestyle contexts, overlays
-       - Step-by-step visual decision workflow (Welcome → Style Selection → Scene Planning → Asset Generation)
-     - **User Interaction**: "How should we show this visually? What style resonates with your brand?"
-     - **Output**: Complete visual package + generated assets → Handoff to Alex
+       - **Production Style Selection**: Choose production method (Live-Action, Motion Graphics, 3D Animation, Mixed Media)
+       - **Creative Direction**: AI-generated style options with visual palettes, typography, and aesthetic approaches
+       - **Scene Architecture**: AI-powered scene composition and narrative flow planning for video production
+       - **Creative Direction Package**: Complete creative direction with visual strategy, scene breakdown, and production specifications
+       - 3-step visual decision workflow: Production Style → Creative Direction → Scene Architecture → Handoff
+     - **User Interaction**: "Which production style fits your vision? What creative direction resonates with your brand?"
+     - **Output**: Complete creative direction package with scene composition → Handoff to Zara
 
-   - **Agent 3 - Alex (Video Producer Agent)**
-     - **Personality**: Production expert, timing specialist, audio-focused storytelling professional
+   - **Agent 3 - Zara (Video Producer Agent)**
+     - **Personality**: Charismatic production expert, timing specialist, audio-focused storytelling professional with warm charm
      - **Core Responsibilities**:
        - **Narrative Style**: Pacing decisions (slow-dramatic vs fast-energetic), narration style (authoritative vs conversational)
        - **Music & Tone**: Audio coordination, music genre selection, final audio mixing
@@ -100,7 +101,7 @@ The AdCraft AI is an **interactive multi-agent AI system** that transforms a sin
 - **Dynamic UI Mode Switching**: Smooth transitions between chat and strategy review modes
 - **Strategy Confirmation System**: User-controlled approval process for strategy changes
 - **Contextual Quick Actions**: Smart suggestions that adapt to conversation context and user needs
-- **Professional Agent Handoffs**: Seamless transitions between Maya, David, and Alex with complete context
+- **Professional Agent Handoffs**: Seamless transitions between Maya, David, and Zara with complete context
 - **Resume Capability**: Complete session state persistence across disconnections
 - **Multi-Language Agent Personalities**: Each agent speaks naturally in English and Japanese
 
@@ -166,16 +167,17 @@ The AdCraft AI is an **interactive multi-agent AI system** that transforms a sin
 4. **Smooth Phase Transition**: Beautiful handoff animation from Maya to David with context preservation
 
 5. **David's Creative Direction Phase**:
-   - **Welcome & Introduction**: David explains visual creation process
-   - **Visual Style Selection**: User chooses style (minimalist, cinematic, lifestyle, luxury)
-   - **Scene Planning**: David presents key scenes based on Maya's messaging strategy
-   - **Visual Asset Generation**: Real-time creation of backgrounds, product shots, lifestyle contexts via Imagen API
+   - **Step 1 - Production Style Selection**: User chooses production method (Live-Action, Motion Graphics, 3D Animation, Mixed Media)
+   - **Step 2 - Creative Direction**: AI-generated style options with visual palettes, typography, and aesthetic approaches (4 dynamic options)
+   - **Step 3 - Scene Architecture**: AI-powered scene composition and narrative flow planning with mood, pacing, and production notes
+   - **Creative Direction Package**: Complete creative direction with visual strategy, scene breakdown, and production specifications
    - **Interactive Chat**: Ongoing conversation about visual choices and creative decisions
+   - **Handoff Preparation**: Complete creative direction package ready for Zara
 
-6. **Smooth Phase Transition**: Beautiful handoff animation from David to Alex with complete visual package
+6. **Smooth Phase Transition**: Beautiful handoff animation from David to Zara with complete visual package
 
-7. **Alex's Video Production Phase**:
-   - **Production Planning**: Alex reviews visual assets and messaging from previous agents
+7. **Zara's Video Production Phase**:
+   - **Production Planning**: Zara reviews visual assets and messaging from previous agents
    - **Narrative Style Selection**: Pacing (dramatic vs energetic) and narration style decisions
    - **Music & Tone Selection**: Audio genre, mood, and final audio coordination
    - **Final Video Production**: Veo API orchestration with all assets for professional commercial creation

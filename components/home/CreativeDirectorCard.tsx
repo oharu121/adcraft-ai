@@ -533,7 +533,7 @@ export default function CreativeDirectorCard({
         qualityStandards: [],
         deliveryFormat: []
       },
-      alexHandoffData: {
+      zaraHandoffData: {
         narrativeFlow: generatedScenes.map(scene => scene.description),
         sceneBreakdown: generatedScenes,
         assetMapping: [],
@@ -558,9 +558,18 @@ export default function CreativeDirectorCard({
 
   // Handle handoff modal actions
   const handleHandoffSuccess = useCallback(() => {
-    // TODO: Navigate to Video Producer or show success message
-    console.log('[Creative Director] Handoff to Alex successful!');
-  }, []);
+    // Successfully handed off to Video Producer - navigate to video producer phase
+    console.log('[Creative Director] Handoff to Zara successful!');
+
+    // Close the handoff modal
+    setShowHandoffModal(false);
+
+    // Import and use phase transition to navigate to video producer
+    const event = new CustomEvent('transitionToVideoProducer', {
+      detail: { creativeDirection }
+    });
+    window.dispatchEvent(event);
+  }, [creativeDirection]);
 
   // Don't show card if no handoff data from Maya
   if (!hasHandoffData) {

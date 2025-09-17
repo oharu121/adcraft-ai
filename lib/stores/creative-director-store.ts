@@ -1,20 +1,18 @@
-import { create } from 'zustand';
-import { SessionStatus, WorkflowStep } from '../agents/creative-director/enums';
-import {
-  CreativeChatMessage
-} from '../agents/creative-director/types/chat-types';
+import { create } from "zustand";
+import { SessionStatus, WorkflowStep } from "../agents/creative-director/enums";
+import { CreativeChatMessage } from "../agents/creative-director/types/chat-types";
 import {
   VisualAsset,
   CreativeDirection,
-  StylePalette
-} from '../agents/creative-director/types/asset-types';
+  StylePalette,
+} from "../agents/creative-director/types/asset-types";
 import {
   AssetType,
   AssetStatus,
   VisualStyle,
   ColorMood,
-  CreativePhase
-} from '../agents/creative-director/enums';
+  CreativePhase,
+} from "../agents/creative-director/enums";
 
 interface CreativeDirectorStore {
   // Session state
@@ -22,14 +20,14 @@ interface CreativeDirectorStore {
   sessionStatus: SessionStatus;
   isConnected: boolean;
   isAgentTyping: boolean;
-  
+
   // Maya handoff state
   mayaHandoffData: {
     productAnalysis: any | null;
     strategicInsights: any | null;
     visualOpportunities: any | null;
   };
-  
+
   // UI flow state - simplified for 4-phase workflow
   currentPhase: CreativePhase;
   currentStep: WorkflowStep;
@@ -37,7 +35,7 @@ interface CreativeDirectorStore {
   showAssetGallery: boolean;
   showStyleSelector: boolean;
   showAssetVariants: boolean;
-  
+
   // Creative direction state - simplified for demo workflow
   messages: CreativeChatMessage[];
   creativeDirection: CreativeDirection | null;
@@ -68,30 +66,33 @@ interface CreativeDirectorStore {
     selectedStyle: string | null;
     brandAlignmentScore: number;
   };
-  
+
   // Asset generation state - simplified for demo
   assets: {
     generated: any[]; // Use any[] for demo compatibility with both VisualAsset and DemoAsset
     inProgress: string[]; // Asset IDs currently generating
-    failed: string[];     // Asset IDs that failed
-    approved: string[];   // Asset IDs approved for production
+    failed: string[]; // Asset IDs that failed
+    approved: string[]; // Asset IDs approved for production
   };
-  assetGenerationProgress: Record<string, {
-    progress: number;
-    stage: string;
-    estimatedCompletion: number;
-  }>;
-  
+  assetGenerationProgress: Record<
+    string,
+    {
+      progress: number;
+      stage: string;
+      estimatedCompletion: number;
+    }
+  >;
+
   // Creative analysis state
   analysisProgress: number;
   analysisStartTime: number;
   elapsedTime: number;
   errorMessage: string;
   creativeError: { type: string; canProceed: boolean } | null;
-  
+
   // Chat state - CRITICAL for persistence
   chatInputMessage: string;
-  
+
   // Accordion state for creative sections
   expandedSections: {
     visualDirection: boolean;
@@ -100,7 +101,7 @@ interface CreativeDirectorStore {
     productionReady: boolean;
     handoffPreparation: boolean;
   };
-  
+
   // Cost tracking
   costTracking: {
     current: number;
@@ -108,25 +109,25 @@ interface CreativeDirectorStore {
     remaining: number;
     assetGenerationCosts: number;
   };
-  
+
   // Handoff preparation state
   handoffPreparation: {
     directionFinalized: boolean;
     assetsApproved: boolean;
     productionNotesComplete: boolean;
-    readyForAlex: boolean;
-    alexHandoffData: any | null;
+    readyForZara: boolean;
+    zaraHandoffData: any | null;
   };
-  
+
   // Actions for session management
   setSessionId: (id: string) => void;
   setSessionStatus: (status: SessionStatus) => void;
   setIsConnected: (connected: boolean) => void;
   setIsAgentTyping: (typing: boolean) => void;
-  
+
   // Actions for Maya handoff
   setMayaHandoffData: (data: any) => void;
-  
+
   // Actions for UI flow - simplified
   setCurrentPhase: (phase: CreativePhase) => void;
   setCurrentStep: (step: WorkflowStep) => void;
@@ -134,7 +135,7 @@ interface CreativeDirectorStore {
   setShowAssetGallery: (show: boolean) => void;
   setShowStyleSelector: (show: boolean) => void;
   setShowAssetVariants: (show: boolean) => void;
-  
+
   // Actions for creative direction - simplified
   setMessages: (messages: CreativeChatMessage[]) => void;
   addMessage: (message: CreativeChatMessage) => void;
@@ -152,42 +153,42 @@ interface CreativeDirectorStore {
   setSceneComposition: (composition: any) => void;
 
   // Step completion actions
-  markStepCompleted: (step: keyof CreativeDirectorStore['completedSteps']) => void;
+  markStepCompleted: (step: keyof CreativeDirectorStore["completedSteps"]) => void;
 
   // Simplified visual decision actions
-  updateVisualDecisions: (decisions: Partial<CreativeDirectorStore['visualDecisions']>) => void;
-  
+  updateVisualDecisions: (decisions: Partial<CreativeDirectorStore["visualDecisions"]>) => void;
+
   // Actions for assets - simplified for demo
   addAsset: (asset: any) => void; // Use any for demo compatibility
   updateAsset: (assetId: string, updates: Partial<any>) => void;
   setAssetGenerationProgress: (assetId: string, progress: any) => void;
   approveAsset: (assetId: string) => void;
-  
+
   // Actions for analysis
   setAnalysisProgress: (progress: number) => void;
   setAnalysisStartTime: (time: number) => void;
   setElapsedTime: (time: number) => void;
   setErrorMessage: (message: string) => void;
   setCreativeError: (error: { type: string; canProceed: boolean } | null) => void;
-  
+
   // Actions for chat - THE CRITICAL ONE!
   setChatInputMessage: (message: string) => void;
-  
+
   // Actions for accordion
-  toggleSection: (section: keyof CreativeDirectorStore['expandedSections']) => void;
-  
+  toggleSection: (section: keyof CreativeDirectorStore["expandedSections"]) => void;
+
   // Actions for cost tracking
-  updateCostTracking: (costs: Partial<CreativeDirectorStore['costTracking']>) => void;
-  
+  updateCostTracking: (costs: Partial<CreativeDirectorStore["costTracking"]>) => void;
+
   // Actions for handoff preparation
-  updateHandoffPreparation: (updates: Partial<CreativeDirectorStore['handoffPreparation']>) => void;
-  
+  updateHandoffPreparation: (updates: Partial<CreativeDirectorStore["handoffPreparation"]>) => void;
+
   // Complex actions
   resetSession: () => void;
   startCreativeAnalysis: () => void;
   completeCreativeAnalysis: () => void;
   initializeFromMayaHandoff: (handoffData: any) => void;
-  prepareAlexHandoff: () => void;
+  prepareZaraHandoff: () => void;
 }
 
 export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get) => ({
@@ -276,8 +277,8 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
     directionFinalized: false,
     assetsApproved: false,
     productionNotesComplete: false,
-    readyForAlex: false,
-    alexHandoffData: null,
+    readyForZara: false,
+    zaraHandoffData: null,
   },
 
   // Simple setters
@@ -304,33 +305,36 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
 
   // Phase 2: Style Selection Actions
   setAvailableStyleOptions: (options) => set({ availableStyleOptions: options }),
-  selectStyleOption: (styleOption) => set((state) => ({
-    selectedStyleOption: styleOption,
-    visualDecisions: {
-      ...state.visualDecisions,
-      selectedStyle: styleOption?.id || null
-    }
-  })),
+  selectStyleOption: (styleOption) =>
+    set((state) => ({
+      selectedStyleOption: styleOption,
+      visualDecisions: {
+        ...state.visualDecisions,
+        selectedStyle: styleOption?.id || null,
+      },
+    })),
 
   // Phase 3: Scene Architecture Actions
   setGeneratedScenes: (scenes) => set({ generatedScenes: scenes }),
-  setSceneComposition: (composition) => set((state) => ({
-    sceneComposition: composition,
-    generatedScenes: composition?.sceneBreakdown || state.generatedScenes
-  })),
+  setSceneComposition: (composition) =>
+    set((state) => ({
+      sceneComposition: composition,
+      generatedScenes: composition?.sceneBreakdown || state.generatedScenes,
+    })),
 
   // Step completion actions
-  markStepCompleted: (step) => set((state) => ({
-    completedSteps: {
-      ...state.completedSteps,
-      [step]: true
-    }
-  })),
+  markStepCompleted: (step) =>
+    set((state) => ({
+      completedSteps: {
+        ...state.completedSteps,
+        [step]: true,
+      },
+    })),
 
   // Simplified visual decisions actions
   updateVisualDecisions: (decisions) =>
     set((state) => ({
-      visualDecisions: { ...state.visualDecisions, ...decisions }
+      visualDecisions: { ...state.visualDecisions, ...decisions },
     })),
 
   addAsset: (asset) =>
@@ -340,7 +344,7 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
         generated: [...state.assets.generated, asset],
       },
     })),
-  
+
   updateAsset: (assetId, updates) =>
     set((state) => ({
       assets: {
@@ -442,8 +446,8 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
         directionFinalized: false,
         assetsApproved: false,
         productionNotesComplete: false,
-        readyForAlex: false,
-        alexHandoffData: null,
+        readyForZara: false,
+        zaraHandoffData: null,
       },
     }),
 
@@ -473,22 +477,22 @@ export const useCreativeDirectorStore = create<CreativeDirectorStore>((set, get)
       isConnected: true,
     }),
 
-  prepareAlexHandoff: () => {
+  prepareZaraHandoff: () => {
     const state = get();
-    const alexHandoffData = {
+    const zaraHandoffData = {
       creativeDirection: state.creativeDirection,
-      visualAssets: state.assets.approved.map(id => 
-        state.assets.generated.find(asset => asset.id === id)
-      ).filter(Boolean),
-      productionNotes: state.creativeDirection?.alexHandoffData?.productionNotes || [],
+      visualAssets: state.assets.approved
+        .map((id) => state.assets.generated.find((asset) => asset.id === id))
+        .filter(Boolean),
+      productionNotes: state.creativeDirection?.zaraHandoffData?.productionNotes || [],
       technicalSpecs: state.creativeDirection?.productionGuidelines?.technicalRequirements || [],
     };
-    
+
     set((state) => ({
       handoffPreparation: {
         ...state.handoffPreparation,
-        alexHandoffData,
-        readyForAlex: true,
+        zaraHandoffData,
+        readyForZara: true,
       },
     }));
   },

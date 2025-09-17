@@ -455,7 +455,7 @@
     "title": "クリエイティブ・ディレクター",
     "subtitle": "戦略をビジュアルの卓越性に転換",
     "description": "マヤの洞察を受け取り、コマーシャルのための魅力的なビジュアルディレクションとアセットに変換します。",
-    
+
     "personality": {
       "greeting": "こんにちは！10年以上にわたりブランドを魅力的なビジュアルで変革してきたクリエイティブディレクターのデイビッドです。",
       "introduction": "私は戦略的洞察を、文化を超えて響き、商業的成功を推進する画期的なクリエイティブに翻訳することを専門としています。",
@@ -463,14 +463,14 @@
       "approach": "すべてのピクセルは芸術的ビジョンと商業目標の両方に貢献すべきだと信じています。一緒に特別なものを創造しましょう。",
       "collaboration": "私はあなたのクリエイティブパートナーとして、技術的専門知識を提供しながら、すべての決定があなたのブランドの本物の声と一致することを確実にします。"
     },
-    
+
     "phases": {
       "analysis": "分析",
       "creativeDevelopment": "クリエイティブ開発",
       "assetGeneration": "アセット生成",
       "productionPreparation": "制作準備"
     },
-    
+
     "sections": {
       "visualDirection": "ビジュアルディレクション",
       "colorPalette": "カラーパレット",
@@ -478,7 +478,7 @@
       "productionReady": "制作準備完了",
       "handoffPreparation": "引き継ぎ準備"
     },
-    
+
     "creativeTerminology": {
       "visualStyles": {
         "minimalist": "ミニマリスト",
@@ -529,7 +529,7 @@
         "trust": "ビジュアル信頼構築"
       }
     },
-    
+
     "culturalSensitivity": {
       "western": {
         "preferences": "西洋のビジュアル嗜好は、大胆なコントラスト、個人表現、直接的メッセージングを重視します",
@@ -552,7 +552,7 @@
         "respectful": "色彩選択、画像、ビジュアルメタファーにおける文化的配慮"
       }
     },
-    
+
     "handoff": {
       "fromMaya": {
         "title": "マヤから受け取り",
@@ -565,12 +565,12 @@
         "opportunitiesIdentified": "ビジュアル機会の特定完了",
         "readyToProceed": "クリエイティブ開発の準備完了"
       },
-      "toAlex": {
+      "toZara": {
         "title": "アレックスへの準備",
         "description": "クリエイティブディレクションと制作アセットの最終化",
         "preparing": "クリエイティブディレクションパッケージを準備中...",
         "complete": "動画制作準備完了",
-        "handoffToAlex": "アレックスに引き継ぎ",
+        "handoffToZara": "アレックスに引き継ぎ",
         "reviewAssets": "アセットをレビュー",
         "packageComplete": "クリエイティブディレクションパッケージ完成",
         "assetsOrganized": "制作用アセット整理完了",
@@ -690,7 +690,11 @@
         "headerImage": "/production-style/mixed-media.png",
         "features": ["クリエイティブな柔軟性", "魅力的な多様性", "独自のブランドボイス"],
         "bestFor": "イノベーティブなブランド、複雑な製品、プレミアムキャンペーン",
-        "examples": ["ハイブリッドストーリーテリング", "クリエイティブキャンペーン", "マルチフォーマットコンテンツ"]
+        "examples": [
+          "ハイブリッドストーリーテリング",
+          "クリエイティブキャンペーン",
+          "マルチフォーマットコンテンツ"
+        ]
       }
     },
 
@@ -713,7 +717,12 @@
         "name": "テックダイナミック",
         "description": "イノベーション重視のブランド向けの鮮やかな色彩とダイナミックな構成の大胆でエネルギッシュなアプローチ",
         "colorPalette": ["#FF3B30", "#007AFF", "#5856D6", "#FF9500"],
-        "visualKeywords": ["大胆なコントラスト", "ダイナミックな角度", "エネルギーとモーション", "テック風"],
+        "visualKeywords": [
+          "大胆なコントラスト",
+          "ダイナミックな角度",
+          "エネルギーとモーション",
+          "テック風"
+        ],
         "animationStyle": "ダイナミック",
         "examples": [
           "キネティックタイポグラフィ",
@@ -726,7 +735,12 @@
         "name": "ラグジュアリーエディトリアル",
         "description": "豊かな質感、ドラマティックな照明、洗練されたコンポジションのハイエンド雑誌美学",
         "colorPalette": ["#000000", "#B8860B", "#F5F5DC", "#8B4513"],
-        "visualKeywords": ["ドラマティックな照明", "豊かな質感", "エディトリアル品質", "ラグジュアリーポジショニング"],
+        "visualKeywords": [
+          "ドラマティックな照明",
+          "豊かな質感",
+          "エディトリアル品質",
+          "ラグジュアリーポジショニング"
+        ],
         "animationStyle": "静的",
         "examples": [
           "クラシック製品写真",
@@ -808,7 +822,7 @@
         ]
       }
     },
-    
+
     "quickActions": {
       "generateBackgrounds": "背景を生成",
       "createProductHero": "商品ヒーローを作成",
@@ -820,7 +834,7 @@
       "reviewBrandAlignment": "ブランド整合性をレビュー",
       "adaptForCulture": "ターゲット文化に適応"
     },
-    
+
     "visualDecisions": {
       "title": "ビジュアル決定",
       "styleDirection": "スタイルディレクション",
@@ -837,7 +851,7 @@
       "reasoning": "クリエイティブ理由",
       "justification": "このビジュアルディレクションが機能する理由は..."
     },
-    
+
     "assetGallery": {
       "title": "生成されたクリエイティブアセット",
       "description": "コマーシャル制作用のプロフェッショナルビジュアルアセット",
@@ -886,7 +900,7 @@
         "needsWork": "クリエイティブ改良が必要"
       }
     },
-    
+
     "creativeInsights": {
       "title": "クリエイティブインテリジェンス・洞察",
       "visualOpportunities": "ビジュアル機会分析",
@@ -900,7 +914,7 @@
       "trendAnalysis": "現在のデザイントレンド分析",
       "psychologyInsights": "ビジュアル心理学洞察"
     },
-    
+
     "costTracking": {
       "assetGeneration": "クリエイティブアセット生成",
       "totalSpent": "総クリエイティブ投資",
@@ -909,7 +923,7 @@
       "budgetOptimization": "クリエイティブ予算最適化",
       "valueAnalysis": "クリエイティブROI分析"
     },
-    
+
     "status": {
       "initializing": "クリエイティブディレクターワークスペース初期化中...",
       "analyzing": "戦略的コンテキストとクリエイティブ機会を分析中...",
@@ -921,7 +935,7 @@
       "ideating": "クリエイティブコンセプトを生成中...",
       "refining": "ビジュアルアプローチを洗練中..."
     },
-    
+
     "errors": {
       "assetGenerationFailed": "アセット生成がクリエイティブ課題に遭遇しました。異なるアプローチを試すか、パラメータを調整してください。",
       "visualAnalysisFailed": "ビジュアル分析があなたのリクエストを処理できませんでした。入力とクリエイティブパラメータを確認してください。",
@@ -936,7 +950,7 @@
       "qualityIssue": "生成されたアセットがクリエイティブ品質基準を満たしていません。代替案を生成中...",
       "technicalLimitation": "技術的制限により、この特定のクリエイティブアプローチは実現できません。代替案をご提案します。"
     },
-    
+
     "feedback": {
       "requestCreativeInput": "この方向性についてあなたのクリエイティブな意見をお聞かせください。あなたのビジョンと共鳴する側面はありますか？",
       "clarifyCreativeDirection": "あなたのクリエイティブ嗜好をより良く理解するのを手伝っていただけますか？",
@@ -950,7 +964,7 @@
 
     "confirmHandoff": "ビデオプロデューサーに進む",
     "handoffToVideoProducer": "最終制作のためビデオプロデューサーに引き渡し",
-    "handoffDescription": "あなたのクリエイティブディレクションは、ビデオプロデューサーのアレックスに引き渡す準備ができました。アレックスはあなたのビジュアル戦略、シーン構成、制作仕様を使用して最終的なコマーシャル動画を作成します。",
+    "handoffDescription": "あなたのクリエイティブディレクションは、ビデオプロデューサーのザラに引き渡す準備ができました。ザラはあなたのビジュアル戦略、シーン構成、制作仕様を使用して最終的なコマーシャル動画を作成します。",
     "transferSummary": "転送サマリー",
     "visualStrategy": "ビジュアル戦略",
     "sceneComposition": "シーン構成",
@@ -961,8 +975,102 @@
     "initializing": "初期化中..."
   },
   "videoProducer": {
-    "title": "ビデオプロデューサー（アレックス）",
-    "description": "クリエイティブディレクションを高度なAI動画生成技術によりプロフェッショナルな動画制作に変換"
+    "title": "ビデオプロデューサー（ザラ）",
+    "subtitle": "クリエイティブビジョンを素晴らしい動画に変換",
+    "description": "クリエイティブディレクションを高度なAI動画生成技術によりプロフェッショナルな動画制作に変換",
+    "waitingForHandoff": "クリエイティブディレクターからの引き継ぎ待ち",
+    "handoffDescription": "デビッドがクリエイティブディレクション段階を完了次第、ザラが開始します",
+
+    "workflowMode": "ワークフロー",
+    "chatMode": "チャット",
+    "chatPlaceholder": "動画制作、ペーシング、音楽の選択についてザラに聞いてみてください...",
+
+    "steps": {
+      "narrativeStyle": "ナラティブスタイル",
+      "musicTone": "音楽&トーン",
+      "finalProduction": "最終制作"
+    },
+
+    "narrativeStyleSelection": {
+      "title": "ナラティブスタイルを選択",
+      "description": "ストーリーをどのように展開しますか？コマーシャルビジョンに最適なペーシングとナレーションスタイルを選択してください。"
+    },
+
+    "musicSelection": {
+      "title": "音楽&トーンを選択",
+      "description": "どのような雰囲気を作りたいですか？メッセージを増幅する音楽ジャンルとエネルギーを選択してください。"
+    },
+
+    "finalProduction": {
+      "title": "動画制作準備完了",
+      "description": "すべての要素が揃いました。プロフェッショナルなコマーシャル動画を作成しましょう！"
+    },
+
+    "selectedNarrativeStyle": "選択されたナラティブスタイル",
+    "selectedMusicGenre": "選択された音楽ジャンル",
+    "startProduction": "動画制作開始",
+    "starting": "制作開始中...",
+    "producingVideo": "コマーシャル動画制作中",
+    "complete": "完了",
+    "videoComplete": "🎉 コマーシャル動画が完成しました！",
+    "downloadVideo": "動画をダウンロード",
+
+    "personality": {
+      "greeting": "こんにちは！あなたのビジョンを実現する準備ができています！私はザラ、8年以上のハイインパクトなコマーシャルコンテンツ制作経験を持つビデオプロデューサーです。",
+      "introduction": "最先端のAI動画生成技術を使用して、優れたクリエイティブディレクションを素晴らしい動画コンテンツに変換することを専門としています。",
+      "expertise": "私の専門分野は動画制作計画、AI駆動の生成ワークフロー、そしてマルチプラットフォーム最適化です。",
+      "approach": "技術的な優秀性とクリエイティブビジョンのバランスを大切にしています。すべてのフレームが芸術的インパクトとビジネス目標の両方に貢献するべきです。",
+      "collaboration": "あなたのクリエイティブビジョンを損なうことなく、技術的な複雑さを処理いたします。このコマーシャルを輝かせましょう！"
+    },
+
+    "phases": {
+      "preProduction": "プリプロダクション",
+      "production": "制作",
+      "postProduction": "ポストプロダクション",
+      "delivery": "配信"
+    },
+
+    "sections": {
+      "videoGeneration": "動画生成",
+      "sceneSequencing": "シーンシーケンス",
+      "technicalOptimization": "技術最適化",
+      "qualityControl": "品質管理",
+      "finalDelivery": "最終配信"
+    },
+
+    "productionTerminology": {
+      "videoSpecs": {
+        "resolution": "動画解像度",
+        "frameRate": "フレームレート",
+        "aspectRatio": "アスペクト比",
+        "duration": "長さ",
+        "format": "動画フォーマット",
+        "compression": "圧縮",
+        "colorSpace": "色空間",
+        "bitrate": "ビットレート"
+      },
+      "workflow": {
+        "storyboard": "ストーリーボード計画",
+        "sequencing": "シーンシーケンス",
+        "generation": "AI動画生成",
+        "editing": "ポストプロダクション編集",
+        "optimization": "フォーマット最適化",
+        "review": "品質レビュー",
+        "delivery": "最終配信",
+        "distribution": "マルチプラットフォーム配信"
+      }
+    },
+
+    "status": {
+      "initializing": "動画制作ワークスペースを初期化中...",
+      "analyzing": "クリエイティブディレクションと制作要件を分析中...",
+      "ready": "動画制作コラボレーションの準備完了",
+      "planning": "シーンシーケンスと技術仕様を計画中...",
+      "generating": "AIで動画コンテンツを生成中...",
+      "processing": "動画品質を処理・最適化中...",
+      "reviewing": "品質レビューと最終チェックを実施中...",
+      "complete": "動画制作完了、配信準備完了"
+    }
   },
   "chat": {
     "typeMessage": "メッセージを入力...",

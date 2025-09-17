@@ -8,16 +8,8 @@
 import { VertexAIService } from "@/lib/services/vertex-ai";
 import { GeminiClient } from "@/lib/services/gemini";
 import { DAVID_PERSONA } from "@/lib/constants/david-persona";
-import {
-  CreativeChatRequest,
-  CreativeChatResponse,
-} from "../types/api-types";
-import {
-  CreativeMessageType,
-  VisualStyle,
-  ColorMood,
-  CreativePhase,
-} from "../enums";
+import { CreativeChatRequest, CreativeChatResponse } from "../types/api-types";
+import { CreativeMessageType, VisualStyle, ColorMood, CreativePhase } from "../enums";
 
 const MODEL_NAME = "gemini-1.5-pro-vision";
 
@@ -36,21 +28,21 @@ export async function processRealCreativeMessage(
 ): Promise<CreativeChatResponse> {
   try {
     console.log("[DAVID REAL] Processing creative message with Vertex AI");
-    
+
     const geminiClient = new GeminiClient();
-    
+
     // Build comprehensive creative prompt with David's persona
     const prompt = buildAdvancedCreativePrompt(request);
 
     // Process with Gemini
     const geminiResponse = await geminiClient.generateTextOnly(prompt);
-    
+
     // Calculate cost
     const cost = calculateProcessingCost(geminiResponse);
-    
+
     // Analyze response for creative intelligence
     const creativeAnalysis = analyzeCreativeIntelligence(geminiResponse.text, request);
-    
+
     // Generate enhanced response with visual recommendations
     const enhancedResponse = enhanceCreativeResponse(
       geminiResponse.text,
@@ -92,17 +84,18 @@ function buildAdvancedCreativePrompt(request: CreativeChatRequest): string {
   const persona = DAVID_PERSONA;
 
   // Core David persona prompt
-  const personaPrompt = locale === "ja"
-    ? `あなたは${persona.name}、経験豊富なクリエイティブディレクターです。
+  const personaPrompt =
+    locale === "ja"
+      ? `あなたは${persona.name}、経験豊富なクリエイティブディレクターです。
 
 あなたの専門性と性格：
-${persona.personality.core.map(trait => `• ${trait}`).join('\n')}
+${persona.personality.core.map((trait) => `• ${trait}`).join("\n")}
 
 コミュニケーションアプローチ：
-${persona.personality.communicationStyle.map(style => `• ${style}`).join('\n')}
+${persona.personality.communicationStyle.map((style) => `• ${style}`).join("\n")}
 
 創作専門領域：
-${persona.personality.expertise.map(exp => `• ${exp}`).join('\n')}
+${persona.personality.expertise.map((exp) => `• ${exp}`).join("\n")}
 
 創作哲学：
 ${persona.creativeApproach.visualStyle}
@@ -110,17 +103,16 @@ ${persona.creativeApproach.colorPhilosophy}
 ${persona.creativeApproach.composition}
 
 あなたの役割は、戦略的洞察を魅力的なビジュアルアセットに変換し、商業的成功とクリエイティブな卓越性を両立させることです。`
-
-    : `You are ${persona.name}, an experienced Creative Director.
+      : `You are ${persona.name}, an experienced Creative Director.
 
 Your expertise and personality:
-${persona.personality.core.map(trait => `• ${trait}`).join('\n')}
+${persona.personality.core.map((trait) => `• ${trait}`).join("\n")}
 
 Communication approach:
-${persona.personality.communicationStyle.map(style => `• ${style}`).join('\n')}
+${persona.personality.communicationStyle.map((style) => `• ${style}`).join("\n")}
 
 Creative specializations:
-${persona.personality.expertise.map(exp => `• ${exp}`).join('\n')}
+${persona.personality.expertise.map((exp) => `• ${exp}`).join("\n")}
 
 Creative philosophy:
 ${persona.creativeApproach.visualStyle}
@@ -131,10 +123,10 @@ Your role is to transform strategic insights into compelling visual assets that 
 
   // Add context from Maya's handoff
   const contextPrompt = buildMayaHandoffContext(request);
-  
+
   // Add current creative state
   const creativeStatePrompt = buildCreativeStateContext(request);
-  
+
   // Add conversation history
   const conversationHistory = buildConversationHistory(request);
 
@@ -168,14 +160,14 @@ function buildMayaHandoffContext(request: CreativeChatRequest): string {
   const currentStep = request.context?.currentStep || 2;
 
   let contextPrompt = `MAYA'S STRATEGIC FOUNDATION:
-Product Analysis: ${handoff.productAnalysis ? 'Complete' : 'Pending'}
+Product Analysis: ${handoff.productAnalysis ? "Complete" : "Pending"}
 Strategic Insights: Available for creative direction
 
 Key Strategic Elements:
-- Product: ${handoff.productAnalysis?.product?.name || 'Product'}
-- Category: ${handoff.productAnalysis?.product?.category || 'Consumer Product'}
-- Core Message: ${handoff.productAnalysis?.keyMessages?.headline || 'Premium Quality'}
-- Target Audience: ${handoff.productAnalysis?.targetAudience?.description || 'Professional consumers'}
+- Product: ${handoff.productAnalysis?.product?.name || "Product"}
+- Category: ${handoff.productAnalysis?.product?.category || "Consumer Product"}
+- Core Message: ${handoff.productAnalysis?.keyMessages?.headline || "Premium Quality"}
+- Target Audience: ${handoff.productAnalysis?.targetAudience?.description || "Professional consumers"}
 
 `;
 
@@ -198,8 +190,8 @@ Key Strategic Elements:
       contextPrompt += `CREATIVE DIRECTION DECISION (Step 2 Complete):
 - Selected Direction: ${selectedStyleOption.name}
 - Description: ${selectedStyleOption.description}
-- Color Palette: ${selectedStyleOption.colorPalette?.join(', ') || 'Premium colors'}
-- Visual Keywords: ${selectedStyleOption.visualKeywords?.join(', ') || 'Professional aesthetic'}
+- Color Palette: ${selectedStyleOption.colorPalette?.join(", ") || "Premium colors"}
+- Visual Keywords: ${selectedStyleOption.visualKeywords?.join(", ") || "Professional aesthetic"}
 
 `;
     }
@@ -213,14 +205,14 @@ Key Strategic Elements:
  */
 function buildCreativeStateContext(request: CreativeChatRequest): string {
   const decisions = request.context?.currentVisualDecisions;
-  
+
   if (!decisions) {
     return "CURRENT CREATIVE STATE: Beginning creative development\n";
   }
 
   return `CURRENT CREATIVE STATE:
-Style Direction: ${decisions.styleDirection || 'To be determined'}
-Color Mood: ${decisions.colorMood || 'To be determined'}  
+Style Direction: ${decisions.styleDirection || "To be determined"}
+Color Mood: ${decisions.colorMood || "To be determined"}  
 Brand Alignment Score: ${decisions.brandAlignmentScore || 0}%
 Approved Palettes: ${decisions.approvedPalettes?.length || 0}
 Selected Compositions: ${decisions.selectedCompositions?.length || 0}
@@ -233,7 +225,7 @@ Selected Compositions: ${decisions.selectedCompositions?.length || 0}
  */
 function buildConversationHistory(request: CreativeChatRequest): string {
   const history = request.context?.conversationHistory || [];
-  
+
   if (history.length === 0) {
     return "CONVERSATION HISTORY: Beginning creative consultation\n";
   }
@@ -241,7 +233,7 @@ function buildConversationHistory(request: CreativeChatRequest): string {
   const formattedHistory = history
     .slice(-5) // Last 5 messages for context
     .map((msg: any) => `${msg.type === "user" ? "User" : "David"}: ${msg.content}`)
-    .join('\n');
+    .join("\n");
 
   return `RECENT CONVERSATION:
 ${formattedHistory}
@@ -263,21 +255,24 @@ function buildContextualInstructions(request: CreativeChatRequest, locale: "en" 
   if (currentStep === 2) {
     // Step 2: Creative Direction (needs Maya's analysis + production style)
     focus = "creative direction selection and visual style guidance";
-    stepContext = locale === "ja"
-      ? "あなたは現在Step 2にいます：クリエイティブ方向性の決定。Mayaの分析と選択されたプロダクションスタイルを基に、ビジュアル方向性のオプションを提示してください。"
-      : "You are currently in Step 2: Creative Direction. Based on Maya's analysis and the selected production style, guide the user through visual direction options.";
+    stepContext =
+      locale === "ja"
+        ? "あなたは現在Step 2にいます：クリエイティブ方向性の決定。Mayaの分析と選択されたプロダクションスタイルを基に、ビジュアル方向性のオプションを提示してください。"
+        : "You are currently in Step 2: Creative Direction. Based on Maya's analysis and the selected production style, guide the user through visual direction options.";
   } else if (currentStep === 3) {
     // Step 3: Scene Architecture (needs accumulated context)
     focus = "scene architecture and visual asset planning";
-    stepContext = locale === "ja"
-      ? "あなたは現在Step 3にいます：シーンアーキテクチャ。これまでの全ての決定を基に、具体的なシーン構成と視覚的アセットの計画を提案してください。"
-      : "You are currently in Step 3: Scene Architecture. Based on all previous decisions, provide specific scene composition and visual asset planning.";
+    stepContext =
+      locale === "ja"
+        ? "あなたは現在Step 3にいます：シーンアーキテクチャ。これまでの全ての決定を基に、具体的なシーン構成と視覚的アセットの計画を提案してください。"
+        : "You are currently in Step 3: Scene Architecture. Based on all previous decisions, provide specific scene composition and visual asset planning.";
   } else {
     // Default to Step 2 behavior
     focus = "creative consultation and visual direction";
-    stepContext = locale === "ja"
-      ? "創作方向性について相談してください。"
-      : "Provide creative direction consultation.";
+    stepContext =
+      locale === "ja"
+        ? "創作方向性について相談してください。"
+        : "Provide creative direction consultation.";
   }
 
   // Message-specific overrides
@@ -313,17 +308,25 @@ function buildContextualInstructions(request: CreativeChatRequest, locale: "en" 
 /**
  * Analyze Gemini response for creative intelligence
  */
-function analyzeCreativeIntelligence(response: string, request: CreativeChatRequest): {
+function analyzeCreativeIntelligence(
+  response: string,
+  request: CreativeChatRequest
+): {
   messageType: CreativeMessageType;
-  nextAction: "continue" | "generate_assets" | "finalize_direction" | "handoff" | "awaiting_confirmation";
+  nextAction:
+    | "continue"
+    | "generate_assets"
+    | "finalize_direction"
+    | "handoff"
+    | "awaiting_confirmation";
   visualRecommendations: any;
   metadata: any;
 } {
   const lowerResponse = response.toLowerCase();
-  
+
   // Determine message type based on content
   let messageType: CreativeMessageType = CreativeMessageType.VISUAL_ANALYSIS;
-  
+
   if (lowerResponse.includes("style") || lowerResponse.includes("visual direction")) {
     messageType = CreativeMessageType.STYLE_RECOMMENDATION;
   } else if (lowerResponse.includes("color") || lowerResponse.includes("palette")) {
@@ -332,26 +335,34 @@ function analyzeCreativeIntelligence(response: string, request: CreativeChatRequ
     messageType = CreativeMessageType.ASSET_DISCUSSION;
   } else if (lowerResponse.includes("direction") && lowerResponse.includes("final")) {
     messageType = CreativeMessageType.DIRECTION_CONFIRMATION;
-  } else if (lowerResponse.includes("handoff") || lowerResponse.includes("alex")) {
+  } else if (lowerResponse.includes("handoff") || lowerResponse.includes("zara")) {
     messageType = CreativeMessageType.HANDOFF_PREPARATION;
   }
 
   // Determine next action
-  let nextAction: "continue" | "generate_assets" | "finalize_direction" | "handoff" | "awaiting_confirmation" = "continue";
-  
+  let nextAction:
+    | "continue"
+    | "generate_assets"
+    | "finalize_direction"
+    | "handoff"
+    | "awaiting_confirmation" = "continue";
+
   if (lowerResponse.includes("generate") || lowerResponse.includes("create assets")) {
     nextAction = "generate_assets";
   } else if (lowerResponse.includes("finalize") || lowerResponse.includes("confirm direction")) {
     nextAction = "finalize_direction";
-  } else if (lowerResponse.includes("ready for") && lowerResponse.includes("alex")) {
+  } else if (lowerResponse.includes("ready for") && lowerResponse.includes("zara")) {
     nextAction = "handoff";
-  } else if (lowerResponse.includes("what do you think") || lowerResponse.includes("your thoughts")) {
+  } else if (
+    lowerResponse.includes("what do you think") ||
+    lowerResponse.includes("your thoughts")
+  ) {
     nextAction = "awaiting_confirmation";
   }
 
   // Extract visual recommendations
   const visualRecommendations = extractVisualRecommendations(response, request.locale);
-  
+
   // Generate metadata
   const metadata = {
     creativePhase: determineCreativePhase(response),
@@ -417,9 +428,10 @@ function enhanceCreativeResponse(
   quickActions: string[];
 } {
   // Add David's signature confidence and expertise
-  const davidSignature = locale === "ja"
-    ? "\n\n創作の観点から、この方向性が最適な商業的成果をもたらすと確信しています。"
-    : "\n\nFrom a creative standpoint, I'm confident this direction will deliver optimal commercial results.";
+  const davidSignature =
+    locale === "ja"
+      ? "\n\n創作の観点から、この方向性が最適な商業的成果をもたらすと確信しています。"
+      : "\n\nFrom a creative standpoint, I'm confident this direction will deliver optimal commercial results.";
 
   const enhancedContent = originalResponse + davidSignature;
 
@@ -440,14 +452,16 @@ function enhanceCreativeResponse(
 function calculateProcessingCost(geminiResponse: any): number {
   const inputTokens = geminiResponse.usage?.input_tokens || 0;
   const outputTokens = geminiResponse.usage?.output_tokens || 0;
-  
-  return (inputTokens * COST_CONFIG.inputTokenCost + outputTokens * COST_CONFIG.outputTokenCost) / 1000;
+
+  return (
+    (inputTokens * COST_CONFIG.inputTokenCost + outputTokens * COST_CONFIG.outputTokenCost) / 1000
+  );
 }
 
 // Helper functions for analysis
 function extractColorMood(response: string): string {
   const colorMoods = ["warm", "cool", "neutral", "vibrant", "muted"];
-  return colorMoods.find(mood => response.toLowerCase().includes(mood)) || "balanced";
+  return colorMoods.find((mood) => response.toLowerCase().includes(mood)) || "balanced";
 }
 
 function extractColorTemperature(response: string): string {
@@ -458,35 +472,38 @@ function extractColorTemperature(response: string): string {
 
 function extractColorPsychology(response: string): string {
   const psychologies = ["energetic", "calming", "trustworthy", "luxurious", "friendly"];
-  return psychologies.find(psych => response.toLowerCase().includes(psych)) || "professional";
+  return psychologies.find((psych) => response.toLowerCase().includes(psych)) || "professional";
 }
 
 function extractStyleDirection(response: string): string {
   const styles = ["modern", "classic", "minimalist", "luxury", "bold"];
-  return styles.find(style => response.toLowerCase().includes(style)) || "contemporary";
+  return styles.find((style) => response.toLowerCase().includes(style)) || "contemporary";
 }
 
 function extractSophisticationLevel(response: string): string {
-  if (response.toLowerCase().includes("luxury") || response.toLowerCase().includes("premium")) return "luxury";
+  if (response.toLowerCase().includes("luxury") || response.toLowerCase().includes("premium"))
+    return "luxury";
   if (response.toLowerCase().includes("professional")) return "professional";
   if (response.toLowerCase().includes("casual")) return "casual";
   return "professional";
 }
 
 function extractEnergyLevel(response: string): string {
-  if (response.toLowerCase().includes("dynamic") || response.toLowerCase().includes("energetic")) return "high";
-  if (response.toLowerCase().includes("calm") || response.toLowerCase().includes("peaceful")) return "low";
+  if (response.toLowerCase().includes("dynamic") || response.toLowerCase().includes("energetic"))
+    return "high";
+  if (response.toLowerCase().includes("calm") || response.toLowerCase().includes("peaceful"))
+    return "low";
   return "medium";
 }
 
 function extractCompositionPrinciple(response: string): string {
   const principles = ["rule of thirds", "golden ratio", "symmetry", "asymmetry"];
-  return principles.find(principle => response.toLowerCase().includes(principle)) || "balanced";
+  return principles.find((principle) => response.toLowerCase().includes(principle)) || "balanced";
 }
 
 function extractVisualHierarchy(response: string): string {
   const hierarchies = ["center-focused", "left-to-right", "top-to-bottom", "circular"];
-  return hierarchies.find(hierarchy => response.toLowerCase().includes(hierarchy)) || "natural";
+  return hierarchies.find((hierarchy) => response.toLowerCase().includes(hierarchy)) || "natural";
 }
 
 function extractBalance(response: string): string {
@@ -497,7 +514,7 @@ function extractBalance(response: string): string {
 
 function determineCreativePhase(response: string): CreativePhase {
   const lowerResponse = response.toLowerCase();
-  
+
   if (lowerResponse.includes("analyze") || lowerResponse.includes("understand")) {
     return CreativePhase.ANALYSIS;
   } else if (lowerResponse.includes("develop") || lowerResponse.includes("create")) {
@@ -507,13 +524,13 @@ function determineCreativePhase(response: string): CreativePhase {
   } else if (lowerResponse.includes("finalize") || lowerResponse.includes("complete")) {
     return CreativePhase.FINALIZATION;
   }
-  
+
   return CreativePhase.CREATIVE_DEVELOPMENT;
 }
 
 function analyzeConfidenceLevel(response: string): number {
   const lowerResponse = response.toLowerCase();
-  
+
   if (lowerResponse.includes("confident") || lowerResponse.includes("certain")) {
     return 0.95;
   } else if (lowerResponse.includes("recommend") || lowerResponse.includes("suggest")) {
@@ -521,69 +538,65 @@ function analyzeConfidenceLevel(response: string): number {
   } else if (lowerResponse.includes("consider") || lowerResponse.includes("might")) {
     return 0.75;
   }
-  
+
   return 0.8;
 }
 
 function assessCommercialViability(response: string): string {
   const lowerResponse = response.toLowerCase();
-  
+
   if (lowerResponse.includes("commercial") && lowerResponse.includes("success")) {
     return "high";
   } else if (lowerResponse.includes("market") || lowerResponse.includes("audience")) {
     return "medium";
   }
-  
+
   return "medium";
 }
 
 function assessBrandAlignment(response: string): number {
   const lowerResponse = response.toLowerCase();
-  
+
   if (lowerResponse.includes("brand") && lowerResponse.includes("align")) {
     return 0.9;
   } else if (lowerResponse.includes("consistent") || lowerResponse.includes("harmony")) {
     return 0.85;
   }
-  
+
   return 0.8;
 }
 
 function generateContextualActions(analysis: any, locale: "en" | "ja"): string[] {
-  const actions = locale === "ja"
-    ? [
-        "この創作方向をさらに詳しく探る",
-        "カラーパレットを確定する",
-        "コンポジションの詳細を決める",
-        "アセット生成を開始する"
-      ]
-    : [
-        "Explore this creative direction further",
-        "Finalize the color palette",
-        "Define composition details",
-        "Begin asset generation"
-      ];
+  const actions =
+    locale === "ja"
+      ? [
+          "この創作方向をさらに詳しく探る",
+          "カラーパレットを確定する",
+          "コンポジションの詳細を決める",
+          "アセット生成を開始する",
+        ]
+      : [
+          "Explore this creative direction further",
+          "Finalize the color palette",
+          "Define composition details",
+          "Begin asset generation",
+        ];
 
   // Return contextually relevant actions based on analysis
   return actions.slice(0, 2);
 }
 
 function generateQuickActions(analysis: any, locale: "en" | "ja"): string[] {
-  const actions = locale === "ja"
-    ? [
-        "スタイル確認",
-        "カラー選択", 
-        "構成決定",
-        "アセット生成",
-        "方向性確定"
-      ]
-    : [
-        "Confirm Style",
-        "Select Colors",
-        "Decide Composition", 
-        "Generate Assets",
-        "Finalize Direction"
-      ];
+  const actions =
+    locale === "ja"
+      ? ["スタイル確認", "カラー選択", "構成決定", "アセット生成", "方向性確定"]
+      : [
+          "Confirm Style",
+          "Select Colors",
+          "Decide Composition",
+          "Generate Assets",
+          "Finalize Direction",
+        ];
 
   return actions;
 }

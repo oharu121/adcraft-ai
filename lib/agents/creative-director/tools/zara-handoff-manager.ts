@@ -1,7 +1,7 @@
 /**
- * Alex Handoff Manager
+ * Zara Handoff Manager
  *
- * Handles seamless context transfer from David (Creative Director) to Alex (Video Producer),
+ * Handles seamless context transfer from David (Creative Director) to Zara (Video Producer),
  * organizing creative direction into comprehensive video production packages with asset mapping,
  * scene planning, and production specifications.
  */
@@ -12,13 +12,13 @@ import { VisualStyle, ColorMood, AssetType } from "../enums";
 import { CreativeDirectorSessionManager } from "./session-manager";
 import { CreativeDirectorCostTracker } from "./cost-tracker";
 
-// Alex handoff data structure
-export interface AlexHandoffData {
+// Zara handoff data structure
+export interface ZaraHandoffData {
   // Core creative direction from David
   creativeDirection: CreativeDirection;
   finalizedVisualDecisions: VisualDecision[];
   approvedStylePalette: StylePalette;
-  
+
   // Asset package for video production
   assetPackage: {
     heroAssets: VisualAsset[];
@@ -28,7 +28,7 @@ export interface AlexHandoffData {
     supportingAssets: VisualAsset[];
     moodReferences: VisualAsset[];
   };
-  
+
   // Video production specifications
   productionSpecs: {
     videoFormat: {
@@ -41,7 +41,7 @@ export interface AlexHandoffData {
     transitionPlanning: TransitionPlan[];
     audioRequirements: AudioRequirement[];
   };
-  
+
   // Creative constraints and guidelines
   creativeGuidelines: {
     brandCompliance: BrandCompliance;
@@ -49,7 +49,7 @@ export interface AlexHandoffData {
     colorPaletteUsage: ColorPaletteUsage;
     compositionGuidelines: CompositionGuideline[];
   };
-  
+
   // Budget and timeline
   productionBudget: {
     totalAllocated: number;
@@ -58,15 +58,15 @@ export interface AlexHandoffData {
     deliveryCost: number;
     contingency: number;
   };
-  
+
   // Handoff metadata
   davidSessionId: string;
   handoffTimestamp: string;
   locale: "en" | "ja";
   completionStatus: HandoffCompletionStatus;
-  
-  // Alex workflow preparation
-  alexWorkflow: {
+
+  // Zara workflow preparation
+  zaraWorkflow: {
     prioritizedTasks: ProductionTask[];
     assetOrganization: AssetOrganizationMap;
     sceneMapping: SceneAssetMapping;
@@ -74,35 +74,42 @@ export interface AlexHandoffData {
   };
 }
 
-// Video scene structure for Alex
+// Video scene structure for Zara
 export interface VideoScene {
   id: string;
   sequenceNumber: number;
   title: string;
   description: string;
   duration: number;
-  
-  sceneType: "intro" | "product-hero" | "lifestyle" | "feature-highlight" | "emotional-moment" | "call-to-action" | "outro";
-  
+
+  sceneType:
+    | "intro"
+    | "product-hero"
+    | "lifestyle"
+    | "feature-highlight"
+    | "emotional-moment"
+    | "call-to-action"
+    | "outro";
+
   visualElements: {
     primaryAssets: string[]; // Asset IDs
     backgroundAssets: string[];
     overlayAssets: string[];
     textElements: TextElement[];
   };
-  
+
   audioElements: {
     narration?: string;
     musicTrack?: string;
     soundEffects: string[];
   };
-  
+
   cameraMovement: {
     type: "static" | "pan" | "zoom" | "dolly" | "tracking" | "handheld";
     direction?: string;
     speed: "slow" | "medium" | "fast";
   };
-  
+
   emotionalArc: {
     startEmotion: string;
     endEmotion: string;
@@ -207,7 +214,7 @@ export interface TextElement {
   };
 }
 
-// Production tasks for Alex
+// Production tasks for Zara
 export interface ProductionTask {
   id: string;
   title: string;
@@ -257,7 +264,7 @@ export interface HandoffCompletionStatus {
     assetPackage: number;
     productionSpecs: number;
     creativeGuidelines: number;
-    alexWorkflow: number;
+    zaraWorkflow: number;
   };
   missingElements: string[];
   warnings: string[];
@@ -265,11 +272,11 @@ export interface HandoffCompletionStatus {
 }
 
 /**
- * Alex Handoff Manager
+ * Zara Handoff Manager
  * Orchestrates the creative direction to video production transition
  */
-export class AlexHandoffManager {
-  private static instance: AlexHandoffManager;
+export class ZaraHandoffManager {
+  private static instance: ZaraHandoffManager;
   private sessionManager: CreativeDirectorSessionManager;
   private costTracker: CreativeDirectorCostTracker;
 
@@ -281,17 +288,17 @@ export class AlexHandoffManager {
   /**
    * Get singleton instance
    */
-  public static getInstance(): AlexHandoffManager {
-    if (!AlexHandoffManager.instance) {
-      AlexHandoffManager.instance = new AlexHandoffManager();
+  public static getInstance(): ZaraHandoffManager {
+    if (!ZaraHandoffManager.instance) {
+      ZaraHandoffManager.instance = new ZaraHandoffManager();
     }
-    return AlexHandoffManager.instance;
+    return ZaraHandoffManager.instance;
   }
 
   /**
-   * Prepare comprehensive David → Alex handoff package
+   * Prepare comprehensive David → Zara handoff package
    */
-  public async prepareAlexHandoff(
+  public async prepareZaraHandoff(
     sessionId: string,
     creativeDirection: CreativeDirection,
     visualDecisions: VisualDecision[],
@@ -300,7 +307,7 @@ export class AlexHandoffManager {
     locale: "en" | "ja" = "en"
   ): Promise<{
     success: boolean;
-    alexHandoffData: AlexHandoffData;
+    zaraHandoffData: ZaraHandoffData;
     validationResults: {
       isValid: boolean;
       completeness: number;
@@ -308,12 +315,12 @@ export class AlexHandoffManager {
       recommendations: string[];
     };
   }> {
-    console.log(`[ALEX HANDOFF] Preparing David → Alex handoff for session: ${sessionId}`);
-    
+    console.log(`[ALEX HANDOFF] Preparing David → Zara handoff for session: ${sessionId}`);
+
     try {
       // Create asset package for video production
       const assetPackage = this.organizeAssetsForVideoProduction(generatedAssets);
-      
+
       // Generate video production specifications
       const productionSpecs = this.createVideoProductionSpecs(
         creativeDirection,
@@ -321,40 +328,40 @@ export class AlexHandoffManager {
         assetPackage,
         locale
       );
-      
+
       // Create comprehensive creative guidelines
       const creativeGuidelines = this.buildCreativeGuidelines(
         creativeDirection,
         stylePalette,
         visualDecisions
       );
-      
+
       // Calculate production budget allocation
       const productionBudget = await this.calculateProductionBudget(
         sessionId,
         productionSpecs,
         assetPackage
       );
-      
-      // Prepare Alex workflow and organization
-      const alexWorkflow = this.prepareAlexWorkflow(
+
+      // Prepare Zara workflow and organization
+      const zaraWorkflow = this.prepareZaraWorkflow(
         productionSpecs,
         assetPackage,
         creativeGuidelines
       );
-      
+
       // Create completion status assessment
       const completionStatus = this.assessHandoffCompleteness(
         assetPackage,
         productionSpecs,
         creativeGuidelines,
-        alexWorkflow
+        zaraWorkflow
       );
-      
+
       // Build comprehensive handoff data
-      const alexHandoffData: AlexHandoffData = {
+      const zaraHandoffData: ZaraHandoffData = {
         creativeDirection,
-        finalizedVisualDecisions: visualDecisions.filter(d => d.userApproved === true),
+        finalizedVisualDecisions: visualDecisions.filter((d) => d.userApproved === true),
         approvedStylePalette: stylePalette,
         assetPackage,
         productionSpecs,
@@ -364,45 +371,47 @@ export class AlexHandoffManager {
         handoffTimestamp: new Date().toISOString(),
         locale,
         completionStatus,
-        alexWorkflow
+        zaraWorkflow,
       };
-      
+
       // Validate handoff package
-      const validationResults = this.validateHandoffPackage(alexHandoffData);
-      
+      const validationResults = this.validateHandoffPackage(zaraHandoffData);
+
       // Track handoff preparation cost
       await this.costTracker.trackCost(
         sessionId,
-        { service: "other", operation: "alex_handoff_preparation" },
-        0.10, // Handoff processing cost
-        "David → Alex handoff package preparation",
-        { 
+        { service: "other", operation: "zara_handoff_preparation" },
+        0.1, // Handoff processing cost
+        "David → Zara handoff package preparation",
+        {
           assetCount: generatedAssets.length,
           sceneCount: productionSpecs.sceneStructure.length,
-          taskCount: alexWorkflow.prioritizedTasks.length
+          taskCount: zaraWorkflow.prioritizedTasks.length,
         }
       );
 
       console.log(`[ALEX HANDOFF] Successfully prepared handoff package for session: ${sessionId}`);
-      
+
       return {
         success: true,
-        alexHandoffData,
-        validationResults
+        zaraHandoffData,
+        validationResults,
       };
-
     } catch (error) {
       console.error(`[ALEX HANDOFF] Failed to prepare handoff for session ${sessionId}:`, error);
-      
+
       return {
         success: false,
-        alexHandoffData: this.createEmptyHandoffData(sessionId, locale),
+        zaraHandoffData: this.createEmptyHandoffData(sessionId, locale),
         validationResults: {
           isValid: false,
           completeness: 0,
           issues: [error instanceof Error ? error.message : "Unknown handoff preparation error"],
-          recommendations: ["Review creative direction completeness", "Ensure all assets are approved"]
-        }
+          recommendations: [
+            "Review creative direction completeness",
+            "Ensure all assets are approved",
+          ],
+        },
       };
     }
   }
@@ -417,10 +426,10 @@ export class AlexHandoffManager {
       lifestyleAssets: [] as VisualAsset[],
       overlayAssets: [] as VisualAsset[],
       supportingAssets: [] as VisualAsset[],
-      moodReferences: [] as VisualAsset[]
+      moodReferences: [] as VisualAsset[],
     };
 
-    generatedAssets.forEach(asset => {
+    generatedAssets.forEach((asset) => {
       switch (asset.type) {
         case "product-hero":
           assetPackage.heroAssets.push(asset);
@@ -455,15 +464,11 @@ export class AlexHandoffManager {
     locale: "en" | "ja"
   ) {
     // Generate scene structure based on creative direction
-    const sceneStructure = this.generateSceneStructure(
-      creativeDirection,
-      assetPackage,
-      locale
-    );
-    
+    const sceneStructure = this.generateSceneStructure(creativeDirection, assetPackage, locale);
+
     // Create transition planning between scenes
     const transitionPlanning = this.planSceneTransitions(sceneStructure);
-    
+
     // Define audio requirements
     const audioRequirements = this.defineAudioRequirements(
       sceneStructure,
@@ -476,11 +481,11 @@ export class AlexHandoffManager {
         resolution: "1920x1080", // HD default
         aspectRatio: "16:9",
         frameRate: 30,
-        duration: this.calculateOptimalVideoDuration(sceneStructure)
+        duration: this.calculateOptimalVideoDuration(sceneStructure),
       },
       sceneStructure,
       transitionPlanning,
-      audioRequirements
+      audioRequirements,
     };
   }
 
@@ -494,52 +499,55 @@ export class AlexHandoffManager {
   ): VideoScene[] {
     const scenes: VideoScene[] = [];
     const totalDuration = 60; // 60 seconds default commercial length
-    
+
     // Scene 1: Intro/Hook (5-8 seconds)
     scenes.push({
       id: crypto.randomUUID(),
       sequenceNumber: 1,
       title: locale === "ja" ? "オープニング" : "Opening Hook",
-      description: locale === "ja" 
-        ? "視聴者の注意を引く強力な導入シーン" 
-        : "Compelling opening to capture viewer attention",
+      description:
+        locale === "ja"
+          ? "視聴者の注意を引く強力な導入シーン"
+          : "Compelling opening to capture viewer attention",
       duration: 6,
       sceneType: "intro",
       visualElements: {
         primaryAssets: assetPackage.heroAssets.slice(0, 1).map((a: any) => a.id),
         backgroundAssets: assetPackage.backgroundAssets.slice(0, 1).map((a: any) => a.id),
         overlayAssets: [],
-        textElements: [{
-          id: crypto.randomUUID(),
-          content: creativeDirection.strategy?.brandMessage || "Discover Innovation",
-          type: "headline",
-          styling: {
-            font: "primary",
-            size: 48,
-            color: "#FFFFFF",
-            position: { x: 50, y: 20 }
+        textElements: [
+          {
+            id: crypto.randomUUID(),
+            content: creativeDirection.strategy?.brandMessage || "Discover Innovation",
+            type: "headline",
+            styling: {
+              font: "primary",
+              size: 48,
+              color: "#FFFFFF",
+              position: { x: 50, y: 20 },
+            },
+            animation: {
+              type: "fade-up",
+              duration: 1.5,
+              easing: "ease-out",
+            },
           },
-          animation: {
-            type: "fade-up",
-            duration: 1.5,
-            easing: "ease-out"
-          }
-        }]
+        ],
       },
       audioElements: {
         musicTrack: "upbeat-intro",
-        soundEffects: ["whoosh", "impact"]
+        soundEffects: ["whoosh", "impact"],
       },
       cameraMovement: {
         type: "zoom",
         direction: "in",
-        speed: "medium"
+        speed: "medium",
       },
       emotionalArc: {
         startEmotion: "curiosity",
         endEmotion: "intrigue",
-        intensity: 7
-      }
+        intensity: 7,
+      },
     });
 
     // Scene 2: Product Hero (12-15 seconds)
@@ -547,42 +555,48 @@ export class AlexHandoffManager {
       id: crypto.randomUUID(),
       sequenceNumber: 2,
       title: locale === "ja" ? "プロダクトヒーロー" : "Product Hero",
-      description: locale === "ja"
-        ? "製品の主要機能と利点を強調する中心シーン"
-        : "Central scene highlighting key product features and benefits",
+      description:
+        locale === "ja"
+          ? "製品の主要機能と利点を強調する中心シーン"
+          : "Central scene highlighting key product features and benefits",
       duration: 14,
       sceneType: "product-hero",
       visualElements: {
         primaryAssets: assetPackage.heroAssets.map((a: any) => a.id),
         backgroundAssets: assetPackage.backgroundAssets.slice(0, 2).map((a: any) => a.id),
         overlayAssets: assetPackage.overlayAssets.slice(0, 1).map((a: any) => a.id),
-        textElements: [{
-          id: crypto.randomUUID(),
-          content: creativeDirection.strategy?.visualTheme || "Advanced Features",
-          type: "subheading",
-          styling: {
-            font: "secondary",
-            size: 32,
-            color: "#333333",
-            position: { x: 20, y: 60 }
-          }
-        }]
+        textElements: [
+          {
+            id: crypto.randomUUID(),
+            content: creativeDirection.strategy?.visualTheme || "Advanced Features",
+            type: "subheading",
+            styling: {
+              font: "secondary",
+              size: 32,
+              color: "#333333",
+              position: { x: 20, y: 60 },
+            },
+          },
+        ],
       },
       audioElements: {
-        narration: locale === "ja" ? "製品の革新的機能をご紹介します" : "Introducing breakthrough innovation",
+        narration:
+          locale === "ja"
+            ? "製品の革新的機能をご紹介します"
+            : "Introducing breakthrough innovation",
         musicTrack: "product-showcase",
-        soundEffects: ["product-highlight"]
+        soundEffects: ["product-highlight"],
       },
       cameraMovement: {
         type: "dolly",
         direction: "around",
-        speed: "slow"
+        speed: "slow",
       },
       emotionalArc: {
         startEmotion: "interest",
         endEmotion: "desire",
-        intensity: 8
-      }
+        intensity: 8,
+      },
     });
 
     // Scene 3: Lifestyle Context (15-20 seconds)
@@ -591,41 +605,48 @@ export class AlexHandoffManager {
         id: crypto.randomUUID(),
         sequenceNumber: 3,
         title: locale === "ja" ? "ライフスタイル" : "Lifestyle Context",
-        description: locale === "ja"
-          ? "実際の使用環境での製品体験を表現"
-          : "Product experience in real-world usage contexts",
+        description:
+          locale === "ja"
+            ? "実際の使用環境での製品体験を表現"
+            : "Product experience in real-world usage contexts",
         duration: 18,
         sceneType: "lifestyle",
         visualElements: {
           primaryAssets: assetPackage.lifestyleAssets.map((a: any) => a.id),
           backgroundAssets: assetPackage.backgroundAssets.slice(1, 3).map((a: any) => a.id),
           overlayAssets: assetPackage.overlayAssets.slice(1, 2).map((a: any) => a.id),
-          textElements: [{
-            id: crypto.randomUUID(),
-            content: creativeDirection.strategy?.targetAudienceAlignment || "Perfect for Your Life",
-            type: "body",
-            styling: {
-              font: "secondary",
-              size: 24,
-              color: "#555555",
-              position: { x: 25, y: 70 }
-            }
-          }]
+          textElements: [
+            {
+              id: crypto.randomUUID(),
+              content:
+                creativeDirection.strategy?.targetAudienceAlignment || "Perfect for Your Life",
+              type: "body",
+              styling: {
+                font: "secondary",
+                size: 24,
+                color: "#555555",
+                position: { x: 25, y: 70 },
+              },
+            },
+          ],
         },
         audioElements: {
-          narration: locale === "ja" ? "あなたのライフスタイルに完全にフィット" : "Seamlessly fits your lifestyle",
+          narration:
+            locale === "ja"
+              ? "あなたのライフスタイルに完全にフィット"
+              : "Seamlessly fits your lifestyle",
           musicTrack: "emotional-connection",
-          soundEffects: ["ambient-life"]
+          soundEffects: ["ambient-life"],
         },
         cameraMovement: {
           type: "tracking",
-          speed: "medium"
+          speed: "medium",
         },
         emotionalArc: {
           startEmotion: "connection",
           endEmotion: "satisfaction",
-          intensity: 9
-        }
+          intensity: 9,
+        },
       });
     }
 
@@ -634,47 +655,50 @@ export class AlexHandoffManager {
       id: crypto.randomUUID(),
       sequenceNumber: scenes.length + 1,
       title: locale === "ja" ? "行動喚起" : "Call to Action",
-      description: locale === "ja"
-        ? "視聴者に具体的な行動を促す決定的シーン"
-        : "Decisive scene prompting specific viewer action",
+      description:
+        locale === "ja"
+          ? "視聴者に具体的な行動を促す決定的シーン"
+          : "Decisive scene prompting specific viewer action",
       duration: 10,
       sceneType: "call-to-action",
       visualElements: {
         primaryAssets: assetPackage.heroAssets.slice(0, 1).map((a: any) => a.id),
         backgroundAssets: assetPackage.backgroundAssets.slice(-1).map((a: any) => a.id),
         overlayAssets: assetPackage.overlayAssets.map((a: any) => a.id),
-        textElements: [{
-          id: crypto.randomUUID(),
-          content: creativeDirection.strategy?.brandMessage || "Experience the Difference",
-          type: "cta",
-          styling: {
-            font: "primary",
-            size: 36,
-            color: "#FF6B35",
-            position: { x: 50, y: 50 }
+        textElements: [
+          {
+            id: crypto.randomUUID(),
+            content: creativeDirection.strategy?.brandMessage || "Experience the Difference",
+            type: "cta",
+            styling: {
+              font: "primary",
+              size: 36,
+              color: "#FF6B35",
+              position: { x: 50, y: 50 },
+            },
+            animation: {
+              type: "pulse",
+              duration: 2,
+              easing: "ease-in-out",
+            },
           },
-          animation: {
-            type: "pulse",
-            duration: 2,
-            easing: "ease-in-out"
-          }
-        }]
+        ],
       },
       audioElements: {
         narration: locale === "ja" ? "今すぐお試しください" : "Try it today",
         musicTrack: "call-to-action",
-        soundEffects: ["action-prompt", "final-impact"]
+        soundEffects: ["action-prompt", "final-impact"],
       },
       cameraMovement: {
         type: "zoom",
         direction: "out",
-        speed: "slow"
+        speed: "slow",
       },
       emotionalArc: {
         startEmotion: "motivation",
         endEmotion: "action",
-        intensity: 10
-      }
+        intensity: 10,
+      },
     });
 
     return scenes;
@@ -685,16 +709,16 @@ export class AlexHandoffManager {
    */
   private planSceneTransitions(scenes: VideoScene[]): TransitionPlan[] {
     const transitions: TransitionPlan[] = [];
-    
+
     for (let i = 0; i < scenes.length - 1; i++) {
       const currentScene = scenes[i];
       const nextScene = scenes[i + 1];
-      
+
       // Determine optimal transition type based on scene types and emotional flow
       let transitionType: TransitionPlan["transitionType"] = "fade";
       let duration = 0.5;
       let reasoning = "Standard transition";
-      
+
       if (currentScene.sceneType === "intro" && nextScene.sceneType === "product-hero") {
         transitionType = "zoom";
         duration = 0.8;
@@ -708,17 +732,17 @@ export class AlexHandoffManager {
         duration = 0.2;
         reasoning = "Sharp cut for immediate action prompt";
       }
-      
+
       transitions.push({
         id: crypto.randomUUID(),
         fromSceneId: currentScene.id,
         toSceneId: nextScene.id,
         transitionType,
         duration,
-        reasoning
+        reasoning,
       });
     }
-    
+
     return transitions;
   }
 
@@ -732,8 +756,8 @@ export class AlexHandoffManager {
   ): AudioRequirement[] {
     const audioRequirements: AudioRequirement[] = [];
     let currentTime = 0;
-    
-    scenes.forEach(scene => {
+
+    scenes.forEach((scene) => {
       // Background music
       audioRequirements.push({
         id: crypto.randomUUID(),
@@ -743,11 +767,12 @@ export class AlexHandoffManager {
         volume: 70,
         timing: {
           startTime: currentTime,
-          endTime: currentTime + scene.duration
+          endTime: currentTime + scene.duration,
         },
-        culturalConsiderations: locale === "ja" ? ["Japanese market preferences"] : ["Global appeal"]
+        culturalConsiderations:
+          locale === "ja" ? ["Japanese market preferences"] : ["Global appeal"],
       });
-      
+
       // Narration if specified
       if (scene.audioElements.narration) {
         audioRequirements.push({
@@ -758,16 +783,17 @@ export class AlexHandoffManager {
           volume: 90,
           timing: {
             startTime: currentTime + 0.5,
-            endTime: currentTime + scene.duration - 0.5
+            endTime: currentTime + scene.duration - 0.5,
           },
-          culturalConsiderations: locale === "ja" 
-            ? ["Native Japanese speaker", "Professional tone"]
-            : ["Clear English pronunciation", "Confident delivery"]
+          culturalConsiderations:
+            locale === "ja"
+              ? ["Native Japanese speaker", "Professional tone"]
+              : ["Clear English pronunciation", "Confident delivery"],
         });
       }
-      
+
       // Sound effects
-      scene.audioElements.soundEffects.forEach(effect => {
+      scene.audioElements.soundEffects.forEach((effect) => {
         audioRequirements.push({
           id: crypto.randomUUID(),
           type: "sound-effects",
@@ -776,14 +802,14 @@ export class AlexHandoffManager {
           volume: 60,
           timing: {
             startTime: currentTime,
-            endTime: currentTime + 1
-          }
+            endTime: currentTime + 1,
+          },
         });
       });
-      
+
       currentTime += scene.duration;
     });
-    
+
     return audioRequirements;
   }
 
@@ -792,15 +818,15 @@ export class AlexHandoffManager {
    */
   private getAudioMoodForScene(sceneType: VideoScene["sceneType"]): string {
     const moodMapping = {
-      "intro": "energetic",
+      intro: "energetic",
       "product-hero": "confident",
-      "lifestyle": "warm",
+      lifestyle: "warm",
       "feature-highlight": "focused",
       "emotional-moment": "inspiring",
       "call-to-action": "urgent",
-      "outro": "memorable"
+      outro: "memorable",
     };
-    
+
     return moodMapping[sceneType] || "neutral";
   }
 
@@ -812,7 +838,7 @@ export class AlexHandoffManager {
   }
 
   /**
-   * Build comprehensive creative guidelines for Alex
+   * Build comprehensive creative guidelines for Zara
    */
   private buildCreativeGuidelines(
     creativeDirection: CreativeDirection,
@@ -823,38 +849,42 @@ export class AlexHandoffManager {
       logoUsage: {
         placement: ["bottom-right", "center-end"],
         sizing: ["10% of frame height", "readable at all sizes"],
-        clearSpace: "2x logo height minimum"
+        clearSpace: "2x logo height minimum",
       },
       colorUsage: {
-        primaryColors: stylePalette.colors.primary.map(c => c.hex),
-        accentColors: stylePalette.colors.accent.map(c => c.hex),
-        restrictions: ["Avoid oversaturation", "Maintain color harmony"]
+        primaryColors: stylePalette.colors.primary.map((c) => c.hex),
+        accentColors: stylePalette.colors.accent.map((c) => c.hex),
+        restrictions: ["Avoid oversaturation", "Maintain color harmony"],
       },
       fontUsage: {
         primaryFont: "Primary Brand Font",
         secondaryFont: "Secondary Brand Font",
-        sizing: ["Minimum 24px for body text", "48px+ for headlines"]
+        sizing: ["Minimum 24px for body text", "48px+ for headlines"],
       },
       messagingTone: {
         primary: creativeDirection.strategy?.emotionalTone || "Professional and approachable",
         avoid: ["Overly technical", "Too casual", "Aggressive sales language"],
         culturalAdaptations: {
-          "ja": "Respectful and humble tone with appropriate honorifics",
-          "en": "Confident and direct communication"
-        }
-      }
+          ja: "Respectful and humble tone with appropriate honorifics",
+          en: "Confident and direct communication",
+        },
+      },
     };
 
     const styleConsistency: StyleConsistency = {
-      visualStyle: creativeDirection.visualSpecs?.styleDirection?.primary as VisualStyle || VisualStyle.MODERN,
-      colorMood: creativeDirection.visualSpecs?.colorPalette?.psychology?.emotions[0] as ColorMood || ColorMood.PROFESSIONAL,
+      visualStyle:
+        (creativeDirection.visualSpecs?.styleDirection?.primary as VisualStyle) ||
+        VisualStyle.MODERN,
+      colorMood:
+        (creativeDirection.visualSpecs?.colorPalette?.psychology?.emotions[0] as ColorMood) ||
+        ColorMood.PROFESSIONAL,
       compositionPrinciples: ["Rule of thirds", "Visual hierarchy", "Consistent spacing"],
       lightingStyle: "Natural and flattering",
       qualityStandards: {
         resolution: "1920x1080 minimum",
         compression: "High quality H.264",
-        colorSpace: "Rec. 709"
-      }
+        colorSpace: "Rec. 709",
+      },
     };
 
     const colorPaletteUsage: ColorPaletteUsage = {
@@ -865,8 +895,8 @@ export class AlexHandoffManager {
       textColorUsage: "High contrast for readability",
       restrictions: [
         "Never use primary colors for large background areas",
-        "Maintain 4.5:1 contrast ratio minimum for text"
-      ]
+        "Maintain 4.5:1 contrast ratio minimum for text",
+      ],
     };
 
     const compositionGuidelines: CompositionGuideline[] = [
@@ -874,27 +904,27 @@ export class AlexHandoffManager {
         principle: "Visual Hierarchy",
         description: "Guide viewer attention through deliberate element placement",
         application: ["Size contrast", "Color emphasis", "Positioning"],
-        examples: ["Hero product largest", "CTA prominently placed", "Supporting elements smaller"]
+        examples: ["Hero product largest", "CTA prominently placed", "Supporting elements smaller"],
       },
       {
         principle: "Balance",
         description: "Maintain visual equilibrium across all frames",
         application: ["Symmetrical layouts", "Asymmetrical balance", "Color distribution"],
-        examples: ["Centered hero shots", "Balanced text placement", "Even color distribution"]
+        examples: ["Centered hero shots", "Balanced text placement", "Even color distribution"],
       },
       {
         principle: "Movement",
         description: "Create visual flow that leads to call-to-action",
         application: ["Leading lines", "Progressive disclosure", "Directional cues"],
-        examples: ["Arrows pointing to CTA", "Eye-path optimization", "Sequential reveals"]
-      }
+        examples: ["Arrows pointing to CTA", "Eye-path optimization", "Sequential reveals"],
+      },
     ];
 
     return {
       brandCompliance,
       styleConsistency,
       colorPaletteUsage,
-      compositionGuidelines
+      compositionGuidelines,
     };
   }
 
@@ -909,65 +939,61 @@ export class AlexHandoffManager {
     // Get remaining budget from cost tracker
     const currentCosts = await this.costTracker.getSessionAnalytics(sessionId);
     const remainingBudget = Math.max(0, 50 - (currentCosts.totalSpent || 0)); // Assume $50 total budget
-    
+
     const sceneCount = productionSpecs.sceneStructure.length;
     const assetCount = Object.values(assetPackage).flat().length as number;
-    
+
     // Allocate budget proportionally
     const baseProductionCost = Math.min(remainingBudget * 0.6, 25);
     const postProductionCost = Math.min(remainingBudget * 0.25, 10);
     const deliveryCost = Math.min(remainingBudget * 0.1, 3);
     const contingency = Math.min(remainingBudget * 0.05, 2);
-    
+
     return {
       totalAllocated: remainingBudget,
       videoProductionCost: baseProductionCost,
       postProductionCost: postProductionCost,
       deliveryCost: deliveryCost,
-      contingency: contingency
+      contingency: contingency,
     };
   }
 
   /**
-   * Prepare comprehensive Alex workflow
+   * Prepare comprehensive Zara workflow
    */
-  private prepareAlexWorkflow(
-    productionSpecs: any,
-    assetPackage: any,
-    creativeGuidelines: any
-  ) {
+  private prepareZaraWorkflow(productionSpecs: any, assetPackage: any, creativeGuidelines: any) {
     // Generate prioritized tasks
     const prioritizedTasks = this.generateProductionTasks(productionSpecs, assetPackage);
-    
+
     // Create asset organization map
     const assetOrganization = this.createAssetOrganizationMap(
       productionSpecs.sceneStructure,
       assetPackage
     );
-    
+
     // Generate scene-asset mapping
     const sceneMapping = this.generateSceneAssetMapping(
       productionSpecs.sceneStructure,
       assetPackage
     );
-    
+
     // Define quality checkpoints
     const qualityCheckpoints = this.defineQualityCheckpoints(creativeGuidelines);
-    
+
     return {
       prioritizedTasks,
       assetOrganization,
       sceneMapping,
-      qualityCheckpoints
+      qualityCheckpoints,
     };
   }
 
   /**
-   * Generate production tasks for Alex
+   * Generate production tasks for Zara
    */
   private generateProductionTasks(productionSpecs: any, assetPackage: any): ProductionTask[] {
     const tasks: ProductionTask[] = [];
-    
+
     // Pre-production tasks
     tasks.push({
       id: crypto.randomUUID(),
@@ -976,10 +1002,12 @@ export class AlexHandoffManager {
       priority: "critical",
       estimatedTime: 30,
       dependencies: [],
-      assets: Object.values(assetPackage).flat().map((a: any) => a.id),
-      deliverable: "Asset quality report with approved/revision needed status"
+      assets: Object.values(assetPackage)
+        .flat()
+        .map((a: any) => a.id),
+      deliverable: "Asset quality report with approved/revision needed status",
     });
-    
+
     tasks.push({
       id: crypto.randomUUID(),
       title: "Scene Structure Planning",
@@ -988,9 +1016,9 @@ export class AlexHandoffManager {
       estimatedTime: 45,
       dependencies: [],
       assets: [],
-      deliverable: "Detailed scene breakdown with timing and asset assignments"
+      deliverable: "Detailed scene breakdown with timing and asset assignments",
     });
-    
+
     // Production tasks (one per scene)
     productionSpecs.sceneStructure.forEach((scene: VideoScene, index: number) => {
       tasks.push({
@@ -1003,12 +1031,12 @@ export class AlexHandoffManager {
         assets: [
           ...scene.visualElements.primaryAssets,
           ...scene.visualElements.backgroundAssets,
-          ...scene.visualElements.overlayAssets
+          ...scene.visualElements.overlayAssets,
         ],
-        deliverable: `Completed ${scene.title} scene ready for integration`
+        deliverable: `Completed ${scene.title} scene ready for integration`,
       });
     });
-    
+
     // Post-production tasks
     tasks.push({
       id: crypto.randomUUID(),
@@ -1016,11 +1044,13 @@ export class AlexHandoffManager {
       description: "Integrate all scenes with transitions and audio",
       priority: "high",
       estimatedTime: 120,
-      dependencies: productionSpecs.sceneStructure.map((s: VideoScene, i: number) => `Scene ${i + 1}: ${s.title}`),
+      dependencies: productionSpecs.sceneStructure.map(
+        (s: VideoScene, i: number) => `Scene ${i + 1}: ${s.title}`
+      ),
       assets: [],
-      deliverable: "Complete integrated video ready for review"
+      deliverable: "Complete integrated video ready for review",
     });
-    
+
     tasks.push({
       id: crypto.randomUUID(),
       title: "Quality Assurance Review",
@@ -1029,16 +1059,19 @@ export class AlexHandoffManager {
       estimatedTime: 60,
       dependencies: ["Video Integration and Editing"],
       assets: [],
-      deliverable: "QA approved video or revision notes"
+      deliverable: "QA approved video or revision notes",
     });
-    
+
     return tasks;
   }
 
   /**
-   * Create asset organization map for Alex
+   * Create asset organization map for Zara
    */
-  private createAssetOrganizationMap(scenes: VideoScene[], assetPackage: any): AssetOrganizationMap {
+  private createAssetOrganizationMap(
+    scenes: VideoScene[],
+    assetPackage: any
+  ): AssetOrganizationMap {
     const byScene: Record<string, string[]> = {};
     const byType: Record<AssetType, string[]> = {
       [AssetType.BACKGROUND]: [],
@@ -1052,45 +1085,56 @@ export class AlexHandoffManager {
       [AssetType.TEXTURE]: [],
       [AssetType.PATTERN]: [],
       [AssetType.LIGHTING_REFERENCE]: [],
-      [AssetType.TYPOGRAPHY_TREATMENT]: []
+      [AssetType.TYPOGRAPHY_TREATMENT]: [],
     };
-    
+
     // Organize by scene
-    scenes.forEach(scene => {
+    scenes.forEach((scene) => {
       byScene[scene.id] = [
         ...scene.visualElements.primaryAssets,
         ...scene.visualElements.backgroundAssets,
-        ...scene.visualElements.overlayAssets
+        ...scene.visualElements.overlayAssets,
       ];
     });
-    
+
     // Organize by type
-    Object.values(assetPackage).flat().forEach((asset: any) => {
-      const assetType = asset.type as AssetType;
-      if (byType[assetType]) {
-        byType[assetType].push(asset.id);
-      }
-    });
-    
+    Object.values(assetPackage)
+      .flat()
+      .forEach((asset: any) => {
+        const assetType = asset.type as AssetType;
+        if (byType[assetType]) {
+          byType[assetType].push(asset.id);
+        }
+      });
+
     // Prioritize assets
     const allAssets = Object.values(assetPackage).flat() as VisualAsset[];
-    const critical = allAssets.filter(a => a.quality?.overallScore && a.quality.overallScore > 0.9).map(a => a.id);
-    const important = allAssets.filter(a => a.quality?.overallScore && a.quality.overallScore > 0.7 && a.quality.overallScore <= 0.9).map(a => a.id);
-    const supporting = allAssets.filter(a => !critical.includes(a.id) && !important.includes(a.id)).map(a => a.id);
-    
+    const critical = allAssets
+      .filter((a) => a.quality?.overallScore && a.quality.overallScore > 0.9)
+      .map((a) => a.id);
+    const important = allAssets
+      .filter(
+        (a) =>
+          a.quality?.overallScore && a.quality.overallScore > 0.7 && a.quality.overallScore <= 0.9
+      )
+      .map((a) => a.id);
+    const supporting = allAssets
+      .filter((a) => !critical.includes(a.id) && !important.includes(a.id))
+      .map((a) => a.id);
+
     return {
       byScene,
       byType,
       byPriority: {
         critical,
         important,
-        supporting
+        supporting,
       },
       byQuality: {
         high: critical,
         medium: important,
-        standard: supporting
-      }
+        standard: supporting,
+      },
     };
   }
 
@@ -1100,61 +1144,61 @@ export class AlexHandoffManager {
   private generateSceneAssetMapping(scenes: VideoScene[], assetPackage: any): SceneAssetMapping {
     const sceneAssetMatrix: Record<string, Record<string, boolean>> = {};
     const assetUsageFrequency: Record<string, number> = {};
-    
+
     // Build scene-asset usage matrix
     const allAssets = Object.values(assetPackage).flat() as VisualAsset[];
-    
-    scenes.forEach(scene => {
+
+    scenes.forEach((scene) => {
       sceneAssetMatrix[scene.id] = {};
-      
+
       const usedAssets = [
         ...scene.visualElements.primaryAssets,
         ...scene.visualElements.backgroundAssets,
-        ...scene.visualElements.overlayAssets
+        ...scene.visualElements.overlayAssets,
       ];
-      
-      allAssets.forEach(asset => {
+
+      allAssets.forEach((asset) => {
         const isUsed = usedAssets.includes(asset.id);
         sceneAssetMatrix[scene.id][asset.id] = isUsed;
-        
+
         if (isUsed) {
           assetUsageFrequency[asset.id] = (assetUsageFrequency[asset.id] || 0) + 1;
         }
       });
     });
-    
+
     // Identify critical, redundant, and missing assets
     const criticalAssets = Object.entries(assetUsageFrequency)
       .filter(([_, count]) => count >= 2)
       .map(([assetId, _]) => assetId);
-    
+
     const redundantAssets = Object.entries(assetUsageFrequency)
       .filter(([_, count]) => count === 0)
       .map(([assetId, _]) => assetId);
-    
+
     // For missing assets, check if any scenes reference non-existent assets
     const missingAssets: string[] = [];
-    scenes.forEach(scene => {
+    scenes.forEach((scene) => {
       const referencedAssets = [
         ...scene.visualElements.primaryAssets,
         ...scene.visualElements.backgroundAssets,
-        ...scene.visualElements.overlayAssets
+        ...scene.visualElements.overlayAssets,
       ];
-      
-      referencedAssets.forEach(assetId => {
-        const assetExists = allAssets.some(asset => asset.id === assetId);
+
+      referencedAssets.forEach((assetId) => {
+        const assetExists = allAssets.some((asset) => asset.id === assetId);
         if (!assetExists && !missingAssets.includes(assetId)) {
           missingAssets.push(assetId);
         }
       });
     });
-    
+
     return {
       sceneAssetMatrix,
       assetUsageFrequency,
       criticalAssets,
       redundantAssets,
-      missingAssets
+      missingAssets,
     };
   }
 
@@ -1170,10 +1214,10 @@ export class AlexHandoffManager {
         criteria: [
           "All assets meet minimum resolution requirements",
           "Asset formats are production-ready",
-          "No corrupted or incomplete assets"
+          "No corrupted or incomplete assets",
         ],
         threshold: 0.95,
-        automated: true
+        automated: true,
       },
       {
         id: crypto.randomUUID(),
@@ -1182,10 +1226,10 @@ export class AlexHandoffManager {
         criteria: [
           "Logo placement follows brand guidelines",
           "Color usage adheres to palette restrictions",
-          "Typography meets brand standards"
+          "Typography meets brand standards",
         ],
-        threshold: 0.90,
-        automated: false
+        threshold: 0.9,
+        automated: false,
       },
       {
         id: crypto.randomUUID(),
@@ -1194,10 +1238,10 @@ export class AlexHandoffManager {
         criteria: [
           "Scenes follow approved creative direction",
           "Visual style remains consistent",
-          "Message hierarchy is maintained"
+          "Message hierarchy is maintained",
         ],
         threshold: 0.85,
-        automated: false
+        automated: false,
       },
       {
         id: crypto.randomUUID(),
@@ -1206,10 +1250,10 @@ export class AlexHandoffManager {
         criteria: [
           "Video meets format specifications",
           "Audio levels are within acceptable range",
-          "Color grading matches style guide"
+          "Color grading matches style guide",
         ],
         threshold: 0.95,
-        automated: true
+        automated: true,
       },
       {
         id: crypto.randomUUID(),
@@ -1218,11 +1262,11 @@ export class AlexHandoffManager {
         criteria: [
           "Final video meets quality standards",
           "All delivery formats generated successfully",
-          "Metadata and documentation complete"
+          "Metadata and documentation complete",
         ],
         threshold: 1.0,
-        automated: true
-      }
+        automated: true,
+      },
     ];
   }
 
@@ -1233,121 +1277,136 @@ export class AlexHandoffManager {
     assetPackage: any,
     productionSpecs: any,
     creativeGuidelines: any,
-    alexWorkflow: any
+    zaraWorkflow: any
   ): HandoffCompletionStatus {
     const sections = {
       assetPackage: this.assessAssetPackageCompleteness(assetPackage),
       productionSpecs: this.assessProductionSpecsCompleteness(productionSpecs),
       creativeGuidelines: this.assessCreativeGuidelinesCompleteness(creativeGuidelines),
-      alexWorkflow: this.assessAlexWorkflowCompleteness(alexWorkflow)
+      zaraWorkflow: this.assessZaraWorkflowCompleteness(zaraWorkflow),
     };
-    
+
     const overall = Object.values(sections).reduce((sum, score) => sum + score, 0) / 4;
-    
+
     const missingElements: string[] = [];
     const warnings: string[] = [];
-    
+
     if (sections.assetPackage < 1.0) missingElements.push("Incomplete asset package");
-    if (sections.productionSpecs < 1.0) missingElements.push("Incomplete production specifications");
+    if (sections.productionSpecs < 1.0)
+      missingElements.push("Incomplete production specifications");
     if (sections.creativeGuidelines < 0.9) warnings.push("Creative guidelines may need refinement");
-    if (sections.alexWorkflow < 0.9) warnings.push("Workflow organization could be improved");
-    
+    if (sections.zaraWorkflow < 0.9) warnings.push("Workflow organization could be improved");
+
     return {
       overall,
       sections,
       missingElements,
       warnings,
-      readyForProduction: overall >= 0.9 && missingElements.length === 0
+      readyForProduction: overall >= 0.9 && missingElements.length === 0,
     };
   }
 
   /**
    * Validate complete handoff package
    */
-  private validateHandoffPackage(alexHandoffData: AlexHandoffData) {
+  private validateHandoffPackage(zaraHandoffData: ZaraHandoffData) {
     const issues: string[] = [];
     const recommendations: string[] = [];
-    
+
     // Validate asset package
-    if (alexHandoffData.assetPackage.heroAssets.length === 0) {
+    if (zaraHandoffData.assetPackage.heroAssets.length === 0) {
       issues.push("No hero assets provided");
       recommendations.push("Generate at least one hero asset for product showcase");
     }
-    
+
     // Validate production specs
-    if (alexHandoffData.productionSpecs.sceneStructure.length < 2) {
+    if (zaraHandoffData.productionSpecs.sceneStructure.length < 2) {
       issues.push("Insufficient scene structure");
       recommendations.push("Create minimum 2 scenes for effective commercial");
     }
-    
+
     // Validate budget
-    if (alexHandoffData.productionBudget.totalAllocated <= 0) {
+    if (zaraHandoffData.productionBudget.totalAllocated <= 0) {
       issues.push("No budget allocated for video production");
       recommendations.push("Ensure adequate budget remains for video production");
     }
-    
+
     // Calculate completeness
-    const completeness = Math.max(0, 1 - (issues.length * 0.2));
-    
+    const completeness = Math.max(0, 1 - issues.length * 0.2);
+
     return {
       isValid: issues.length === 0,
       completeness,
       issues,
-      recommendations: recommendations.length > 0 ? recommendations : ["Handoff package validation complete"]
+      recommendations:
+        recommendations.length > 0 ? recommendations : ["Handoff package validation complete"],
     };
   }
 
   // Assessment helper methods
   private assessAssetPackageCompleteness(assetPackage: any): number {
     let score = 0;
-    const sections = ['heroAssets', 'backgroundAssets', 'lifestyleAssets', 'overlayAssets', 'supportingAssets', 'moodReferences'];
-    
-    sections.forEach(section => {
+    const sections = [
+      "heroAssets",
+      "backgroundAssets",
+      "lifestyleAssets",
+      "overlayAssets",
+      "supportingAssets",
+      "moodReferences",
+    ];
+
+    sections.forEach((section) => {
       if (assetPackage[section] && assetPackage[section].length > 0) {
         score += 1 / sections.length;
       }
     });
-    
+
     return score;
   }
 
   private assessProductionSpecsCompleteness(productionSpecs: any): number {
     let score = 0;
-    
+
     if (productionSpecs.videoFormat) score += 0.25;
     if (productionSpecs.sceneStructure && productionSpecs.sceneStructure.length > 0) score += 0.4;
-    if (productionSpecs.transitionPlanning && productionSpecs.transitionPlanning.length > 0) score += 0.2;
-    if (productionSpecs.audioRequirements && productionSpecs.audioRequirements.length > 0) score += 0.15;
-    
+    if (productionSpecs.transitionPlanning && productionSpecs.transitionPlanning.length > 0)
+      score += 0.2;
+    if (productionSpecs.audioRequirements && productionSpecs.audioRequirements.length > 0)
+      score += 0.15;
+
     return score;
   }
 
   private assessCreativeGuidelinesCompleteness(creativeGuidelines: any): number {
     let score = 0;
-    
+
     if (creativeGuidelines.brandCompliance) score += 0.3;
     if (creativeGuidelines.styleConsistency) score += 0.3;
     if (creativeGuidelines.colorPaletteUsage) score += 0.2;
-    if (creativeGuidelines.compositionGuidelines && creativeGuidelines.compositionGuidelines.length > 0) score += 0.2;
-    
+    if (
+      creativeGuidelines.compositionGuidelines &&
+      creativeGuidelines.compositionGuidelines.length > 0
+    )
+      score += 0.2;
+
     return score;
   }
 
-  private assessAlexWorkflowCompleteness(alexWorkflow: any): number {
+  private assessZaraWorkflowCompleteness(zaraWorkflow: any): number {
     let score = 0;
-    
-    if (alexWorkflow.prioritizedTasks && alexWorkflow.prioritizedTasks.length > 0) score += 0.3;
-    if (alexWorkflow.assetOrganization) score += 0.25;
-    if (alexWorkflow.sceneMapping) score += 0.25;
-    if (alexWorkflow.qualityCheckpoints && alexWorkflow.qualityCheckpoints.length > 0) score += 0.2;
-    
+
+    if (zaraWorkflow.prioritizedTasks && zaraWorkflow.prioritizedTasks.length > 0) score += 0.3;
+    if (zaraWorkflow.assetOrganization) score += 0.25;
+    if (zaraWorkflow.sceneMapping) score += 0.25;
+    if (zaraWorkflow.qualityCheckpoints && zaraWorkflow.qualityCheckpoints.length > 0) score += 0.2;
+
     return score;
   }
 
   /**
    * Create empty handoff data for error cases
    */
-  private createEmptyHandoffData(sessionId: string, locale: "en" | "ja"): AlexHandoffData {
+  private createEmptyHandoffData(sessionId: string, locale: "en" | "ja"): ZaraHandoffData {
     return {
       creativeDirection: {} as CreativeDirection,
       finalizedVisualDecisions: [],
@@ -1358,31 +1417,31 @@ export class AlexHandoffManager {
         lifestyleAssets: [],
         overlayAssets: [],
         supportingAssets: [],
-        moodReferences: []
+        moodReferences: [],
       },
       productionSpecs: {
         videoFormat: {
           resolution: "1920x1080",
           aspectRatio: "16:9",
           frameRate: 30,
-          duration: 60
+          duration: 60,
         },
         sceneStructure: [],
         transitionPlanning: [],
-        audioRequirements: []
+        audioRequirements: [],
       },
       creativeGuidelines: {
         brandCompliance: {} as BrandCompliance,
         styleConsistency: {} as StyleConsistency,
         colorPaletteUsage: {} as ColorPaletteUsage,
-        compositionGuidelines: []
+        compositionGuidelines: [],
       },
       productionBudget: {
         totalAllocated: 0,
         videoProductionCost: 0,
         postProductionCost: 0,
         deliveryCost: 0,
-        contingency: 0
+        contingency: 0,
       },
       davidSessionId: sessionId,
       handoffTimestamp: new Date().toISOString(),
@@ -1393,29 +1452,29 @@ export class AlexHandoffManager {
           assetPackage: 0,
           productionSpecs: 0,
           creativeGuidelines: 0,
-          alexWorkflow: 0
+          zaraWorkflow: 0,
         },
         missingElements: ["Complete handoff preparation failed"],
         warnings: ["Handoff package is empty"],
-        readyForProduction: false
+        readyForProduction: false,
       },
-      alexWorkflow: {
+      zaraWorkflow: {
         prioritizedTasks: [],
         assetOrganization: {
           byScene: {},
           byType: {} as Record<AssetType, string[]>,
           byPriority: { critical: [], important: [], supporting: [] },
-          byQuality: {}
+          byQuality: {},
         },
         sceneMapping: {
           sceneAssetMatrix: {},
           assetUsageFrequency: {},
           criticalAssets: [],
           redundantAssets: [],
-          missingAssets: []
+          missingAssets: [],
         },
-        qualityCheckpoints: []
-      }
+        qualityCheckpoints: [],
+      },
     };
   }
 }

@@ -9,7 +9,7 @@ David follows the sophisticated multi-agent architecture established by Maya, im
 ### Agent Pipeline Position
 ```mermaid
 graph LR
-    A[Maya<br/>Product Intelligence] --> B[David<br/>Creative Director] --> C[Alex<br/>Video Producer]
+    A[Maya<br/>Product Intelligence] --> B[David<br/>Creative Director] --> C[Zara<br/>Video Producer]
     
     A --> |Commercial Strategy<br/>Product Analysis<br/>Brand Context| B
     B --> |Visual Assets<br/>Scene Descriptions<br/>Creative Direction| C
@@ -100,7 +100,7 @@ interface CreativeDirectorStore {
   // Complex Actions
   processVisualDecision: (decision: VisualDecision) => Promise<void>;
   generateAsset: (assetType: AssetType, specifications: AssetSpecs) => Promise<void>;
-  prepareAlexHandoff: () => AlexHandoffData;
+  prepareZaraHandoff: () => ZaraHandoffData;
 }
 ```
 
@@ -170,10 +170,10 @@ type AssetType =
   | 'color-palette-visual';
 ```
 
-### Alex Handoff Data Structure
+### Zara Handoff Data Structure
 
 ```typescript
-interface AlexHandoffData {
+interface ZaraHandoffData {
   // From Maya (passed through)
   productAnalysis: ProductAnalysis;
   commercialStrategy: CommercialStrategy;
@@ -193,7 +193,7 @@ interface AlexHandoffData {
     pacing: 'fast' | 'medium' | 'slow';
   };
   
-  // Asset Organization for Alex
+  // Asset Organization for Zara
   assetsByScene: Record<string, GeneratedAsset[]>;
   transitionRecommendations: TransitionSpec[];
   
@@ -220,7 +220,7 @@ export async function POST(request: NextRequest) {
     case 'get-status':
       return await getDavidStatus(sessionId);
     case 'prepare-handoff':
-      return await prepareAlexHandoff(sessionId);
+      return await prepareZaraHandoff(sessionId);
     default:
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   }
@@ -520,10 +520,10 @@ export async function initializeDavidFromMaya(mayaHandoffData: MayaHandoffData):
 }
 ```
 
-### David → Alex Handoff
+### David → Zara Handoff
 ```typescript
-// Comprehensive creative direction package for Alex
-export function prepareDavidToAlexHandoff(): AlexHandoffData {
+// Comprehensive creative direction package for Zara
+export function prepareDavidToZaraHandoff(): ZaraHandoffData {
   const davidStore = useCreativeDirectorStore.getState();
   
   return {
@@ -538,7 +538,7 @@ export function prepareDavidToAlexHandoff(): AlexHandoffData {
     colorPalette: davidStore.colorPalette,
     creativeNotes: extractDavidCreativeNotes(davidStore.messages),
     
-    // Technical specifications for Alex
+    // Technical specifications for Zara
     recommendedVideoSpecs: generateVideoSpecsFromVisualDecisions(davidStore.visualStyle),
     assetsByScene: organizeAssetsByScene(davidStore.generatedAssets, davidStore.sceneCompositions),
     transitionRecommendations: generateTransitionRecommendations(davidStore.visualStyle),

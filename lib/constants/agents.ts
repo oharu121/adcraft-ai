@@ -1,12 +1,13 @@
 /**
  * Agent Configurations - Multi-Agent System
- * 
+ *
  * Centralized configuration for all AI agents including their personas,
  * visual assets, and behavioral characteristics.
  */
 
-import { MAYA_PERSONA } from './maya-persona';
-import { DAVID_PERSONA } from './david-persona';
+import { MAYA_PERSONA } from "./maya-persona";
+import { DAVID_PERSONA } from "./david-persona";
+import { ZARA_PERSONA } from "./zara-persona";
 
 // Agent asset paths interface
 export interface AgentAssets {
@@ -19,7 +20,7 @@ export interface AgentAssets {
 // Agent configuration interface
 export interface AgentConfig {
   name: string;
-  persona: typeof MAYA_PERSONA | typeof DAVID_PERSONA; // Support multiple personas
+  persona: typeof MAYA_PERSONA | typeof DAVID_PERSONA | typeof ZARA_PERSONA; // Support multiple personas
   assets: AgentAssets;
   color?: string; // Optional theme color for UI consistency
 }
@@ -32,9 +33,9 @@ export const AGENTS = {
     assets: {
       idle: "/agent-avatar/maya-idling.gif",
       thinking: "/agent-avatar/maya-thinking.gif",
-      speaking: "/agent-avatar/maya-speaking.gif"
+      speaking: "/agent-avatar/maya-speaking.gif",
     },
-    color: "#3B82F6" // Blue theme
+    color: "#3B82F6", // Blue theme
   },
   david: {
     name: "David",
@@ -44,28 +45,18 @@ export const AGENTS = {
       thinking: "/agent-avatar/david-thinking.gif",
       speaking: "/agent-avatar/david-speaking.gif",
     },
-    color: "#8B5CF6" // Purple theme for creative director
+    color: "#8B5CF6", // Purple theme for creative director
   },
-  alex: {
-    name: "Alex",
-    persona: DAVID_PERSONA, // Temporary: using David's persona until Alex persona is created
+  zara: {
+    name: "Zara",
+    persona: ZARA_PERSONA,
     assets: {
-      idle: "/agent-avatar/david-idling.gif", // Temporary: using David's assets until Alex assets are created
-      thinking: "/agent-avatar/david-thinking.gif",
-      speaking: "/agent-avatar/david-speaking.gif",
+      idle: "/agent-avatar/zara-idling.gif", // TODO: Replace with zara-idling.gif when created
+      thinking: "/agent-avatar/zara-thinking.gif", // TODO: Replace with zara-thinking.gif when created
+      speaking: "/agent-avatar/zara-speaking.gif", // TODO: Replace with zara-speaking.gif when created
     },
-    color: "#EF4444" // Red theme for video producer
+    color: "#EF4444", // Red theme for video producer
   },
-  // Future agents can be added here:
-  //   name: "Alex", 
-  //   persona: ALEX_PERSONA,
-  //   assets: {
-  //     idle: "/agent-avatar/alex-idling.gif",
-  //     thinking: "/agent-avatar/alex-thinking.gif",
-  //     speaking: "/agent-avatar/alex-speaking.gif"
-  //   },
-  //   color: "#10B981" // Green theme
-  // }
 } as const;
 
 // Type helpers

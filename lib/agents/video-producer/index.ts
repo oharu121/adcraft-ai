@@ -1,5 +1,5 @@
 /**
- * Alex - Video Producer Agent (DEFERRED IMPLEMENTATION)
+ * Zara - Video Producer Agent (DEFERRED IMPLEMENTATION)
  *
  * IMPLEMENTATION STATUS: DEFERRED FOR FUTURE DEVELOPMENT
  *
@@ -14,32 +14,32 @@
  * Next Implementation Phase: After Maya/David migration is complete
  */
 
-import { AlexConfig } from './types/config';
+import { ZaraConfig } from "./types/config";
 
-// DEFERRED: Main Alex agent implementation
+// DEFERRED: Main Zara agent implementation
 export class VideoProducerAgent {
-  constructor(config: AlexConfig) {
-    throw new Error('DEFERRED: Alex Video Producer Agent implementation pending');
+  constructor(config: ZaraConfig) {
+    throw new Error("DEFERRED: Zara Video Producer Agent implementation pending");
   }
 
   // DEFERRED: Process David's handoff data
   async processCreativeHandoff(handoffData: any): Promise<any> {
-    throw new Error('DEFERRED: Creative handoff processing not implemented');
+    throw new Error("DEFERRED: Creative handoff processing not implemented");
   }
 
   // DEFERRED: Generate video from creative assets
   async generateVideo(productionPlan: any): Promise<any> {
-    throw new Error('DEFERRED: Video generation not implemented');
+    throw new Error("DEFERRED: Video generation not implemented");
   }
 
   // DEFERRED: Optimize and deliver final video
   async optimizeAndDeliver(videoData: any): Promise<any> {
-    throw new Error('DEFERRED: Video optimization not implemented');
+    throw new Error("DEFERRED: Video optimization not implemented");
   }
 }
 
 // DEFERRED: Export placeholder for future implementation
-export * from './types';
-export * from './core';
-export * from './tools';
-export * from './mock';
+export * from "./types";
+export * from "./core";
+export * from "./tools";
+export * from "./mock";

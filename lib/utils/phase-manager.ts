@@ -3,7 +3,7 @@
  * Handles phase transitions, validations, and state determination
  */
 
-import { AppPhase, PhaseState, PHASE_ORDER } from '@/lib/types/app-phases';
+import { AppPhase, PhaseState, PHASE_ORDER } from "@/lib/types/app-phases";
 
 export class PhaseManager {
   /**
@@ -15,7 +15,7 @@ export class PhaseManager {
     hasAnalysis,
     hasCreativeDirectorData,
     hasVideoProduction,
-    isCompleted
+    isCompleted,
   }: {
     hasProductInput: boolean;
     isAnalyzing: boolean;
@@ -24,13 +24,13 @@ export class PhaseManager {
     hasVideoProduction: boolean;
     isCompleted: boolean;
   }): AppPhase {
-    if (isCompleted) return 'completed';
-    if (hasVideoProduction) return 'alex-production';
-    if (hasCreativeDirectorData) return 'david-creative';
-    if (hasAnalysis) return 'maya-strategy';
-    if (isAnalyzing) return 'maya-analysis';
-    if (hasProductInput) return 'maya-analysis';
-    return 'product-input';
+    if (isCompleted) return "completed";
+    if (hasVideoProduction) return "zara-production";
+    if (hasCreativeDirectorData) return "david-creative";
+    if (hasAnalysis) return "maya-strategy";
+    if (isAnalyzing) return "maya-analysis";
+    if (hasProductInput) return "maya-analysis";
+    return "product-input";
   }
 
   /**

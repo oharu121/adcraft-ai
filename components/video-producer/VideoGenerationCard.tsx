@@ -1,5 +1,5 @@
 /**
- * Alex - Video Producer Video Generation Card (DEFERRED)
+ * Zara - Video Producer Video Generation Card (DEFERRED)
  *
  * IMPLEMENTATION STATUS: DEFERRED FOR FUTURE DEVELOPMENT
  */

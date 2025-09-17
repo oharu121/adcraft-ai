@@ -2,7 +2,7 @@
  * Agent Handoff Types
  *
  * TypeScript interfaces for data exchange between agents in the 3-agent architecture.
- * Defines structured handoff data formats for Maya → David and David → Alex transitions.
+ * Defines structured handoff data formats for Maya → David and David → Zara transitions.
  */
 
 import { ProductAnalysis } from "@/lib/agents/product-intelligence/types/product-analysis";
@@ -11,9 +11,9 @@ import { ProductAnalysis } from "@/lib/agents/product-intelligence/types/product
 export interface BaseHandoffMetadata {
   readonly sessionId: string;
   readonly timestamp: Date;
-  readonly version: '1.0';
-  readonly sourceAgent: 'maya' | 'david' | 'alex';
-  readonly targetAgent: 'maya' | 'david' | 'alex';
+  readonly version: "1.0";
+  readonly sourceAgent: "maya" | "david" | "zara";
+  readonly targetAgent: "maya" | "david" | "zara";
   readonly handoffId: string; // UUID for tracking
 }
 
@@ -29,21 +29,21 @@ export interface HandoffValidationResult {
 export interface ValidationError {
   readonly field: string;
   readonly message: string;
-  readonly severity: 'critical' | 'error';
+  readonly severity: "critical" | "error";
   readonly code: string;
 }
 
 export interface ValidationWarning {
   readonly field: string;
   readonly message: string;
-  readonly severity: 'warning' | 'info';
+  readonly severity: "warning" | "info";
   readonly recommendation?: string;
 }
 
 // Maya to David Handoff Data
 export interface MayaToDataHandoffData extends BaseHandoffMetadata {
-  readonly sourceAgent: 'maya';
-  readonly targetAgent: 'david';
+  readonly sourceAgent: "maya";
+  readonly targetAgent: "david";
 
   // Core product analysis from Maya (refined scope)
   readonly productAnalysis: ProductAnalysisRefined;
@@ -183,10 +183,10 @@ export interface DavidInstructions {
   };
 }
 
-// David to Alex Handoff Data
-export interface DavidToAlexHandoffData extends BaseHandoffMetadata {
-  readonly sourceAgent: 'david';
-  readonly targetAgent: 'alex';
+// David to Zara Handoff Data
+export interface DavidToZaraHandoffData extends BaseHandoffMetadata {
+  readonly sourceAgent: "david";
+  readonly targetAgent: "zara";
 
   // Creative brief and concept from David
   readonly creativeBrief: CreativeBrief;
@@ -198,7 +198,7 @@ export interface DavidToAlexHandoffData extends BaseHandoffMetadata {
   readonly sceneComposition: SceneComposition[];
   readonly styleGuide: StyleGuide;
 
-  // Production requirements for Alex
+  // Production requirements for Zara
   readonly productionRequirements: ProductionRequirements;
   readonly deliverySpecs: DeliverySpecifications;
   readonly approvalStatus: ApprovalStatus;
@@ -211,7 +211,7 @@ export interface DavidToAlexHandoffData extends BaseHandoffMetadata {
   };
 }
 
-// Creative brief from David for Alex
+// Creative brief from David for Zara
 export interface CreativeBrief {
   readonly concept: string;
   readonly targetAudience: string;
@@ -271,14 +271,14 @@ export interface TextStyle {
 }
 
 export interface BrandRestriction {
-  readonly type: 'color' | 'content' | 'placement' | 'timing' | 'style';
+  readonly type: "color" | "content" | "placement" | "timing" | "style";
   readonly description: string;
-  readonly severity: 'warning' | 'error';
+  readonly severity: "warning" | "error";
   readonly alternatives?: string[];
 }
 
 export interface BrandGuideline {
-  readonly area: 'visual' | 'content' | 'tone' | 'usage';
+  readonly area: "visual" | "content" | "tone" | "usage";
   readonly rule: string;
   readonly examples?: string[];
   readonly rationale?: string;
@@ -287,7 +287,7 @@ export interface BrandGuideline {
 // Generated assets from David
 export interface GeneratedAsset {
   readonly assetId: string;
-  readonly type: 'product-shot' | 'lifestyle' | 'background' | 'logo' | 'overlay';
+  readonly type: "product-shot" | "lifestyle" | "background" | "logo" | "overlay";
   readonly url: string;
   readonly dimensions: { width: number; height: number };
   readonly description: string;
@@ -312,16 +312,16 @@ export interface SceneComposition {
 }
 
 export interface TransitionSpec {
-  readonly type: 'fade' | 'cut' | 'slide' | 'zoom' | 'dissolve';
+  readonly type: "fade" | "cut" | "slide" | "zoom" | "dissolve";
   readonly duration: number;
   readonly easing: string;
   readonly parameters?: Record<string, any>;
 }
 
 export interface CameraDirection {
-  readonly shot: 'close-up' | 'medium' | 'wide' | 'macro';
-  readonly angle: 'eye-level' | 'high' | 'low' | 'dutch';
-  readonly movement?: 'static' | 'pan' | 'zoom' | 'dolly';
+  readonly shot: "close-up" | "medium" | "wide" | "macro";
+  readonly angle: "eye-level" | "high" | "low" | "dutch";
+  readonly movement?: "static" | "pan" | "zoom" | "dolly";
   readonly focus: string;
 }
 
@@ -335,7 +335,7 @@ export interface StyleGuide {
 }
 
 export interface LightingGuide {
-  readonly mood: 'bright' | 'dramatic' | 'soft' | 'natural';
+  readonly mood: "bright" | "dramatic" | "soft" | "natural";
   readonly keyLighting: string;
   readonly shadowIntensity: number; // 0-1
   readonly colorTemperature: string;
@@ -351,7 +351,7 @@ export interface CameraGuide {
 export interface EffectGuide {
   readonly effectType: string;
   readonly intensity: number; // 0-1
-  readonly timing: 'start' | 'middle' | 'end' | 'throughout';
+  readonly timing: "start" | "middle" | "end" | "throughout";
   readonly parameters: Record<string, any>;
 }
 
@@ -362,14 +362,14 @@ export interface ConsistencyRules {
   readonly qualityStandards: string[];
 }
 
-// Production requirements for Alex
+// Production requirements for Zara
 export interface ProductionRequirements {
   readonly targetDuration: number; // seconds
   readonly resolution: Resolution;
   readonly frameRate: number;
   readonly aspectRatio: string;
   readonly deliveryFormat: VideoFormat;
-  readonly qualityLevel: 'standard' | 'high' | 'premium';
+  readonly qualityLevel: "standard" | "high" | "premium";
   readonly technicalSpecs: TechnicalSpecs;
 }
 
@@ -380,9 +380,9 @@ export interface Resolution {
 }
 
 export interface VideoFormat {
-  readonly format: 'mp4' | 'webm' | 'mov';
+  readonly format: "mp4" | "webm" | "mov";
   readonly codec: string;
-  readonly quality: 'low' | 'medium' | 'high' | 'ultra';
+  readonly quality: "low" | "medium" | "high" | "ultra";
 }
 
 export interface TechnicalSpecs {
@@ -393,7 +393,7 @@ export interface TechnicalSpecs {
 }
 
 export interface AudioSpecs {
-  readonly format: 'mp3' | 'aac' | 'wav';
+  readonly format: "mp3" | "aac" | "wav";
   readonly sampleRate: number;
   readonly bitrate: number;
   readonly channels: number;
@@ -405,11 +405,11 @@ export interface DeliverySpecifications {
   readonly fileSize: FileSizeLimit;
   readonly compressionSettings: CompressionSettings;
   readonly deliveryDeadline: Date;
-  readonly deliveryMethod: 'download' | 'streaming' | 'both';
+  readonly deliveryMethod: "download" | "streaming" | "both";
 }
 
 export interface DeliveryPlatform {
-  readonly platform: 'web' | 'mobile' | 'social' | 'tv' | 'email';
+  readonly platform: "web" | "mobile" | "social" | "tv" | "email";
   readonly specifications: PlatformSpec;
 }
 
@@ -447,7 +447,7 @@ export interface ApprovalStatus {
 export interface RevisionRequest {
   readonly requestId: string;
   readonly description: string;
-  readonly priority: 'low' | 'medium' | 'high' | 'critical';
+  readonly priority: "low" | "medium" | "high" | "critical";
   readonly affectedScenes: string[];
   readonly suggestedChanges: string[];
 }
@@ -469,12 +469,12 @@ export interface QualityCriteria {
 
 // Handoff processing status
 export type HandoffStatus =
-  | 'pending'
-  | 'validating'
-  | 'processing'
-  | 'completed'
-  | 'failed'
-  | 'expired';
+  | "pending"
+  | "validating"
+  | "processing"
+  | "completed"
+  | "failed"
+  | "expired";
 
 // Handoff processing result
 export interface HandoffProcessingResult {
@@ -491,7 +491,7 @@ export interface ProcessingError {
   readonly code: string;
   readonly message: string;
   readonly field?: string;
-  readonly severity: 'error' | 'critical';
+  readonly severity: "error" | "critical";
 }
 
 export interface ProcessingWarning {
@@ -502,6 +502,6 @@ export interface ProcessingWarning {
 }
 
 // Export utility types
-export type HandoffData = MayaToDataHandoffData | DavidToAlexHandoffData;
-export type AgentType = 'maya' | 'david' | 'alex';
-export type HandoffDirection = 'maya-to-david' | 'david-to-alex';
+export type HandoffData = MayaToDataHandoffData | DavidToZaraHandoffData;
+export type AgentType = "maya" | "david" | "zara";
+export type HandoffDirection = "maya-to-david" | "david-to-zara";

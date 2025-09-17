@@ -12,16 +12,16 @@ import type { CreativeStrategy, VisualDecision } from "../types/api-types";
 
 export interface CreativeDirectorSession {
   id: string;
-  
+
   // Cross-agent session tracking
   agentPipeline: {
-    currentAgent: "maya" | "david" | "alex";
+    currentAgent: "maya" | "david" | "zara";
     mayaCompleted: boolean;
     davidCompleted: boolean;
-    alexCompleted: boolean;
+    zaraCompleted: boolean;
     pipelineProgress: number; // 0-1 completion score
   };
-  
+
   // Maya handoff data with enhanced context preservation
   mayaHandoffData?: {
     productAnalysis: any;
@@ -35,7 +35,7 @@ export interface CreativeDirectorSession {
       preservationScore: number;
     };
   };
-  
+
   // David's creative work
   creativeDirection?: CreativeDirection;
   visualStyle?: {
@@ -45,7 +45,7 @@ export interface CreativeDirectorSession {
     mood: string;
     reasoning: string;
   };
-  
+
   // Generated assets
   generatedAssets: VisualAsset[];
   assetProgress: {
@@ -54,7 +54,7 @@ export interface CreativeDirectorSession {
     failed: number;
     inProgress: number;
   };
-  
+
   // Creative decisions with enhanced tracking
   creativeDecisions: VisualDecision[];
   approvedDecisions: string[]; // IDs of approved decisions
@@ -64,20 +64,20 @@ export interface CreativeDirectorSession {
     previousValue?: any;
     newValue: any;
     reasoning: string;
-    agent: "maya" | "david" | "alex";
+    agent: "maya" | "david" | "zara";
   }[];
-  
+
   // Conversation history with cross-agent context
   conversationHistory: CreativeChatMessage[];
   crossAgentContext: {
     mayaInsights: string[];
     davidCreativeDecisions: string[];
-    alexProductionNotes: string[];
+    zaraProductionNotes: string[];
     sharedContext: Record<string, any>;
   };
-  
-  // Alex handoff preparation with comprehensive data
-  alexHandoffPackage?: {
+
+  // Zara handoff preparation with comprehensive data
+  zaraHandoffPackage?: {
     creativeDirection: CreativeDirection;
     selectedAssets: string[]; // Asset IDs
     sceneMapping: any[];
@@ -87,36 +87,36 @@ export interface CreativeDirectorSession {
     validationResult?: any;
     productionReadiness: boolean;
   };
-  
+
   // Session state preservation
   stateSnapshots: {
     timestamp: string;
-    agent: "maya" | "david" | "alex";
+    agent: "maya" | "david" | "zara";
     stateData: any;
     contextMetadata: Record<string, any>;
   }[];
-  
+
   // Session metadata
   status: "initializing" | "active" | "generating" | "handoff_ready" | "completed" | "expired";
   locale: "en" | "ja";
   totalCost: number;
   budgetAllocated: number;
   budgetUsed: number;
-  
+
   // Enhanced continuity tracking
   continuityMetrics: {
     mayaToDavidPreservation: number; // 0-1 score
-    davidToAlexPreservation: number; // 0-1 score
+    davidToZaraPreservation: number; // 0-1 score
     overallContinuity: number; // 0-1 score
     contextLossPoints: string[];
     recoveryActions: string[];
   };
-  
+
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
   expiresAt: Date;
-  handoffToAlexAt?: Date;
+  handoffToZaraAt?: Date;
   mayaHandoffAt?: Date;
 }
 
@@ -180,67 +180,69 @@ export class CreativeDirectorSessionManager {
 
     const sessionData: CreativeDirectorSession = {
       id: sessionId,
-      
+
       // Initialize cross-agent pipeline
       agentPipeline: {
         currentAgent: mayaHandoffData ? "david" : "maya",
         mayaCompleted: !!mayaHandoffData,
         davidCompleted: false,
-        alexCompleted: false,
-        pipelineProgress: mayaHandoffData ? 0.33 : 0
+        zaraCompleted: false,
+        pipelineProgress: mayaHandoffData ? 0.33 : 0,
       },
-      
-      mayaHandoffData: mayaHandoffData ? {
-        productAnalysis: mayaHandoffData.productAnalysis,
-        commercialStrategy: mayaHandoffData.commercialStrategy,
-        transferredAt: now.toISOString(),
-        strategicContext: mayaHandoffData.strategicContext || {},
-        contextIntegrity: {
-          checksumVerified: true,
-          dataCompleteness: 1.0,
-          preservationScore: 0.9
-        }
-      } : undefined,
-      
+
+      mayaHandoffData: mayaHandoffData
+        ? {
+            productAnalysis: mayaHandoffData.productAnalysis,
+            commercialStrategy: mayaHandoffData.commercialStrategy,
+            transferredAt: now.toISOString(),
+            strategicContext: mayaHandoffData.strategicContext || {},
+            contextIntegrity: {
+              checksumVerified: true,
+              dataCompleteness: 1.0,
+              preservationScore: 0.9,
+            },
+          }
+        : undefined,
+
       generatedAssets: [],
       assetProgress: {
         totalRequested: 0,
         completed: 0,
         failed: 0,
-        inProgress: 0
+        inProgress: 0,
       },
-      
+
       creativeDecisions: [],
       approvedDecisions: [],
       decisionHistory: [],
-      
+
       conversationHistory: [],
       crossAgentContext: {
         mayaInsights: [],
         davidCreativeDecisions: [],
-        alexProductionNotes: [],
-        sharedContext: {}
+        zaraProductionNotes: [],
+        sharedContext: {},
       },
-      
+
       stateSnapshots: [],
-      
+
       status: "initializing",
       locale,
       totalCost: 0,
       budgetAllocated: mayaHandoffData?.budgetAllocated || 50, // Default $50 for creative work
       budgetUsed: 0,
-      
+
       continuityMetrics: {
         mayaToDavidPreservation: 0,
-        davidToAlexPreservation: 0,
+        davidToZaraPreservation: 0,
         overallContinuity: 0,
         contextLossPoints: [],
-        recoveryActions: []
+        recoveryActions: [],
       },
-      
+
       createdAt: now,
       updatedAt: now,
-      expiresAt
+      expiresAt,
     };
 
     try {
@@ -259,7 +261,7 @@ export class CreativeDirectorSessionManager {
   public async getSession(sessionId: string): Promise<CreativeDirectorSession | null> {
     try {
       const sessionData = await this.firestore.getCreativeSession(sessionId);
-      
+
       if (!sessionData) {
         console.log(`[CREATIVE SESSION] Session not found: ${sessionId}`);
         return null;
@@ -268,10 +270,18 @@ export class CreativeDirectorSessionManager {
       // Convert Firestore timestamps to Date objects
       return {
         ...sessionData,
-        createdAt: sessionData.createdAt?.toDate ? sessionData.createdAt.toDate() : new Date(sessionData.createdAt),
-        updatedAt: sessionData.updatedAt?.toDate ? sessionData.updatedAt.toDate() : new Date(sessionData.updatedAt),
-        expiresAt: sessionData.expiresAt?.toDate ? sessionData.expiresAt.toDate() : new Date(sessionData.expiresAt),
-        handoffToAlexAt: sessionData.handoffToAlexAt?.toDate ? sessionData.handoffToAlexAt.toDate() : undefined
+        createdAt: sessionData.createdAt?.toDate
+          ? sessionData.createdAt.toDate()
+          : new Date(sessionData.createdAt),
+        updatedAt: sessionData.updatedAt?.toDate
+          ? sessionData.updatedAt.toDate()
+          : new Date(sessionData.updatedAt),
+        expiresAt: sessionData.expiresAt?.toDate
+          ? sessionData.expiresAt.toDate()
+          : new Date(sessionData.expiresAt),
+        handoffToZaraAt: sessionData.handoffToZaraAt?.toDate
+          ? sessionData.handoffToZaraAt.toDate()
+          : undefined,
       };
     } catch (error) {
       console.error("[CREATIVE SESSION] Failed to get session:", error);
@@ -283,21 +293,21 @@ export class CreativeDirectorSessionManager {
    * Update session with creative progress
    */
   public async updateSession(
-    sessionId: string, 
+    sessionId: string,
     updates: Partial<CreativeDirectorSession>
   ): Promise<boolean> {
     try {
       const updateData = {
         ...updates,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       const success = await this.firestore.updateCreativeSession(sessionId, updateData);
-      
+
       if (success) {
         console.log(`[CREATIVE SESSION] Updated session: ${sessionId}`);
       }
-      
+
       return success;
     } catch (error) {
       console.error("[CREATIVE SESSION] Failed to update session:", error);
@@ -317,7 +327,7 @@ export class CreativeDirectorSessionManager {
         id: crypto.randomUUID(),
         sessionId,
         ...decision,
-        createdAt: new Date()
+        createdAt: new Date(),
       };
 
       // Get current session
@@ -328,10 +338,10 @@ export class CreativeDirectorSessionManager {
 
       // Add decision to session
       session.creativeDecisions.push(decisionRecord as any);
-      
+
       // Update session
       return await this.updateSession(sessionId, {
-        creativeDecisions: session.creativeDecisions
+        creativeDecisions: session.creativeDecisions,
       });
     } catch (error) {
       console.error("[CREATIVE SESSION] Failed to add creative decision:", error);
@@ -342,10 +352,7 @@ export class CreativeDirectorSessionManager {
   /**
    * Approve creative decision
    */
-  public async approveCreativeDecision(
-    sessionId: string,
-    decisionId: string
-  ): Promise<boolean> {
+  public async approveCreativeDecision(sessionId: string, decisionId: string): Promise<boolean> {
     try {
       const session = await this.getSession(sessionId);
       if (!session) {
@@ -358,14 +365,14 @@ export class CreativeDirectorSessionManager {
       }
 
       // Update the specific decision
-      const decision = session.creativeDecisions.find(d => d.id === decisionId);
+      const decision = session.creativeDecisions.find((d) => d.id === decisionId);
       if (decision) {
         (decision as any).userApproved = true;
       }
 
       return await this.updateSession(sessionId, {
         approvedDecisions: session.approvedDecisions,
-        creativeDecisions: session.creativeDecisions
+        creativeDecisions: session.creativeDecisions,
       });
     } catch (error) {
       console.error("[CREATIVE SESSION] Failed to approve decision:", error);
@@ -376,10 +383,7 @@ export class CreativeDirectorSessionManager {
   /**
    * Add generated asset to session
    */
-  public async addGeneratedAsset(
-    sessionId: string,
-    asset: VisualAsset
-  ): Promise<boolean> {
+  public async addGeneratedAsset(sessionId: string, asset: VisualAsset): Promise<boolean> {
     try {
       const session = await this.getSession(sessionId);
       if (!session) {
@@ -388,11 +392,11 @@ export class CreativeDirectorSessionManager {
 
       // Add asset to session
       session.generatedAssets.push(asset);
-      
+
       // Update asset progress
       session.assetProgress.completed++;
       session.assetProgress.inProgress = Math.max(0, session.assetProgress.inProgress - 1);
-      
+
       // Update total cost
       session.totalCost += asset.cost.totalCost;
       session.budgetUsed += asset.cost.totalCost;
@@ -401,7 +405,7 @@ export class CreativeDirectorSessionManager {
         generatedAssets: session.generatedAssets,
         assetProgress: session.assetProgress,
         totalCost: session.totalCost,
-        budgetUsed: session.budgetUsed
+        budgetUsed: session.budgetUsed,
       });
     } catch (error) {
       console.error("[CREATIVE SESSION] Failed to add generated asset:", error);
@@ -412,10 +416,7 @@ export class CreativeDirectorSessionManager {
   /**
    * Add chat message to session history
    */
-  public async addChatMessage(
-    sessionId: string,
-    message: CreativeChatMessage
-  ): Promise<boolean> {
+  public async addChatMessage(sessionId: string, message: CreativeChatMessage): Promise<boolean> {
     try {
       const session = await this.getSession(sessionId);
       if (!session) {
@@ -425,7 +426,7 @@ export class CreativeDirectorSessionManager {
       session.conversationHistory.push(message);
 
       return await this.updateSession(sessionId, {
-        conversationHistory: session.conversationHistory
+        conversationHistory: session.conversationHistory,
       });
     } catch (error) {
       console.error("[CREATIVE SESSION] Failed to add chat message:", error);
@@ -455,7 +456,7 @@ export class CreativeDirectorSessionManager {
       Object.assign(session.assetProgress, progressUpdate);
 
       return await this.updateSession(sessionId, {
-        assetProgress: session.assetProgress
+        assetProgress: session.assetProgress,
       });
     } catch (error) {
       console.error("[CREATIVE SESSION] Failed to update asset progress:", error);
@@ -464,9 +465,9 @@ export class CreativeDirectorSessionManager {
   }
 
   /**
-   * Prepare handoff package for Alex
+   * Prepare handoff package for Zara
    */
-  public async prepareAlexHandoff(
+  public async prepareZaraHandoff(
     sessionId: string,
     selectedAssetIds: string[],
     productionNotes: string
@@ -489,18 +490,18 @@ export class CreativeDirectorSessionManager {
       };
 
       const success = await this.updateSession(sessionId, {
-        alexHandoffPackage: handoffPackage,
+        zaraHandoffPackage: handoffPackage,
         status: "handoff_ready",
-        handoffToAlexAt: new Date()
+        handoffToZaraAt: new Date(),
       });
 
       if (success) {
-        console.log(`[CREATIVE SESSION] Prepared Alex handoff for session: ${sessionId}`);
+        console.log(`[CREATIVE SESSION] Prepared Zara handoff for session: ${sessionId}`);
       }
 
       return success;
     } catch (error) {
-      console.error("[CREATIVE SESSION] Failed to prepare Alex handoff:", error);
+      console.error("[CREATIVE SESSION] Failed to prepare Zara handoff:", error);
       return false;
     }
   }
@@ -527,7 +528,7 @@ export class CreativeDirectorSessionManager {
       }
 
       const processingTime = session.updatedAt.getTime() - session.createdAt.getTime();
-      
+
       // Calculate quality scores from generated assets
       const qualityScores = this.calculateQualityScores(session.generatedAssets);
 
@@ -537,7 +538,7 @@ export class CreativeDirectorSessionManager {
         budgetUtilization: session.budgetUsed / session.budgetAllocated,
         conversationLength: session.conversationHistory.length,
         processingTime,
-        qualityScores
+        qualityScores,
       };
     } catch (error) {
       console.error("[CREATIVE SESSION] Failed to get session stats:", error);
@@ -550,8 +551,8 @@ export class CreativeDirectorSessionManager {
         qualityScores: {
           averageQuality: 0,
           brandAlignment: 0,
-          creativeAlignment: 0
-        }
+          creativeAlignment: 0,
+        },
       };
     }
   }
@@ -567,37 +568,39 @@ export class CreativeDirectorSessionManager {
       // This would typically iterate through sessions and clean up expired ones
       // For now, let the base Firestore service handle general cleanup
       const cleanedCount = await this.firestore.cleanupExpiredSessions();
-      
+
       return {
         cleanedSessions: cleanedCount,
-        errors: []
+        errors: [],
       };
     } catch (error) {
       console.error("[CREATIVE SESSION] Cleanup failed:", error);
       return {
         cleanedSessions: 0,
-        errors: [error instanceof Error ? error.message : "Unknown error"]
+        errors: [error instanceof Error ? error.message : "Unknown error"],
       };
     }
   }
 
   /**
-   * Generate scene mapping for Alex handoff
+   * Generate scene mapping for Zara handoff
    */
   private generateSceneMapping(assets: VisualAsset[], selectedAssetIds: string[]): any[] {
-    return selectedAssetIds.map(assetId => {
-      const asset = assets.find(a => a.id === assetId);
-      if (!asset) return null;
+    return selectedAssetIds
+      .map((assetId) => {
+        const asset = assets.find((a) => a.id === assetId);
+        if (!asset) return null;
 
-      return {
-        assetId,
-        assetType: asset.type,
-        sceneRole: this.determineSceneRole(asset.type),
-        timing: this.suggestTiming(asset.type),
-        transitions: this.suggestTransitions(asset.type),
-        creativeNotes: asset.creativeContext.purpose
-      };
-    }).filter(Boolean);
+        return {
+          assetId,
+          assetType: asset.type,
+          sceneRole: this.determineSceneRole(asset.type),
+          timing: this.suggestTiming(asset.type),
+          transitions: this.suggestTransitions(asset.type),
+          creativeNotes: asset.creativeContext.purpose,
+        };
+      })
+      .filter(Boolean);
   }
 
   /**
@@ -605,14 +608,14 @@ export class CreativeDirectorSessionManager {
    */
   private determineSceneRole(assetType: string): string {
     const roleMapping: Record<string, string> = {
-      'product-hero': 'main_focus',
-      'lifestyle-scene': 'context_setting',
-      'background': 'scene_base',
-      'mood-board': 'style_reference',
-      'style-frame': 'visual_guide'
+      "product-hero": "main_focus",
+      "lifestyle-scene": "context_setting",
+      background: "scene_base",
+      "mood-board": "style_reference",
+      "style-frame": "visual_guide",
     };
-    
-    return roleMapping[assetType] || 'supporting';
+
+    return roleMapping[assetType] || "supporting";
   }
 
   /**
@@ -620,13 +623,13 @@ export class CreativeDirectorSessionManager {
    */
   private suggestTiming(assetType: string): { start: number; duration: number } {
     const timingMapping: Record<string, { start: number; duration: number }> = {
-      'product-hero': { start: 5, duration: 8 },
-      'lifestyle-scene': { start: 0, duration: 5 },
-      'background': { start: 0, duration: 15 },
-      'mood-board': { start: 13, duration: 2 },
-      'style-frame': { start: 0, duration: 15 }
+      "product-hero": { start: 5, duration: 8 },
+      "lifestyle-scene": { start: 0, duration: 5 },
+      background: { start: 0, duration: 15 },
+      "mood-board": { start: 13, duration: 2 },
+      "style-frame": { start: 0, duration: 15 },
     };
-    
+
     return timingMapping[assetType] || { start: 0, duration: 3 };
   }
 
@@ -635,14 +638,14 @@ export class CreativeDirectorSessionManager {
    */
   private suggestTransitions(assetType: string): string[] {
     const transitionMapping: Record<string, string[]> = {
-      'product-hero': ['fade_in', 'zoom_in', 'slide_from_right'],
-      'lifestyle-scene': ['cross_fade', 'dissolve'],
-      'background': ['static', 'slow_pan'],
-      'mood-board': ['quick_cut', 'overlay'],
-      'style-frame': ['overlay', 'mask_transition']
+      "product-hero": ["fade_in", "zoom_in", "slide_from_right"],
+      "lifestyle-scene": ["cross_fade", "dissolve"],
+      background: ["static", "slow_pan"],
+      "mood-board": ["quick_cut", "overlay"],
+      "style-frame": ["overlay", "mask_transition"],
     };
-    
-    return transitionMapping[assetType] || ['fade_in'];
+
+    return transitionMapping[assetType] || ["fade_in"];
   }
 
   /**
@@ -658,13 +661,19 @@ export class CreativeDirectorSessionManager {
     }
 
     const totalQuality = assets.reduce((sum, asset) => sum + asset.quality.overallScore, 0);
-    const totalBrandAlignment = assets.reduce((sum, asset) => sum + asset.quality.brandConsistency, 0);
-    const totalCreativeAlignment = assets.reduce((sum, asset) => sum + asset.quality.creativeAlignment, 0);
+    const totalBrandAlignment = assets.reduce(
+      (sum, asset) => sum + asset.quality.brandConsistency,
+      0
+    );
+    const totalCreativeAlignment = assets.reduce(
+      (sum, asset) => sum + asset.quality.creativeAlignment,
+      0
+    );
 
     return {
       averageQuality: totalQuality / assets.length,
       brandAlignment: totalBrandAlignment / assets.length,
-      creativeAlignment: totalCreativeAlignment / assets.length
+      creativeAlignment: totalCreativeAlignment / assets.length,
     };
   }
 
@@ -675,7 +684,7 @@ export class CreativeDirectorSessionManager {
    */
   public async initializeCrossAgentPipeline(
     sessionId: string,
-    startingAgent: "maya" | "david" | "alex" = "maya"
+    startingAgent: "maya" | "david" | "zara" = "maya"
   ): Promise<void> {
     console.log(`[CROSS-AGENT] Initializing pipeline for session: ${sessionId}`);
 
@@ -683,23 +692,23 @@ export class CreativeDirectorSessionManager {
       currentAgent: startingAgent,
       mayaCompleted: startingAgent !== "maya",
       davidCompleted: false,
-      alexCompleted: false,
-      pipelineProgress: startingAgent === "maya" ? 0 : startingAgent === "david" ? 0.33 : 0.66
+      zaraCompleted: false,
+      pipelineProgress: startingAgent === "maya" ? 0 : startingAgent === "david" ? 0.33 : 0.66,
     };
 
     const crossAgentContext = {
       mayaInsights: [],
       davidCreativeDecisions: [],
-      alexProductionNotes: [],
-      sharedContext: {}
+      zaraProductionNotes: [],
+      sharedContext: {},
     };
 
     const continuityMetrics = {
       mayaToDavidPreservation: 0,
-      davidToAlexPreservation: 0,
+      davidToZaraPreservation: 0,
       overallContinuity: 0,
       contextLossPoints: [],
-      recoveryActions: []
+      recoveryActions: [],
     };
 
     await this.updateSession(sessionId, {
@@ -707,7 +716,7 @@ export class CreativeDirectorSessionManager {
       crossAgentContext,
       continuityMetrics,
       decisionHistory: [],
-      stateSnapshots: []
+      stateSnapshots: [],
     });
   }
 
@@ -716,7 +725,7 @@ export class CreativeDirectorSessionManager {
    */
   public async createStateSnapshot(
     sessionId: string,
-    agent: "maya" | "david" | "alex",
+    agent: "maya" | "david" | "zara",
     stateData: any,
     contextMetadata: Record<string, any> = {}
   ): Promise<void> {
@@ -735,8 +744,8 @@ export class CreativeDirectorSessionManager {
         ...contextMetadata,
         snapshotType: "agent_transition",
         dataSize: JSON.stringify(stateData).length,
-        preservationScore: this.calculatePreservationScore(stateData)
-      }
+        preservationScore: this.calculatePreservationScore(stateData),
+      },
     };
 
     const updatedSnapshots = [...(session.stateSnapshots || []), snapshot];
@@ -745,7 +754,7 @@ export class CreativeDirectorSessionManager {
     const filteredSnapshots = this.limitSnapshotsPerAgent(updatedSnapshots);
 
     await this.updateSession(sessionId, {
-      stateSnapshots: filteredSnapshots
+      stateSnapshots: filteredSnapshots,
     });
   }
 
@@ -754,8 +763,8 @@ export class CreativeDirectorSessionManager {
    */
   public async transitionToNextAgent(
     sessionId: string,
-    fromAgent: "maya" | "david" | "alex",
-    toAgent: "maya" | "david" | "alex",
+    fromAgent: "maya" | "david" | "zara",
+    toAgent: "maya" | "david" | "zara",
     handoffData: any,
     preservationMetrics: {
       contextPreserved: number;
@@ -775,29 +784,34 @@ export class CreativeDirectorSessionManager {
       ...session.agentPipeline,
       currentAgent: toAgent,
       [`${fromAgent}Completed`]: true,
-      pipelineProgress: this.calculatePipelineProgress(fromAgent, toAgent)
+      pipelineProgress: this.calculatePipelineProgress(fromAgent, toAgent),
     };
 
     // Update continuity metrics
     const continuityMetrics = {
       ...session.continuityMetrics,
-      [`${fromAgent}To${this.capitalize(toAgent)}Preservation`]: preservationMetrics.contextPreserved,
-      overallContinuity: this.calculateOverallContinuity(session.continuityMetrics, preservationMetrics)
+      [`${fromAgent}To${this.capitalize(toAgent)}Preservation`]:
+        preservationMetrics.contextPreserved,
+      overallContinuity: this.calculateOverallContinuity(
+        session.continuityMetrics,
+        preservationMetrics
+      ),
     };
 
     // Add handoff timestamp
     const timestamp = new Date();
-    const handoffTimestamp = fromAgent === "maya" && toAgent === "david" 
-      ? { mayaHandoffAt: timestamp }
-      : fromAgent === "david" && toAgent === "alex"
-      ? { handoffToAlexAt: timestamp }
-      : {};
+    const handoffTimestamp =
+      fromAgent === "maya" && toAgent === "david"
+        ? { mayaHandoffAt: timestamp }
+        : fromAgent === "david" && toAgent === "zara"
+          ? { handoffToZaraAt: timestamp }
+          : {};
 
     await this.updateSession(sessionId, {
       agentPipeline,
       continuityMetrics,
       [`${fromAgent}HandoffData`]: handoffData,
-      ...handoffTimestamp
+      ...handoffTimestamp,
     });
   }
 
@@ -806,7 +820,7 @@ export class CreativeDirectorSessionManager {
    */
   public async updateCrossAgentContext(
     sessionId: string,
-    agent: "maya" | "david" | "alex",
+    agent: "maya" | "david" | "zara",
     contextUpdates: {
       insights?: string[];
       decisions?: string[];
@@ -823,25 +837,28 @@ export class CreativeDirectorSessionManager {
 
     const crossAgentContext = {
       ...session.crossAgentContext,
-      mayaInsights: agent === "maya" && contextUpdates.insights 
-        ? [...session.crossAgentContext.mayaInsights, ...contextUpdates.insights]
-        : session.crossAgentContext.mayaInsights,
-      
-      davidCreativeDecisions: agent === "david" && contextUpdates.decisions
-        ? [...session.crossAgentContext.davidCreativeDecisions, ...contextUpdates.decisions]
-        : session.crossAgentContext.davidCreativeDecisions,
-      
-      alexProductionNotes: agent === "alex" && contextUpdates.notes
-        ? [...session.crossAgentContext.alexProductionNotes, ...contextUpdates.notes]
-        : session.crossAgentContext.alexProductionNotes,
-      
+      mayaInsights:
+        agent === "maya" && contextUpdates.insights
+          ? [...session.crossAgentContext.mayaInsights, ...contextUpdates.insights]
+          : session.crossAgentContext.mayaInsights,
+
+      davidCreativeDecisions:
+        agent === "david" && contextUpdates.decisions
+          ? [...session.crossAgentContext.davidCreativeDecisions, ...contextUpdates.decisions]
+          : session.crossAgentContext.davidCreativeDecisions,
+
+      zaraProductionNotes:
+        agent === "zara" && contextUpdates.notes
+          ? [...session.crossAgentContext.zaraProductionNotes, ...contextUpdates.notes]
+          : session.crossAgentContext.zaraProductionNotes,
+
       sharedContext: contextUpdates.sharedData
         ? { ...session.crossAgentContext.sharedContext, ...contextUpdates.sharedData }
-        : session.crossAgentContext.sharedContext
+        : session.crossAgentContext.sharedContext,
     };
 
     await this.updateSession(sessionId, {
-      crossAgentContext
+      crossAgentContext,
     });
   }
 
@@ -851,7 +868,7 @@ export class CreativeDirectorSessionManager {
   public async recordCrossAgentDecision(
     sessionId: string,
     decisionId: string,
-    agent: "maya" | "david" | "alex",
+    agent: "maya" | "david" | "zara",
     previousValue: any,
     newValue: any,
     reasoning: string
@@ -869,22 +886,20 @@ export class CreativeDirectorSessionManager {
       previousValue,
       newValue,
       reasoning,
-      agent
+      agent,
     };
 
     const decisionHistory = [...(session.decisionHistory || []), decisionRecord];
 
     await this.updateSession(sessionId, {
-      decisionHistory
+      decisionHistory,
     });
   }
 
   /**
    * Validate session continuity across agents
    */
-  public async validateSessionContinuity(
-    sessionId: string
-  ): Promise<{
+  public async validateSessionContinuity(sessionId: string): Promise<{
     isValid: boolean;
     continuityScore: number;
     issues: string[];
@@ -898,7 +913,7 @@ export class CreativeDirectorSessionManager {
         isValid: false,
         continuityScore: 0,
         issues: ["Session not found"],
-        recommendations: ["Verify session exists"]
+        recommendations: ["Verify session exists"],
       };
     }
 
@@ -907,7 +922,7 @@ export class CreativeDirectorSessionManager {
 
     // Check pipeline completeness
     const pipeline = session.agentPipeline;
-    if (pipeline && pipeline.pipelineProgress < 0.3 && pipeline.currentAgent === "alex") {
+    if (pipeline && pipeline.pipelineProgress < 0.3 && pipeline.currentAgent === "zara") {
       issues.push("Pipeline advanced too quickly without completing previous stages");
       recommendations.push("Ensure Maya and David stages are properly completed");
     }
@@ -925,9 +940,9 @@ export class CreativeDirectorSessionManager {
       recommendations.push("Verify Maya handoff was properly processed");
     }
 
-    if (!session.alexHandoffPackage && pipeline?.currentAgent === "alex") {
-      issues.push("Alex handoff initiated but no handoff package found");
-      recommendations.push("Complete David → Alex handoff preparation");
+    if (!session.zaraHandoffPackage && pipeline?.currentAgent === "zara") {
+      issues.push("Zara handoff initiated but no handoff package found");
+      recommendations.push("Complete David → Zara handoff preparation");
     }
 
     // Check state snapshots continuity
@@ -946,7 +961,8 @@ export class CreativeDirectorSessionManager {
       isValid: issues.length === 0,
       continuityScore,
       issues,
-      recommendations: recommendations.length > 0 ? recommendations : ["Session continuity is good"]
+      recommendations:
+        recommendations.length > 0 ? recommendations : ["Session continuity is good"],
     };
   }
 
@@ -955,7 +971,7 @@ export class CreativeDirectorSessionManager {
    */
   public async recoverSessionContext(
     sessionId: string,
-    targetAgent: "maya" | "david" | "alex",
+    targetAgent: "maya" | "david" | "zara",
     targetTimestamp?: string
   ): Promise<{
     success: boolean;
@@ -976,25 +992,25 @@ export class CreativeDirectorSessionManager {
         recoveryMetadata: {
           sourceSnapshot: null,
           dataCompleteness: 0,
-          confidenceScore: 0
-        }
+          confidenceScore: 0,
+        },
       };
     }
 
     const snapshots = session.stateSnapshots || [];
-    
+
     // Find appropriate snapshot
     let targetSnapshot = null;
-    
+
     if (targetTimestamp) {
       // Find closest snapshot to target timestamp
       targetSnapshot = snapshots
-        .filter(s => s.agent === targetAgent && s.timestamp <= targetTimestamp)
+        .filter((s) => s.agent === targetAgent && s.timestamp <= targetTimestamp)
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
     } else {
       // Find most recent snapshot for agent
       targetSnapshot = snapshots
-        .filter(s => s.agent === targetAgent)
+        .filter((s) => s.agent === targetAgent)
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
     }
 
@@ -1005,8 +1021,8 @@ export class CreativeDirectorSessionManager {
         recoveryMetadata: {
           sourceSnapshot: null,
           dataCompleteness: 0,
-          confidenceScore: 0
-        }
+          confidenceScore: 0,
+        },
       };
     }
 
@@ -1021,20 +1037,18 @@ export class CreativeDirectorSessionManager {
         sourceSnapshot: {
           timestamp: targetSnapshot.timestamp,
           agent: targetSnapshot.agent,
-          metadataSize: JSON.stringify(targetSnapshot.contextMetadata).length
+          metadataSize: JSON.stringify(targetSnapshot.contextMetadata).length,
         },
         dataCompleteness,
-        confidenceScore
-      }
+        confidenceScore,
+      },
     };
   }
 
   /**
    * Get complete cross-agent session analytics
    */
-  public async getCrossAgentAnalytics(
-    sessionId: string
-  ): Promise<{
+  public async getCrossAgentAnalytics(sessionId: string): Promise<{
     pipelineStatus: any;
     continuityMetrics: any;
     agentContributions: Record<string, any>;
@@ -1052,24 +1066,24 @@ export class CreativeDirectorSessionManager {
       maya: {
         insights: session.crossAgentContext?.mayaInsights?.length || 0,
         dataProvided: !!session.mayaHandoffData,
-        completionStatus: session.agentPipeline?.mayaCompleted || false
+        completionStatus: session.agentPipeline?.mayaCompleted || false,
       },
       david: {
         decisions: session.crossAgentContext?.davidCreativeDecisions?.length || 0,
         assetsGenerated: session.generatedAssets?.length || 0,
         creativeDirectionFinalized: !!session.creativeDirection,
-        completionStatus: session.agentPipeline?.davidCompleted || false
+        completionStatus: session.agentPipeline?.davidCompleted || false,
       },
-      alex: {
-        productionNotes: session.crossAgentContext?.alexProductionNotes?.length || 0,
-        handoffPackageReady: !!session.alexHandoffPackage?.productionReadiness,
-        completionStatus: session.agentPipeline?.alexCompleted || false
-      }
+      zara: {
+        productionNotes: session.crossAgentContext?.zaraProductionNotes?.length || 0,
+        handoffPackageReady: !!session.zaraHandoffPackage?.productionReadiness,
+        completionStatus: session.agentPipeline?.zaraCompleted || false,
+      },
     };
 
     const handoffQuality = {
       mayaToDavid: session.continuityMetrics?.mayaToDavidPreservation || 0,
-      davidToAlex: session.continuityMetrics?.davidToAlexPreservation || 0
+      davidToZara: session.continuityMetrics?.davidToZaraPreservation || 0,
     };
 
     const recommendations = this.generateCrossAgentRecommendations(session);
@@ -1079,7 +1093,7 @@ export class CreativeDirectorSessionManager {
       continuityMetrics: session.continuityMetrics,
       agentContributions,
       handoffQuality,
-      recommendations
+      recommendations,
     };
   }
 
@@ -1091,10 +1105,11 @@ export class CreativeDirectorSessionManager {
   private calculatePreservationScore(stateData: any): number {
     // Simple heuristic based on data completeness
     const dataSize = JSON.stringify(stateData).length;
-    const hasRequiredFields = stateData && typeof stateData === "object" && Object.keys(stateData).length > 0;
-    
+    const hasRequiredFields =
+      stateData && typeof stateData === "object" && Object.keys(stateData).length > 0;
+
     if (!hasRequiredFields) return 0;
-    
+
     // Score based on data richness (more data = better preservation)
     const sizeScore = Math.min(dataSize / 10000, 1); // Normalize to 0-1
     return sizeScore * 0.7 + 0.3; // Base score of 0.3 + size-based score
@@ -1106,10 +1121,10 @@ export class CreativeDirectorSessionManager {
   private limitSnapshotsPerAgent(snapshots: any[]): any[] {
     const maxSnapshotsPerAgent = 10;
     const agentCounts: Record<string, number> = {};
-    
+
     return snapshots
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-      .filter(snapshot => {
+      .filter((snapshot) => {
         const count = agentCounts[snapshot.agent] || 0;
         if (count < maxSnapshotsPerAgent) {
           agentCounts[snapshot.agent] = count + 1;
@@ -1126,24 +1141,22 @@ export class CreativeDirectorSessionManager {
     const progressMap = {
       maya: 0,
       david: 0.33,
-      alex: 0.66,
-      completed: 1.0
+      zara: 0.66,
+      completed: 1.0,
     };
-    
+
     return progressMap[toAgent as keyof typeof progressMap] || 0;
   }
 
   /**
    * Calculate overall continuity score
    */
-  private calculateOverallContinuity(
-    continuityMetrics: any,
-    newPreservationMetrics: any
-  ): number {
+  private calculateOverallContinuity(continuityMetrics: any, newPreservationMetrics: any): number {
     const mayaToDavid = continuityMetrics.mayaToDavidPreservation || 0;
-    const davidToAlex = continuityMetrics.davidToAlexPreservation || newPreservationMetrics.contextPreserved || 0;
-    
-    return (mayaToDavid + davidToAlex) / 2;
+    const davidToZara =
+      continuityMetrics.davidToZaraPreservation || newPreservationMetrics.contextPreserved || 0;
+
+    return (mayaToDavid + davidToZara) / 2;
   }
 
   /**
@@ -1151,17 +1164,17 @@ export class CreativeDirectorSessionManager {
    */
   private countAgentTransitions(snapshots: any[]): number {
     if (snapshots.length < 2) return 0;
-    
+
     let transitions = 0;
     let lastAgent = snapshots[0].agent;
-    
+
     for (let i = 1; i < snapshots.length; i++) {
       if (snapshots[i].agent !== lastAgent) {
         transitions++;
         lastAgent = snapshots[i].agent;
       }
     }
-    
+
     return transitions;
   }
 
@@ -1171,23 +1184,23 @@ export class CreativeDirectorSessionManager {
   private calculateSessionContinuityScore(session: CreativeDirectorSession): number {
     const continuity = session.continuityMetrics;
     if (!continuity) return 0;
-    
+
     const weights = {
       overallContinuity: 0.4,
       dataCompleteness: 0.3,
       pipelineProgress: 0.2,
-      errorRecovery: 0.1
+      errorRecovery: 0.1,
     };
-    
+
     const scores = {
       overallContinuity: continuity.overallContinuity || 0,
       dataCompleteness: session.mayaHandoffData ? 1 : 0,
       pipelineProgress: session.agentPipeline?.pipelineProgress || 0,
-      errorRecovery: continuity.recoveryActions?.length > 0 ? 0.8 : 1
+      errorRecovery: continuity.recoveryActions?.length > 0 ? 0.8 : 1,
     };
-    
+
     return Object.entries(weights).reduce((total, [key, weight]) => {
-      return total + (scores[key as keyof typeof scores] * weight);
+      return total + scores[key as keyof typeof scores] * weight;
     }, 0);
   }
 
@@ -1196,12 +1209,12 @@ export class CreativeDirectorSessionManager {
    */
   private assessDataCompleteness(stateData: any): number {
     if (!stateData || typeof stateData !== "object") return 0;
-    
+
     const keys = Object.keys(stateData);
     const values = Object.values(stateData);
-    
-    const nonEmptyValues = values.filter(v => v != null && v !== "").length;
-    
+
+    const nonEmptyValues = values.filter((v) => v != null && v !== "").length;
+
     return keys.length > 0 ? nonEmptyValues / keys.length : 0;
   }
 
@@ -1210,12 +1223,12 @@ export class CreativeDirectorSessionManager {
    */
   private calculateRecoveryConfidence(snapshot: any, session: CreativeDirectorSession): number {
     const ageInHours = (Date.now() - new Date(snapshot.timestamp).getTime()) / (1000 * 60 * 60);
-    const ageScore = Math.max(0, 1 - (ageInHours / 24)); // Reduce confidence over 24 hours
-    
+    const ageScore = Math.max(0, 1 - ageInHours / 24); // Reduce confidence over 24 hours
+
     const dataCompleteness = this.assessDataCompleteness(snapshot.stateData);
     const preservationScore = snapshot.contextMetadata?.preservationScore || 0;
-    
-    return (ageScore * 0.3) + (dataCompleteness * 0.4) + (preservationScore * 0.3);
+
+    return ageScore * 0.3 + dataCompleteness * 0.4 + preservationScore * 0.3;
   }
 
   /**
@@ -1223,27 +1236,29 @@ export class CreativeDirectorSessionManager {
    */
   private generateCrossAgentRecommendations(session: CreativeDirectorSession): string[] {
     const recommendations: string[] = [];
-    
+
     const pipeline = session.agentPipeline;
     const continuity = session.continuityMetrics;
-    
-    if (pipeline?.pipelineProgress < 0.5 && pipeline.currentAgent === "alex") {
+
+    if (pipeline?.pipelineProgress < 0.5 && pipeline.currentAgent === "zara") {
       recommendations.push("Consider slowing pipeline progression to ensure quality");
     }
-    
+
     if (continuity?.overallContinuity < 0.7) {
       recommendations.push("Improve handoff data completeness for better context preservation");
     }
-    
+
     if ((session.stateSnapshots?.length || 0) < 3) {
       recommendations.push("Increase state snapshot frequency for better recovery capabilities");
     }
-    
+
     if (!session.crossAgentContext?.mayaInsights?.length && pipeline?.mayaCompleted) {
       recommendations.push("Ensure Maya insights are properly captured and transferred");
     }
-    
-    return recommendations.length > 0 ? recommendations : ["Cross-agent session management is optimal"];
+
+    return recommendations.length > 0
+      ? recommendations
+      : ["Cross-agent session management is optimal"];
   }
 
   /**

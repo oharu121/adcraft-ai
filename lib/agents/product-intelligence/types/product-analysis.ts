@@ -168,7 +168,7 @@ export interface KeyScenes {
 }
 
 // Note: CommercialStrategy and VisualPreferences moved to David (Creative Director Agent)
-// EmotionalTriggers, CallToAction, Storytelling, KeyScenes will be handled by David/Alex
+// EmotionalTriggers, CallToAction, Storytelling, KeyScenes will be handled by David/Zara
 // ColorPalette and visual elements will be handled by David
 
 // Cost breakdown tracking

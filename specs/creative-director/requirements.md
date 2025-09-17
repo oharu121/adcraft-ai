@@ -143,16 +143,16 @@ David is the Creative Director agent - a visual perfectionist with artistic expe
 - **WHEN** assets include product representation, **THEN** they accurately reflect Maya's product analysis while enhancing visual appeal
 - **WHEN** I review generated assets, **THEN** each has clear creative purpose and placement in the commercial narrative as explained by David
 
-### Epic 6: Handoff to Video Producer (Alex)
+### Epic 6: Handoff to Video Producer (Zara)
 
-**US-CD-009**: As a user, I want David to prepare comprehensive visual assets and creative direction so that Alex can create the final commercial video with professional visual guidance.
+**US-CD-009**: As a user, I want David to prepare comprehensive visual assets and creative direction so that Zara can create the final commercial video with professional visual guidance.
 
 **Acceptance Criteria**:
 - **WHEN** David completes asset generation, **THEN** he summarizes all visual decisions and creative assets with artistic rationale
-- **WHEN** David prepares for handoff, **THEN** he creates structured data package for Alex including assets, scene descriptions, and creative notes
-- **WHEN** I'm ready to proceed to Alex, **THEN** David provides encouraging transition message acknowledging our creative collaboration
+- **WHEN** David prepares for handoff, **THEN** he creates structured data package for Zara including assets, scene descriptions, and creative notes
+- **WHEN** I'm ready to proceed to Zara, **THEN** David provides encouraging transition message acknowledging our creative collaboration
 - **WHEN** handoff occurs, **THEN** all visual assets, creative decisions, and David's artistic direction are preserved in session state
-- **WHEN** Alex receives the handoff, **THEN** he has complete context of David's visual direction and creative specifications
+- **WHEN** Zara receives the handoff, **THEN** he has complete context of David's visual direction and creative specifications
 
 ## Technical Requirements
 
@@ -211,7 +211,7 @@ David is the Creative Director agent - a visual perfectionist with artistic expe
 
 - User completes visual style refinement conversation with David: >90%
 - Generated assets align with user expectations and David's creative standards: >85% approval rate
-- Smooth handoff to Alex with complete visual context and creative direction: >95%
+- Smooth handoff to Zara with complete visual context and creative direction: >95%
 - Cost efficiency: <$0.20 per asset in real mode while maintaining creative quality
 - Conversation quality: Natural, expert-level creative direction matching David's defined persona
 - User satisfaction with David's creative guidance and visual asset quality

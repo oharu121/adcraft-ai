@@ -1,4 +1,4 @@
-# Alex - Video Producer Agent Implementation Requirements
+# Zara - Video Producer Agent Implementation Requirements
 
 **Implementation Status:** DEFERRED FOR FUTURE DEVELOPMENT
 **Priority:** Phase 2 (After Maya/David Migration Completion)
@@ -6,7 +6,7 @@
 
 ## Overview
 
-Alex is the Video Producer Agent responsible for transforming creative briefs and assets from David into professional commercial videos. This agent will be the final step in the 3-agent pipeline, delivering the completed video product to users.
+Zara is the Video Producer Agent responsible for transforming creative briefs and assets from David into professional commercial videos. This agent will be the final step in the 3-agent pipeline, delivering the completed video product to users.
 
 ## Core Responsibilities
 
@@ -73,7 +73,7 @@ Alex is the Video Producer Agent responsible for transforming creative briefs an
 
 #### Types
 - `VideoProductionJob`: Complete production job definition
-- `DavidToAlexHandoffData`: Structured handoff data from David
+- `DavidToZaraHandoffData`: Structured handoff data from David
 - `VideoProductionPlan`: Production planning and requirements
 - `ProductionProgress`: Real-time progress tracking
 - `VideoDeliverable`: Final output specifications
@@ -88,7 +88,7 @@ interface VideoProducerState {
   currentMode: 'planning' | 'production' | 'review' | 'idle';
 
   // Handoff processing
-  handoffData: DavidToAlexHandoffData | null;
+  handoffData: DavidToZaraHandoffData | null;
   handoffValidation: ValidationResult;
 
   // Production workflow
@@ -151,7 +151,7 @@ interface VideoProducerState {
 
 ### 1. Handoff Data Processing
 - **Firestore integration** for handoff data persistence
-- **Data validation** against DavidToAlexHandoffData schema
+- **Data validation** against DavidToZaraHandoffData schema
 - **Asset URL verification** and accessibility checks
 - **Handoff completeness validation** before proceeding
 
@@ -218,7 +218,7 @@ interface VideoProducerState {
 - Quality validation rules
 
 ### Integration Testing
-- End-to-end David → Alex handoff flow
+- End-to-end David → Zara handoff flow
 - Veo API integration and error handling
 - File storage and retrieval operations
 - Progress tracking accuracy
@@ -265,7 +265,7 @@ interface VideoProducerState {
 
 ### Development Dependencies
 - ✅ TypeScript interfaces for all handoff data
-- ✅ Firestore schema for Alex data persistence
+- ✅ Firestore schema for Zara data persistence
 - ✅ Authentication flow for Google Cloud APIs
 - ✅ File upload/download utilities
 - ✅ Error boundary components for video processing

@@ -72,9 +72,9 @@ components/                  # Reusable React components
 │   ├── Input.tsx                # Form input components
 │   ├── Modal.tsx                # Modal dialog component
 │   ├── LoadingSpinner.tsx       # Loading state indicator
-│   └── AgentAvatar.tsx          # Agent personality avatars (Maya, David, Alex)
+│   └── AgentAvatar.tsx          # Agent personality avatars (Maya, David, Zara)
 └── creative-director/           # David's Creative Director Agent components (future)
-    └── video-producer/          # Alex's Video Producer Agent components (future)
+    └── video-producer/          # Zara's Video Producer Agent components (future)
 ```
 
 ### Business Logic (`lib/`)
@@ -103,8 +103,8 @@ lib/                         # Core business logic and utilities
 │   │   ├── tools/             # Imagen API and visual tools
 │   │   ├── types/             # Creative-specific types
 │   │   └── index.ts           # Public API exports
-│   └── video-producer/         # Alex - Agent 3: Video Production (future)
-│       ├── core/              # Alex's production logic
+│   └── video-producer/         # Zara - Agent 3: Video Production (future)
+│       ├── core/              # Zara's production logic
 │       ├── tools/             # Veo API and video tools
 │       ├── types/             # Production-specific types
 │       └── index.ts           # Public API exports

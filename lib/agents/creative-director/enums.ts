@@ -23,7 +23,7 @@ export enum SessionStatus {
 export enum AgentType {
   MAYA = "maya",
   DAVID = "david",
-  ALEX = "alex",
+  Zara = "zara",
 }
 
 // Visual style categories

@@ -117,9 +117,7 @@ export default function CreativeDirectorHandoffModal({
               <h2 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
                 <span>{dict.creativeDirector.confirmHandoff}</span>
               </h2>
-              <p className="text-red-200 text-sm">
-                {dict.creativeDirector.handoffToVideoProducer}
-              </p>
+              <p className="text-red-200 text-sm">{dict.creativeDirector.handoffToVideoProducer}</p>
             </div>
 
             {/* Close Button */}
@@ -150,7 +148,7 @@ export default function CreativeDirectorHandoffModal({
             {dict.creativeDirector.handoffDescription}
           </p>
 
-          {/* David to Alex Flow Visualization */}
+          {/* David to Zara Flow Visualization */}
           <div className="relative py-4 space-y-2">
             {/* Container for avatars and handover animation - perfectly aligned */}
             <div className="flex items-center justify-center gap-4">
@@ -160,7 +158,7 @@ export default function CreativeDirectorHandoffModal({
               </div>
 
               {/* Handover Animation Container - aligned to avatar center */}
-              <div className="flex-1 relative flex items-center" style={{ height: '48px' }}>
+              <div className="flex-1 relative flex items-center" style={{ height: "48px" }}>
                 {/* Base connection line */}
                 <div className="absolute inset-0 flex items-center">
                   <div className="h-0.5 w-full bg-gradient-to-r from-purple-500 via-red-500 to-orange-500 opacity-60"></div>
@@ -168,7 +166,7 @@ export default function CreativeDirectorHandoffModal({
 
                 {/* Modern SaaS Style - Flowing Progress Dots */}
                 <div className="absolute inset-0 flex items-center overflow-hidden">
-                  {/* Progress dots flowing from David to Alex */}
+                  {/* Progress dots flowing from David to Zara */}
                   {[...Array(8)].map((_, i) => (
                     <div
                       key={`progress-dot-${i}`}
@@ -179,10 +177,10 @@ export default function CreativeDirectorHandoffModal({
                         animationDuration: "2.4s",
                         animation: `slideRight 2.4s infinite ease-in-out ${i * 300}ms`,
                         background: `linear-gradient(45deg,
-                          ${i < 2 ? '#8B5CF6' : i < 4 ? '#EC4899' : i < 6 ? '#EF4444' : '#F97316'},
-                          ${i < 2 ? '#A78BFA' : i < 4 ? '#F472B6' : i < 6 ? '#F87171' : '#FB923C'})`,
+                          ${i < 2 ? "#8B5CF6" : i < 4 ? "#EC4899" : i < 6 ? "#EF4444" : "#F97316"},
+                          ${i < 2 ? "#A78BFA" : i < 4 ? "#F472B6" : i < 6 ? "#F87171" : "#FB923C"})`,
                         opacity: 0.8,
-                        boxShadow: '0 0 8px rgba(239, 68, 68, 0.4)'
+                        boxShadow: "0 0 8px rgba(239, 68, 68, 0.4)",
                       }}
                     />
                   ))}
@@ -209,7 +207,7 @@ export default function CreativeDirectorHandoffModal({
                         key={`status-${i}`}
                         className="w-1 h-1 rounded-full bg-gray-400/30"
                         style={{
-                          animation: `statusPulse 2s infinite ease-in-out ${i * 400}ms`
+                          animation: `statusPulse 2s infinite ease-in-out ${i * 400}ms`,
                         }}
                       />
                     ))}
@@ -225,20 +223,20 @@ export default function CreativeDirectorHandoffModal({
                 </div>
               </div>
 
-              {/* Alex Avatar */}
+              {/* Zara Avatar */}
               <div className="flex items-center">
-                <AgentAvatar agent="alex" size="md" state="idle" />
+                <AgentAvatar agent="zara" size="md" state="idle" />
               </div>
             </div>
 
             {/* Agent Names Below - Matching avatar container structure */}
             <div className="flex items-center justify-center gap-4">
-              <div className="flex items-center justify-center" style={{ width: '48px' }}>
+              <div className="flex items-center justify-center" style={{ width: "48px" }}>
                 <span className="text-xs text-purple-400 font-medium">David</span>
               </div>
               <div className="flex-1"></div>
-              <div className="flex items-center justify-center" style={{ width: '48px' }}>
-                <span className="text-xs text-red-400 font-medium">Alex</span>
+              <div className="flex items-center justify-center" style={{ width: "48px" }}>
+                <span className="text-xs text-red-400 font-medium">Zara</span>
               </div>
             </div>
 
@@ -262,14 +260,15 @@ export default function CreativeDirectorHandoffModal({
               }
 
               @keyframes statusPulse {
-                0%, 100% {
+                0%,
+                100% {
                   opacity: 0.3;
                   transform: scale(1);
                 }
                 50% {
                   opacity: 0.8;
                   transform: scale(1.5);
-                  background: linear-gradient(45deg, #EF4444, #F97316);
+                  background: linear-gradient(45deg, #ef4444, #f97316);
                 }
               }
             `}</style>
@@ -310,9 +309,7 @@ export default function CreativeDirectorHandoffModal({
         {isProcessing && (
           <div className="bg-red-900/30 border border-red-500/30 rounded-lg p-4 flex items-center gap-3">
             <div className="w-5 h-5 border-2 border-red-400 border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-red-200 font-medium">
-              {dict.creativeDirector.initializing}
-            </span>
+            <span className="text-red-200 font-medium">{dict.creativeDirector.initializing}</span>
             <div className="ml-auto flex gap-1">
               {[0, 1, 2].map((i) => (
                 <div

@@ -12,11 +12,11 @@ export interface CreativeChatMessage {
   content: string;
   timestamp: number;
   sessionId: string;
-  
+
   // Creative-specific message data
-  messageType?: 
+  messageType?:
     | "CREATIVE_INTRODUCTION"
-    | "VISUAL_ANALYSIS" 
+    | "VISUAL_ANALYSIS"
     | "STYLE_RECOMMENDATION"
     | "ASSET_DISCUSSION"
     | "CREATIVE_DECISION"
@@ -27,7 +27,7 @@ export interface CreativeChatMessage {
     | "CREATIVE_INSIGHT"
     | "MARKET_INSIGHT"
     | "CULTURAL_ADAPTATION";
-  
+
   // Visual context and attachments
   visualContext?: {
     styleReferences?: VisualReference[];
@@ -35,7 +35,7 @@ export interface CreativeChatMessage {
     assetPreviews?: AssetPreview[];
     compositionExamples?: CompositionExample[];
   };
-  
+
   // Creative decision data
   creativeDecisions?: {
     styleDirection?: string;
@@ -44,17 +44,17 @@ export interface CreativeChatMessage {
     assetRequirements?: string[];
     brandAlignmentNotes?: string;
   };
-  
+
   // Processing metadata
   processingTime?: number;
   cost?: number;
   confidence?: number;
-  
+
   // UI interaction data
   quickActions?: CreativeQuickAction[];
   suggestedResponses?: string[];
   attachments?: MessageAttachment[];
-  
+
   // Localization
   locale: "en" | "ja";
 }
@@ -117,7 +117,7 @@ export interface CompositionExample {
 // Quick actions specific to Creative Director
 export interface CreativeQuickAction {
   id: string;
-  type: 
+  type:
     | "STYLE_SELECTION"
     | "COLOR_APPROVAL"
     | "ASSET_GENERATION"
@@ -149,12 +149,12 @@ export interface CreativeConversationState {
   sessionId: string;
   agentStatus: "initializing" | "ready" | "thinking" | "creating" | "awaiting_input" | "finalizing";
   currentPhase: "analysis" | "creative_development" | "asset_generation" | "finalization";
-  
+
   // Conversation context
   messageCount: number;
   lastMessageAt: number;
   conversationSummary?: string;
-  
+
   // Creative context
   visualDecisions: {
     styleDirection?: string;
@@ -163,23 +163,23 @@ export interface CreativeConversationState {
     assetRequirements: string[];
     brandAlignmentScore: number;
   };
-  
+
   // Asset generation state
   assetGeneration: {
     inProgress: string[]; // Asset IDs currently generating
-    completed: string[];  // Asset IDs ready
-    failed: string[];     // Asset IDs that failed
+    completed: string[]; // Asset IDs ready
+    failed: string[]; // Asset IDs that failed
     totalCost: number;
   };
-  
+
   // Handoff preparation
   handoffReadiness: {
     directionFinalized: boolean;
     assetsReady: boolean;
     productionNotesComplete: boolean;
-    readyForAlex: boolean;
+    readyForZara: boolean;
   };
-  
+
   // User preferences learned during conversation
   userPreferences: {
     visualStyle?: string;
@@ -196,14 +196,14 @@ export interface CreativeConversationAnalytics {
   startTime: number;
   endTime?: number;
   duration?: number;
-  
+
   messageStats: {
     total: number;
     userMessages: number;
     agentMessages: number;
     averageResponseTime: number;
   };
-  
+
   creativeActivity: {
     decisionsRequested: number;
     decisionsMade: number;
@@ -211,14 +211,14 @@ export interface CreativeConversationAnalytics {
     assetsGenerated: number;
     collaborativeInteractions: number;
   };
-  
+
   qualityMetrics: {
     userSatisfactionScore?: number;
     creativeMomentumScore: number; // How smoothly creative process flowed
     decisionEfficiencyScore: number; // Speed of reaching creative decisions
     collaborationScore: number; // Quality of David-user collaboration
   };
-  
+
   costAnalysis: {
     totalCost: number;
     costPerMessage: number;
@@ -234,7 +234,7 @@ export interface CreativeChatUIState {
   showAssetGallery: boolean;
   showCompositionGuide: boolean;
   showColorPicker: boolean;
-  
+
   // Asset generation UI
   assetGenerationProgress: {
     [assetId: string]: {
@@ -243,23 +243,23 @@ export interface CreativeChatUIState {
       estimatedCompletion: number;
     };
   };
-  
+
   // Creative decision UI
   pendingDecisions: {
     styleChoices?: string[];
     colorOptions?: ColorPalette[];
     compositionOptions?: CompositionExample[];
   };
-  
+
   // Collaboration UI
   collaborativeMode: boolean;
   awaitingUserInput: boolean;
   inputSuggestions: string[];
-  
+
   // Visual feedback UI
   assetFeedbackMode: boolean;
   selectedAssetForFeedback?: string;
-  
+
   // Handoff preparation UI
   handoffChecklist: {
     directionReview: boolean;

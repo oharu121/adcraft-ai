@@ -1,5 +1,5 @@
 /**
- * Alex - Video Producer Production Types (DEFERRED)
+ * Zara - Video Producer Production Types (DEFERRED)
  *
  * IMPLEMENTATION STATUS: DEFERRED FOR FUTURE DEVELOPMENT
  */
@@ -19,13 +19,13 @@ export interface VideoProductionJob {
 
 // DEFERRED: Production status tracking
 export type ProductionStatus =
-  | 'pending'
-  | 'planning'
-  | 'generating'
-  | 'processing'
-  | 'optimizing'
-  | 'completed'
-  | 'failed';
+  | "pending"
+  | "planning"
+  | "generating"
+  | "processing"
+  | "optimizing"
+  | "completed"
+  | "failed";
 
 // DEFERRED: Production progress tracking
 export interface ProductionProgress {
@@ -66,7 +66,7 @@ export interface ProductReference {
 
 // DEFERRED: Track contributions from each agent
 export interface AgentContribution {
-  readonly agentId: 'maya' | 'david' | 'alex';
+  readonly agentId: "maya" | "david" | "zara";
   readonly contribution: string;
   readonly timestamp: Date;
 }

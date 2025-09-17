@@ -1,17 +1,19 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import { Button, Card, ToastContainer } from "@/components/ui";
 import { ModeToggle } from "@/components/debug/ModeIndicator";
 import { useToast } from "@/hooks/useToast";
 import { useProductIntelligenceStore } from "@/lib/stores/product-intelligence-store";
 import { useCreativeDirectorStore } from "@/lib/stores/creative-director-store";
+import { useVideoProducerStore } from "@/lib/stores/video-producer-store";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
 import HeroSection from "@/components/home/HeroSection";
 import ProductInputForm from "@/components/home/ProductInputForm";
 import AnalysisProgressCard from "@/components/home/AnalysisProgressCard";
 import ProductAnalysisCard from "@/components/product-intelligence/ProductAnalysisCard";
 import CreativeDirectorWorkspace from "@/components/creative-director/CreativeDirectorWorkspace";
+import VideoProducerWorkspace from "@/components/video-producer/VideoProducerWorkspace";
 import InstructionsCard from "@/components/home/InstructionsCard";
 import ImageModal from "@/components/home/ImageModal";
 import PhaseTransition from "@/components/ui/PhaseTransition";
@@ -50,6 +52,9 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
   // Creative Director state
   const { mayaHandoffData } = useCreativeDirectorStore();
+
+  // Video Producer state
+  const { initializeFromCreativeDirectorHandoff } = useVideoProducerStore();
 
   // Phase transition state
   const [phaseTransition, setPhaseTransition] = useState<{
@@ -146,6 +151,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
       setIsConnected(false);
     }
   }, [setSessionId, setIsConnected]);
+
 
   // Handle image upload
   const handleImageUpload = useCallback(
@@ -582,7 +588,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
   const handleSmartCTA = useCallback(() => {
     if (
       currentPhase === "david-creative" ||
-      currentPhase === "alex-production" ||
+      currentPhase === "zara-production" ||
       currentPhase === "completed"
     ) {
       // Show confirmation modal for going back to start
@@ -618,6 +624,44 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
     [currentPhase]
   );
 
+  // Handle transition to video producer from Creative Director
+  useEffect(() => {
+    const handleVideoProducerTransition = (event: CustomEvent) => {
+      const { creativeDirection } = event.detail;
+
+      // Initialize Video Producer store with handoff data
+      if (initializeFromCreativeDirectorHandoff && sessionId) {
+        const videoProducerSessionId = crypto.randomUUID();
+
+        initializeFromCreativeDirectorHandoff({
+          sessionId: videoProducerSessionId,
+          creativeDirectorHandoffData: {
+            creativeDirectorSessionId: sessionId,
+            creativeDirection: creativeDirection,
+            productAnalysis: analysis, // Pass along product analysis from Maya
+            handoffTimestamp: Date.now(),
+          },
+          locale,
+        });
+      }
+
+      // Transition to video producer phase with animation
+      transitionWithAnimation("zara-production");
+    };
+
+    window.addEventListener(
+      "transitionToVideoProducer",
+      handleVideoProducerTransition as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        "transitionToVideoProducer",
+        handleVideoProducerTransition as EventListener
+      );
+    };
+  }, [initializeFromCreativeDirectorHandoff, sessionId, analysis, locale, transitionWithAnimation]);
+
   // Handle transition completion
   const handleTransitionComplete = useCallback(() => {
     if (phaseTransition) {
@@ -628,6 +672,11 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
       setTimeout(() => {
         if (phaseTransition.to === "david-creative") {
           const element = document.getElementById("creative-director-section");
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+          }
+        } else if (phaseTransition.to === "zara-production") {
+          const element = document.getElementById("video-producer-section");
           if (element) {
             element.scrollIntoView({ behavior: "smooth" });
           }
@@ -652,7 +701,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
           <div className="text-center mb-12 md:mb-16">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 magical-text">
               {currentPhase === "david-creative" && dict.creativeDirector.title}
-              {currentPhase === "alex-production" && dict.videoProducer.title}
+              {currentPhase === "zara-production" && dict.videoProducer.title}
               {(currentPhase === "product-input" ||
                 currentPhase === "maya-analysis" ||
                 currentPhase === "maya-strategy") &&
@@ -660,7 +709,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
             </h2>
             <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-3 md:mb-4 max-w-3xl mx-auto leading-relaxed">
               {currentPhase === "david-creative" && dict.creativeDirector.description}
-              {currentPhase === "alex-production" && dict.videoProducer.description}
+              {currentPhase === "zara-production" && dict.videoProducer.description}
               {(currentPhase === "product-input" ||
                 currentPhase === "maya-analysis" ||
                 currentPhase === "maya-strategy") &&
@@ -687,6 +736,22 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
                 locale={locale}
                 onScrollToChatSection={() => {
                   const element = document.getElementById("creative-director-section");
+                  if (element) {
+                    element.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+              />
+            </div>
+          )}
+
+          {/* Phase: Zara Video Producer - Full Width Video Producer Interface */}
+          {currentPhase === "zara-production" && (
+            <div id="video-producer-section">
+              <VideoProducerWorkspace
+                dict={dict}
+                locale={locale}
+                onScrollToChatSection={() => {
+                  const element = document.getElementById("video-producer-section");
                   if (element) {
                     element.scrollIntoView({ behavior: "smooth" });
                   }

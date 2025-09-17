@@ -1,19 +1,19 @@
 /**
- * Alex - Video Producer Handoff Reception Card (DEFERRED)
+ * Zara - Video Producer Handoff Reception Card (DEFERRED)
  *
  * IMPLEMENTATION STATUS: DEFERRED FOR FUTURE DEVELOPMENT
  */
 
-import React from 'react';
+import React from "react";
 
 interface HandoffReceptionCardProps {
-  handoffData: any; // DavidToAlexHandoffData when implemented
+  handoffData: any; // DavidToZaraHandoffData when implemented
   onProcessHandoff: () => void;
 }
 
 export default function HandoffReceptionCard({
   handoffData,
-  onProcessHandoff
+  onProcessHandoff,
 }: HandoffReceptionCardProps) {
   // DEFERRED: This component will receive and display handoff data from David
 
@@ -23,9 +23,7 @@ export default function HandoffReceptionCard({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
-          <h3 className="text-lg font-semibold text-gray-800">
-            David → Alex Handoff Reception
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-800">David → Zara Handoff Reception</h3>
         </div>
         <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded">
           DEFERRED
@@ -36,18 +34,14 @@ export default function HandoffReceptionCard({
       <div className="mb-6">
         {handoffData ? (
           <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-green-800 font-medium mb-2">
-              Creative handoff received from David
-            </p>
+            <p className="text-green-800 font-medium mb-2">Creative handoff received from David</p>
             <p className="text-sm text-green-600">
               Implementation pending: Handoff processing not yet available
             </p>
           </div>
         ) : (
           <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-            <p className="text-gray-600">
-              Waiting for creative handoff from David...
-            </p>
+            <p className="text-gray-600">Waiting for creative handoff from David...</p>
             <p className="text-sm text-yellow-600 mt-1">
               (DEFERRED: Handoff reception implementation pending)
             </p>
@@ -101,8 +95,8 @@ export default function HandoffReceptionCard({
 
       {/* DEFERRED: Implementation Note */}
       <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-700">
-        <strong>Implementation Note:</strong> Handoff reception and processing will be
-        implemented after Maya/David migration is complete.
+        <strong>Implementation Note:</strong> Handoff reception and processing will be implemented
+        after Maya/David migration is complete.
       </div>
     </div>
   );

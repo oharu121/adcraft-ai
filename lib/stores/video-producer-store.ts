@@ -1,352 +1,263 @@
 /**
- * Alex - Video Producer Agent Zustand Store (DEFERRED)
+ * Zara - Video Producer Agent Zustand Store
  *
- * IMPLEMENTATION STATUS: DEFERRED FOR FUTURE DEVELOPMENT
- *
- * This store will manage state for Alex (Video Producer) agent when implemented.
- * Currently serves as placeholder infrastructure for future development.
+ * State management for Zara's interactive video production workflow
  */
 
 import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
+import type { Locale } from '@/lib/dictionaries';
 
-// DEFERRED: Import types when implementation begins
-// import {
-//   VideoProductionJob,
-//   DavidToAlexHandoffData,
-//   VideoProductionPlan,
-//   ProductionProgress,
-//   VideoProductionResult
-// } from '@/lib/agents/video-producer/types';
-
-// DEFERRED: Alex agent state interface
-interface VideoProducerState {
-  // Agent status and mode
-  isActive: boolean;
-  isDemo: boolean;
-  currentMode: 'planning' | 'production' | 'review' | 'idle';
-
-  // Handoff data from David
-  handoffData: any | null; // DavidToAlexHandoffData when implemented
-  handoffReceived: boolean;
-
-  // Video production job
-  currentJob: any | null; // VideoProductionJob when implemented
-  productionPlan: any | null; // VideoProductionPlan when implemented
-  progress: any | null; // ProductionProgress when implemented
-
-  // Generated video result
-  result: any | null; // VideoProductionResult when implemented
-
-  // UI state
-  expandedSections: {
-    handoffReview: boolean;
-    productionPlanning: boolean;
-    sceneSequencing: boolean;
-    videoGeneration: boolean;
-    optimization: boolean;
-    delivery: boolean;
-  };
-
-  // Loading states
-  loading: {
-    handoffProcessing: boolean;
-    planningGeneration: boolean;
-    videoProduction: boolean;
-    optimization: boolean;
-  };
-
-  // Error states
-  errors: {
-    handoffError: string | null;
-    planningError: string | null;
-    productionError: string | null;
-    deliveryError: string | null;
-  };
+// Video Producer workflow steps
+export enum VideoProducerWorkflowStep {
+  NARRATIVE_STYLE = "narrative-style",
+  MUSIC_TONE = "music-tone",
+  FINAL_PRODUCTION = "final-production"
 }
 
-// DEFERRED: Alex agent actions interface
-interface VideoProducerActions {
-  // Agent control
-  activateAgent: () => void;
-  deactivateAgent: () => void;
-  setMode: (mode: VideoProducerState['currentMode']) => void;
-  setDemoMode: (isDemo: boolean) => void;
+// Narrative style interface
+export interface NarrativeStyle {
+  id: string;
+  name: string;
+  description: string;
+  pacing: string;
+  tone: string;
+  narrationStyle: string;
+  examples: string[];
+  bestFor: string;
+}
 
-  // Handoff management
-  receiveHandoffData: (data: any) => Promise<void>;
-  validateHandoffData: () => boolean;
-  clearHandoffData: () => void;
+// Music genre interface
+export interface MusicGenre {
+  id: string;
+  name: string;
+  description: string;
+  mood: string;
+  energy: string;
+  instruments: string[];
+  bestFor: string;
+}
 
-  // Production planning
-  generateProductionPlan: () => Promise<void>;
-  updateProductionPlan: (plan: any) => void;
-  approveProductionPlan: () => Promise<void>;
+// Video production specs interface
+export interface VideoProductionSpecs {
+  resolution: string;
+  frameRate: number;
+  aspectRatio: string;
+  duration: number;
+  format: string;
+  estimatedTime: number;
+}
 
-  // Video production
-  startVideoProduction: () => Promise<void>;
-  updateProgress: (progress: any) => void;
-  pauseProduction: () => void;
-  resumeProduction: () => void;
-  cancelProduction: () => void;
+// Creative direction handoff data interface
+export interface CreativeDirectorHandoffData {
+  creativeDirectorSessionId: string;
+  creativeDirection: any; // From David's handoff
+  productAnalysis: any; // From Maya's analysis
+  handoffTimestamp: number;
+}
 
-  // Video optimization
-  optimizeVideo: () => Promise<void>;
-  previewVideo: () => Promise<void>;
+// Video Producer store state interface
+interface VideoProducerStore {
+  // Session management
+  sessionId: string | null;
+  isInitialized: boolean;
+  locale: Locale;
 
-  // Delivery and completion
-  finalizeVideo: () => Promise<void>;
-  deliverVideo: () => Promise<void>;
+  // Handoff data from Creative Director
+  creativeDirectorHandoffData: CreativeDirectorHandoffData | null;
 
-  // UI state management
-  toggleSection: (section: keyof VideoProducerState['expandedSections']) => void;
-  setAllSectionsExpanded: (expanded: boolean) => void;
+  // Workflow state
+  currentStep: VideoProducerWorkflowStep;
+  completedSteps: {
+    narrativeStyle: boolean;
+    musicTone: boolean;
+    finalProduction: boolean;
+  };
 
-  // Error handling
-  setError: (errorType: keyof VideoProducerState['errors'], error: string | null) => void;
-  clearErrors: () => void;
+  // User selections
+  selectedNarrativeStyle: NarrativeStyle | null;
+  selectedMusicGenre: MusicGenre | null;
+  productionSpecs: VideoProductionSpecs | null;
 
-  // Store reset
+  // Available options (from API or demo data)
+  availableNarrativeStyles: NarrativeStyle[];
+  availableMusicGenres: MusicGenre[];
+
+  // Production state
+  isProducing: boolean;
+  productionProgress: number;
+  finalVideoUrl: string | null;
+
+  // Chat and interaction
+  messages: any[];
+  isAgentTyping: boolean;
+  chatInputMessage: string;
+
+  // Actions
+  initializeFromCreativeDirectorHandoff: (data: {
+    sessionId: string;
+    creativeDirectorHandoffData: CreativeDirectorHandoffData;
+    locale: Locale;
+  }) => void;
+
+  setCurrentStep: (step: VideoProducerWorkflowStep) => void;
+  markStepCompleted: (step: keyof VideoProducerStore['completedSteps']) => void;
+
+  setSelectedNarrativeStyle: (style: NarrativeStyle) => void;
+  setSelectedMusicGenre: (genre: MusicGenre) => void;
+  setProductionSpecs: (specs: VideoProductionSpecs) => void;
+
+  setAvailableNarrativeStyles: (styles: NarrativeStyle[]) => void;
+  setAvailableMusicGenres: (genres: MusicGenre[]) => void;
+
+  startVideoProduction: () => void;
+  updateProductionProgress: (progress: number) => void;
+  setFinalVideoUrl: (url: string) => void;
+
+  // Chat actions
+  addMessage: (message: any) => void;
+  setIsAgentTyping: (typing: boolean) => void;
+  setChatInputMessage: (message: string) => void;
+
+  // Reset
   reset: () => void;
 }
 
-// DEFERRED: Complete store type
-type VideoProducerStore = VideoProducerState & VideoProducerActions;
+// Initial state
+const initialState = {
+  sessionId: null,
+  isInitialized: false,
+  locale: 'en' as Locale,
 
-// DEFERRED: Initial state
-const initialState: VideoProducerState = {
-  // Agent status
-  isActive: false,
-  isDemo: true, // Default to demo mode
-  currentMode: 'idle',
+  creativeDirectorHandoffData: null,
 
-  // Handoff data
-  handoffData: null,
-  handoffReceived: false,
-
-  // Production data
-  currentJob: null,
-  productionPlan: null,
-  progress: null,
-  result: null,
-
-  // UI state
-  expandedSections: {
-    handoffReview: true,
-    productionPlanning: false,
-    sceneSequencing: false,
-    videoGeneration: false,
-    optimization: false,
-    delivery: false,
+  currentStep: VideoProducerWorkflowStep.NARRATIVE_STYLE,
+  completedSteps: {
+    narrativeStyle: false,
+    musicTone: false,
+    finalProduction: false,
   },
 
-  // Loading states
-  loading: {
-    handoffProcessing: false,
-    planningGeneration: false,
-    videoProduction: false,
-    optimization: false,
-  },
+  selectedNarrativeStyle: null,
+  selectedMusicGenre: null,
+  productionSpecs: null,
 
-  // Error states
-  errors: {
-    handoffError: null,
-    planningError: null,
-    productionError: null,
-    deliveryError: null,
-  },
+  availableNarrativeStyles: [],
+  availableMusicGenres: [],
+
+  isProducing: false,
+  productionProgress: 0,
+  finalVideoUrl: null,
+
+  messages: [],
+  isAgentTyping: false,
+  chatInputMessage: '',
 };
 
-// DEFERRED: Zustand store implementation
-export const useVideoProducerStore = create<VideoProducerStore>()(
-  devtools(
-    (set, get) => ({
-      ...initialState,
+// Create Zustand store
+export const useVideoProducerStore = create<VideoProducerStore>((set, get) => ({
+  ...initialState,
 
-      // DEFERRED: Agent control actions
-      activateAgent: () => {
-        console.warn('DEFERRED: Alex agent activation not implemented');
-        set({ isActive: true, currentMode: 'planning' });
+  // Initialize from Creative Director handoff
+  initializeFromCreativeDirectorHandoff: (data) => {
+    set({
+      sessionId: data.sessionId,
+      creativeDirectorHandoffData: data.creativeDirectorHandoffData,
+      locale: data.locale,
+      isInitialized: true,
+      currentStep: VideoProducerWorkflowStep.NARRATIVE_STYLE,
+      completedSteps: {
+        narrativeStyle: false,
+        musicTone: false,
+        finalProduction: false,
       },
+      // Reset selections for new session
+      selectedNarrativeStyle: null,
+      selectedMusicGenre: null,
+      productionSpecs: null,
+      isProducing: false,
+      productionProgress: 0,
+      finalVideoUrl: null,
+      messages: [],
+    });
+  },
 
-      deactivateAgent: () => {
-        console.warn('DEFERRED: Alex agent deactivation not implemented');
-        set({ isActive: false, currentMode: 'idle' });
+  // Workflow management
+  setCurrentStep: (step) => {
+    set({ currentStep: step });
+  },
+
+  markStepCompleted: (step) => {
+    set((state) => ({
+      completedSteps: {
+        ...state.completedSteps,
+        [step]: true,
       },
+    }));
+  },
 
-      setMode: (mode) => {
-        console.warn(`DEFERRED: Alex mode change to ${mode} not implemented`);
-        set({ currentMode: mode });
-      },
+  // Selection management
+  setSelectedNarrativeStyle: (style) => {
+    set({ selectedNarrativeStyle: style });
+    get().markStepCompleted('narrativeStyle');
+  },
 
-      setDemoMode: (isDemo) => {
-        console.warn(`DEFERRED: Alex demo mode ${isDemo} not implemented`);
-        set({ isDemo });
-      },
+  setSelectedMusicGenre: (genre) => {
+    set({ selectedMusicGenre: genre });
+    get().markStepCompleted('musicTone');
+  },
 
-      // DEFERRED: Handoff management actions
-      receiveHandoffData: async (data) => {
-        console.warn('DEFERRED: Alex handoff data reception not implemented');
-        set({
-          loading: { ...get().loading, handoffProcessing: true },
-          errors: { ...get().errors, handoffError: null }
-        });
+  setProductionSpecs: (specs) => {
+    set({ productionSpecs: specs });
+  },
 
-        try {
-          // DEFERRED: Process handoff data
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate processing
-          set({
-            handoffData: data,
-            handoffReceived: true,
-            loading: { ...get().loading, handoffProcessing: false }
-          });
-        } catch (error) {
-          set({
-            loading: { ...get().loading, handoffProcessing: false },
-            errors: { ...get().errors, handoffError: 'Failed to process handoff data' }
-          });
-        }
-      },
+  // Available options management
+  setAvailableNarrativeStyles: (styles) => {
+    set({ availableNarrativeStyles: styles });
+  },
 
-      validateHandoffData: () => {
-        console.warn('DEFERRED: Alex handoff validation not implemented');
-        return false; // Always return false for deferred implementation
-      },
+  setAvailableMusicGenres: (genres) => {
+    set({ availableMusicGenres: genres });
+  },
 
-      clearHandoffData: () => {
-        set({
-          handoffData: null,
-          handoffReceived: false,
-          errors: { ...get().errors, handoffError: null }
-        });
-      },
+  // Video production management
+  startVideoProduction: () => {
+    set({
+      isProducing: true,
+      productionProgress: 0,
+      finalVideoUrl: null
+    });
+    get().markStepCompleted('finalProduction');
+  },
 
-      // DEFERRED: Production planning actions
-      generateProductionPlan: async () => {
-        console.warn('DEFERRED: Alex production planning not implemented');
-        set({ loading: { ...get().loading, planningGeneration: true } });
+  updateProductionProgress: (progress) => {
+    set({ productionProgress: progress });
+  },
 
-        try {
-          await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate planning
-          set({
-            productionPlan: { placeholder: 'DEFERRED_PLAN' },
-            loading: { ...get().loading, planningGeneration: false }
-          });
-        } catch (error) {
-          set({
-            loading: { ...get().loading, planningGeneration: false },
-            errors: { ...get().errors, planningError: 'Planning generation failed' }
-          });
-        }
-      },
+  setFinalVideoUrl: (url) => {
+    set({
+      finalVideoUrl: url,
+      isProducing: false,
+      productionProgress: 100
+    });
+  },
 
-      updateProductionPlan: (plan) => {
-        console.warn('DEFERRED: Alex plan update not implemented');
-        set({ productionPlan: plan });
-      },
+  // Chat management
+  addMessage: (message) => {
+    set((state) => ({
+      messages: [...state.messages, message],
+    }));
+  },
 
-      approveProductionPlan: async () => {
-        console.warn('DEFERRED: Alex plan approval not implemented');
-        set({ currentMode: 'production' });
-      },
+  setIsAgentTyping: (typing) => {
+    set({ isAgentTyping: typing });
+  },
 
-      // DEFERRED: Video production actions
-      startVideoProduction: async () => {
-        console.warn('DEFERRED: Alex video production not implemented');
-        set({
-          loading: { ...get().loading, videoProduction: true },
-          currentMode: 'production'
-        });
-      },
+  setChatInputMessage: (message) => {
+    set({ chatInputMessage: message });
+  },
 
-      updateProgress: (progress) => {
-        console.warn('DEFERRED: Alex progress update not implemented');
-        set({ progress });
-      },
-
-      pauseProduction: () => {
-        console.warn('DEFERRED: Alex production pause not implemented');
-      },
-
-      resumeProduction: () => {
-        console.warn('DEFERRED: Alex production resume not implemented');
-      },
-
-      cancelProduction: () => {
-        console.warn('DEFERRED: Alex production cancellation not implemented');
-        set({ currentMode: 'idle', progress: null });
-      },
-
-      // DEFERRED: Video optimization actions
-      optimizeVideo: async () => {
-        console.warn('DEFERRED: Alex video optimization not implemented');
-        set({ loading: { ...get().loading, optimization: true } });
-      },
-
-      previewVideo: async () => {
-        console.warn('DEFERRED: Alex video preview not implemented');
-      },
-
-      // DEFERRED: Delivery actions
-      finalizeVideo: async () => {
-        console.warn('DEFERRED: Alex video finalization not implemented');
-        set({ currentMode: 'review' });
-      },
-
-      deliverVideo: async () => {
-        console.warn('DEFERRED: Alex video delivery not implemented');
-      },
-
-      // UI state management
-      toggleSection: (section) => {
-        set({
-          expandedSections: {
-            ...get().expandedSections,
-            [section]: !get().expandedSections[section],
-          },
-        });
-      },
-
-      setAllSectionsExpanded: (expanded) => {
-        const newSections = Object.keys(get().expandedSections).reduce(
-          (acc, key) => ({ ...acc, [key]: expanded }),
-          {} as VideoProducerState['expandedSections']
-        );
-        set({ expandedSections: newSections });
-      },
-
-      // Error handling
-      setError: (errorType, error) => {
-        set({
-          errors: {
-            ...get().errors,
-            [errorType]: error,
-          },
-        });
-      },
-
-      clearErrors: () => {
-        set({
-          errors: {
-            handoffError: null,
-            planningError: null,
-            productionError: null,
-            deliveryError: null,
-          },
-        });
-      },
-
-      // Store reset
-      reset: () => {
-        set(initialState);
-      },
-    }),
-    {
-      name: 'video-producer-store',
-      enabled: process.env.NODE_ENV === 'development',
-    }
-  )
-);
-
-// DEFERRED: Export store type for TypeScript
-export type { VideoProducerStore, VideoProducerState, VideoProducerActions };
+  // Reset store
+  reset: () => {
+    set(initialState);
+  },
+}));

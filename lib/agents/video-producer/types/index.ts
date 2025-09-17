@@ -1,20 +1,20 @@
 /**
- * Alex - Video Producer Agent Types (DEFERRED)
+ * Zara - Video Producer Agent Types (DEFERRED)
  *
  * IMPLEMENTATION STATUS: DEFERRED FOR FUTURE DEVELOPMENT
  */
 
-// DEFERRED: Alex agent configuration
-export interface AlexAgentConfig {
+// DEFERRED: Zara agent configuration
+export interface ZaraAgentConfig {
   // Configuration for video production settings
-  readonly agentId: 'alex';
+  readonly agentId: "zara";
   readonly version: string;
-  readonly capabilities: AlexCapabilities;
+  readonly capabilities: ZaraCapabilities;
   readonly limits: ProductionLimits;
 }
 
-// DEFERRED: Alex's core capabilities
-export interface AlexCapabilities {
+// DEFERRED: Zara's core capabilities
+export interface ZaraCapabilities {
   readonly videoGeneration: boolean;
   readonly sceneSequencing: boolean;
   readonly audioIntegration: boolean;
@@ -32,9 +32,9 @@ export interface ProductionLimits {
 
 // DEFERRED: Video format specifications
 export interface VideoFormat {
-  readonly format: 'mp4' | 'webm' | 'mov';
+  readonly format: "mp4" | "webm" | "mov";
   readonly codec: string;
-  readonly quality: 'low' | 'medium' | 'high' | 'ultra';
+  readonly quality: "low" | "medium" | "high" | "ultra";
 }
 
 // DEFERRED: Video resolution options
@@ -67,13 +67,13 @@ export interface ProductionScene {
 export interface AudioTrack {
   readonly trackId: string;
   readonly duration: number;
-  readonly format: 'mp3' | 'wav' | 'aac';
+  readonly format: "mp3" | "wav" | "aac";
   readonly mood: string;
 }
 
 // DEFERRED: Scene transition effects
 export interface SceneTransition {
-  readonly type: 'fade' | 'cut' | 'slide' | 'dissolve';
+  readonly type: "fade" | "cut" | "slide" | "dissolve";
   readonly duration: number;
   readonly fromSceneId: string;
   readonly toSceneId: string;
@@ -82,7 +82,7 @@ export interface SceneTransition {
 // DEFERRED: Visual assets for video production
 export interface VisualAsset {
   readonly assetId: string;
-  readonly type: 'image' | 'video' | 'generated';
+  readonly type: "image" | "video" | "generated";
   readonly url: string;
   readonly duration?: number; // for video assets
   readonly position: AssetPosition;
@@ -100,7 +100,7 @@ export interface AssetPosition {
 // DEFERRED: Audio elements within scenes
 export interface AudioElement {
   readonly elementId: string;
-  readonly type: 'narration' | 'music' | 'effect';
+  readonly type: "narration" | "music" | "effect";
   readonly startTime: number;
   readonly duration: number;
   readonly volume: number; // 0-1
@@ -109,13 +109,13 @@ export interface AudioElement {
 // DEFERRED: Video effects and filters
 export interface VideoEffect {
   readonly effectId: string;
-  readonly type: 'filter' | 'animation' | 'overlay';
+  readonly type: "filter" | "animation" | "overlay";
   readonly parameters: Record<string, any>;
   readonly startTime: number;
   readonly duration: number;
 }
 
 // Re-export all types
-export * from './config';
-export * from './production';
-export * from './handoff';
+export * from "./config";
+export * from "./production";
+export * from "./handoff";

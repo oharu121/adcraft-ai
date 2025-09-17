@@ -11,12 +11,12 @@ export interface VisualAsset {
   sessionId: string;
   type: AssetType;
   status: AssetStatus;
-  
+
   // Asset metadata
   name: string;
   description: string;
   tags: string[];
-  
+
   // File information
   files: {
     original: AssetFile;
@@ -24,7 +24,7 @@ export interface VisualAsset {
     thumbnail: AssetFile;
     preview?: AssetFile;
   };
-  
+
   // Generation specifications
   generationSpecs: {
     prompt: string;
@@ -38,7 +38,7 @@ export interface VisualAsset {
     model?: string;
     parameters?: Record<string, any>;
   };
-  
+
   // Creative context
   creativeContext: {
     purpose: string;
@@ -47,7 +47,7 @@ export interface VisualAsset {
     emotionalTone: string;
     visualHierarchy: string;
   };
-  
+
   // Quality assessment
   quality: {
     overallScore: number;
@@ -57,7 +57,7 @@ export interface VisualAsset {
     feedback: string[];
     improvements?: string[];
   };
-  
+
   // Usage information
   usage: {
     createdAt: number;
@@ -66,7 +66,7 @@ export interface VisualAsset {
     lastUsed?: number;
     approvedForProduction: boolean;
   };
-  
+
   // Cost tracking
   cost: {
     generationCost: number;
@@ -74,14 +74,14 @@ export interface VisualAsset {
     processingCost: number;
     totalCost: number;
   };
-  
+
   // Localization
   locale: "en" | "ja";
   metadata?: Record<string, any>;
 }
 
 // Asset type enumeration
-export type AssetType = 
+export type AssetType =
   | "background"
   | "product-hero"
   | "lifestyle-scene"
@@ -96,7 +96,7 @@ export type AssetType =
   | "typography-treatment";
 
 // Asset status enumeration
-export type AssetStatus = 
+export type AssetStatus =
   | "pending"
   | "generating"
   | "processing"
@@ -138,7 +138,7 @@ export interface CreativeDirection {
   id: string;
   sessionId: string;
   status: "developing" | "finalized" | "approved" | "needs-revision";
-  
+
   // Core creative strategy
   strategy: {
     visualTheme: string;
@@ -147,7 +147,7 @@ export interface CreativeDirection {
     targetAudienceAlignment: string;
     competitiveDifferentiation: string;
   };
-  
+
   // Visual specifications
   visualSpecs: {
     styleDirection: VisualStyleDirection;
@@ -156,14 +156,14 @@ export interface CreativeDirection {
     compositionRules: CompositionRules;
     lightingDirection: LightingDirection;
   };
-  
+
   // Asset requirements
   assetRequirements: {
     primary: AssetRequirement[];
     secondary: AssetRequirement[];
     optional: AssetRequirement[];
   };
-  
+
   // Production guidelines
   productionGuidelines: {
     videoSpecifications: VideoSpecs;
@@ -171,16 +171,16 @@ export interface CreativeDirection {
     qualityStandards: QualityStandard[];
     deliveryFormat: DeliveryFormat[];
   };
-  
-  // Handoff information for Alex
-  alexHandoffData: {
+
+  // Handoff information for Zara
+  zaraHandoffData: {
     narrativeFlow: string[];
     sceneBreakdown: SceneBreakdown[];
     assetMapping: AssetMapping[];
     productionNotes: string[];
     timingGuidelines: TimingGuideline[];
   };
-  
+
   // Validation and approval
   validation: {
     isComplete: boolean;
@@ -191,7 +191,7 @@ export interface CreativeDirection {
     validationErrors: string[];
     approvalTimestamp?: number;
   };
-  
+
   // Metadata
   createdAt: number;
   updatedAt: number;
@@ -217,7 +217,7 @@ export interface StylePalette {
   id: string;
   name: string;
   description: string;
-  
+
   // Color specifications
   colors: {
     primary: ColorSpec[];
@@ -226,7 +226,7 @@ export interface StylePalette {
     neutral: ColorSpec[];
     supporting: ColorSpec[];
   };
-  
+
   // Color relationships
   harmony: {
     type: "monochromatic" | "analogous" | "complementary" | "triadic" | "split-complementary";
@@ -234,7 +234,7 @@ export interface StylePalette {
     contrast: "low" | "medium" | "high";
     saturation: "muted" | "balanced" | "vibrant";
   };
-  
+
   // Psychological impact
   psychology: {
     emotions: string[];
@@ -242,7 +242,7 @@ export interface StylePalette {
     culturalMeaning: string;
     targetAudienceResonance: number;
   };
-  
+
   // Usage guidelines
   usage: {
     primary: string; // When to use primary colors
@@ -325,20 +325,20 @@ export interface CompositionRules {
     emphasis: "center" | "rule-of-thirds" | "golden-ratio" | "custom";
     flow: "left-to-right" | "top-to-bottom" | "circular" | "z-pattern";
   };
-  
+
   hierarchy: {
     primary: string;
     secondary: string;
     supporting: string;
   };
-  
+
   spacing: {
     margins: string;
     padding: string;
     gutters: string;
     rhythm: string;
   };
-  
+
   proportions: {
     ratios: string[];
     scaling: string;
@@ -375,7 +375,7 @@ export interface AssetRequirement {
   };
 }
 
-// Video specifications for Alex handoff
+// Video specifications for Zara handoff
 export interface VideoSpecs {
   resolution: string;
   frameRate: number;

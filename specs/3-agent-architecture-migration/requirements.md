@@ -21,7 +21,7 @@ This specification outlines the comprehensive migration from the current AdCraft
 - ✅ **Creative Direction**: Brand alignment and visual storytelling
 - ❌ **Limited Scope**: Currently underutilized compared to Maya's broad responsibilities
 
-#### Alex (Video Producer Agent) - Current State
+#### Zara (Video Producer Agent) - Current State
 - ❌ **Not Implemented**: Currently exists only as placeholder references
 
 ### Current Technical Architecture
@@ -31,7 +31,7 @@ This specification outlines the comprehensive migration from the current AdCraft
 - `maya-analysis`: Maya analyzes product
 - `maya-strategy`: Maya shows strategy + chat interface
 - `david-creative`: David handles creative direction (limited implementation)
-- `alex-production`: Placeholder phase
+- `zara-production`: Placeholder phase
 - `completed`: Final state
 
 #### State Management (Current)
@@ -56,8 +56,8 @@ This specification outlines the comprehensive migration from the current AdCraft
 #### Removed Responsibilities (MOVE OUT)
 - ❌ **Visual Style Decisions**: Move to David
 - ❌ **Scene Generation**: Move to David
-- ❌ **Music & Tone Selection**: Move to Alex
-- ❌ **Narrative Pacing**: Move to Alex
+- ❌ **Music & Tone Selection**: Move to Zara
+- ❌ **Narrative Pacing**: Move to Zara
 
 #### Technical Requirements
 - **Preserve Existing**: All current product analysis capabilities
@@ -92,9 +92,9 @@ This specification outlines the comprehensive migration from the current AdCraft
 #### Technical Requirements
 - **Import from Maya**: Scene generation logic from `lib/agents/product-intelligence/tools/scene-generator.ts`
 - **Enhance Current**: Build upon existing creative director infrastructure
-- **Handoff Output**: Complete visual package + generated assets to Alex
+- **Handoff Output**: Complete visual package + generated assets to Zara
 
-### Agent 3: Alex (Video Producer Agent) - New Implementation
+### Agent 3: Zara (Video Producer Agent) - New Implementation
 
 #### Core Responsibilities (NEW)
 - **Narrative Style Direction**:
@@ -127,7 +127,7 @@ This specification outlines the comprehensive migration from the current AdCraft
 
 **Acceptance Criteria**:
 - ✅ When Maya completes analysis and messaging, the transition to David must be visually smooth
-- ✅ When David completes visual direction, the transition to Alex must maintain all context
+- ✅ When David completes visual direction, the transition to Zara must maintain all context
 - ✅ Each agent handoff must include a brief introduction explaining their role
 - ✅ Users must be able to review previous agent outputs during later phases
 - ✅ Navigation between phases must be intuitive with clear progress indicators
@@ -139,7 +139,7 @@ This specification outlines the comprehensive migration from the current AdCraft
 **Acceptance Criteria**:
 - ✅ Maya's chat system must be preserved exactly as it currently functions
 - ✅ David must have an equivalent chat interface for creative decisions
-- ✅ Alex must have a chat interface for production decisions
+- ✅ Zara must have a chat interface for production decisions
 - ✅ Chat history must be preserved across agent transitions
 - ✅ Each agent must have distinct personality and communication style
 - ✅ Quick actions and suggested responses must be agent-appropriate
@@ -152,7 +152,7 @@ This specification outlines the comprehensive migration from the current AdCraft
 - ✅ Final strategy card must show contributions from all three agents
 - ✅ Product analysis and messaging (Maya) must be clearly presented
 - ✅ Visual direction and scene planning (David) must be viewable
-- ✅ Narrative style and audio decisions (Alex) must be documented
+- ✅ Narrative style and audio decisions (Zara) must be documented
 - ✅ Users must be able to request modifications at any stage
 - ✅ Strategy confirmation system must work across all agent outputs
 
@@ -163,7 +163,7 @@ This specification outlines the comprehensive migration from the current AdCraft
 **Acceptance Criteria**:
 - ✅ David must provide multiple visual style options with clear previews
 - ✅ Scene selection must be interactive with user approval
-- ✅ Alex must offer music genre and pacing choices
+- ✅ Zara must offer music genre and pacing choices
 - ✅ Users must be able to iterate on creative decisions
 - ✅ Each creative choice must include rationale and alternatives
 - ✅ Final decisions must be clearly summarized before video generation
@@ -177,7 +177,7 @@ This specification outlines the comprehensive migration from the current AdCraft
 **Acceptance Criteria**:
 - ✅ Maya's scene generation logic must be moved to David's agent system
 - ✅ Maya's visual style logic must be moved to David's agent system
-- ✅ All music and tone logic must be moved to Alex's new agent system
+- ✅ All music and tone logic must be moved to Zara's new agent system
 - ✅ Maya's core product analysis must be preserved exactly
 - ✅ Maya's messaging system must be enhanced with deeper strategy capabilities
 - ✅ No functionality must be lost during the migration
@@ -188,10 +188,10 @@ This specification outlines the comprehensive migration from the current AdCraft
 **User Story**: As a developer, I need updated data structures that support the new 3-agent workflow.
 
 **Acceptance Criteria**:
-- ✅ Handoff data structures must be updated for Maya → David → Alex flow
+- ✅ Handoff data structures must be updated for Maya → David → Zara flow
 - ✅ ProductAnalysis type must be refined to focus on messaging only
 - ✅ New CreativeDirection type must capture David's visual outputs
-- ✅ New ProductionPlan type must capture Alex's final decisions
+- ✅ New ProductionPlan type must capture Zara's final decisions
 - ✅ Session state must track progress across all three agents
 - ✅ All agent outputs must be properly typed and validated
 - ✅ Backward compatibility must be maintained for existing sessions
@@ -203,7 +203,7 @@ This specification outlines the comprehensive migration from the current AdCraft
 **Acceptance Criteria**:
 - ✅ Maya's components must be updated to remove visual style sections
 - ✅ David's components must be enhanced with scene planning interface
-- ✅ Alex's components must be created from scratch with production interface
+- ✅ Zara's components must be created from scratch with production interface
 - ✅ Strategy cards must be redistributed to show appropriate agent outputs
 - ✅ Phase indicators must reflect the new 3-agent flow
 - ✅ Handoff animations must be updated for the new transitions
@@ -216,7 +216,7 @@ This specification outlines the comprehensive migration from the current AdCraft
 **Acceptance Criteria**:
 - ✅ Product Intelligence store must be updated to remove visual/audio state
 - ✅ Creative Director store must be enhanced with scene planning state
-- ✅ New Video Producer store must be created for Alex's state
+- ✅ New Video Producer store must be created for Zara's state
 - ✅ Phase management must support the new agent progression
 - ✅ Cross-agent state sharing must be implemented
 - ✅ State persistence must work across all agent transitions
@@ -231,7 +231,7 @@ This specification outlines the comprehensive migration from the current AdCraft
 **Acceptance Criteria**:
 - ✅ Maya's API must be focused on product analysis and messaging
 - ✅ David's API must be enhanced for visual direction and scene planning
-- ✅ Alex's API must be created for production decisions and video generation
+- ✅ Zara's API must be created for production decisions and video generation
 - ✅ Handoff APIs must support the new agent flow
 - ✅ All endpoints must maintain backward compatibility during migration
 - ✅ Error handling must work consistently across all agents
@@ -244,8 +244,8 @@ This specification outlines the comprehensive migration from the current AdCraft
 **Acceptance Criteria**:
 - ✅ Maya must continue using Gemini Pro Vision and Gemini Pro
 - ✅ David must continue using Imagen API for visual asset generation
-- ✅ Alex must integrate with Veo API for video generation
-- ✅ Alex must integrate with Text-to-Speech API for narration
+- ✅ Zara must integrate with Veo API for video generation
+- ✅ Zara must integrate with Text-to-Speech API for narration
 - ✅ All agents must share cost tracking and budget management
 - ✅ Rate limiting must be coordinated across all agents
 - ✅ Error recovery must work for all external service failures
@@ -288,7 +288,7 @@ This specification outlines the comprehensive migration from the current AdCraft
 - ✅ Session schema must support 3-agent progression tracking
 - ✅ Maya's output schema must focus on product analysis and messaging
 - ✅ David's output schema must capture visual decisions and scene planning
-- ✅ Alex's output schema must capture production decisions and final video
+- ✅ Zara's output schema must capture production decisions and final video
 - ✅ Handoff data schema must support the new agent transitions
 - ✅ All existing session data must be migrated or remain compatible
 - ✅ Cost tracking schema must support per-agent cost attribution
@@ -315,7 +315,7 @@ This specification outlines the comprehensive migration from the current AdCraft
 **Acceptance Criteria**:
 - ✅ Maya's analysis time must remain under 30 seconds
 - ✅ David's creative direction must complete within 60 seconds
-- ✅ Alex's production decisions must complete within 30 seconds
+- ✅ Zara's production decisions must complete within 30 seconds
 - ✅ Agent transitions must be instantaneous (under 1 second)
 - ✅ Chat responses must remain under 2 seconds
 - ✅ Overall workflow must complete within current time limits
@@ -371,7 +371,7 @@ This specification outlines the comprehensive migration from the current AdCraft
 **Acceptance Criteria**:
 - ✅ Maya's demo mode must continue working exactly as before
 - ✅ David's demo mode must provide realistic creative direction outputs
-- ✅ Alex's demo mode must provide realistic production decisions
+- ✅ Zara's demo mode must provide realistic production decisions
 - ✅ All agent handoffs must work in demo mode
 - ✅ Demo mode must provide complete user experience without API costs
 - ✅ Demo mode must be indistinguishable from real mode for users

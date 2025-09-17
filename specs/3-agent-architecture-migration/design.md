@@ -4,7 +4,7 @@
 
 This document outlines the comprehensive technical design for migrating AdCraft AI from the current 2-agent system with overlapping responsibilities to a clean 3-agent architecture with specialized roles. The migration preserves all existing functionality while redistributing responsibilities for enhanced creative control and professional production capabilities.
 
-**IMPORTANT: This migration focuses on Maya/David scope redistribution only. Alex agent implementation is deferred to a future initiative.**
+**IMPORTANT: This migration focuses on Maya/David scope redistribution only. Zara agent implementation is deferred to a future initiative.**
 
 ## Architectural Decisions Summary
 
@@ -22,7 +22,7 @@ Based on user approval (September 14, 2025), the following architectural pattern
    - Maintain proven algorithms and logic patterns
 
 3. **State Management Architecture**: **SELECTED: Option B - Independent Agent Stores**
-   - Separate Zustand stores for Maya, David, and Alex
+   - Separate Zustand stores for Maya, David, and Zara
    - Handoff coordination through dedicated API layer
    - Store isolation for better performance and maintainability
 
@@ -36,10 +36,10 @@ Based on user approval (September 14, 2025), the following architectural pattern
    - Simplified budget management and monitoring
    - Clear cost breakdowns per agent while maintaining session totals
 
-6. **Implementation Priority**: **Maya/David migration only - Alex agent implementation DEFERRED**
+6. **Implementation Priority**: **Maya/David migration only - Zara agent implementation DEFERRED**
    - Focus on Maya simplification and David enhancement
-   - Alex design preserved for future implementation
-   - Two-phase approach: Current migration + Future Alex implementation
+   - Zara design preserved for future implementation
+   - Two-phase approach: Current migration + Future Zara implementation
 
 ## Current State Analysis
 
@@ -58,7 +58,7 @@ interface MayaCurrentScope {
   // ❌ NON-CORE (MOVE OUT) - Visual/Audio Decisions
   visualPreferences: VisualPreferences; // → Move to David
   keyScenes: KeyScenes;                 // → Move to David
-  musicTone: MusicToneDecisions;        // → Move to Alex
+  musicTone: MusicToneDecisions;        // → Move to Zara
 }
 ```
 
@@ -77,10 +77,10 @@ interface DavidCurrentScope {
 }
 ```
 
-#### Alex (Video Producer Agent) - Current Implementation
+#### Zara (Video Producer Agent) - Current Implementation
 ```typescript
 // Currently exists only as placeholder references
-interface AlexCurrentScope {
+interface ZaraCurrentScope {
   // ❌ NOT IMPLEMENTED - Needs complete creation
   productionDecisions: ProductionPlan;
   audioCoordination: AudioPlan;
@@ -96,10 +96,10 @@ lib/agents/
 ├── product-intelligence/           # Maya - Overloaded
 │   ├── tools/scene-generator.ts   # → Move to David
 │   ├── tools/visual-analyzer.ts   # → Move to David
-│   └── core/music-logic.ts        # → Move to Alex
+│   └── core/music-logic.ts        # → Move to Zara
 ├── creative-director/              # David - Underutilized
 │   └── [basic implementation]
-└── video-producer/                 # Alex - Missing
+└── video-producer/                 # Zara - Missing
     └── [needs creation]
 ```
 
@@ -115,7 +115,7 @@ useProductIntelligenceStore {
   expandedSections: {
     visualStyle: boolean;    // → Move to David store
     keyScenes: boolean;      // → Move to David store
-    musicTone: boolean;      // → Move to Alex store
+    musicTone: boolean;      // → Move to Zara store
   };
 }
 
@@ -264,9 +264,9 @@ interface DavidReceivesFromMaya {
 }
 ```
 
-#### Handoff Output to Alex
+#### Handoff Output to Zara
 ```typescript
-interface DavidToAlexHandoff {
+interface DavidToZaraHandoff {
   // Complete visual package
   visualDirection: {
     approvedStyle: VisualStyle;
@@ -313,11 +313,11 @@ lib/agents/creative-director/tools/style-generator.ts
   → Enhanced with Maya's visual preferences logic
 ```
 
-### Agent 3: Alex (Video Producer Agent) - New Implementation
+### Agent 3: Zara (Video Producer Agent) - New Implementation
 
 #### Complete New Implementation
 ```typescript
-interface AlexNewImplementation {
+interface ZaraNewImplementation {
   // ✅ NEW - Narrative Direction
   narrativeDirection: {
     pacingDecisions: PacingDecisions;     // New
@@ -353,7 +353,7 @@ interface AlexNewImplementation {
 
 #### Handoff Input from David
 ```typescript
-interface AlexReceivesFromDavid {
+interface ZaraReceivesFromDavid {
   // Visual foundation
   visualDirection: CompleteVisualDirection;
   sceneComposition: FinalSceneComposition;
@@ -368,7 +368,7 @@ interface AlexReceivesFromDavid {
 
 #### Final Output
 ```typescript
-interface AlexFinalOutput {
+interface ZaraFinalOutput {
   // Commercial video
   finalVideo: {
     videoFile: VideoFile;
@@ -394,14 +394,14 @@ interface AlexFinalOutput {
 }
 ```
 
-#### New File Structure for Alex
+#### New File Structure for Zara
 ```bash
 lib/agents/video-producer/                    # New directory
 ├── core/
 │   ├── demo-handler.ts                      # New - Demo mode
 │   ├── real-handler.ts                      # New - Real mode
 │   ├── production-engine.ts                 # New - Core logic
-│   └── chat.ts                              # New - Alex personality
+│   └── chat.ts                              # New - Zara personality
 ├── tools/
 │   ├── narrative-director.ts                # New - Pacing/style
 │   ├── audio-coordinator.ts                 # Import from Maya + enhance
@@ -412,7 +412,7 @@ lib/agents/video-producer/                    # New directory
 │   ├── production-types.ts                  # New - Production types
 │   ├── audio-types.ts                       # New - Audio types
 │   └── video-types.ts                       # New - Video types
-├── enums.ts                                 # New - Alex enums
+├── enums.ts                                 # New - Zara enums
 └── index.ts                                 # New - Public API
 ```
 
@@ -483,7 +483,7 @@ export interface CreativeDirectionEnhanced {
     assetMetadata: AssetMetadata[];
   };
 
-  // Production guidance for Alex (NEW)
+  // Production guidance for Zara (NEW)
   productionGuidelines: {
     visualRequirements: VisualRequirements;
     technicalSpecs: TechnicalSpecs;
@@ -492,7 +492,7 @@ export interface CreativeDirectionEnhanced {
 }
 ```
 
-#### New Alex Types
+#### New Zara Types
 ```typescript
 // lib/agents/video-producer/types/production-types.ts (NEW)
 export interface ProductionPlan {
@@ -568,9 +568,9 @@ export interface MayaToDataHandoffData {
 }
 ```
 
-#### David → Alex Handoff
+#### David → Zara Handoff
 ```typescript
-export interface DavidToAlexHandoffData {
+export interface DavidToZaraHandoffData {
   // Complete visual package
   visualPackage: {
     finalDirection: CreativeDirectionEnhanced;
@@ -642,10 +642,10 @@ export interface DavidToAlexHandoffData {
 │   ├── route.ts              // Creative chat (ENHANCED)
 │   └── decisions/route.ts     // Creative decisions (NEW)
 └── handoff/
-    └── alex/route.ts          // David→Alex handoff (NEW)
+    └── zara/route.ts          // David→Zara handoff (NEW)
 ```
 
-### Alex API Creation
+### Zara API Creation
 ```typescript
 // app/api/agents/video-producer/ (NEW)
 ├── route.ts                   // Main production endpoint (NEW)
@@ -747,25 +747,25 @@ interface CreativeDirectorStoreEnhanced {
     productionPrep: boolean;
   };
 
-  // ✅ NEW - Alex handoff preparation
+  // ✅ NEW - Zara handoff preparation
   handoffPreparation: {
     visualFinalized: boolean;
     assetsApproved: boolean;
     productionNotesComplete: boolean;
-    readyForAlex: boolean;
-    alexHandoffData: DavidToAlexHandoffData | null;
+    readyForZara: boolean;
+    zaraHandoffData: DavidToZaraHandoffData | null;
   };
 
   // Enhanced actions
   initializeFromMayaHandoff: (data: MayaToDataHandoffData) => void;
   updateSceneComposition: (scenes: KeyScenes) => void;
   updateStyleDecisions: (style: StyleDecisions) => void;
-  prepareAlexHandoff: () => void;
+  prepareZaraHandoff: () => void;
   // ... other enhanced actions
 }
 ```
 
-#### Alex Store Creation
+#### Zara Store Creation
 ```typescript
 // lib/stores/video-producer-store.ts (NEW)
 interface VideoProducerStore {
@@ -776,7 +776,7 @@ interface VideoProducerStore {
   isAgentTyping: boolean;
 
   // David handoff state
-  davidHandoffData: DavidToAlexHandoffData | null;
+  davidHandoffData: DavidToZaraHandoffData | null;
 
   // Narrative direction state
   narrativeDirection: {
@@ -836,7 +836,7 @@ interface VideoProducerStore {
   };
 
   // Actions
-  initializeFromDavidHandoff: (data: DavidToAlexHandoffData) => void;
+  initializeFromDavidHandoff: (data: DavidToZaraHandoffData) => void;
   updateNarrativeDirection: (narrative: NarrativeDirection) => void;
   updateAudioCoordination: (audio: AudioCoordination) => void;
   updateVideoProduction: (production: VideoProduction) => void;
@@ -865,11 +865,11 @@ export type AppPhase =
   | 'david-creative'     // David's creative direction workflow
   | 'david-scenes'       // David's scene composition
   | 'david-assets'       // David's asset generation
-  | 'david-handoff'      // David preparing handoff to Alex
-  | 'alex-narrative'     // Alex's narrative direction
-  | 'alex-audio'         // Alex's audio coordination
-  | 'alex-production'    // Alex's video production
-  | 'alex-delivery'      // Alex's final delivery
+  | 'david-handoff'      // David preparing handoff to Zara
+  | 'zara-narrative'     // Zara's narrative direction
+  | 'zara-audio'         // Zara's audio coordination
+  | 'zara-production'    // Zara's video production
+  | 'zara-delivery'      // Zara's final delivery
   | 'completed';         // Workflow complete
 
 export const PHASE_ORDER: AppPhase[] = [
@@ -881,10 +881,10 @@ export const PHASE_ORDER: AppPhase[] = [
   'david-scenes',
   'david-assets',
   'david-handoff',
-  'alex-narrative',
-  'alex-audio',
-  'alex-production',
-  'alex-delivery',
+  'zara-narrative',
+  'zara-audio',
+  'zara-production',
+  'zara-delivery',
   'completed'
 ];
 
@@ -897,10 +897,10 @@ export const PHASE_AGENTS: Record<AppPhase, string> = {
   'david-scenes': 'david',
   'david-assets': 'david',
   'david-handoff': 'david',
-  'alex-narrative': 'alex',
-  'alex-audio': 'alex',
-  'alex-production': 'alex',
-  'alex-delivery': 'alex',
+  'zara-narrative': 'zara',
+  'zara-audio': 'zara',
+  'zara-production': 'zara',
+  'zara-delivery': 'zara',
   'completed': 'system'
 };
 ```
@@ -930,14 +930,14 @@ export const PHASE_AGENTS: Record<AppPhase, string> = {
 ├── VisualDirectionCard.tsx      // ENHANCED - Visual decision making
 ├── AssetGenerationCard.tsx      // ENHANCED - Asset creation workflow
 ├── AssetGalleryCard.tsx         // ENHANCED - Asset review/approval
-├── ProductionNotesCard.tsx      // NEW - Alex handoff preparation
-└── AlexHandoffCard.tsx          // NEW - Alex handoff interface
+├── ProductionNotesCard.tsx      // NEW - Zara handoff preparation
+└── ZaraHandoffCard.tsx          // NEW - Zara handoff interface
 ```
 
-#### Alex Components (New)
+#### Zara Components (New)
 ```typescript
 // components/video-producer/ (NEW)
-├── ProductionChatContainer.tsx   // NEW - Alex's chat interface
+├── ProductionChatContainer.tsx   // NEW - Zara's chat interface
 ├── DavidHandoffCard.tsx         // NEW - Receive David's handoff
 ├── NarrativeDirectionCard.tsx   // NEW - Narrative style selection
 ├── AudioCoordinationCard.tsx    // NEW - Music and audio planning
@@ -993,14 +993,14 @@ interface AgentPhaseLayout {
     <StyleSelectionCard />
     <SceneCompositionCard />
     <AssetGenerationCard />
-    <AlexHandoffCard />
+    <ZaraHandoffCard />
   </RightPanel>
 </DavidPhaseLayout>
 
-// Alex Phase Layout
-<AlexPhaseLayout>
+// Zara Phase Layout
+<ZaraPhaseLayout>
   <LeftPanel>
-    <AlexChatContainer />
+    <ZaraChatContainer />
     <ProductionDecisionActions />
   </LeftPanel>
   <RightPanel>
@@ -1009,7 +1009,7 @@ interface AgentPhaseLayout {
     <ProductionControlCard />
     <DeliveryPackageCard />
   </RightPanel>
-</AlexPhaseLayout>
+</ZaraPhaseLayout>
 ```
 
 ## External Service Integration
@@ -1056,10 +1056,10 @@ interface DavidGCPIntegration {
 }
 ```
 
-#### Alex's GCP Integration (New)
+#### Zara's GCP Integration (New)
 ```typescript
-// Alex uses Veo API and Text-to-Speech
-interface AlexGCPIntegration {
+// Zara uses Veo API and Text-to-Speech
+interface ZaraGCPIntegration {
   vertexAI: {
     geminiPro: ProductionDecisionGeneration;
     geminiPro: QualityAssuranceAnalysis;
@@ -1089,12 +1089,12 @@ interface AlexGCPIntegration {
 
 ### Phase 1: Foundation Setup
 ```typescript
-// Step 1: Create Alex agent infrastructure
+// Step 1: Create Zara agent infrastructure
 1. Create lib/agents/video-producer/ directory structure
-2. Implement basic Alex types and enums
-3. Create Alex Zustand store
-4. Implement basic Alex API endpoints
-5. Create Alex UI components (skeleton)
+2. Implement basic Zara types and enums
+3. Create Zara Zustand store
+4. Implement basic Zara API endpoints
+5. Create Zara UI components (skeleton)
 
 // Step 2: Refine Maya's scope
 1. Update Maya's ProductAnalysis type (remove visual/audio)
@@ -1113,14 +1113,14 @@ interface AlexGCPIntegration {
 ```typescript
 // Step 4: Update handoff data structures
 1. Implement MayaToDataHandoffData type
-2. Implement DavidToAlexHandoffData type
+2. Implement DavidToZaraHandoffData type
 3. Update session schemas for 3-agent flow
 4. Migrate existing session data
 
 // Step 5: API endpoint migration
 1. Refine Maya's API endpoints
 2. Enhance David's API endpoints
-3. Implement Alex's API endpoints
+3. Implement Zara's API endpoints
 4. Update handoff coordination APIs
 ```
 
@@ -1129,12 +1129,12 @@ interface AlexGCPIntegration {
 // Step 6: Component migration
 1. Refine Maya's UI components
 2. Enhance David's UI components
-3. Implement Alex's UI components
+3. Implement Zara's UI components
 4. Update phase management and transitions
 
 // Step 7: Integration testing
 1. Test Maya → David handoff
-2. Test David → Alex handoff
+2. Test David → Zara handoff
 3. Test complete 3-agent workflow
 4. Verify demo mode functionality
 ```
@@ -1156,7 +1156,7 @@ interface AgentCostBreakdown {
     estimatedCost: 0.30-0.50;     // Per commercial
   };
 
-  alex: {
+  zara: {
     geminiProProduction: number;  // Production decisions
     veoAPIVideo: number;          // Video generation (major cost)
     textToSpeechAPI: number;      // Voiceover generation
@@ -1174,19 +1174,19 @@ interface CostOptimization {
   batchProcessing: {
     mayaDecisions: BatchMultipleDecisions;
     davidAssets: BatchAssetGeneration;
-    alexProduction: OptimizeVeoAPICalls;
+    zaraProduction: OptimizeVeoAPICalls;
   };
 
   caching: {
     mayaAnalysis: CacheProductAnalysis;
     davidAssets: CacheGeneratedAssets;
-    alexTemplates: CacheProductionTemplates;
+    zaraTemplates: CacheProductionTemplates;
   };
 
   intelligentFallbacks: {
     mayaFallback: UseMockDataOnAPIFailure;
     davidFallback: UseTemplateAssetsOnFailure;
-    alexFallback: UseReducedQualityOnBudgetLimit;
+    zaraFallback: UseReducedQualityOnBudgetLimit;
   };
 }
 ```
@@ -1238,14 +1238,14 @@ interface DavidTestSuite {
   e2eTests: {
     completeCreativeFlow: CreativeQuality;
     userInteractions: UserExperience;
-    handoffToAlexSuccess: HandoffIntegrity;
+    handoffToZaraSuccess: HandoffIntegrity;
   };
 }
 ```
 
-#### Alex Testing
+#### Zara Testing
 ```typescript
-interface AlexTestSuite {
+interface ZaraTestSuite {
   unitTests: {
     narrativeDirection: NarrativeQuality;
     audioCoordination: AudioQuality;
@@ -1285,7 +1285,7 @@ interface PerformanceTargets {
     handoffPreparation: "< 5 seconds";
   };
 
-  alex: {
+  zara: {
     productionDecisions: "< 20 seconds";
     videoGeneration: "< 300 seconds";
     formatOptimization: "< 30 seconds";
@@ -1311,7 +1311,7 @@ interface CachingStrategy {
     sceneTemplates: "7 days";
   };
 
-  alexCache: {
+  zaraCache: {
     productionTemplates: "7 days";
     audioTemplates: "7 days";
     formatConfigurations: "30 days";
@@ -1338,7 +1338,7 @@ interface DataSecurityStrategy {
     retention: "24 hours";
   };
 
-  alex: {
+  zara: {
     finalVideos: SignedURLStorage;
     productionMetadata: EncryptedFirestore;
     deliveryPackages: TemporarySecureStorage;
@@ -1366,7 +1366,7 @@ interface AgentMonitoring {
     userEngagement: ExperienceMetrics;
   };
 
-  alex: {
+  zara: {
     productionQuality: QualityMetrics;
     videoGenerationSuccess: PerformanceMetrics;
     deliverySuccess: SuccessMetrics;
@@ -1383,7 +1383,7 @@ interface MigrationTimeline {
   phase1: {
     duration: "1 week";
     deliverables: [
-      "Alex agent infrastructure",
+      "Zara agent infrastructure",
       "Maya scope refinement",
       "David scope enhancement",
       "Updated type definitions"
@@ -1437,19 +1437,19 @@ graph TB
     subgraph "State Management"
         MayaStore[Maya Zustand Store]
         DavidStore[David Zustand Store]
-        AlexStore[Alex Zustand Store]
+        ZaraStore[Zara Zustand Store]
     end
 
     subgraph "Agent Layer"
         Maya[Maya - Product Intelligence]
         David[David - Creative Director]
-        Alex[Alex - Video Producer]
+        Zara[Zara - Video Producer]
     end
 
     subgraph "API Layer"
         MayaAPI[Maya API Endpoints]
         DavidAPI[David API Endpoints]
-        AlexAPI[Alex API Endpoints]
+        ZaraAPI[Zara API Endpoints]
         HandoffAPI[Handoff Coordination]
     end
 
@@ -1466,26 +1466,26 @@ graph TB
     HC --> PC
     PC --> MayaStore
     PC --> DavidStore
-    PC --> AlexStore
+    PC --> ZaraStore
 
     MayaStore --> MayaAPI
     DavidStore --> DavidAPI
-    AlexStore --> AlexAPI
+    ZaraStore --> ZaraAPI
 
     MayaAPI --> Maya
     DavidAPI --> David
-    AlexAPI --> Alex
+    ZaraAPI --> Zara
 
     Maya --> Gemini
     David --> Gemini
     David --> Imagen
-    Alex --> Gemini
-    Alex --> Veo
-    Alex --> TTS
+    Zara --> Gemini
+    Zara --> Veo
+    Zara --> TTS
 
     MayaAPI --> HandoffAPI
     DavidAPI --> HandoffAPI
-    AlexAPI --> HandoffAPI
+    ZaraAPI --> HandoffAPI
 
     HandoffAPI --> Storage
     HandoffAPI --> Firestore
@@ -1498,7 +1498,7 @@ sequenceDiagram
     participant User
     participant Maya
     participant David
-    participant Alex
+    participant Zara
     participant GCP
 
     User->>Maya: Upload Product + Chat
@@ -1514,15 +1514,15 @@ sequenceDiagram
     David->>GCP: Generate Assets with Imagen API
     David->>User: Present Generated Assets
     User->>David: Approve Assets
-    David->>Alex: Handoff: Visual Package + Production Notes
+    David->>Zara: Handoff: Visual Package + Production Notes
 
-    Alex->>David: Receive Handoff Data
-    Alex->>User: Present Narrative + Audio Options
-    User->>Alex: Select Pacing + Music
-    Alex->>GCP: Generate Video with Veo API
-    Alex->>GCP: Generate Voiceover with TTS
-    Alex->>Alex: Optimize Multiple Formats
-    Alex->>User: Deliver Final Commercial Package
+    Zara->>David: Receive Handoff Data
+    Zara->>User: Present Narrative + Audio Options
+    User->>Zara: Select Pacing + Music
+    Zara->>GCP: Generate Video with Veo API
+    Zara->>GCP: Generate Voiceover with TTS
+    Zara->>Zara: Optimize Multiple Formats
+    Zara->>User: Deliver Final Commercial Package
 ```
 
 ### Data Flow Diagram
@@ -1544,7 +1544,7 @@ graph LR
         AG --> DH[David Handoff Data]
     end
 
-    subgraph "Alex Data Flow"
+    subgraph "Zara Data Flow"
         DH --> PR[Production Requirements]
         PR --> ND[Narrative Direction]
         ND --> AC[Audio Coordination]
@@ -1667,7 +1667,7 @@ Key advantages of this migration:
 
 1. **Clear Separation of Concerns**: Each agent has focused, specialized responsibilities
 2. **Enhanced User Control**: Users gain granular control over creative and production decisions
-3. **Professional Quality**: Alex introduces professional video production capabilities
+3. **Professional Quality**: Zara introduces professional video production capabilities
 4. **Preserved Experience**: Existing user workflows and chat experiences are maintained
 5. **Scalable Architecture**: Clean agent boundaries enable future feature expansion
 

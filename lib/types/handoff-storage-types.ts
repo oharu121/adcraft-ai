@@ -5,14 +5,14 @@
  * Defines collection schemas, document structures, and metadata for agent handoffs.
  */
 
-import { HandoffData, HandoffStatus, HandoffValidationResult } from './agent-handoff-types';
+import { HandoffData, HandoffStatus, HandoffValidationResult } from "./agent-handoff-types";
 
 // Firestore collection names
 export const FIRESTORE_COLLECTIONS = {
-  HANDOFF_DATA: 'agent_handoffs',
-  HANDOFF_METADATA: 'handoff_metadata',
-  HANDOFF_HISTORY: 'handoff_history',
-  SESSION_DATA: 'session_data'
+  HANDOFF_DATA: "agent_handoffs",
+  HANDOFF_METADATA: "handoff_metadata",
+  HANDOFF_HISTORY: "handoff_history",
+  SESSION_DATA: "session_data",
 } as const;
 
 // Base Firestore document interface
@@ -30,9 +30,9 @@ export interface FirestoreHandoffDocument extends FirestoreDocument {
   readonly sessionId: string;
 
   // Handoff routing information
-  readonly sourceAgent: 'maya' | 'david' | 'alex';
-  readonly targetAgent: 'maya' | 'david' | 'alex';
-  readonly handoffDirection: 'maya-to-david' | 'david-to-alex';
+  readonly sourceAgent: "maya" | "david" | "zara";
+  readonly targetAgent: "maya" | "david" | "zara";
+  readonly handoffDirection: "maya-to-david" | "david-to-zara";
 
   // Handoff data payload (encrypted if sensitive)
   readonly data: string; // JSON serialized HandoffData
@@ -52,7 +52,7 @@ export interface FirestoreHandoffDocument extends FirestoreDocument {
 
   // Metadata and tracking
   readonly size: number; // Data size in bytes
-  readonly compression?: 'gzip' | 'none';
+  readonly compression?: "gzip" | "none";
   readonly retryCount: number;
   readonly lastRetryAt?: Date;
 
@@ -65,8 +65,8 @@ export interface FirestoreHandoffDocument extends FirestoreDocument {
 export interface HandoffMetadataDocument extends FirestoreDocument {
   readonly handoffId: string;
   readonly sessionId: string;
-  readonly sourceAgent: 'maya' | 'david' | 'alex';
-  readonly targetAgent: 'maya' | 'david' | 'alex';
+  readonly sourceAgent: "maya" | "david" | "zara";
+  readonly targetAgent: "maya" | "david" | "zara";
   readonly status: HandoffStatus;
   readonly dataSize: number;
   readonly processingTime?: number;
@@ -83,7 +83,7 @@ export interface HandoffHistoryDocument extends FirestoreDocument {
   readonly timestamp: Date;
   readonly details: Record<string, any>;
   readonly agentContext?: {
-    agent: 'maya' | 'david' | 'alex';
+    agent: "maya" | "david" | "zara";
     version: string;
     processingTime?: number;
     cost?: number;
@@ -91,20 +91,20 @@ export interface HandoffHistoryDocument extends FirestoreDocument {
 }
 
 export type HandoffEvent =
-  | 'handoff_initiated'
-  | 'data_prepared'
-  | 'validation_started'
-  | 'validation_completed'
-  | 'validation_failed'
-  | 'processing_started'
-  | 'processing_completed'
-  | 'processing_failed'
-  | 'data_received'
-  | 'handoff_completed'
-  | 'handoff_failed'
-  | 'retry_attempted'
-  | 'cleanup_scheduled'
-  | 'cleanup_completed';
+  | "handoff_initiated"
+  | "data_prepared"
+  | "validation_started"
+  | "validation_completed"
+  | "validation_failed"
+  | "processing_started"
+  | "processing_completed"
+  | "processing_failed"
+  | "data_received"
+  | "handoff_completed"
+  | "handoff_failed"
+  | "retry_attempted"
+  | "cleanup_scheduled"
+  | "cleanup_completed";
 
 // Session data aggregation for handoff tracking
 export interface SessionHandoffSummary extends FirestoreDocument {
@@ -120,9 +120,9 @@ export interface SessionHandoffSummary extends FirestoreDocument {
 
   // Agent progression
   readonly agentStatus: {
-    readonly maya: 'completed' | 'active' | 'pending';
-    readonly david: 'completed' | 'active' | 'pending' | 'waiting';
-    readonly alex: 'completed' | 'active' | 'pending' | 'waiting' | 'deferred';
+    readonly maya: "completed" | "active" | "pending";
+    readonly david: "completed" | "active" | "pending" | "waiting";
+    readonly zara: "completed" | "active" | "pending" | "waiting" | "deferred";
   };
 
   // Performance metrics
@@ -147,16 +147,16 @@ export interface SessionHandoffSummary extends FirestoreDocument {
 // Firestore query interfaces
 export interface HandoffQuery {
   readonly sessionId?: string;
-  readonly sourceAgent?: 'maya' | 'david' | 'alex';
-  readonly targetAgent?: 'maya' | 'david' | 'alex';
+  readonly sourceAgent?: "maya" | "david" | "zara";
+  readonly targetAgent?: "maya" | "david" | "zara";
   readonly status?: HandoffStatus;
   readonly dateFrom?: Date;
   readonly dateTo?: Date;
   readonly hasErrors?: boolean;
   readonly limit?: number;
   readonly offset?: number;
-  readonly orderBy?: 'createdAt' | 'updatedAt' | 'processingTime' | 'size';
-  readonly orderDirection?: 'asc' | 'desc';
+  readonly orderBy?: "createdAt" | "updatedAt" | "processingTime" | "size";
+  readonly orderDirection?: "asc" | "desc";
 }
 
 export interface HandoffQueryResult {
@@ -171,12 +171,12 @@ export interface HandoffQueryResult {
 export interface HandoffStorageConfig {
   readonly encryption: {
     readonly enabled: boolean;
-    readonly algorithm: 'AES-256-GCM';
+    readonly algorithm: "AES-256-GCM";
     readonly keyRotationDays: number;
   };
   readonly compression: {
     readonly enabled: boolean;
-    readonly algorithm: 'gzip';
+    readonly algorithm: "gzip";
     readonly minSize: number; // bytes
   };
   readonly retention: {
@@ -221,7 +221,7 @@ export interface StorageError {
 
 // Batch operations for efficient storage
 export interface BatchHandoffOperation {
-  readonly operationType: 'create' | 'update' | 'delete';
+  readonly operationType: "create" | "update" | "delete";
   readonly documentId: string;
   readonly data?: Partial<FirestoreHandoffDocument>;
 }
@@ -243,7 +243,7 @@ export interface EncryptedHandoffData {
   readonly iv: string; // Initialization vector
   readonly authTag: string; // Authentication tag for GCM
   readonly keyId: string; // Reference to encryption key
-  readonly algorithm: 'AES-256-GCM';
+  readonly algorithm: "AES-256-GCM";
   readonly encryptedAt: Date;
 }
 
@@ -253,7 +253,7 @@ export interface CompressedHandoffData {
   readonly originalSize: number; // bytes
   readonly compressedSize: number; // bytes
   readonly compressionRatio: number; // originalSize / compressedSize
-  readonly algorithm: 'gzip';
+  readonly algorithm: "gzip";
   readonly compressedAt: Date;
 }
 
@@ -268,7 +268,7 @@ export interface DataIntegrityCheck {
 
 // Monitoring and analytics interfaces
 export interface HandoffMetrics {
-  readonly period: 'hour' | 'day' | 'week' | 'month';
+  readonly period: "hour" | "day" | "week" | "month";
   readonly startTime: Date;
   readonly endTime: Date;
   readonly totalHandoffs: number;
@@ -281,8 +281,8 @@ export interface HandoffMetrics {
 }
 
 export interface AgentHandoffStats {
-  readonly sourceAgent: 'maya' | 'david' | 'alex';
-  readonly targetAgent: 'maya' | 'david' | 'alex';
+  readonly sourceAgent: "maya" | "david" | "zara";
+  readonly targetAgent: "maya" | "david" | "zara";
   readonly handoffCount: number;
   readonly successCount: number;
   readonly failureCount: number;

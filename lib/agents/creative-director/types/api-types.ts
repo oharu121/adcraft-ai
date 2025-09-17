@@ -244,7 +244,7 @@ export interface CreativeDirectionResponse {
     secondary: VisualAsset[];
     overlays: VisualAsset[];
   };
-  alexHandoffData: {
+  zaraHandoffData: {
     creativeDirection: CreativeDirection;
     visualAssets: VisualAsset[];
     productionNotes: string[];
@@ -280,16 +280,16 @@ export interface CreativeDirectorStatusResponse {
   };
 }
 
-// Handoff to Alex request
-export interface AlexHandoffRequest {
+// Handoff to Zara request
+export interface ZaraHandoffRequest {
   sessionId: string;
   validateAssets: boolean;
   includeMetadata: boolean;
   productionReadiness: boolean;
 }
 
-// Handoff to Alex response
-export interface AlexHandoffResponse {
+// Handoff to Zara response
+export interface ZaraHandoffResponse {
   success: boolean;
   targetAgent: AgentType;
   handoffTimestamp: string;

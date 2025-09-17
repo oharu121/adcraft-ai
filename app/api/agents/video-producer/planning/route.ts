@@ -1,5 +1,5 @@
 /**
- * Alex - Video Producer Planning API (DEFERRED)
+ * Zara - Video Producer Planning API (DEFERRED)
  *
  * IMPLEMENTATION STATUS: DEFERRED FOR FUTURE DEVELOPMENT
  */
@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // DEFERRED: Generate video production plan
 export async function POST(request: NextRequest) {
-  console.warn('DEFERRED: Alex production planning not implemented');
+  console.warn("DEFERRED: Zara production planning not implemented");
 
   try {
     const body = await request.json();
@@ -21,31 +21,37 @@ export async function POST(request: NextRequest) {
     // - Generate timeline and resource allocation
     // - Return production plan for approval
 
-    return NextResponse.json({
-      success: false,
-      message: 'DEFERRED: Alex production planning not implemented',
-      data: {
-        sessionId,
-        agentId: 'alex',
-        planningStatus: 'deferred',
-        plannedSteps: [
-          'Creative brief analysis (DEFERRED)',
-          'Scene sequence planning (DEFERRED)',
-          'Asset requirement analysis (DEFERRED)',
-          'Timeline generation (DEFERRED)',
-          'Resource allocation (DEFERRED)',
-          'Quality assurance planning (DEFERRED)'
-        ]
-      }
-    }, { status: 501 });
+    return NextResponse.json(
+      {
+        success: false,
+        message: "DEFERRED: Zara production planning not implemented",
+        data: {
+          sessionId,
+          agentId: "zara",
+          planningStatus: "deferred",
+          plannedSteps: [
+            "Creative brief analysis (DEFERRED)",
+            "Scene sequence planning (DEFERRED)",
+            "Asset requirement analysis (DEFERRED)",
+            "Timeline generation (DEFERRED)",
+            "Resource allocation (DEFERRED)",
+            "Quality assurance planning (DEFERRED)",
+          ],
+        },
+      },
+      { status: 501 }
+    );
 
   } catch (error) {
-    console.error('Alex planning error (DEFERRED):', error);
-    return NextResponse.json({
-      success: false,
-      message: 'DEFERRED: Alex planning endpoint not implemented',
-      error: 'Implementation pending'
-    }, { status: 501 });
+    console.error("Zara planning error (DEFERRED):", error);
+    return NextResponse.json(
+      {
+        success: false,
+        message: "DEFERRED: Zara planning endpoint not implemented",
+        error: "Implementation pending",
+      },
+      { status: 501 }
+    );
   }
 }
 
@@ -56,9 +62,9 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     sessionId,
-    agentId: 'alex',
-    planningStatus: 'deferred',
-    message: 'Alex production planning status not implemented',
-    implementationNote: 'Production planning will be implemented in future development phase'
+    agentId: "zara",
+    planningStatus: "deferred",
+    message: "Zara production planning status not implemented",
+    implementationNote: "Production planning will be implemented in future development phase",
   });
 }

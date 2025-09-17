@@ -21,8 +21,8 @@ import {
   CreativeChatRequest,
   CreativeChatResponse,
   CreativeDirectorStatusResponse,
-  AlexHandoffRequest,
-  AlexHandoffResponse,
+  ZaraHandoffRequest,
+  ZaraHandoffResponse,
 } from "@/lib/agents/creative-director/types/api-types";
 
 // Request validation schema
@@ -401,18 +401,18 @@ async function handleChatRequest(request: any): Promise<CreativeChatResponse> {
 }
 
 /**
- * Handle David → Alex handoff preparation
+ * Handle David → Zara handoff preparation
  */
-async function handleHandoffRequest(request: any): Promise<AlexHandoffResponse> {
+async function handleHandoffRequest(request: any): Promise<ZaraHandoffResponse> {
   const { sessionId, data } = request;
-  
+
   try {
-    console.log(`[DAVID] Preparing handoff to Alex for session: ${sessionId}`);
-    
+    console.log(`[DAVID] Preparing handoff to Zara for session: ${sessionId}`);
+
     // Retrieve complete creative session
     const firestoreService = FirestoreService.getInstance();
     const session = await firestoreService.getCreativeSession(sessionId);
-    
+
     if (!session) {
       throw new Error("Creative Director session not found");
     }
@@ -423,9 +423,9 @@ async function handleHandoffRequest(request: any): Promise<AlexHandoffResponse> 
       throw new Error(`Session not ready for handoff: ${readinessCheck.errors.join(", ")}`);
     }
 
-    // Prepare comprehensive creative package for Alex
+    // Prepare comprehensive creative package for Zara
     const creativePackage = await prepareCreativePackage(session);
-    
+
     // Validate assets and technical specs
     const validation = await validateCreativePackage(creativePackage);
 
@@ -435,7 +435,7 @@ async function handleHandoffRequest(request: any): Promise<AlexHandoffResponse> 
     // Create handoff record
     await firestoreService.createHandoffRecord(sessionId, {
       fromAgent: AgentType.DAVID,
-      toAgent: AgentType.ALEX,
+      toAgent: AgentType.Zara,
       creativePackage,
       validation,
       timestamp: new Date().toISOString(),
@@ -443,13 +443,12 @@ async function handleHandoffRequest(request: any): Promise<AlexHandoffResponse> 
 
     return {
       success: true,
-      targetAgent: AgentType.ALEX,
+      targetAgent: AgentType.Zara,
       handoffTimestamp: new Date().toISOString(),
       creativePackage,
       validationResults: validation,
       estimatedVideoProductionTime,
     };
-
   } catch (error) {
     console.error(`[DAVID] Handoff failed for session ${sessionId}:`, error);
     throw error;

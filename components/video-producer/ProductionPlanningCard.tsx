@@ -1,5 +1,5 @@
 /**
- * Alex - Video Producer Production Planning Card (DEFERRED)
+ * Zara - Video Producer Production Planning Card (DEFERRED)
  *
  * IMPLEMENTATION STATUS: DEFERRED FOR FUTURE DEVELOPMENT
  */
@@ -7,7 +7,7 @@
 import React from 'react';
 
 interface ProductionPlanningCardProps {
-  handoffData: any; // DavidToAlexHandoffData when implemented
+  handoffData: any; // DavidToZaraHandoffData when implemented
   productionPlan: any; // VideoProductionPlan when implemented
   onGeneratePlan: () => void;
   onApprovePlan: () => void;
