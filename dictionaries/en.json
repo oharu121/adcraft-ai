@@ -1026,6 +1026,13 @@
         "features": ["Feature Highlights", "Benefit Focus", "Clear Demonstration", "Direct Appeal"],
         "bestFor": "Technical and functional products",
         "pacing": "Concise and informative"
+      },
+      "creativePlayful": {
+        "name": "Creative Playful",
+        "description": "Fun and engaging storytelling with creative elements",
+        "features": ["Creative Approach", "Engaging Content", "Playful Elements", "Memorable Experience"],
+        "bestFor": "Creative products, entertainment, lifestyle brands",
+        "pacing": "Medium & Dynamic"
       }
     },
 
@@ -1053,6 +1060,14 @@
         "tempo": "90-110 BPM",
         "instruments": ["Acoustic Guitar", "Light Percussion", "Warm Pads"],
         "bestFor": "Family products, lifestyle brands"
+      },
+      "electronicModern": {
+        "name": "Electronic Modern",
+        "description": "Contemporary electronic music for modern and tech-savvy presentations",
+        "mood": "Futuristic, Cutting-edge",
+        "tempo": "Medium-High",
+        "instruments": ["Synthesizers", "Electronic Beats", "Digital Sounds"],
+        "bestFor": "Technology products, innovation, modern brands"
       }
     },
 

@@ -183,6 +183,19 @@ export default function VideoProducerCard({
 
   // Render narrative style step
   const renderNarrativeStyle = () => {
+    // Show loading state if not initialized and no API data yet
+    if (!isInitialized && availableNarrativeStyles.length === 0) {
+      return (
+        <div className="space-y-6">
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+            <p className="text-gray-400 text-lg">Loading narrative styles...</p>
+            <p className="text-gray-500 text-sm mt-2">Generating options based on your creative direction</p>
+          </div>
+        </div>
+      );
+    }
+
     // Use API-generated narrative styles if available, fallback to dictionary data
     const narrativeStyles = availableNarrativeStyles.length > 0 ?
       availableNarrativeStyles.map(style => ({
@@ -218,6 +231,15 @@ export default function VideoProducerCard({
           bestFor: t.narrativeStyles.productShowcase.bestFor,
           pacing: t.narrativeStyles.productShowcase.pacing,
         },
+        {
+          id: "creative-playful",
+          name: t.narrativeStyles.creativePlayful?.name || "Creative Playful",
+          description: t.narrativeStyles.creativePlayful?.description || "Creative and engaging storytelling",
+          icon: "🎨",
+          features: t.narrativeStyles.creativePlayful?.features || ["Creative approach", "Engaging content"],
+          bestFor: t.narrativeStyles.creativePlayful?.bestFor || "Creative products",
+          pacing: t.narrativeStyles.creativePlayful?.pacing || "Medium & Dynamic",
+        },
       ];
 
     console.log('🎬 VideoProducer: Using narrative styles:', {
@@ -228,7 +250,7 @@ export default function VideoProducerCard({
 
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           {narrativeStyles.map((style) => (
             <div
               key={style.id}
@@ -258,7 +280,7 @@ export default function VideoProducerCard({
                   <div>
                     <span className="text-xs text-gray-300 font-medium">{t.labels.keyElements}</span>
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {style.features.map((feature, idx) => (
+                      {style.features.map((feature: string, idx: number) => (
                         <span
                           key={idx}
                           className="text-xs text-white bg-red-600/80 px-2 py-1 rounded backdrop-blur-sm"
@@ -302,6 +324,19 @@ export default function VideoProducerCard({
 
   // Render music & tone step
   const renderMusicTone = () => {
+    // Show loading state if not initialized and no API data yet
+    if (!isInitialized && availableMusicGenres.length === 0) {
+      return (
+        <div className="space-y-6">
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+            <p className="text-gray-400 text-lg">Loading music genres...</p>
+            <p className="text-gray-500 text-sm mt-2">Generating audio options for your video</p>
+          </div>
+        </div>
+      );
+    }
+
     // Use API-generated music genres if available, fallback to dictionary data
     const musicGenres =
       availableMusicGenres.length > 0
@@ -341,6 +376,16 @@ export default function VideoProducerCard({
               instruments: t.musicGenres.warmInviting.instruments,
               bestFor: t.musicGenres.warmInviting.bestFor,
             },
+            {
+              id: "electronic-modern",
+              icon: "🎹",
+              name: t.musicGenres.electronicModern?.name || "Electronic Modern",
+              description: t.musicGenres.electronicModern?.description || "Contemporary electronic sounds",
+              mood: t.musicGenres.electronicModern?.mood || "Futuristic & Cool",
+              tempo: t.musicGenres.electronicModern?.tempo || "Medium-High",
+              instruments: t.musicGenres.electronicModern?.instruments || ["Synthesizers", "Digital beats"],
+              bestFor: t.musicGenres.electronicModern?.bestFor || "Tech products",
+            },
           ];
 
     console.log('🎵 VideoProducer: Using music genres:', {
@@ -351,7 +396,7 @@ export default function VideoProducerCard({
 
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           {musicGenres.map((genre) => (
             <div
               key={genre.id}

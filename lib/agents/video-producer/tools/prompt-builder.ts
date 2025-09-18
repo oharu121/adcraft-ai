@@ -134,42 +134,100 @@ export function buildFinalProductionPrompt(
     locale
   } = context;
 
-  // Extract key information for video generation
+  // Extract comprehensive context from Maya and David
   const productName = davidHandoff.mayaAnalysis?.productAnalysis?.name || 'product';
   const productCategory = davidHandoff.mayaAnalysis?.productAnalysis?.category || 'general';
+  const targetAudience = davidHandoff.mayaAnalysis?.strategicInsights?.targetAudience || 'general consumers';
+  const keyMessages = davidHandoff.mayaAnalysis?.strategicInsights?.keyMessages || [];
+  const productBenefits = davidHandoff.mayaAnalysis?.productAnalysis?.benefits || [];
+
+  // David's creative direction context
+  const productionStyle = davidHandoff.productionStyle?.name || 'cinematic';
   const visualStyle = davidHandoff.creativeDirection?.name || 'modern';
   const colorPalette = davidHandoff.creativeDirection?.colorPalette || ['#000000', '#FFFFFF'];
+  const visualKeywords = davidHandoff.creativeDirection?.visualKeywords || [];
+  const mood = davidHandoff.creativeDirection?.description || 'sophisticated and modern';
 
-  // Build comprehensive video generation prompt
-  const prompt = `Create a professional ${selectedVideoFormat.durationSeconds}-second commercial video for ${productName}, a ${productCategory}.
+  // Build comprehensive, AI-optimized video generation prompt
+  const prompt = `COMMERCIAL VIDEO GENERATION:
 
-VISUAL STYLE: ${visualStyle} aesthetic with ${davidHandoff.creativeDirection?.description || 'sophisticated visual approach'}
-COLOR PALETTE: ${colorPalette.join(', ')}
-ASPECT RATIO: ${selectedVideoFormat.aspectRatio}
-RESOLUTION: ${selectedVideoFormat.resolution}
+PRODUCT_CONTEXT:
+- Name: ${productName}
+- Category: ${productCategory}
+- Target_Audience: ${targetAudience}
+- Key_Messages: ${keyMessages.join(', ') || 'Quality and innovation'}
+- Product_Benefits: ${productBenefits.join(', ') || 'Premium quality and reliability'}
 
-NARRATIVE APPROACH: ${selectedNarrativeStyle.name} - ${selectedNarrativeStyle.description}
-PACING: ${selectedNarrativeStyle.pacing}
-TONE: ${selectedNarrativeStyle.tone}
-NARRATION: ${selectedNarrativeStyle.narrationStyle}
+VIDEO_SPECIFICATIONS:
+- Duration: ${selectedVideoFormat.durationSeconds} seconds
+- Aspect_Ratio: ${selectedVideoFormat.aspectRatio}
+- Production_Style: ${productionStyle}
+- Platforms: ${selectedVideoFormat.platforms?.join(', ') || 'digital platforms'}
 
-MUSIC & SOUND: ${selectedMusicGenre.name} - ${selectedMusicGenre.description}
-MOOD: ${selectedMusicGenre.mood}
-ENERGY: ${selectedMusicGenre.energy}
+VISUAL_DIRECTION:
+- Creative_Style: ${visualStyle}
+- Mood: ${mood}
+- Color_Palette: ${colorPalette.join(', ')}
+- Visual_Keywords: ${visualKeywords.join(', ') || 'modern, sophisticated'}
 
-SCENE STRUCTURE:${davidHandoff.sceneArchitecture?.map((scene: any, index: number) =>
-  `\nScene ${index + 1}: ${scene.description || 'Product showcase'} - ${scene.composition || 'Centered composition'}`
-).join('') || '\nScene 1: Hero product shot with dramatic lighting\nScene 2: Lifestyle context showing product in use'}
+NARRATIVE_STRUCTURE:
+- Style: ${selectedNarrativeStyle.name}
+- Approach: ${selectedNarrativeStyle.description}
+- Pacing: ${selectedNarrativeStyle.pacing}
+- Tone: ${selectedNarrativeStyle.tone}
+- Narration: ${selectedNarrativeStyle.narrationStyle}
+- Best_For: ${selectedNarrativeStyle.bestFor}
 
-PRODUCTION REQUIREMENTS:
-- High-quality cinematic production value
-- Professional commercial lighting and cinematography
-- Smooth transitions between scenes
-- Brand-appropriate visual treatment
-- Optimized for ${selectedVideoFormat.platforms?.join(' and ') || 'digital platforms'}
-- ${selectedVideoFormat.name} format specifications
+AUDIO_DESIGN:
+- Genre: ${selectedMusicGenre.name}
+- Mood: ${selectedMusicGenre.mood}
+- Energy: ${selectedMusicGenre.energy}
+- Description: ${selectedMusicGenre.description}
+- Instruments: ${selectedMusicGenre.instruments?.join(', ') || 'cinematic orchestra'}
+- Audio_Best_For: ${selectedMusicGenre.bestFor}
 
-Create a compelling ${selectedVideoFormat.durationSeconds}-second video that showcases the product's key benefits while maintaining the ${visualStyle} aesthetic and ${selectedNarrativeStyle.name} storytelling approach.`;
+SCENE_ARCHITECTURE:
+${davidHandoff.sceneArchitecture?.length > 0
+  ? davidHandoff.sceneArchitecture.map((scene: any, index: number) =>
+      `Scene_${index + 1}: ${scene.description || 'product showcase'}
+  - Composition: ${scene.composition || 'centered'}
+  - Shot_Type: ${scene.shotType || 'medium shot'}
+  - Lighting: ${scene.lighting || 'cinematic'}
+  - Props: ${scene.props?.join(', ') || 'minimal props'}`
+    ).join('\n')
+  : `Scene_1: Hero product shot featuring ${productName}
+  - Composition: centered
+  - Shot_Type: close-up
+  - Lighting: dramatic professional
+  - Props: minimal, focus on product
+
+Scene_2: Product in lifestyle context
+  - Composition: rule of thirds
+  - Shot_Type: medium shot
+  - Lighting: natural cinematic
+  - Props: relevant lifestyle elements
+
+Scene_3: Product benefits demonstration
+  - Composition: centered
+  - Shot_Type: detail shot
+  - Lighting: bright professional
+  - Props: supporting demonstration elements`
+}
+
+PRODUCTION_REQUIREMENTS:
+- Quality: Professional commercial grade
+- Lighting: Cinematic with dramatic shadows
+- Transitions: Smooth, seamless cuts
+- Brand_Focus: ${keyMessages.join(' and ') || 'Quality and innovation'}
+- Call_to_Action: Emphasize product benefits and brand positioning
+- Visual_Consistency: Maintain ${visualStyle} aesthetic throughout
+- Audio_Sync: Music and visuals must complement the ${selectedNarrativeStyle.tone} tone
+
+TECHNICAL_SPECS:
+- Frame_Rate: 24fps
+- Resolution: ${selectedVideoFormat.resolution || '720p'}
+- Audio: Native generation with ${selectedMusicGenre.name} style
+- Color_Grading: ${colorPalette.length > 0 ? `Emphasize ${colorPalette.join(' and ')} color scheme` : 'Professional color correction'}`;
 
   return prompt;
 }
@@ -186,6 +244,18 @@ export function buildProductionContext(
 ) {
   const prompt = buildFinalProductionPrompt(context);
 
+  // Prepare image for Veo API if available
+  const imageInput = context.davidHandoff.productImage ? {
+    bytesBase64Encoded: context.davidHandoff.productImage.startsWith('data:')
+      ? context.davidHandoff.productImage.split(',')[1] // Remove data:image/png;base64, prefix
+      : context.davidHandoff.productImage,
+    mimeType: context.davidHandoff.productImage.startsWith('data:image/png')
+      ? 'image/png'
+      : context.davidHandoff.productImage.startsWith('data:image/jpeg') || context.davidHandoff.productImage.startsWith('data:image/jpg')
+        ? 'image/jpeg'
+        : 'image/png' // Default fallback
+  } : undefined;
+
   return {
     // For existing /api/generate-video endpoint
     videoGenerationRequest: {
@@ -193,6 +263,7 @@ export function buildProductionContext(
       duration: context.selectedVideoFormat.durationSeconds,
       aspectRatio: context.selectedVideoFormat.aspectRatio,
       style: "commercial",
+      ...(imageInput && { image: imageInput }), // Include image if available
     },
 
     // Metadata for tracking and analysis

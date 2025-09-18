@@ -64,7 +64,7 @@ Guidelines for good video prompts:
 - Include motion descriptions and pacing
 - Specify style, mood, and atmosphere
 - Mention colors, textures, and composition
-- Keep under 500 characters for optimal results
+- Keep under 4000 characters (aim for 1000-2000 for optimal results)
 - Avoid abstract concepts, focus on concrete visuals
 
 Return a JSON object with:

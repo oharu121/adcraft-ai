@@ -103,6 +103,7 @@ interface VideoProducerStore {
   isProducing: boolean;
   productionProgress: number;
   finalVideoUrl: string | null;
+  currentJobId: string | null;
 
   // Chat and interaction
   messages: any[];
@@ -130,6 +131,7 @@ interface VideoProducerStore {
   setAvailableVideoFormats: (formats: VideoFormat[]) => void;
 
   startVideoProduction: () => Promise<void>;
+  pollJobStatus: (jobId: string) => void;
   simulateProductionProgress: (finalVideoUrl: string) => void;
   updateProductionProgress: (progress: number) => void;
   setFinalVideoUrl: (url: string) => void;
@@ -171,6 +173,7 @@ const initialState = {
   isProducing: false,
   productionProgress: 0,
   finalVideoUrl: null,
+  currentJobId: null,
 
   messages: [],
   isAgentTyping: false,
@@ -203,6 +206,7 @@ export const useVideoProducerStore = create<VideoProducerStore>((set, get) => ({
       isProducing: false,
       productionProgress: 0,
       finalVideoUrl: null,
+      currentJobId: null,
       messages: [],
     });
   },
@@ -266,7 +270,8 @@ export const useVideoProducerStore = create<VideoProducerStore>((set, get) => ({
     set({
       isProducing: true,
       productionProgress: 0,
-      finalVideoUrl: null
+      finalVideoUrl: null,
+      currentJobId: null
     });
 
     try {
@@ -296,8 +301,9 @@ export const useVideoProducerStore = create<VideoProducerStore>((set, get) => ({
       const result = await response.json();
 
       if (result.success && result.data) {
-        // Start progress simulation
-        get().simulateProductionProgress(result.data.videoUrl);
+        // Store the job ID and start polling for completion
+        set({ currentJobId: result.data.jobId });
+        get().pollJobStatus(result.data.jobId);
         get().markStepCompleted('finalProduction');
       } else {
         throw new Error('Production failed: ' + (result.error || 'Unknown error'));
@@ -307,10 +313,55 @@ export const useVideoProducerStore = create<VideoProducerStore>((set, get) => ({
       console.error('Video production error:', error);
       set({
         isProducing: false,
-        productionProgress: 0
+        productionProgress: 0,
+        currentJobId: null
       });
       // You might want to show an error message to the user here
     }
+  },
+
+  // Poll job status for real video generation
+  pollJobStatus: (jobId: string) => {
+    const checkStatus = async () => {
+      try {
+        const response = await fetch(`/api/status/${jobId}`);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          const { status, progress, videoUrl } = result.data;
+
+          // Update progress
+          if (progress !== undefined) {
+            get().updateProductionProgress(progress);
+          }
+
+          if (status === 'completed' && videoUrl) {
+            // Video is ready!
+            get().setFinalVideoUrl(videoUrl);
+            return; // Stop polling
+          } else if (status === 'failed') {
+            // Video generation failed
+            set({
+              isProducing: false,
+              productionProgress: 0,
+              currentJobId: null
+            });
+            console.error('Video generation failed');
+            return; // Stop polling
+          }
+        }
+
+        // Continue polling if still processing
+        setTimeout(checkStatus, 5000); // Check every 5 seconds
+      } catch (error) {
+        console.error('Job status check failed:', error);
+        // Continue polling on error (network issues, etc.)
+        setTimeout(checkStatus, 10000); // Retry in 10 seconds
+      }
+    };
+
+    // Start the first check immediately
+    checkStatus();
   },
 
   // Simulate production progress for demo mode

@@ -11,6 +11,8 @@ import type {
   VideoFormat
 } from "@/lib/stores/video-producer-store";
 import { buildProductionContext, type DavidHandoffData } from "../tools/prompt-builder";
+import * as fs from 'fs';
+import * as path from 'path';
 
 export interface VideoProductionRequest {
   sessionId: string;
@@ -53,6 +55,24 @@ export class ProductionBridgeService {
       ProductionBridgeService.instance = new ProductionBridgeService();
     }
     return ProductionBridgeService.instance;
+  }
+
+  /**
+   * Write debug data to output directory
+   */
+  private writeDebugFile(filename: string, data: any): void {
+    try {
+      const outputDir = path.join(process.cwd(), 'output');
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+
+      const filePath = path.join(outputDir, filename);
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+      console.log(`[Debug] Written debug data to: ${filePath}`);
+    } catch (error) {
+      console.error(`[Debug] Failed to write debug file ${filename}:`, error);
+    }
   }
 
   /**
@@ -146,6 +166,24 @@ export class ProductionBridgeService {
         : process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
       console.log("[ProductionBridge] Calling video generation API:", baseUrl);
+      console.log("[ProductionBridge] Request payload:", {
+        prompt: videoRequest.prompt.substring(0, 200) + '...',
+        promptLength: videoRequest.prompt.length,
+        duration: videoRequest.duration,
+        aspectRatio: videoRequest.aspectRatio,
+        style: videoRequest.style
+      });
+
+      // Write full payload to debug file
+      this.writeDebugFile('veo-payload.json', {
+        timestamp: new Date().toISOString(),
+        fullPayload: videoRequest,
+        metadata: {
+          promptLength: videoRequest.prompt.length,
+          hasPrompt: !!videoRequest.prompt,
+          promptPreview: videoRequest.prompt.substring(0, 500)
+        }
+      });
 
       const response = await fetch(`${baseUrl}/api/generate-video`, {
         method: 'POST',
@@ -157,7 +195,24 @@ export class ProductionBridgeService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(`Video generation API failed: ${response.status} - ${errorData.error || response.statusText}`);
+        console.error("[ProductionBridge] Video generation API error details:", {
+          status: response.status,
+          statusText: response.statusText,
+          errorData: errorData,
+          fullError: JSON.stringify(errorData, null, 2)
+        });
+
+        // Write error response to debug file
+        this.writeDebugFile('veo-response.json', {
+          timestamp: new Date().toISOString(),
+          success: false,
+          httpStatus: response.status,
+          httpStatusText: response.statusText,
+          errorResponse: errorData,
+          headers: Object.fromEntries(response.headers.entries())
+        });
+
+        throw new Error(`Video generation API failed: ${response.status} - ${JSON.stringify(errorData)}`);
       }
 
       const responseData = await response.json();
@@ -165,6 +220,16 @@ export class ProductionBridgeService {
         success: responseData.success,
         jobId: responseData.data?.jobId,
         status: responseData.data?.status
+      });
+
+      // Write success response to debug file
+      this.writeDebugFile('veo-response.json', {
+        timestamp: new Date().toISOString(),
+        success: true,
+        httpStatus: response.status,
+        httpStatusText: response.statusText,
+        response: responseData,
+        headers: Object.fromEntries(response.headers.entries())
       });
 
       return responseData;

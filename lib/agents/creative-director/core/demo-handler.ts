@@ -24,8 +24,6 @@ export async function generateDemoCreativeResponse(
   request: CreativeChatRequest,
   startTime: number
 ): Promise<CreativeChatResponse> {
-  // Simulate David's thoughtful creative process
-  await new Promise((resolve) => setTimeout(resolve, 2000 + Math.random() * 3000));
 
   const locale = request.locale;
   const userMessage = request.message.toLowerCase();
