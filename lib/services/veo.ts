@@ -260,7 +260,7 @@ export class VeoService {
       const fileIdMatch = videoUri.match(/files\/([^:]+):/);
       if (fileIdMatch) {
         const fileId = fileIdMatch[1];
-        const proxyUrl = `/api/video/${fileId}`;
+        const proxyUrl = `/api/video/proxy/${fileId}`;
         console.log(`🎬 Created proxy URL: ${proxyUrl}`);
         
         return {

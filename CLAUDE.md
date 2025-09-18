@@ -14,9 +14,9 @@ Product Image/Description → Agent 1: Product Intelligence → Agent 2: Creativ
 ```
 
 ### Tech Stack (PROVEN PATTERNS)
-- **Framework**: Next.js 14+ App Router + TypeScript (strict)
+- **Framework**: Next.js 15+ App Router + TypeScript (strict)
 - **State Management**: **Zustand** (PREFERRED over Context API)
-- **Styling**: Tailwind CSS  
+- **Styling**: Tailwind CSS
 - **i18n**: next-intl (Japanese/English)
 - **Deployment**: Google Cloud Run (MANDATORY for judging)
 - **APIs**: Vertex AI Gemini Pro Vision, Imagen API, Veo API
@@ -318,13 +318,65 @@ category: "electronics" as any  // Temporary fix
 - `ColorRole` → primary, secondary, accent
 - `Gender` → male, female, unisex
 
+#### Next.js 15 API Route Patterns (CRITICAL)
+
+**⚠️ ALWAYS use async params pattern in Next.js 15 API routes**
+
+#### ✅ Next.js 15 Dynamic Route Handler Pattern:
+```typescript
+// ✅ GOOD: Next.js 15 async params pattern
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ videoId: string }> }
+) {
+  try {
+    const { videoId } = await params; // MUST await params
+
+    // Route logic here
+  } catch (error) {
+    // Error handling
+  }
+}
+```
+
+#### ❌ Old Next.js 14 Pattern (Will Cause TypeScript Errors):
+```typescript
+// ❌ BAD: Next.js 14 synchronous params - causes .next/types/validator.ts errors
+interface RouteParams {
+  params: { videoId: string }; // Missing Promise wrapper
+}
+
+export async function GET(request: NextRequest, { params }: RouteParams) {
+  const { videoId } = params; // Missing await
+}
+```
+
+#### Next.js 15 API Route Rules:
+1. **Dynamic route params are now Promises** - must be awaited
+2. **Remove RouteParams interfaces** - use inline types instead
+3. **Always await params** - `const { id } = await params;`
+4. **TypeScript validates routes** - errors appear in `.next/types/validator.ts`
+5. **Apply to all dynamic routes** - `[id]`, `[slug]`, `[...params]`, etc.
+
+#### Common Dynamic Route Patterns:
+```typescript
+// Single param: /api/video/[videoId]/route.ts
+{ params }: { params: Promise<{ videoId: string }> }
+
+// Multiple params: /api/user/[userId]/post/[postId]/route.ts
+{ params }: { params: Promise<{ userId: string; postId: string }> }
+
+// Catch-all: /api/files/[...path]/route.ts
+{ params }: { params: Promise<{ path: string[] }> }
+```
+
 #### Proven Component Organization:
 ```
 components/
 ├── [feature]/              # Group by feature
 │   ├── FeatureCard.tsx     # Container (client)
 │   ├── FeatureForm.tsx     # Form logic (client)
-│   ├── FeatureProgress.tsx # Progress (client)  
+│   ├── FeatureProgress.tsx # Progress (client)
 │   └── FeatureModal.tsx    # Modal (client)
 ├── home/                   # Static sections
 │   ├── HeroSection.tsx     # Server component
@@ -595,6 +647,7 @@ lib/agents/feature/
 - **"Localization"** or **"Text in component"** → Move to dictionaries, use `const t = dict.section` pattern
 - **"Scrolling"** or **"Header blocking view"** → Use getElementById approach, never refs for page scrolling
 - **"Function optimization"** → Always wrap functions in useCallback to prevent re-renders
+- **"API route errors"** or **".next/types/validator.ts errors"** → Use Next.js 15 async params pattern with await
 - **"New feature"** or **"Feature request"** → ALWAYS implement in demo mode first, get approval, then sync to real mode
 - **"Demo mode not working"** → Check for separate demo handlers bypassing main implementation
 - **"Button styling"** or **"Interactive elements"** → ALWAYS add cursor-pointer to clickable elements

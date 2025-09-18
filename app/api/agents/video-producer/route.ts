@@ -804,7 +804,13 @@ export async function POST(request: NextRequest) {
         const result = await startDemoProduction(sessionId, locale);
         return NextResponse.json({
           success: true,
-          data: result,
+          data: {
+            mode: 'demo',
+            videoUrl: result.videoUrl,
+            productionId: result.productionId,
+            estimatedCompletion: result.estimatedCompletion,
+            status: result.status
+          },
           timestamp: Date.now(),
           mode: 'demo'
         });

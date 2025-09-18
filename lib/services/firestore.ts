@@ -1227,4 +1227,263 @@ export class FirestoreService {
       return false;
     }
   }
+
+  /**
+   * Get completed video jobs for gallery with pagination and sorting
+   */
+  public async getCompletedVideos(options: {
+    page?: number;
+    limit?: number;
+    sortBy?: "recent" | "popular" | "views";
+  } = {}): Promise<{
+    videos: any[];
+    totalCount: number;
+    hasMore: boolean;
+  }> {
+    try {
+      const { page = 1, limit = 12, sortBy = "recent" } = options;
+      const offset = (page - 1) * limit;
+
+      if (AppModeConfig.getMode() === "demo") {
+        // Mock data for demo mode
+        const mockVideos = Array.from(FirestoreService.mockJobs.values())
+          .filter(job => job.status === "completed" && job.videoUrl)
+          .map(job => ({
+            id: job.id,
+            title: `Commercial for Product`,
+            thumbnailUrl: job.thumbnailUrl || job.videoUrl,
+            videoUrl: job.videoUrl,
+            duration: 8,
+            createdAt: job.updatedAt || job.createdAt,
+            viewCount: Math.floor(Math.random() * 1000),
+            productName: "Product",
+            narrativeStyle: "Cinematic",
+            musicGenre: "Orchestral",
+          }));
+
+        // Sort based on sortBy parameter
+        if (sortBy === "views" || sortBy === "popular") {
+          mockVideos.sort((a, b) => b.viewCount - a.viewCount);
+        } else {
+          mockVideos.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        }
+
+        const paginatedVideos = mockVideos.slice(offset, offset + limit);
+        return {
+          videos: paginatedVideos,
+          totalCount: mockVideos.length,
+          hasMore: offset + limit < mockVideos.length,
+        };
+      }
+
+      if (!this.jobsCollection) {
+        throw new Error("Firestore not initialized");
+      }
+
+      // Build query for completed videos
+      let query = this.jobsCollection
+        .where("status", "==", "completed")
+        .where("videoUrl", "!=", null);
+
+      // Apply sorting
+      if (sortBy === "views" || sortBy === "popular") {
+        query = query.orderBy("viewCount", "desc");
+      } else {
+        query = query.orderBy("completedAt", "desc");
+      }
+
+      // Get paginated results
+      const snapshot = await query.limit(limit).offset(offset).get();
+
+      const videos = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          title: data.title || `Commercial for ${data.productName || 'Product'}`,
+          thumbnailUrl: data.thumbnailUrl || data.videoUrl,
+          videoUrl: data.videoUrl,
+          duration: data.duration || 8,
+          createdAt: data.completedAt?.toDate() || data.createdAt?.toDate() || new Date(),
+          viewCount: data.viewCount || 0,
+          productName: data.productName || 'Product',
+          narrativeStyle: data.productionMetadata?.narrativeStyle || 'Cinematic',
+          musicGenre: data.productionMetadata?.musicGenre || 'Orchestral',
+        };
+      });
+
+      // Get total count
+      const totalSnapshot = await this.jobsCollection
+        .where("status", "==", "completed")
+        .where("videoUrl", "!=", null)
+        .count()
+        .get();
+
+      const totalCount = totalSnapshot.data().count;
+
+      return {
+        videos,
+        totalCount,
+        hasMore: offset + limit < totalCount,
+      };
+    } catch (error) {
+      console.error("Failed to get completed videos:", error);
+      return {
+        videos: [],
+        totalCount: 0,
+        hasMore: false,
+      };
+    }
+  }
+
+  /**
+   * Get detailed video information by ID
+   */
+  public async getVideoDetails(videoId: string): Promise<any | null> {
+    try {
+      if (AppModeConfig.getMode() === "demo") {
+        const mockJob = FirestoreService.mockJobs.get(videoId);
+        if (mockJob && mockJob.status === "completed" && mockJob.videoUrl) {
+          return {
+            id: videoId,
+            title: `Commercial for Product`,
+            description: "A stunning commercial video created with AdCraft AI",
+            videoUrl: mockJob.videoUrl,
+            thumbnailUrl: mockJob.thumbnailUrl || mockJob.videoUrl,
+            duration: 8,
+            createdAt: mockJob.updatedAt?.toISOString() || new Date().toISOString(),
+            viewCount: Math.floor(Math.random() * 1000),
+            productName: "Product",
+            narrativeStyle: "Cinematic",
+            musicGenre: "Orchestral",
+            videoFormat: "16:9 HD",
+            productionSpecs: {
+              resolution: "720p",
+              aspectRatio: "16:9",
+              frameRate: 24,
+            },
+          };
+        }
+        return null;
+      }
+
+      if (!this.jobsCollection) {
+        throw new Error("Firestore not initialized");
+      }
+
+      const videoDoc = await this.jobsCollection.doc(videoId).get();
+
+      if (!videoDoc.exists) {
+        return null;
+      }
+
+      const videoData = videoDoc.data()!;
+
+      if (videoData.status !== "completed" || !videoData.videoUrl) {
+        return null;
+      }
+
+      // Get session data for additional context
+      let sessionData = null;
+      if (videoData.sessionId) {
+        try {
+          const sessionDoc = await this.sessionsCollection!.doc(videoData.sessionId).get();
+          if (sessionDoc.exists) {
+            sessionData = sessionDoc.data();
+          }
+        } catch (error) {
+          console.warn("Could not fetch session data:", error);
+        }
+      }
+
+      return {
+        id: videoId,
+        title: videoData.title || `Commercial for ${videoData.productName || 'Product'}`,
+        description: videoData.description,
+        videoUrl: videoData.videoUrl,
+        thumbnailUrl: videoData.thumbnailUrl || videoData.videoUrl,
+        duration: videoData.duration || 8,
+        createdAt: videoData.completedAt?.toDate()?.toISOString() ||
+                   videoData.createdAt?.toDate()?.toISOString() ||
+                   new Date().toISOString(),
+        viewCount: videoData.viewCount || 0,
+        productName: videoData.productName || 'Product',
+        narrativeStyle: videoData.productionMetadata?.narrativeStyle || 'Cinematic',
+        musicGenre: videoData.productionMetadata?.musicGenre || 'Orchestral',
+        videoFormat: videoData.productionMetadata?.videoFormat || '16:9 HD',
+        productionSpecs: {
+          resolution: videoData.productionSpecs?.resolution || "720p",
+          aspectRatio: videoData.productionSpecs?.aspectRatio || "16:9",
+          frameRate: videoData.productionSpecs?.frameRate || 24,
+        },
+        productAnalysis: sessionData?.mayaAnalysis ? {
+          category: sessionData.mayaAnalysis.productAnalysis?.category,
+          targetAudience: sessionData.mayaAnalysis.strategicInsights?.targetAudience,
+          keyMessages: sessionData.mayaAnalysis.strategicInsights?.keyMessages || [],
+          benefits: sessionData.mayaAnalysis.productAnalysis?.benefits || [],
+        } : undefined,
+        creativeDirection: sessionData?.davidData?.creativeDirection ? {
+          name: sessionData.davidData.creativeDirection.name,
+          description: sessionData.davidData.creativeDirection.description,
+          colorPalette: sessionData.davidData.creativeDirection.colorPalette || [],
+          visualKeywords: sessionData.davidData.creativeDirection.visualKeywords || [],
+        } : undefined,
+      };
+    } catch (error) {
+      console.error("Failed to get video details:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Increment view count for a video
+   */
+  public async incrementVideoViews(videoId: string): Promise<{ viewCount: number } | null> {
+    try {
+      if (AppModeConfig.getMode() === "demo") {
+        const mockJob = FirestoreService.mockJobs.get(videoId);
+        if (mockJob && mockJob.status === "completed") {
+          // Simulate view increment in mock data
+          const currentViews = (mockJob as any).viewCount || 0;
+          const newViewCount = currentViews + 1;
+          (mockJob as any).viewCount = newViewCount;
+          (mockJob as any).lastViewedAt = new Date();
+
+          console.log(`[MOCK MODE] Incremented views for video ${videoId} to ${newViewCount}`);
+          return { viewCount: newViewCount };
+        }
+        return null;
+      }
+
+      if (!this.jobsCollection) {
+        throw new Error("Firestore not initialized");
+      }
+
+      const videoRef = this.jobsCollection.doc(videoId);
+      const videoDoc = await videoRef.get();
+
+      if (!videoDoc.exists) {
+        return null;
+      }
+
+      const videoData = videoDoc.data()!;
+
+      if (videoData.status !== "completed") {
+        return null;
+      }
+
+      const currentViewCount = videoData.viewCount || 0;
+      const newViewCount = currentViewCount + 1;
+
+      await videoRef.update({
+        viewCount: newViewCount,
+        lastViewedAt: new Date(),
+      });
+
+      console.log(`[FIRESTORE] Incremented views for video ${videoId} to ${newViewCount}`);
+      return { viewCount: newViewCount };
+    } catch (error) {
+      console.error("Failed to increment video views:", error);
+      return null;
+    }
+  }
 }

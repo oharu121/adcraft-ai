@@ -301,10 +301,19 @@ export const useVideoProducerStore = create<VideoProducerStore>((set, get) => ({
       const result = await response.json();
 
       if (result.success && result.data) {
-        // Store the job ID and start polling for completion
-        set({ currentJobId: result.data.jobId });
-        get().pollJobStatus(result.data.jobId);
-        get().markStepCompleted('finalProduction');
+        // Check if we're in demo mode based on the API response
+        if (result.data.mode === 'demo' && result.data.videoUrl) {
+          // Demo mode: Skip job polling and use direct video simulation
+          get().simulateProductionProgress(result.data.videoUrl);
+          get().markStepCompleted('finalProduction');
+        } else if (result.data.jobId) {
+          // Real mode: Store the job ID and start polling for completion
+          set({ currentJobId: result.data.jobId });
+          get().pollJobStatus(result.data.jobId);
+          get().markStepCompleted('finalProduction');
+        } else {
+          throw new Error('Production response missing required data (jobId or demo videoUrl)');
+        }
       } else {
         throw new Error('Production failed: ' + (result.error || 'Unknown error'));
       }

@@ -39,6 +39,48 @@
       "mayaAnalysis": "Maya is analyzing your product"
     }
   },
+  "gallery": {
+    "title": "Video Gallery",
+    "description": "Browse through amazing commercial videos created with AdCraft AI",
+    "views": "views",
+    "error": {
+      "title": "Failed to load videos",
+      "retry": "Try Again"
+    },
+    "empty": {
+      "title": "No videos yet",
+      "description": "Create your first commercial video to see it here",
+      "createVideo": "Create Video"
+    }
+  },
+  "videoDetail": {
+    "backToGallery": "Back to Gallery",
+    "views": "views",
+    "like": "Like",
+    "save": "Save",
+    "copyLink": "Copy Link",
+    "download": "Download",
+    "share": "Share",
+    "linkCopied": "Link copied!",
+    "shareOnTwitter": "Share on Twitter",
+    "shareOnFacebook": "Share on Facebook",
+    "description": "Description",
+    "productInfo": "Product Information",
+    "productName": "Product Name",
+    "category": "Category",
+    "targetAudience": "Target Audience",
+    "technicalSpecs": "Technical Specifications",
+    "duration": "Duration",
+    "aspectRatio": "Aspect Ratio",
+    "resolution": "Resolution",
+    "frameRate": "Frame Rate",
+    "creativeDirection": "Creative Direction",
+    "style": "Style",
+    "mood": "Mood",
+    "colorPalette": "Color Palette",
+    "reportVideo": "Report this video",
+    "videoNotSupported": "Your browser does not support the video tag."
+  },
   "navigation": {
     "home": "Generate",
     "gallery": "Gallery",
@@ -1098,8 +1140,13 @@
     "production": {
       "complete": "Video Production Complete!",
       "ready": "Your commercial video is ready! Watch your creation below.",
+      "viewVideo": "View Video",
+      "viewGallery": "View Gallery",
+      "download": "Download Video",
       "downloading": "Download Video",
       "copyLink": "Copy Link",
+      "linkCopied": "Link copied successfully!",
+      "copyFailed": "Failed to copy link",
       "specifications": "Video Specifications:",
       "format": "Format:",
       "duration": "Duration:",

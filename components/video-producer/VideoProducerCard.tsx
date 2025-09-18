@@ -5,6 +5,7 @@ import { Card } from "@/components/ui";
 import { useVideoProducerStore } from "@/lib/stores/video-producer-store";
 import { VideoProducerWorkflowStep, VideoFormat } from "@/lib/stores/video-producer-store";
 import AgentAvatar from "@/components/ui/AgentAvatar";
+import { Toast } from "@/components/ui/Toast";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
 
 interface VideoProducerCardProps {
@@ -57,6 +58,7 @@ export default function VideoProducerCard({
     isProducing,
     productionProgress,
     finalVideoUrl,
+    currentJobId,
     currentStep: storeCurrentStep,
     setCurrentStep: setStoreCurrentStep,
     setSelectedNarrativeStyle,
@@ -86,6 +88,25 @@ export default function VideoProducerCard({
 
   // Use dictionary for localized text
   const t = dict.videoProducer;
+
+  // Toast state for copy feedback
+  const [toast, setToast] = useState<{
+    show: boolean;
+    message: string;
+    type: "success" | "error" | "info";
+  }>({
+    show: false,
+    message: "",
+    type: "success",
+  });
+
+  const showToast = (message: string, type: "success" | "error" | "info" = "success") => {
+    setToast({ show: true, message, type });
+  };
+
+  const hideToast = () => {
+    setToast(prev => ({ ...prev, show: false }));
+  };
 
   // Show card but with appropriate state based on handoff data
   const hasHandoffData = creativeDirectorHandoffData?.creativeDirection;
@@ -628,6 +649,52 @@ export default function VideoProducerCard({
 
             {/* Action Buttons */}
             <div className="space-y-4">
+              {/* Primary Actions Row */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                <button
+                  onClick={() => {
+                    // Navigate to video detail page
+                    window.open(`/${locale}/video/${currentJobId}`, '_blank');
+                  }}
+                  className="magical-button cursor-pointer bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
+                  </svg>
+                  {t.production.viewVideo}
+                </button>
+
+                <button
+                  onClick={() => {
+                    // Navigate to gallery
+                    window.open(`/${locale}/gallery`, '_blank');
+                  }}
+                  className="cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                    />
+                  </svg>
+                  {t.production.viewGallery}
+                </button>
+              </div>
+
+              {/* Secondary Actions Row */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                 <button
                   onClick={() => {
@@ -640,7 +707,7 @@ export default function VideoProducerCard({
                     link.click();
                     document.body.removeChild(link);
                   }}
-                  className="magical-button cursor-pointer bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
+                  className="cursor-pointer bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -650,14 +717,20 @@ export default function VideoProducerCard({
                       d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                     />
                   </svg>
-                  {t.production.downloading}
+                  {t.production.download}
                 </button>
 
                 <button
-                  onClick={() => {
-                    // Copy video URL to clipboard
-                    navigator.clipboard.writeText(finalVideoUrl);
-                    // You could add a toast notification here
+                  onClick={async () => {
+                    try {
+                      // Copy video detail page URL to clipboard (not just the raw video URL)
+                      const videoDetailUrl = `${window.location.origin}/${locale}/video/${currentJobId}`;
+                      await navigator.clipboard.writeText(videoDetailUrl);
+                      showToast(t.production.linkCopied || "Link copied successfully!", "success");
+                    } catch (error) {
+                      console.error('Failed to copy link:', error);
+                      showToast(t.production.copyFailed || "Failed to copy link", "error");
+                    }
                   }}
                   className="cursor-pointer border border-green-500 text-green-400 hover:bg-green-500/10 px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
                 >
@@ -869,6 +942,18 @@ export default function VideoProducerCard({
           </span>
         </div>
       </div>
+
+      {/* Toast for copy feedback */}
+      {toast.show && (
+        <Toast
+          id="copy-feedback-toast"
+          message={toast.message}
+          type={toast.type}
+          duration={3000}
+          onClose={() => hideToast()}
+          position="top-right"
+        />
+      )}
     </Card>
   );
 }

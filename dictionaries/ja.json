@@ -39,6 +39,48 @@
       "mayaAnalysis": "マヤが商品を分析しています"
     }
   },
+  "gallery": {
+    "title": "動画ギャラリー",
+    "description": "AdCraft AIで作成された素晴らしいコマーシャル動画をご覧ください",
+    "views": "回視聴",
+    "error": {
+      "title": "動画の読み込みに失敗しました",
+      "retry": "再試行"
+    },
+    "empty": {
+      "title": "まだ動画がありません",
+      "description": "最初のコマーシャル動画を作成してここに表示させましょう",
+      "createVideo": "動画を作成"
+    }
+  },
+  "videoDetail": {
+    "backToGallery": "ギャラリーに戻る",
+    "views": "回視聴",
+    "like": "いいね",
+    "save": "保存",
+    "copyLink": "リンクをコピー",
+    "download": "ダウンロード",
+    "share": "共有",
+    "linkCopied": "リンクがコピーされました！",
+    "shareOnTwitter": "Twitterで共有",
+    "shareOnFacebook": "Facebookで共有",
+    "description": "説明",
+    "productInfo": "商品情報",
+    "productName": "商品名",
+    "category": "カテゴリー",
+    "targetAudience": "ターゲット層",
+    "technicalSpecs": "技術仕様",
+    "duration": "再生時間",
+    "aspectRatio": "アスペクト比",
+    "resolution": "解像度",
+    "frameRate": "フレームレート",
+    "creativeDirection": "クリエイティブディレクション",
+    "style": "スタイル",
+    "mood": "ムード",
+    "colorPalette": "カラーパレット",
+    "reportVideo": "この動画を報告",
+    "videoNotSupported": "お使いのブラウザは動画タグをサポートしていません。"
+  },
   "navigation": {
     "home": "生成",
     "gallery": "ギャラリー",
@@ -1115,8 +1157,13 @@
     "production": {
       "complete": "動画制作完了！",
       "ready": "あなたのコマーシャル動画が完成しました！下で作品をご覧ください。",
+      "viewVideo": "動画を見る",
+      "viewGallery": "ギャラリーを見る",
+      "download": "動画をダウンロード",
       "downloading": "動画をダウンロード",
       "copyLink": "リンクをコピー",
+      "linkCopied": "リンクをコピーしました！",
+      "copyFailed": "リンクのコピーに失敗しました",
       "specifications": "動画仕様：",
       "format": "フォーマット：",
       "duration": "再生時間：",

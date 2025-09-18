@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * GET /api/video/[fileId]
- * 
+ * GET /api/video/proxy/[fileId]
+ *
  * Proxy endpoint to serve Gemini API video files with proper headers
  * This handles the authentication and streaming for video playback
  */
