@@ -11,6 +11,7 @@ import type { Locale } from '@/lib/dictionaries';
 export enum VideoProducerWorkflowStep {
   NARRATIVE_STYLE = "narrative-style",
   MUSIC_TONE = "music-tone",
+  VIDEO_FORMAT = "video-format",
   FINAL_PRODUCTION = "final-production"
 }
 
@@ -35,6 +36,19 @@ export interface MusicGenre {
   energy: string;
   instruments: string[];
   bestFor: string;
+}
+
+// Video format interface
+export interface VideoFormat {
+  id: string;
+  name: string;
+  description: string;
+  aspectRatio: "16:9" | "9:16";
+  resolution: "720p" | "1080p";
+  durationSeconds: 8; // Fixed to 8 seconds
+  bestFor: string;
+  platforms: string[];
+  icon: string;
 }
 
 // Video production specs interface
@@ -70,22 +84,26 @@ interface VideoProducerStore {
   completedSteps: {
     narrativeStyle: boolean;
     musicTone: boolean;
+    videoFormat: boolean;
     finalProduction: boolean;
   };
 
   // User selections
   selectedNarrativeStyle: NarrativeStyle | null;
   selectedMusicGenre: MusicGenre | null;
+  selectedVideoFormat: VideoFormat | null;
   productionSpecs: VideoProductionSpecs | null;
 
   // Available options (from API or demo data)
   availableNarrativeStyles: NarrativeStyle[];
   availableMusicGenres: MusicGenre[];
+  availableVideoFormats: VideoFormat[];
 
   // Production state
   isProducing: boolean;
   productionProgress: number;
   finalVideoUrl: string | null;
+  currentJobId: string | null;
 
   // Chat and interaction
   messages: any[];
@@ -93,6 +111,7 @@ interface VideoProducerStore {
   chatInputMessage: string;
 
   // Actions
+  setIsInitialized: (initialized: boolean) => void;
   initializeFromCreativeDirectorHandoff: (data: {
     sessionId: string;
     creativeDirectorHandoffData: CreativeDirectorHandoffData;
@@ -104,12 +123,16 @@ interface VideoProducerStore {
 
   setSelectedNarrativeStyle: (style: NarrativeStyle) => void;
   setSelectedMusicGenre: (genre: MusicGenre) => void;
+  setSelectedVideoFormat: (format: VideoFormat) => void;
   setProductionSpecs: (specs: VideoProductionSpecs) => void;
 
   setAvailableNarrativeStyles: (styles: NarrativeStyle[]) => void;
   setAvailableMusicGenres: (genres: MusicGenre[]) => void;
+  setAvailableVideoFormats: (formats: VideoFormat[]) => void;
 
-  startVideoProduction: () => void;
+  startVideoProduction: () => Promise<void>;
+  pollJobStatus: (jobId: string) => void;
+  simulateProductionProgress: (finalVideoUrl: string) => void;
   updateProductionProgress: (progress: number) => void;
   setFinalVideoUrl: (url: string) => void;
 
@@ -134,19 +157,23 @@ const initialState = {
   completedSteps: {
     narrativeStyle: false,
     musicTone: false,
+    videoFormat: false,
     finalProduction: false,
   },
 
   selectedNarrativeStyle: null,
   selectedMusicGenre: null,
+  selectedVideoFormat: null,
   productionSpecs: null,
 
   availableNarrativeStyles: [],
   availableMusicGenres: [],
+  availableVideoFormats: [],
 
   isProducing: false,
   productionProgress: 0,
   finalVideoUrl: null,
+  currentJobId: null,
 
   messages: [],
   isAgentTyping: false,
@@ -163,20 +190,23 @@ export const useVideoProducerStore = create<VideoProducerStore>((set, get) => ({
       sessionId: data.sessionId,
       creativeDirectorHandoffData: data.creativeDirectorHandoffData,
       locale: data.locale,
-      isInitialized: true,
+      isInitialized: false, // Changed: Let the API initialization set this to true
       currentStep: VideoProducerWorkflowStep.NARRATIVE_STYLE,
       completedSteps: {
         narrativeStyle: false,
         musicTone: false,
+        videoFormat: false,
         finalProduction: false,
       },
       // Reset selections for new session
       selectedNarrativeStyle: null,
       selectedMusicGenre: null,
+      selectedVideoFormat: null,
       productionSpecs: null,
       isProducing: false,
       productionProgress: 0,
       finalVideoUrl: null,
+      currentJobId: null,
       messages: [],
     });
   },
@@ -206,8 +236,18 @@ export const useVideoProducerStore = create<VideoProducerStore>((set, get) => ({
     get().markStepCompleted('musicTone');
   },
 
+  setSelectedVideoFormat: (format) => {
+    set({ selectedVideoFormat: format });
+    get().markStepCompleted('videoFormat');
+  },
+
   setProductionSpecs: (specs) => {
     set({ productionSpecs: specs });
+  },
+
+  // Initialization management
+  setIsInitialized: (initialized) => {
+    set({ isInitialized: initialized });
   },
 
   // Available options management
@@ -219,14 +259,125 @@ export const useVideoProducerStore = create<VideoProducerStore>((set, get) => ({
     set({ availableMusicGenres: genres });
   },
 
+  setAvailableVideoFormats: (formats) => {
+    set({ availableVideoFormats: formats });
+  },
+
   // Video production management
-  startVideoProduction: () => {
+  startVideoProduction: async () => {
+    const state = get();
+
     set({
       isProducing: true,
       productionProgress: 0,
-      finalVideoUrl: null
+      finalVideoUrl: null,
+      currentJobId: null
     });
-    get().markStepCompleted('finalProduction');
+
+    try {
+      // Call the video producer API to start production
+      const response = await fetch('/api/agents/video-producer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'start-production',
+          sessionId: state.sessionId,
+          locale: state.locale,
+          data: {
+            selectedNarrativeStyle: state.selectedNarrativeStyle,
+            selectedMusicGenre: state.selectedMusicGenre,
+            selectedVideoFormat: state.selectedVideoFormat,
+            creativeDirectorHandoffData: state.creativeDirectorHandoffData
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Production API error: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        // Store the job ID and start polling for completion
+        set({ currentJobId: result.data.jobId });
+        get().pollJobStatus(result.data.jobId);
+        get().markStepCompleted('finalProduction');
+      } else {
+        throw new Error('Production failed: ' + (result.error || 'Unknown error'));
+      }
+
+    } catch (error) {
+      console.error('Video production error:', error);
+      set({
+        isProducing: false,
+        productionProgress: 0,
+        currentJobId: null
+      });
+      // You might want to show an error message to the user here
+    }
+  },
+
+  // Poll job status for real video generation
+  pollJobStatus: (jobId: string) => {
+    const checkStatus = async () => {
+      try {
+        const response = await fetch(`/api/status/${jobId}`);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          const { status, progress, videoUrl } = result.data;
+
+          // Update progress
+          if (progress !== undefined) {
+            get().updateProductionProgress(progress);
+          }
+
+          if (status === 'completed' && videoUrl) {
+            // Video is ready!
+            get().setFinalVideoUrl(videoUrl);
+            return; // Stop polling
+          } else if (status === 'failed') {
+            // Video generation failed
+            set({
+              isProducing: false,
+              productionProgress: 0,
+              currentJobId: null
+            });
+            console.error('Video generation failed');
+            return; // Stop polling
+          }
+        }
+
+        // Continue polling if still processing
+        setTimeout(checkStatus, 5000); // Check every 5 seconds
+      } catch (error) {
+        console.error('Job status check failed:', error);
+        // Continue polling on error (network issues, etc.)
+        setTimeout(checkStatus, 10000); // Retry in 10 seconds
+      }
+    };
+
+    // Start the first check immediately
+    checkStatus();
+  },
+
+  // Simulate production progress for demo mode
+  simulateProductionProgress: (finalVideoUrl: string) => {
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 15 + 5; // Random progress between 5-20%
+
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        get().setFinalVideoUrl(finalVideoUrl);
+      } else {
+        get().updateProductionProgress(progress);
+      }
+    }, 1000); // Update every second
   },
 
   updateProductionProgress: (progress) => {

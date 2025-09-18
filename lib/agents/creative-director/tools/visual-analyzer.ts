@@ -118,9 +118,6 @@ async function generateDemoAnalysis(
   request: VisualAnalysisRequest,
   startTime: number
 ): Promise<VisualAnalysisResponse> {
-  // Simulate analysis processing time
-  await new Promise(resolve => setTimeout(resolve, 1200 + Math.random() * 1800));
-
   const analysisId = `visual-analysis-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const { locale } = request;
 

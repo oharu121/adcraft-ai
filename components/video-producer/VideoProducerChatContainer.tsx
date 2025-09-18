@@ -17,7 +17,10 @@ import { Button } from "@/components/ui/Button";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import AgentAvatar from "@/components/ui/AgentAvatar";
 import type { Dictionary } from "@/lib/dictionaries";
-import { useVideoProducerStore, VideoProducerWorkflowStep } from "@/lib/stores/video-producer-store";
+import {
+  useVideoProducerStore,
+  VideoProducerWorkflowStep,
+} from "@/lib/stores/video-producer-store";
 
 export interface VideoProducerChatMessage {
   id: string;
@@ -59,6 +62,7 @@ const VideoProducerChatContainer: React.FC<VideoProducerChatContainerProps> = ({
   const [userTyping, setUserTyping] = useState(false);
   const [typingMessages, setTypingMessages] = useState<Set<string>>(new Set());
   const [visibleContent, setVisibleContent] = useState<Map<string, string>>(new Map());
+  const [showWarning, setShowWarning] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -135,6 +139,26 @@ const VideoProducerChatContainer: React.FC<VideoProducerChatContainerProps> = ({
       }
     };
   }, [inputMessage]);
+
+  useEffect(() => {
+    // Reset warning when entering a new consultative step
+    setShowWarning(true);
+
+    const handleScroll = () => {
+      if (messagesContainerRef.current && showWarning) {
+        const scrollTop = messagesContainerRef.current.scrollTop;
+        if (scrollTop > 30) {
+          setShowWarning(false);
+        }
+      }
+    };
+
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+      return () => container.removeEventListener("scroll", handleScroll);
+    }
+  }, [currentStep]);
 
   // Typing effect for agent messages
   const startTypingEffect = useCallback((message: VideoProducerChatMessage) => {
@@ -371,13 +395,15 @@ const VideoProducerChatContainer: React.FC<VideoProducerChatContainerProps> = ({
           <span className="text-red-900 font-medium text-sm">Zara</span>
           <span className="ml-2 text-xs text-red-600 bg-red-200 px-2 py-1 rounded">
             {isProductionMode && isProducing
-              ? locale === "ja" ? "制作中" : "Producing"
-              : locale === "ja" ? "準備完了" : "Ready"}
+              ? locale === "ja"
+                ? "制作中"
+                : "Producing"
+              : locale === "ja"
+                ? "準備完了"
+                : "Ready"}
           </span>
         </div>
-        <p className="text-red-800 text-sm whitespace-pre-wrap">
-          {getGreetingMessage()}
-        </p>
+        <p className="text-red-800 text-sm whitespace-pre-wrap">{getGreetingMessage()}</p>
       </div>
     );
   };
@@ -386,7 +412,7 @@ const VideoProducerChatContainer: React.FC<VideoProducerChatContainerProps> = ({
     <div className={`w-full h-full flex flex-col ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white rounded-t-lg">
-        <h3 className="text-lg font-semibold text-gray-900">Chat with Zara</h3>
+        <h3 className="text-lg font-semibold text-gray-900">{t.chat.title}</h3>
 
         {/* Connection status */}
         <div className="flex items-center text-sm">
@@ -398,6 +424,29 @@ const VideoProducerChatContainer: React.FC<VideoProducerChatContainerProps> = ({
           </span>
         </div>
       </div>
+
+      {/* Chat Limitations Warning */}
+      {showWarning && (
+        <div className="px-4 py-3 bg-blue-50 border-b border-blue-200 transition-all duration-300 ease-out">
+          <div className="flex items-start gap-2">
+            <svg
+              className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <div className="text-sm">
+              <div className="text-blue-700 font-medium">{t.chat.limitations.title}</div>
+              <div className="text-blue-600 mt-1">{t.chat.limitations.description}</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Messages */}
       <div
@@ -434,7 +483,9 @@ const VideoProducerChatContainer: React.FC<VideoProducerChatContainerProps> = ({
                       ? locale === "ja"
                         ? "動画制作について質問してください..."
                         : "Ask about video production..."
-                      : t.chatPlaceholder || "Ask Zara about video production..."
+                      : t.chat?.placeholder ||
+                        t.chatPlaceholder ||
+                        "Ask Zara about video production..."
               }
               disabled={!isConnected || isSubmitting || isAgentTyping || typingMessages.size > 0}
               className="scrollbar-hidden w-full px-3 py-2 border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-red-500 focus:border-red-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 placeholder-gray-500"
@@ -464,7 +515,7 @@ const VideoProducerChatContainer: React.FC<VideoProducerChatContainerProps> = ({
         </form>
 
         {/* User typing indicator */}
-        {userTyping && <div className="mt-1 text-xs text-gray-400">You are typing...</div>}
+        {userTyping && <div className="mt-1 text-xs text-gray-400">{t.chat.userTyping}</div>}
       </div>
     </div>
   );

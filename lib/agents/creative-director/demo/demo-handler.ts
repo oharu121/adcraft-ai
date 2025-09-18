@@ -24,9 +24,6 @@ export class CreativeDirectorDemoHandler {
    * Automatically triggered when handoff from Maya occurs
    */
   static async handleCreativeAnalysis(context: DemoHandlerContext) {
-    // Simulate processing time
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
     return {
       success: true,
       phase: CreativePhase.CREATIVE_DEVELOPMENT,
@@ -55,9 +52,6 @@ export class CreativeDirectorDemoHandler {
    */
   static async handleStyleSelection(message: string, context: DemoHandlerContext) {
     const lowerMessage = message.toLowerCase();
-
-    // Simulate AI processing
-    await new Promise(resolve => setTimeout(resolve, 1500));
 
     // Respond based on user's request
     if (lowerMessage.includes('style options') || lowerMessage.includes('show me')) {

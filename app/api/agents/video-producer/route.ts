@@ -3,6 +3,20 @@ import { AppModeConfig } from "@/lib/config/app-mode";
 import type { CreativeDirection } from "@/lib/agents/creative-director/types/asset-types";
 import type { Locale } from "@/lib/dictionaries";
 import type { NarrativeStyle, MusicGenre } from "@/lib/stores/video-producer-store";
+import {
+  buildNarrativeStyleValidationPrompt,
+  buildMusicToneValidationPrompt,
+  buildProductionContext,
+  validateProductionReadiness,
+  type DavidHandoffData
+} from "@/lib/agents/video-producer/tools/prompt-builder";
+import { ProductionBridgeService } from "@/lib/agents/video-producer/services/production-bridge";
+import {
+  processNarrativeStyleValidation,
+  processMusicToneValidation
+} from "@/lib/agents/video-producer/core/real-handler";
+import { VertexAIService } from '@/lib/services/vertex-ai';
+import { GeminiClient } from '@/lib/services/gemini';
 
 // Video Producer initialization request
 interface VideoProducerInitRequest {
@@ -40,6 +54,9 @@ interface VideoProducerInitResponse {
     estimated: number;
     remaining: number;
   };
+  // Following Maya's pattern: API provides all options
+  narrativeStyles: NarrativeStyle[];
+  musicGenres: MusicGenre[];
 }
 
 // Demo mode video production handler
@@ -51,8 +68,11 @@ async function initializeDemoMode(
 
   console.log(`[Video Producer Demo] Initializing session ${sessionId}`);
 
-  // Simulate processing time
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  // Generate narrative styles and music genres in parallel for maximum performance
+  const [narrativeStyles, musicGenres] = await Promise.all([
+    generateAINarrativeStyles(creativeDirection, locale),
+    generateAIMusicGenres(creativeDirection, locale)
+  ]);
 
   // Demo response with realistic video production specs
   const response: VideoProducerInitResponse = {
@@ -75,7 +95,9 @@ async function initializeDemoMode(
     cost: {
       estimated: 2.5, // Estimated cost for video generation
       remaining: 296.0
-    }
+    },
+    narrativeStyles,
+    musicGenres
   };
 
   return response;
@@ -97,7 +119,10 @@ async function initializeRealMode(
   // 3. Configuring production parameters
   // 4. Estimating real costs and timelines
 
-  // For now, return similar structure as demo mode
+  // Generate AI-customized options for real mode
+  const customNarrativeStyles = await generateRealModeNarrativeStyles(creativeDirection, locale);
+  const customMusicGenres = await generateRealModeMusicGenres(creativeDirection, locale);
+
   const response: VideoProducerInitResponse = {
     sessionId,
     agentStatus: "ready",
@@ -118,10 +143,294 @@ async function initializeRealMode(
     cost: {
       estimated: 2.8, // Real cost might be higher
       remaining: 295.7
-    }
+    },
+    // Real mode: AI-generated options based on David's creative direction
+    narrativeStyles: customNarrativeStyles,
+    musicGenres: customMusicGenres
   };
 
   return response;
+}
+
+// Generate AI-customized narrative styles for real mode
+async function generateRealModeNarrativeStyles(
+  creativeDirection: any,
+  locale: Locale
+): Promise<NarrativeStyle[]> {
+  try {
+    // Generate 4 AI-customized narrative styles using Gemini (following David's pattern)
+    const aiGeneratedStyles = await generateAINarrativeStyles(creativeDirection, locale);
+    return aiGeneratedStyles;
+
+  } catch (error) {
+    console.error('[Video Producer Real] AI narrative generation failed, falling back to demo options:', error);
+    return getDemoNarrativeStyles(locale);
+  }
+}
+
+/**
+ * Generate fully AI-based narrative styles using Gemini (following David's generateAIStyleOptions pattern)
+ */
+async function generateAINarrativeStyles(
+  creativeDirection: any,
+  locale: Locale
+): Promise<NarrativeStyle[]> {
+  const isJapanese = locale === 'ja';
+  const productAnalysis = creativeDirection?.zaraHandoffData?.productAnalysis;
+
+  if (!creativeDirection) {
+    throw new Error('No creative direction available for AI narrative generation');
+  }
+
+  const visualTheme = creativeDirection?.strategy?.visualTheme || 'modern';
+  const emotionalTone = creativeDirection?.strategy?.emotionalTone || 'professional';
+  const brandMessage = creativeDirection?.strategy?.brandMessage || 'quality';
+  const targetAudience = creativeDirection?.strategy?.targetAudienceAlignment?.description || 'general consumers';
+
+  const prompt = isJapanese ?
+    `あなたはビデオプロデューサー（Zara）です。David（クリエイティブディレクター）の創造的方向性に基づいて、4つの独特なナラティブスタイルオプションを生成してください。
+
+クリエイティブディレクション:
+ビジュアルテーマ: ${visualTheme}
+感情的トーン: ${emotionalTone}
+ブランドメッセージ: ${brandMessage}
+ターゲット層: ${targetAudience}
+
+各ナラティブスタイルには以下が必要です:
+- id: ユニークなID（kebab-case）
+- name: スタイル名（20文字以内）
+- description: 詳細説明（80文字以内）
+- pacing: ペーシングスタイル（15文字以内）例："ゆっくり・劇的"
+- tone: トーンスタイル（15文字以内）例："感情的・印象的"
+- narrationStyle: ナレーションスタイル（15文字以内）例："権威ある・深み"
+- examples: 3つの具体例（各20文字以内）
+- bestFor: 適用対象（40文字以内）例："高級商品・感情訴求"
+
+4つの異なる方向性を提案してください:
+1. ${visualTheme}に最適化されたプライマリスタイル
+2. ドラマティック/シネマティック系
+3. エネルギッシュ/モダン系
+4. 親しみやすい/オーセンティック系
+
+有効なJSONとして返してください:
+[{"id": "narrative-1", "name": "ナラティブ名", "description": "説明", "pacing": "ペーシング", "tone": "トーン", "narrationStyle": "ナレーション", "examples": ["例1", "例2", "例3"], "bestFor": "適用対象"}, ...]` :
+
+    `You are Video Producer (Zara). Based on David's (Creative Director) creative direction, generate 4 unique narrative style options for this commercial video.
+
+Creative Direction:
+Visual Theme: ${visualTheme}
+Emotional Tone: ${emotionalTone}
+Brand Message: ${brandMessage}
+Target Audience: ${targetAudience}
+
+Each narrative style must include:
+- id: Unique ID (kebab-case)
+- name: Style name (under 30 characters)
+- description: Detailed description (under 120 characters)
+- pacing: Pacing style (under 20 characters) e.g. "Slow & Dramatic"
+- tone: Tone style (under 20 characters) e.g. "Emotional & Impactful"
+- narrationStyle: Narration style (under 25 characters) e.g. "Authoritative & Deep"
+- examples: 3 specific examples (each under 30 characters)
+- bestFor: Target use cases (under 60 characters) e.g. "Premium and emotional products"
+
+Create 4 different narrative directions:
+1. Primary style optimized for ${visualTheme}
+2. Dramatic/Cinematic approach
+3. Energetic/Modern approach
+4. Approachable/Authentic approach
+
+Return as valid JSON:
+[{"id": "narrative-1", "name": "Narrative Name", "description": "Description", "pacing": "Pacing", "tone": "Tone", "narrationStyle": "Narration", "examples": ["example1", "example2", "example3"], "bestFor": "Target use cases"}, ...]`;
+
+  try {
+    // Create Gemini client using singleton instance (following David's pattern)
+    const vertexAIService = VertexAIService.getInstance();
+    const geminiClient = new GeminiClient(vertexAIService);
+
+    // Call Gemini API for dynamic narrative styles
+    const response = await geminiClient.generateTextOnly(prompt);
+
+    // Parse JSON response (following David's parsing pattern)
+    const cleanedText = response.text.replace(/```json\n?|\n?```/g, '').trim();
+
+    console.log("[AI Narrative Styles] Raw AI response:", {
+      originalText: response.text,
+      cleanedText: cleanedText,
+      textLength: cleanedText.length
+    });
+
+    const narrativeStyles = JSON.parse(cleanedText);
+
+    // Validate the response is an array of valid NarrativeStyle objects
+    if (Array.isArray(narrativeStyles) &&
+        narrativeStyles.length >= 3 &&
+        narrativeStyles.every(style =>
+          style.id &&
+          style.name &&
+          style.description &&
+          style.pacing &&
+          style.tone &&
+          style.narrationStyle &&
+          Array.isArray(style.examples) &&
+          style.bestFor
+        )) {
+      // Return exactly 4 options for consistency
+      return narrativeStyles.slice(0, 4);
+    } else {
+      throw new Error('Invalid response format from Gemini for narrative styles');
+    }
+
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      console.error('JSON parsing error for AI narrative styles:', {
+        error: error.message,
+        position: error.message.match(/position (\d+)/)?.[1] || 'unknown'
+      });
+    } else {
+      console.error('Error generating AI narrative styles:', error);
+    }
+    throw error; // Re-throw to trigger fallback in parent function
+  }
+}
+
+// Generate AI-customized music genres for real mode
+async function generateRealModeMusicGenres(
+  creativeDirection: any,
+  locale: Locale
+): Promise<MusicGenre[]> {
+  try {
+    // Generate 4 AI-customized music genres using Gemini (following David's pattern)
+    const aiGeneratedGenres = await generateAIMusicGenres(creativeDirection, locale);
+    return aiGeneratedGenres;
+
+  } catch (error) {
+    console.error('[Video Producer Real] AI music generation failed, falling back to demo options:', error);
+    return getDemoMusicGenres(locale);
+  }
+}
+
+/**
+ * Generate fully AI-based music genres using Gemini (following David's generateAIStyleOptions pattern)
+ */
+async function generateAIMusicGenres(
+  creativeDirection: any,
+  locale: Locale
+): Promise<MusicGenre[]> {
+  const isJapanese = locale === 'ja';
+
+  if (!creativeDirection) {
+    throw new Error('No creative direction available for AI music generation');
+  }
+
+  const visualTheme = creativeDirection?.strategy?.visualTheme || 'modern';
+  const emotionalTone = creativeDirection?.strategy?.emotionalTone || 'professional';
+  const brandMessage = creativeDirection?.strategy?.brandMessage || 'quality';
+  const targetAudience = creativeDirection?.strategy?.targetAudienceAlignment?.description || 'general consumers';
+  const mood = creativeDirection?.visualSpecs?.styleDirection?.mood || 'modern';
+
+  const prompt = isJapanese ?
+    `あなたはビデオプロデューサー（Zara）です。David（クリエイティブディレクター）の創造的方向性に基づいて、4つの独特な音楽ジャンルオプションを生成してください。
+
+クリエイティブディレクション:
+ビジュアルテーマ: ${visualTheme}
+感情的トーン: ${emotionalTone}
+ブランドメッセージ: ${brandMessage}
+ターゲット層: ${targetAudience}
+ムード: ${mood}
+
+各音楽ジャンルには以下が必要です:
+- id: ユニークなID（kebab-case）
+- name: 音楽スタイル名（20文字以内）
+- description: 詳細説明（80文字以内）
+- mood: ムードスタイル（15文字以内）例："未来的・クール"
+- energy: エネルギーレベル（15文字以内）例："中高・ダイナミック"
+- instruments: 4つの楽器/サウンド要素（各15文字以内）
+- bestFor: 適用対象（40文字以内）例："テック商品・イノベーション"
+
+4つの異なる音楽方向性を提案してください:
+1. ${visualTheme}に最適化されたシグネチャーサウンド
+2. シネマティック/オーケストラ系
+3. モダン/エレクトロニック系
+4. 温かい/アコースティック系
+
+有効なJSONとして返してください:
+[{"id": "music-1", "name": "音楽名", "description": "説明", "mood": "ムード", "energy": "エネルギー", "instruments": ["楽器1", "楽器2", "楽器3", "楽器4"], "bestFor": "適用対象"}, ...]` :
+
+    `You are Video Producer (Zara). Based on David's (Creative Director) creative direction, generate 4 unique music genre options for this commercial video.
+
+Creative Direction:
+Visual Theme: ${visualTheme}
+Emotional Tone: ${emotionalTone}
+Brand Message: ${brandMessage}
+Target Audience: ${targetAudience}
+Mood: ${mood}
+
+Each music genre must include:
+- id: Unique ID (kebab-case)
+- name: Music style name (under 30 characters)
+- description: Detailed description (under 120 characters)
+- mood: Mood style (under 20 characters) e.g. "Futuristic & Cool"
+- energy: Energy level (under 25 characters) e.g. "Medium-High & Dynamic"
+- instruments: 4 instruments/sound elements (each under 20 characters)
+- bestFor: Target use cases (under 60 characters) e.g. "Tech products and innovations"
+
+Create 4 different music directions:
+1. Signature sound optimized for ${visualTheme}
+2. Cinematic/Orchestral approach
+3. Modern/Electronic approach
+4. Warm/Acoustic approach
+
+Return as valid JSON:
+[{"id": "music-1", "name": "Music Name", "description": "Description", "mood": "Mood", "energy": "Energy", "instruments": ["instrument1", "instrument2", "instrument3", "instrument4"], "bestFor": "Target use cases"}, ...]`;
+
+  try {
+    // Create Gemini client using singleton instance (following David's pattern)
+    const vertexAIService = VertexAIService.getInstance();
+    const geminiClient = new GeminiClient(vertexAIService);
+
+    // Call Gemini API for dynamic music genres
+    const response = await geminiClient.generateTextOnly(prompt);
+
+    // Parse JSON response (following David's parsing pattern)
+    const cleanedText = response.text.replace(/```json\n?|\n?```/g, '').trim();
+
+    console.log("[AI Music Genres] Raw AI response:", {
+      originalText: response.text,
+      cleanedText: cleanedText,
+      textLength: cleanedText.length
+    });
+
+    const musicGenres = JSON.parse(cleanedText);
+
+    // Validate the response is an array of valid MusicGenre objects
+    if (Array.isArray(musicGenres) &&
+        musicGenres.length >= 3 &&
+        musicGenres.every(genre =>
+          genre.id &&
+          genre.name &&
+          genre.description &&
+          genre.mood &&
+          genre.energy &&
+          Array.isArray(genre.instruments) &&
+          genre.bestFor
+        )) {
+      // Return exactly 4 options for consistency
+      return musicGenres.slice(0, 4);
+    } else {
+      throw new Error('Invalid response format from Gemini for music genres');
+    }
+
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      console.error('JSON parsing error for AI music genres:', {
+        error: error.message,
+        position: error.message.match(/position (\d+)/)?.[1] || 'unknown'
+      });
+    } else {
+      console.error('Error generating AI music genres:', error);
+    }
+    throw error; // Re-throw to trigger fallback in parent function
+  }
 }
 
 // Demo mode narrative styles
@@ -219,15 +528,15 @@ function getDemoMusicGenres(locale: Locale): MusicGenre[] {
       bestFor: isJapanese ? "家族向け・ライフスタイル商品" : "Family and lifestyle products"
     },
     {
-      id: "upbeat-pop",
-      name: isJapanese ? "アップビート・ポップ" : "Upbeat Pop",
+      id: "upbeat-energetic",
+      name: isJapanese ? "アップビート・エネルギッシュ" : "Upbeat Energetic",
       description: isJapanese
-        ? "明るく楽しいポップサウンドで活気とポジティブさを演出"
-        : "Bright, cheerful pop sounds that energize and create positivity",
-      mood: isJapanese ? "明るい・楽しい" : "Bright & Joyful",
-      energy: isJapanese ? "高・活発" : "High & Energetic",
-      instruments: ["Pop vocals", "Electric guitar", "Bass", "Drums"],
-      bestFor: isJapanese ? "若者向け・エンターテイメント" : "Youth-oriented and entertainment products"
+        ? "明るく活発な音楽で活気とポジティブな雰囲気を演出"
+        : "Bright, energetic music that creates vibrant and positive atmosphere",
+      mood: isJapanese ? "明るい・活発" : "Bright & Energetic",
+      energy: isJapanese ? "高・ダイナミック" : "High & Dynamic",
+      instruments: ["Electric guitar", "Upbeat drums", "Bass", "Energetic vocals"],
+      bestFor: isJapanese ? "若者向け・スポーツ・エンターテイメント" : "Youth products, sports, and entertainment"
     }
   ];
 }
@@ -236,14 +545,16 @@ function getDemoMusicGenres(locale: Locale): MusicGenre[] {
 async function startDemoProduction(sessionId: string, locale: Locale): Promise<any> {
   console.log(`[Video Producer Demo] Starting production for session ${sessionId}`);
 
-  // Simulate video production
-  await new Promise(resolve => setTimeout(resolve, 2000));
+
+  // Use a sample video URL for demo purposes
+  // In a real implementation, this would be the generated video
+  const demoVideoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
 
   return {
     success: true,
     productionId: crypto.randomUUID(),
-    estimatedCompletion: Date.now() + (5 * 60 * 1000), // 5 minutes
-    videoUrl: "/demo-commercial-video.mp4", // Demo video URL
+    estimatedCompletion: Date.now() + (8 * 1000), // 8 seconds for demo
+    videoUrl: demoVideoUrl,
     status: "in_progress"
   };
 }
@@ -274,9 +585,6 @@ async function handleDemoChat(sessionId: string, message: string, locale: Locale
       ? "こんにちは！ビデオ制作について何かご質問がありますか？音楽、ペーシング、ナラティブスタイルについてお気軽にお聞きください。あなたの商品に最適なコマーシャルを作りましょう！"
       : "Hi there! Any questions about video production? Feel free to ask about music, pacing, or narrative styles. Let's create the perfect commercial for your product!";
   }
-
-  // Simulate processing time
-  await new Promise(resolve => setTimeout(resolve, 1000));
 
   return {
     response,
@@ -322,44 +630,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    if (action === "get-narrative-styles") {
-      const { locale } = body;
-      const isDemoMode = AppModeConfig.getMode() === 'demo';
-      const narrativeStyles = getDemoNarrativeStyles(locale);
-
-      return NextResponse.json({
-        success: true,
-        data: { narrativeStyles },
-        timestamp: Date.now(),
-        mode: isDemoMode ? 'demo' : 'real'
-      });
-    }
-
-    if (action === "get-music-genres") {
-      const { locale } = body;
-      const isDemoMode = AppModeConfig.getMode() === 'demo';
-      const musicGenres = getDemoMusicGenres(locale);
-
-      return NextResponse.json({
-        success: true,
-        data: { musicGenres },
-        timestamp: Date.now(),
-        mode: isDemoMode ? 'demo' : 'real'
-      });
-    }
-
-    if (action === "start-production") {
-      const { sessionId, locale } = body;
-      const isDemoMode = AppModeConfig.getMode() === 'demo';
-      const result = await startDemoProduction(sessionId, locale);
-
-      return NextResponse.json({
-        success: true,
-        data: result,
-        timestamp: Date.now(),
-        mode: isDemoMode ? 'demo' : 'real'
-      });
-    }
+    // Note: narrative-styles and music-genres are now provided in initialization response
+    // following Maya's pattern where API provides all options upfront
 
     if (action === "chat") {
       const { sessionId, locale, data } = body;
@@ -373,6 +645,255 @@ export async function POST(request: NextRequest) {
         timestamp: Date.now(),
         mode: isDemoMode ? 'demo' : 'real'
       });
+    }
+
+    // Real mode Step 1: Narrative Style Selection Validation
+    if (action === "select-narrative-style") {
+      const { sessionId, locale, data, context } = body;
+      const isDemoMode = AppModeConfig.getMode() === 'demo';
+
+      if (isDemoMode) {
+        // Demo mode: Simple approval
+        return NextResponse.json({
+          success: true,
+          data: {
+            validation: {
+              alignmentScore: 8.5,
+              strengths: ["Good pacing match", "Appropriate tone for product"],
+              recommendations: ["Consider emphasizing key benefits more prominently"]
+            },
+            confirmation: {
+              approved: true,
+              message: "Excellent narrative style choice! This aligns well with your product and creative direction.",
+              nextStepGuidance: "Now let's select the perfect music to complement this narrative approach."
+            }
+          },
+          timestamp: Date.now(),
+          mode: 'demo'
+        });
+      }
+
+      // Real mode: AI validation
+      try {
+        const prompt = buildNarrativeStyleValidationPrompt({
+          davidHandoff: context.davidHandoff,
+          locale
+        }, data.narrativeStyleId);
+
+        // Process with actual AI integration
+        const aiResult = await processNarrativeStyleValidation({
+          sessionId,
+          prompt,
+          locale,
+          context: {
+            davidHandoff: context.davidHandoff
+          }
+        });
+
+        if (!aiResult.success) {
+          return NextResponse.json({
+            success: false,
+            error: aiResult.error || "AI validation failed",
+            timestamp: Date.now(),
+            mode: 'real'
+          }, { status: 500 });
+        }
+
+        return NextResponse.json({
+          success: true,
+          data: aiResult.response,
+          cost: aiResult.cost,
+          confidence: aiResult.confidence,
+          processingTime: aiResult.processingTime,
+          timestamp: Date.now(),
+          mode: 'real'
+        });
+
+      } catch (error) {
+        console.error("[Video Producer Real] Narrative validation error:", error);
+        return NextResponse.json({
+          success: false,
+          error: "Failed to validate narrative style selection",
+          timestamp: Date.now()
+        }, { status: 500 });
+      }
+    }
+
+    // Real mode Step 2: Music & Tone Selection Validation
+    if (action === "select-music-genre") {
+      const { sessionId, locale, data, context } = body;
+      const isDemoMode = AppModeConfig.getMode() === 'demo';
+
+      if (isDemoMode) {
+        // Demo mode: Simple approval
+        return NextResponse.json({
+          success: true,
+          data: {
+            validation: {
+              harmonyScore: 9.0,
+              brandAlignment: 8.5,
+              emotionalImpact: "Creates strong emotional connection with audience",
+              recommendations: ["Perfect choice for your brand personality"]
+            },
+            confirmation: {
+              approved: true,
+              message: "Outstanding music selection! This will create the perfect atmosphere for your commercial.",
+              productionReadiness: "All creative elements are now in perfect harmony. Ready for video production!"
+            }
+          },
+          timestamp: Date.now(),
+          mode: 'demo'
+        });
+      }
+
+      // Real mode: AI validation with accumulated context
+      try {
+        const prompt = buildMusicToneValidationPrompt({
+          davidHandoff: context.davidHandoff,
+          selectedNarrativeStyle: context.selectedNarrativeStyle,
+          locale
+        }, data.musicGenreId);
+
+        // Process with actual AI integration
+        const aiResult = await processMusicToneValidation({
+          sessionId,
+          prompt,
+          locale,
+          context: {
+            davidHandoff: context.davidHandoff,
+            selectedNarrativeStyle: context.selectedNarrativeStyle
+          }
+        });
+
+        if (!aiResult.success) {
+          return NextResponse.json({
+            success: false,
+            error: aiResult.error || "AI validation failed",
+            timestamp: Date.now(),
+            mode: 'real'
+          }, { status: 500 });
+        }
+
+        return NextResponse.json({
+          success: true,
+          data: aiResult.response,
+          cost: aiResult.cost,
+          confidence: aiResult.confidence,
+          processingTime: aiResult.processingTime,
+          timestamp: Date.now(),
+          mode: 'real'
+        });
+
+      } catch (error) {
+        console.error("[Video Producer Real] Music validation error:", error);
+        return NextResponse.json({
+          success: false,
+          error: "Failed to validate music genre selection",
+          timestamp: Date.now()
+        }, { status: 500 });
+      }
+    }
+
+    // Real mode Step 4: Final Production - Bridge to existing video generation
+    if (action === "start-production") {
+      const { sessionId, locale, data } = body;
+      const isDemoMode = AppModeConfig.getMode() === 'demo';
+
+      if (isDemoMode) {
+        // Use existing demo production handler
+        const result = await startDemoProduction(sessionId, locale);
+        return NextResponse.json({
+          success: true,
+          data: result,
+          timestamp: Date.now(),
+          mode: 'demo'
+        });
+      }
+
+      // Real mode: Build comprehensive context and bridge to video generation
+      try {
+        // Map creativeDirectorHandoffData to davidHandoff structure
+        const davidHandoff = data.creativeDirectorHandoffData ? {
+          productImage: data.creativeDirectorHandoffData.productAnalysis?.product?.image || '',
+          mayaAnalysis: {
+            productAnalysis: data.creativeDirectorHandoffData.productAnalysis?.product || {},
+            strategicInsights: data.creativeDirectorHandoffData.productAnalysis?.targetAudience || {},
+            visualOpportunities: data.creativeDirectorHandoffData.productAnalysis?.keyMessages || {}
+          },
+          productionStyle: data.creativeDirectorHandoffData.creativeDirection?.strategy || {},
+          creativeDirection: data.creativeDirectorHandoffData.creativeDirection || {},
+          sceneArchitecture: data.creativeDirectorHandoffData.creativeDirection?.zaraHandoffData?.sceneBreakdown || []
+        } : data.davidHandoff;
+
+        // Validate all required context is present
+        const readinessCheck = validateProductionReadiness({
+          davidHandoff,
+          selectedNarrativeStyle: data.selectedNarrativeStyle,
+          selectedMusicGenre: data.selectedMusicGenre,
+          selectedVideoFormat: data.selectedVideoFormat,
+          locale
+        });
+
+        if (!readinessCheck.ready) {
+          return NextResponse.json({
+            success: false,
+            error: "Missing required production context",
+            details: { missing: readinessCheck.missing },
+            timestamp: Date.now()
+          }, { status: 400 });
+        }
+
+        // Build production context for existing video generation API
+        const productionContext = buildProductionContext({
+          davidHandoff,
+          selectedNarrativeStyle: data.selectedNarrativeStyle,
+          selectedMusicGenre: data.selectedMusicGenre,
+          selectedVideoFormat: data.selectedVideoFormat,
+          locale
+        });
+
+        console.log("[Video Producer Real] Production context built:", {
+          sessionId,
+          prompt: productionContext.videoGenerationRequest.prompt.substring(0, 200) + '...',
+          metadata: productionContext.productionMetadata
+        });
+
+        // Use ProductionBridgeService to integrate with existing video generation pipeline
+        const productionBridge = ProductionBridgeService.getInstance();
+
+        const productionResult = await productionBridge.startProduction({
+          sessionId,
+          locale,
+          davidHandoff,
+          selectedNarrativeStyle: data.selectedNarrativeStyle,
+          selectedMusicGenre: data.selectedMusicGenre,
+          selectedVideoFormat: data.selectedVideoFormat
+        });
+
+        if (!productionResult.success) {
+          return NextResponse.json({
+            success: false,
+            error: productionResult.error?.message || "Video production failed to start",
+            details: productionResult.error?.details,
+            timestamp: Date.now()
+          }, { status: 500 });
+        }
+
+        return NextResponse.json({
+          success: true,
+          data: productionResult.data,
+          timestamp: Date.now(),
+          mode: 'real'
+        });
+
+      } catch (error) {
+        console.error("[Video Producer Real] Production preparation error:", error);
+        return NextResponse.json({
+          success: false,
+          error: "Failed to prepare video production",
+          timestamp: Date.now()
+        }, { status: 500 });
+      }
     }
 
     return NextResponse.json(

@@ -164,9 +164,6 @@ async function generateDemoStyleRecommendations(
   request: StyleGenerationRequest,
   startTime: number
 ): Promise<StyleGenerationResponse> {
-  // Simulate style generation processing time
-  await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 2000));
-
   const generationId = `style-gen-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const { locale, context } = request;
 

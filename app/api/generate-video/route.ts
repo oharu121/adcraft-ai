@@ -37,22 +37,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedRequest = VideoGenerationRequestSchema.parse(body);
 
-    // Sanitize and validate prompt content
+    // Light sanitization only - let Veo API handle content validation
     const sanitizedPrompt = ValidationUtils.sanitizeInput(validatedRequest.prompt);
-    const promptValidation = ValidationUtils.validatePromptContent(sanitizedPrompt);
-    
-    if (!promptValidation.valid) {
-      return NextResponse.json({
-        success: false,
-        error: {
-          code: 'INVALID_PROMPT',
-          message: 'Prompt validation failed',
-          details: { errors: promptValidation.errors },
-          timestamp: new Date(),
-        },
-        timestamp: new Date(),
-      }, { status: 400 });
-    }
 
     // Enhanced rate limiting with proper implementation
     const rateLimiter = RateLimiterService.getInstance();
@@ -267,7 +253,7 @@ export async function GET() {
         configuration: {
           maxDuration: 15,
           supportedAspectRatios: ['16:9', '9:16', '1:1'],
-          maxPromptLength: 500,
+          maxPromptLength: 4000,
           estimatedCostPer15s: 1.50,
         },
         version: '1.0.0',

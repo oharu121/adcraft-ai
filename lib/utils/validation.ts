@@ -6,7 +6,7 @@ export const IdSchema = z.string().min(1, "ID is required");
 export const PromptSchema = z
   .string()
   .min(5, "Prompt must be at least 5 characters")
-  .max(500, "Prompt must be 500 characters or less")
+  .max(4000, "Prompt must be 4000 characters or less")
   .trim();
 
 export const DurationSchema = z
@@ -403,83 +403,21 @@ export const ValidationUtils = {
 
   /**
    * Validate prompt content for safety and policy compliance
+   * Simplified to only check basic requirements - let Veo API handle content validation
    */
   validatePromptContent(prompt: string, source?: string): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
 
-    // Basic length validation
+    // Only basic validation - let Veo handle the rest
     if (!prompt || prompt.trim().length < 5) {
       errors.push("Prompt is too short (minimum 5 characters)");
     }
 
-    if (prompt.length > 500) {
-      errors.push("Prompt is too long (maximum 500 characters)");
+    if (prompt.length > 4000) {
+      errors.push("Prompt is too long (maximum 4000 characters for Veo API)");
     }
 
-    // Enhanced content policy validation
-    const bannedPatterns = [
-      // Violence and harmful content
-      /\b(violence|violent|kill|murder|death|blood|gore|torture|harm)\b/gi,
-      // Explicit adult content
-      /\b(explicit|nude|naked|sexual|porn|adult|erotic)\b/gi,
-      // Illegal activities
-      /\b(illegal|drugs|weapon|bomb|terrorist|hack|steal|fraud)\b/gi,
-      // Hate speech indicators
-      /\b(hate|racist|discrimination|nazi|supremacist)\b/gi,
-      // Personal information patterns
-      /\b(\d{3}-\d{2}-\d{4}|\d{4}\s?\d{4}\s?\d{4}\s?\d{4}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\b/g,
-    ];
-
-    const lowerPrompt = prompt.toLowerCase();
-
-    const securityMonitor = SecurityMonitorService.getInstance();
-    const violations: string[] = [];
-
-    for (const pattern of bannedPatterns) {
-      const matches = lowerPrompt.match(pattern);
-      if (matches) {
-        violations.push(`Pattern: ${pattern.toString()}`);
-        errors.push(`Content contains prohibited terms or patterns`);
-        break; // Don't reveal specific words for security
-      }
-    }
-
-    // Log content policy violations
-    if (violations.length > 0 && source) {
-      securityMonitor.logContentPolicyViolation(source, prompt, violations);
-    }
-
-    // Check for excessive repetition (potential spam)
-    const words = prompt.split(/\s+/);
-    const wordCounts = new Map<string, number>();
-    for (const word of words) {
-      if (word.length > 2) {
-        wordCounts.set(word.toLowerCase(), (wordCounts.get(word.toLowerCase()) || 0) + 1);
-      }
-    }
-
-    for (const [word, count] of wordCounts.entries()) {
-      if (count > 5 && words.length > 10) {
-        errors.push("Content contains excessive repetition");
-        break;
-      }
-    }
-
-    // Check for suspicious patterns (base64, hex encoding, etc.)
-    const suspiciousPatterns = [
-      /[A-Za-z0-9+/]{20,}={0,2}/, // Base64-like patterns
-      /0x[0-9a-fA-F]{10,}/, // Hex patterns
-      /\\x[0-9a-fA-F]{2}/, // Hex escape sequences
-      /%[0-9a-fA-F]{2}/, // URL encoding
-    ];
-
-    for (const pattern of suspiciousPatterns) {
-      if (pattern.test(prompt)) {
-        errors.push("Content contains suspicious encoding patterns");
-        break;
-      }
-    }
-
+    // That's it! Let Veo API be the judge of content appropriateness
     return {
       valid: errors.length === 0,
       errors,

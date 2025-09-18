@@ -161,9 +161,6 @@ async function initializeDemoMode(
 ): Promise<CreativeDirectorInitResponse> {
   console.log(`[DAVID DEMO] Initializing demo mode for session: ${sessionId}`);
   
-  // Simulate initialization processing time
-  await new Promise((resolve) => setTimeout(resolve, 800 + Math.random() * 1200));
-
   // Store handoff data for conversation context
   const firestoreService = FirestoreService.getInstance();
   await firestoreService.createCreativeSession(sessionId, {

@@ -218,9 +218,6 @@ async function generateDemoComposition(
   request: SceneCompositionRequest,
   startTime: number
 ): Promise<SceneCompositionResponse> {
-  // Simulate composition processing time
-  await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 2500));
-
   const compositionId = `scene-comp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const { locale, context } = request;
   const videoDuration = context.videoSpecs.duration;

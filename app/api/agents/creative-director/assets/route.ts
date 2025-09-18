@@ -480,21 +480,6 @@ async function generateDemoAsset(
   request: any,
   startTime: number
 ): Promise<AssetGenerationResponse> {
-  // Simulate realistic generation time based on asset type
-  const generationTimes = {
-    [AssetType.BACKGROUND]: 3000,
-    [AssetType.PRODUCT_HERO]: 4000,
-    [AssetType.LIFESTYLE_SCENE]: 5000,
-    [AssetType.OVERLAY]: 2000,
-    [AssetType.MOOD_BOARD]: 3500,
-    [AssetType.STYLE_FRAME]: 4500,
-  };
-
-  const baseTime = (generationTimes as any)[request.assetType] || 3000;
-  const simulatedTime = baseTime + (Math.random() * 2000);
-  
-  await new Promise((resolve) => setTimeout(resolve, simulatedTime));
-
   // Create sophisticated mock asset
   const mockAsset: VisualAsset = {
     id: assetId,

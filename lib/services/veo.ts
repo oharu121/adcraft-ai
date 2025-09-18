@@ -5,6 +5,10 @@ export interface VideoGenerationRequest {
   duration?: number; // Duration in seconds (max 15 for Veo)
   aspectRatio?: '16:9' | '9:16' | '1:1';
   style?: string;
+  image?: {
+    bytesBase64Encoded: string;
+    mimeType: string;
+  };
 }
 
 export interface VideoGenerationResponse {
@@ -99,11 +103,22 @@ export class VeoService {
     console.log(`Prompt: ${request.prompt}`);
     console.log(`Aspect Ratio: ${request.aspectRatio || '16:9'}`);
 
-    // Prepare request for Gemini API
+    // Prepare request for Gemini API with optional image input
+    const instance: any = {
+      prompt: request.prompt
+    };
+
+    // Add image if provided (image-to-video generation)
+    if (request.image) {
+      instance.image = {
+        bytesBase64Encoded: request.image.bytesBase64Encoded,
+        mimeType: request.image.mimeType
+      };
+      console.log(`🎬 Including product image in video generation (${request.image.mimeType})`);
+    }
+
     const requestBody = {
-      instances: [{
-        prompt: request.prompt
-      }],
+      instances: [instance],
       parameters: {
         aspectRatio: request.aspectRatio || '16:9'
       }
@@ -372,8 +387,8 @@ export class VeoService {
       errors.push('Prompt is required');
     }
 
-    if (request.prompt && request.prompt.length > 500) {
-      errors.push('Prompt must be 500 characters or less');
+    if (request.prompt && request.prompt.length > 4000) {
+      errors.push('Prompt must be 4000 characters or less (Veo 3 API limit: 1024 tokens)');
     }
 
     if (request.duration && (request.duration < 1 || request.duration > 15)) {
