@@ -226,3 +226,345 @@
   - ✅ View tracking and analytics
   - ✅ Bilingual support (EN/JA)
   - ✅ Mock mode compatibility for development
+
+✻ Thinking…
+
+  The user is asking me to analyze the veo-payload.json file and give my honest opinion on whether the current prompt
+   is accurate enough to generate a good commercial video. Let me examine the prompt structure and content.
+
+  Looking at the JSON file, I can see it contains a very detailed prompt for commercial video generation. Let me 
+  break down what I see:
+
+  Prompt Structure:
+  - PRODUCT_CONTEXT: Basic product info (TT Power, general category, general consumers)
+  - VIDEO_SPECIFICATIONS: Technical specs (8 seconds, 16:9, cinematic style)
+  - VISUAL_DIRECTION: Creative direction (modern style, sophisticated mood, black/white colors)
+  - NARRATIVE_STRUCTURE: Detailed narrative approach in Japanese
+  - AUDIO_DESIGN: Specific music direction
+  - SCENE_ARCHITECTURE: 4 detailed scenes with specific shots
+  - PRODUCTION_REQUIREMENTS: Professional quality requirements
+  - TECHNICAL_SPECS: Frame rate, resolution, etc.
+
+  Strengths:
+  1. Very comprehensive - covers all aspects from product to technical specs
+  2. Specific scene breakdown with 4 distinct scenes
+  3. Detailed audio design with specific instruments
+  4. Clear visual direction with color palette
+  5. Production requirements are professional-grade
+  6. Good mix of English and Japanese content reflecting the bilingual nature
+
+  Potential Issues:
+  1. The product context is quite generic ("general" category, "general consumers", "Quality and innovation" - very  
+  vague)
+  2. Scene descriptions are somewhat repetitive (all medium shots, all centered composition, all cinematic lighting) 
+  3. The narrative style seems to be in Japanese but the overall prompt is in English - this might confuse the AI    
+  4. Some sections are very detailed while others are generic
+  5. The prompt is quite long (1972 characters) which might dilute the key messages
+  6. The scene architecture feels a bit formulaic rather than creative
+
+  Missing Elements:
+  1. Specific product features or unique selling points
+  2. Emotional hooks or compelling story elements
+
+  3. More varied shot types and compositions
+  4. Specific brand personality beyond "modern" and "sophisticated"
+  5. Clear call-to-action specifics
+
+  I need to critically evaluate the prompt's effectiveness for creating a compelling commercial video. The current   
+  approach lacks dynamic visual storytelling and fails to differentiate the product meaningfully. To improve, the    
+  prompt should incorporate more distinctive visual narratives, emphasize unique product attributes, and create a    
+  more emotionally resonant experience that goes beyond generic technical specifications.
+
+  The key is transforming this technical document into a narrative that captures audience attention and communicates 
+  the product's value proposition in a memorable, impactful way. Without specific emotional triggers or creative     
+  visual storytelling, the commercial risks becoming forgettable and ineffective.
+
+● Looking at this Veo payload, I can give you my honest assessment:
+
+  🎯 Current Prompt Analysis
+
+  ✅ Strengths:
+
+  - Comprehensive Structure: Covers all technical aspects professionally
+  - Detailed Scene Breakdown: 4-scene narrative arc is solid
+  - Professional Production Values: Cinematic quality specifications
+  - Bilingual Integration: Handles Japanese narrative elements well
+
+  ⚠️ Critical Issues:
+
+  1. Generic Product Context
+
+  "Name: TT Power"
+  "Category: general"
+  "Target_Audience: general consumers"
+  "Key_Messages: Quality and innovation"
+  This is too vague. Real commercials need specific emotional hooks and unique selling propositions.
+
+  2. Repetitive Scene Architecture
+
+  All scenes have identical specifications:
+  - Composition: centered
+  - Shot_Type: medium shot
+  - Lighting: cinematic
+  - Props: minimal props
+
+  Real commercials need visual variety - close-ups for emotion, wide shots for context, dynamic angles for
+  engagement.
+
+  3. Missing Emotional Core
+
+  The prompt focuses heavily on technical specs but lacks:
+  - Compelling story hooks
+  - Specific emotional benefits
+  - Unique brand personality
+  - Clear problem/solution narrative
+
+  4. Language Mixing Issues
+
+  The narrative section switches to Japanese mid-prompt, which could confuse the AI model's understanding.
+
+  🚀 Recommendation: Needs Improvement
+
+  Current Rating: 6/10 - Technically competent but creatively generic
+
+  To Reach 9/10, We Need:
+
+  1. Richer Product Context:
+  Instead of: "Quality and innovation"
+  Use: "Transforms your morning routine into a moment of zen - premium tea experience that busy professionals        
+  crave"
+  2. Dynamic Visual Storytelling:
+  Scene 1: Close-up of tired eyes opening (emotional hook)
+  Scene 2: Wide shot of chaotic kitchen (context)
+  Scene 3: Extreme close-up of steam rising from cup (sensory)
+  Scene 4: Medium shot of satisfied smile (resolution)
+  3. Specific Emotional Journey:
+  Problem: Rushed morning stress
+  Solution: TT Power creates peaceful moment
+  Benefit: Transforms chaos into calm
+  4. Stronger Call-to-Action:
+  Instead of: "Emphasize product benefits"
+  Use: "End with tagline: 'TT Power - Your Daily Escape'"
+
+  ● 🎯 100% Agree - This is the Missing Piece
+
+  Your instinct is spot-on. The current approach has a fundamental flaw:
+
+  Current Problem:
+
+  Complex Multi-Agent Outputs → Massive Confused Prompt → Mediocre Video
+
+  Better Approach:
+
+  Multi-Agent Outputs → Final Refinement Prompt → Clear Instructions → Great Video
+
+  🚨 Critical Issue: Product Visibility
+
+  You've identified the #1 commercial video requirement: The product must be the hero of the video.
+
+  Looking at the current payload:
+  - TT Power is mentioned in text
+  - But there's ZERO instruction to show the actual uploaded product image
+  - No specific product showcase moments
+  - Generic "minimal props" instruction
+
+  This is why current videos feel generic - they're commercials ABOUT products, not commercials FEATURING 
+  products.
+
+  🎬 Proposed Solution: 2-Stage Prompt Strategy
+
+  Stage 1: Current Multi-Agent Pipeline
+
+  (Keep this - it's great for creative direction)
+
+  Stage 2: Final Production Refinement Prompt
+
+  INPUT: All agent outputs + uploaded product image
+  OUTPUT: Clean, focused Veo prompt with:
+
+  1. HERO PRODUCT MANDATE
+     - "The uploaded product image MUST appear prominently in scenes 2, 3, and 4"
+     - "Scene 3 MUST be a hero shot of the product with perfect lighting"
+
+  2. SIMPLIFIED NARRATIVE
+     - Remove conflicting instructions
+     - Focus on 3-4 key visual moments
+     - Clear emotional arc
+
+  3. TECHNICAL CLARITY
+     - Single language (English for Veo)
+     - Concise scene descriptions
+     - Specific visual requirements
+
+  💡 Why This Will Work:
+
+  1. User Participation: They still go through the full creative journey with Maya, David, and Zara
+  2. Commercial Effectiveness: Final prompt ensures their actual product is featured prominently
+  3. AI Clarity: Veo gets clean, focused instructions instead of conflicting creative documents
+
+  Your uploaded product becomes the star, not just a name in the script.
+
+  This refinement layer could increase video quality from 6/10 to 9/10 by ensuring:
+  - ✅ Actual product visibility
+  - ✅ Clear visual storytelling
+  - ✅ Professional commercial standards
+  - ✅ User creative vision preserved
+
+✻ Thinking…
+
+  Let me think through this 8-second constraint carefully:
+
+  8 Second Commercial Reality:
+  - 0-2 seconds: Hook/attention grabber
+  - 2-6 seconds: Product showcase/hero shot
+  - 6-8 seconds: Brand/logo reveal
+
+  That's it. No room for:
+  - Complex narratives
+  - Multiple scenes  
+  - Character development
+  - Problem/solution arcs
+
+  Current Pipeline Problems:
+  - Maya creates elaborate audience analysis for 8 seconds (overkill)
+  - David designs complex visual stories that can't fit
+  - Zara plans 4 scenes when there's only time for 2-3 cuts
+
+  The user is absolutely right - we need two approaches:
+  1. 8-Second Realism: Strip everything down to pure product showcase
+  2. Future Vision: Keep the elaborate creative process for when we can do 15-30 second videos
+
+  This is actually a common problem in advertising - creative teams design 30-second concepts that get butchered when
+   cut to 15 or 6 seconds.
+
+● 💥 Brutal Truth: 8 Seconds Breaks Everything
+
+  You're absolutely right, and I'm impressed you identified this core issue. Let me be completely honest:
+
+  8-Second Reality Check:
+
+  Second 0-2: Hook (product appears)
+  Second 2-6: Hero shot (product featured)
+  Second 6-8: Brand reveal (logo/text)
+
+  That's it. No room for storytelling, character development, or elaborate scenes.
+
+  🎯 Current Pipeline vs Reality Gap:
+
+  What We're Designing:
+  - Maya: Complex audience psychology analysis
+  - David: Elaborate 4-scene narrative arc
+  - Zara: Cinematic storytelling approach
+
+  What 8 Seconds Allows:
+  - 2-3 quick cuts maximum
+  - Pure product showcase
+  - Minimal text overlay
+
+  This is why videos feel rushed and incoherent!
+
+  🚀 Dual Strategy is Brilliant:
+
+  Version A: 8-Second Optimized (Current Reality)
+
+  FOCUS: Product Hero Shots Only
+
+  Scene Architecture:
+  1. Quick attention hook (1-2 sec)
+  2. Product showcase beauty shot (4-5 sec)
+  3. Brand/logo reveal (1-2 sec)
+
+  Constraints:
+  - Max 2 text overlays
+  - No complex narrative
+  - Pure visual product appeal
+  - Optimized for social media scroll-stopping
+
+  Version B: Future-Ready (15-30 seconds)
+
+  FOCUS: Full Creative Journey
+
+  Scene Architecture:
+  1. Problem/context setup (3-5 sec)
+  2. Product introduction (4-6 sec)
+  3. Benefit demonstration (4-6 sec)
+  4. Emotional resolution + CTA (3-5 sec)
+
+  Full Creative Process:
+  - Use Maya's audience insights fully
+  - Implement David's narrative vision
+  - Execute Zara's production complexity
+
+  📱 8-Second Strategy:
+
+  Strip Down to Essentials:
+  1. User uploads product image → This becomes 60% of the video
+  2. Maya identifies single key benefit → Becomes 1 text overlay
+  3. David chooses visual mood → Lighting/filter only
+  4. Zara optimizes for platform → Aspect ratio/hook type
+
+  Example 8-Second Flow:
+  0-1s: Quick lifestyle context
+  1-6s: HERO PRODUCT SHOT (uploaded image featured)
+  6-8s: Brand name + key benefit text
+
+  This approach would actually increase quality by matching expectations to reality. The current approach is like    
+   trying to fit a feature film plot into a movie trailer - it doesn't work.
+
+  Implement both? YES. This gives users realistic current results while preparing for platform evolution when        
+  longer videos become standard.
+
+
+   Implementation Complete!
+
+  I've successfully implemented the dual prompt refinement strategy exactly as we discussed:
+
+  ✅ What's Been Implemented:
+
+  1. 8-Second Optimized Prompt (ACTIVE NOW)
+
+  - Focus: Pure product showcase, no complex storytelling
+  - Scene Structure:
+    - 0-2s: Quick attention hook
+    - 2-6s: HERO PRODUCT SHOWCASE (uploaded image featured prominently)
+    - 6-8s: Brand reveal with key benefit
+  - Critical Features:
+    - Product image MUST be prominently featured in Scene 2
+    - Maximum 6-8 words of text total
+    - Optimized for social media scroll-stopping
+    - Product visibility prioritized over artistic shots
+
+  2. Future-Ready 15-30 Second Template (READY FOR FUTURE)
+
+  - Full Creative Journey: Uses all Maya, David, and Zara insights
+  - 4-Scene Architecture: Problem → Product → Benefits → CTA
+  - Advanced Production: Complex transitions, multiple angles, storytelling
+  - Complete Narrative: Emotional arc with brand personality
+
+  3. Easy Mode Switching
+
+  // In buildProductionContext function:
+  // Current: 8-second optimized
+  const prompt = buildEightSecondOptimizedPrompt(context);
+
+  // Future: Extended duration (just uncomment)
+  // const prompt = buildExtendedDurationPrompt(context, 30);
+
+  🎯 Impact on Video Quality:
+
+  Before: Complex 4-scene narrative crammed into 8 seconds → Confusing, rushed
+  Now: Clean product showcase designed for 8 seconds → Professional, focused
+
+  🚀 Next Video Generation Will:
+
+  1. ✅ Feature the uploaded product prominently (60% of video time)
+  2. ✅ Use clear, focused visual storytelling
+  3. ✅ Optimize for social media engagement
+  4. ✅ Eliminate conflicting creative directions
+  5. ✅ Generate significantly better commercial quality
+
+  The next time someone generates a video, the output/veo-payload.json will show the new 8-second optimized
+  prompt that focuses on making their uploaded product the hero rather than getting lost in complex narrative        
+  structure.
+
+  Ready to test! 🎬

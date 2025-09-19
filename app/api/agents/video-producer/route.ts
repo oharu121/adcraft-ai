@@ -391,8 +391,8 @@ Return as valid JSON:
     // Call Gemini API for dynamic music genres
     const response = await geminiClient.generateTextOnly(prompt);
 
-    // Parse JSON response (following David's parsing pattern)
-    const cleanedText = response.text.replace(/```json\n?|\n?```/g, '').trim();
+    // Parse JSON response with enhanced error handling
+    let cleanedText = response.text.replace(/```json\n?|\n?```/g, '').trim();
 
     console.log("[AI Music Genres] Raw AI response:", {
       originalText: response.text,
@@ -400,7 +400,41 @@ Return as valid JSON:
       textLength: cleanedText.length
     });
 
-    const musicGenres = JSON.parse(cleanedText);
+    // Additional JSON cleaning for special characters
+    cleanedText = cleanedText
+      .replace(/[\u2018\u2019]/g, "'") // Replace smart quotes with regular quotes
+      .replace(/[\u201C\u201D]/g, '"') // Replace smart double quotes
+      .replace(/\n/g, ' ') // Replace newlines with spaces
+      .replace(/\r/g, '') // Remove carriage returns
+      .replace(/\t/g, ' ') // Replace tabs with spaces
+      .replace(/\\/g, '\\\\'); // Escape backslashes
+
+    let musicGenres;
+    try {
+      musicGenres = JSON.parse(cleanedText);
+    } catch (parseError) {
+      const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
+      console.error("[AI Music Genres] JSON Parse Error Details:", {
+        error: errorMessage,
+        cleanedText: cleanedText,
+        position: errorMessage.match(/position (\d+)/)?.[1] || 'unknown'
+      });
+
+      // Try to fix common JSON issues and parse again
+      const fixedText = cleanedText
+        .replace(/([{,]\s*)(\w+):/g, '$1"$2":') // Quote unquoted keys
+        .replace(/:\s*'([^']*)'/g, ': "$1"') // Replace single quotes with double quotes
+        .replace(/,(\s*[}\]])/g, '$1'); // Remove trailing commas
+
+      try {
+        musicGenres = JSON.parse(fixedText);
+        console.log("[AI Music Genres] Successfully parsed after JSON fixes");
+      } catch (secondError) {
+        const secondErrorMessage = secondError instanceof Error ? secondError.message : String(secondError);
+        console.error("[AI Music Genres] Second parse attempt failed:", secondErrorMessage);
+        throw new Error(`Failed to parse AI response as JSON: ${errorMessage}`);
+      }
+    }
 
     // Validate the response is an array of valid MusicGenre objects
     if (Array.isArray(musicGenres) &&
@@ -421,14 +455,7 @@ Return as valid JSON:
     }
 
   } catch (error) {
-    if (error instanceof SyntaxError) {
-      console.error('JSON parsing error for AI music genres:', {
-        error: error.message,
-        position: error.message.match(/position (\d+)/)?.[1] || 'unknown'
-      });
-    } else {
-      console.error('Error generating AI music genres:', error);
-    }
+    console.error('[AI Music Genres] Error in generateAIMusicGenres:', error);
     throw error; // Re-throw to trigger fallback in parent function
   }
 }

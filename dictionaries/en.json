@@ -79,7 +79,27 @@
     "mood": "Mood",
     "colorPalette": "Color Palette",
     "reportVideo": "Report this video",
-    "videoNotSupported": "Your browser does not support the video tag."
+    "videoNotSupported": "Your browser does not support the video tag.",
+    "creativeJourney": {
+      "title": "Creative Journey",
+      "subtitle": "See how AI agents transformed your product into this video",
+      "showLess": "Show Less",
+      "showMore": "Show More",
+      "steps": {
+        "product": "Product Upload",
+        "maya": "Maya's Analysis",
+        "david": "David's Direction",
+        "zara": "Zara's Production",
+        "final": "Final Video"
+      },
+      "descriptions": {
+        "product": "Your original product image and description",
+        "maya": "AI analyzed your product's features, audience, and market positioning",
+        "david": "Creative Director designed the visual style and narrative approach",
+        "zara": "Video Producer selected format, music, and pacing for optimal impact",
+        "final": "Your personalized commercial video is ready!"
+      }
+    }
   },
   "navigation": {
     "home": "Generate",

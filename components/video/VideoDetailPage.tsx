@@ -57,6 +57,7 @@ export default function VideoDetailPage({
   const [isSaved, setIsSaved] = useState(false);
   const [showCopied, setShowCopied] = useState(false);
   const [viewCount, setViewCount] = useState(videoData.viewCount);
+  const [showJourneyDetails, setShowJourneyDetails] = useState(false);
 
   const t = dict.videoDetail;
 
@@ -167,6 +168,182 @@ export default function VideoDetailPage({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Video Section */}
           <div className="lg:col-span-2">
+            {/* Creative Journey Card */}
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-6 mb-6 shadow-sm border border-purple-100">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 mb-1">
+                    {t.creativeJourney.title}
+                  </h2>
+                  <p className="text-gray-600 text-sm">
+                    {t.creativeJourney.subtitle}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowJourneyDetails(!showJourneyDetails)}
+                  className="flex items-center gap-2 px-4 py-2 bg-white text-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors shadow-sm"
+                >
+                  <span className="text-sm font-medium">
+                    {showJourneyDetails ? t.creativeJourney.showLess : t.creativeJourney.showMore}
+                  </span>
+                  <svg
+                    className={`w-4 h-4 transition-transform ${showJourneyDetails ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Visual Timeline */}
+              <div className="relative">
+                {/* Timeline Line */}
+                <div className="absolute top-6 left-6 right-6 h-0.5 bg-gradient-to-r from-purple-200 via-blue-200 to-green-200"></div>
+
+                {/* Timeline Steps */}
+                <div className="flex justify-between items-start relative">
+                  {/* Step 1: Product Upload */}
+                  <div className="flex flex-col items-center text-center w-20">
+                    <div className="w-12 h-12 bg-purple-500 text-white rounded-full flex items-center justify-center mb-2 relative z-10 shadow-lg">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <span className="text-xs font-medium text-gray-700">{t.creativeJourney.steps.product}</span>
+                  </div>
+
+                  {/* Step 2: Maya's Analysis */}
+                  <div className="flex flex-col items-center text-center w-20">
+                    <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center mb-2 relative z-10 shadow-lg">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <span className="text-xs font-medium text-gray-700">{t.creativeJourney.steps.maya}</span>
+                  </div>
+
+                  {/* Step 3: David's Direction */}
+                  <div className="flex flex-col items-center text-center w-20">
+                    <div className="w-12 h-12 bg-indigo-500 text-white rounded-full flex items-center justify-center mb-2 relative z-10 shadow-lg">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
+                      </svg>
+                    </div>
+                    <span className="text-xs font-medium text-gray-700">{t.creativeJourney.steps.david}</span>
+                  </div>
+
+                  {/* Step 4: Zara's Production */}
+                  <div className="flex flex-col items-center text-center w-20">
+                    <div className="w-12 h-12 bg-pink-500 text-white rounded-full flex items-center justify-center mb-2 relative z-10 shadow-lg">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <span className="text-xs font-medium text-gray-700">{t.creativeJourney.steps.zara}</span>
+                  </div>
+
+                  {/* Step 5: Final Video */}
+                  <div className="flex flex-col items-center text-center w-20">
+                    <div className="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center mb-2 relative z-10 shadow-lg">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l14 9-14 9V3z" />
+                      </svg>
+                    </div>
+                    <span className="text-xs font-medium text-gray-700">{t.creativeJourney.steps.final}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Expandable Details */}
+              {showJourneyDetails && (
+                <div className="mt-6 pt-6 border-t border-purple-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="bg-white rounded-lg p-4 shadow-sm">
+                      <div className="flex items-center mb-2">
+                        <div className="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mr-3">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <h3 className="font-semibold text-gray-800">{t.creativeJourney.steps.product}</h3>
+                      </div>
+                      <p className="text-sm text-gray-600">{t.creativeJourney.descriptions.product}</p>
+                    </div>
+
+                    <div className="bg-white rounded-lg p-4 shadow-sm">
+                      <div className="flex items-center mb-2">
+                        <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mr-3">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <h3 className="font-semibold text-gray-800">{t.creativeJourney.steps.maya}</h3>
+                      </div>
+                      <p className="text-sm text-gray-600">{t.creativeJourney.descriptions.maya}</p>
+                      {videoData.productAnalysis && (
+                        <div className="mt-2 text-xs text-blue-600">
+                          • {videoData.productAnalysis.category}
+                          • {videoData.productAnalysis.targetAudience}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="bg-white rounded-lg p-4 shadow-sm">
+                      <div className="flex items-center mb-2">
+                        <div className="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mr-3">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
+                          </svg>
+                        </div>
+                        <h3 className="font-semibold text-gray-800">{t.creativeJourney.steps.david}</h3>
+                      </div>
+                      <p className="text-sm text-gray-600">{t.creativeJourney.descriptions.david}</p>
+                      {videoData.creativeDirection && (
+                        <div className="mt-2 text-xs text-indigo-600">
+                          • {videoData.creativeDirection.name}
+                          • {videoData.creativeDirection.description}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="bg-white rounded-lg p-4 shadow-sm">
+                      <div className="flex items-center mb-2">
+                        <div className="w-8 h-8 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center mr-3">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <h3 className="font-semibold text-gray-800">{t.creativeJourney.steps.zara}</h3>
+                      </div>
+                      <p className="text-sm text-gray-600">{t.creativeJourney.descriptions.zara}</p>
+                      <div className="mt-2 text-xs text-pink-600">
+                        • {videoData.narrativeStyle}
+                        • {videoData.musicGenre}
+                      </div>
+                    </div>
+
+                    <div className="bg-white rounded-lg p-4 shadow-sm">
+                      <div className="flex items-center mb-2">
+                        <div className="w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center mr-3">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l14 9-14 9V3z" />
+                          </svg>
+                        </div>
+                        <h3 className="font-semibold text-gray-800">{t.creativeJourney.steps.final}</h3>
+                      </div>
+                      <p className="text-sm text-gray-600">{t.creativeJourney.descriptions.final}</p>
+                      <div className="mt-2 text-xs text-green-600">
+                        • {formatDuration(videoData.duration)}
+                        • {videoData.productionSpecs?.aspectRatio || '16:9'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Video Player */}
             <div className="relative aspect-video bg-black rounded-lg overflow-hidden mb-6">
               <video

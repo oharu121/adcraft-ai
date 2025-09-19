@@ -10,7 +10,12 @@ import type {
   MusicGenre,
   VideoFormat
 } from "@/lib/stores/video-producer-store";
-import { buildProductionContext, type DavidHandoffData } from "../tools/prompt-builder";
+import {
+  buildProductionContext,
+  buildEightSecondOptimizedPrompt,
+  buildExtendedDurationPrompt,
+  type DavidHandoffData
+} from "../tools/prompt-builder";
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -49,6 +54,10 @@ export interface VideoProductionResponse {
  */
 export class ProductionBridgeService {
   private static instance: ProductionBridgeService;
+
+  // Configuration: Toggle between 8-second optimized and extended duration modes
+  private static USE_EXTENDED_DURATION = false; // Set to true when duration constraints are lifted
+  private static EXTENDED_DURATION_TARGET = 30; // seconds
 
   static getInstance(): ProductionBridgeService {
     if (!ProductionBridgeService.instance) {

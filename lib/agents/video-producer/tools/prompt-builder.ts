@@ -233,6 +233,176 @@ TECHNICAL_SPECS:
 }
 
 /**
+ * 8-Second Optimized Prompt Refinement (Current Reality)
+ * Strips complex narrative to focus on pure product showcase
+ */
+export function buildEightSecondOptimizedPrompt(
+  context: ZaraStepContext & {
+    selectedNarrativeStyle: NarrativeStyle;
+    selectedMusicGenre: MusicGenre;
+    selectedVideoFormat: VideoFormat;
+  }
+): string {
+  const {
+    davidHandoff,
+    selectedNarrativeStyle,
+    selectedMusicGenre,
+    selectedVideoFormat,
+    locale
+  } = context;
+
+  // Extract only essential context for 8-second format
+  const productName = davidHandoff.mayaAnalysis?.productAnalysis?.name || 'product';
+  const productCategory = davidHandoff.mayaAnalysis?.productAnalysis?.category || 'general';
+  const primaryBenefit = davidHandoff.mayaAnalysis?.productAnalysis?.benefits?.[0] || 'Premium quality';
+  const visualStyle = davidHandoff.creativeDirection?.name || 'modern';
+  const mood = davidHandoff.creativeDirection?.description || 'sophisticated';
+  const colorPalette = davidHandoff.creativeDirection?.colorPalette || ['#000000', '#FFFFFF'];
+
+  // 8-second optimized prompt focuses on product hero shots only
+  const prompt = `8-SECOND COMMERCIAL VIDEO:
+
+PRODUCT_HERO_FOCUS:
+- Name: ${productName}
+- Category: ${productCategory}
+- Key_Benefit: ${primaryBenefit}
+- Visual_Style: ${visualStyle}
+- Mood: ${mood}
+
+DURATION_CONSTRAINTS:
+- Total_Duration: 8 seconds MAXIMUM
+- Scene_Count: 2-3 quick cuts only
+- Text_Overlays: Maximum 1-2 short phrases
+- Focus: Pure product showcase, no complex narrative
+
+OPTIMIZED_SCENE_STRUCTURE:
+Scene_1 (0-2 seconds): Quick attention hook
+  - Shot_Type: close-up or medium shot
+  - Focus: Product or lifestyle context
+  - Purpose: Stop scroll, grab attention
+
+Scene_2 (2-6 seconds): HERO PRODUCT SHOWCASE
+  - Shot_Type: beauty shot of the uploaded product
+  - Composition: centered, prominent
+  - Lighting: professional, dramatic
+  - Focus: Make the actual product the star
+  - Purpose: Product must be clearly visible and featured
+
+Scene_3 (6-8 seconds): Brand reveal with benefit
+  - Shot_Type: product with text overlay
+  - Text: "${productName}" + "${primaryBenefit}"
+  - Purpose: Brand recognition and key message
+
+TECHNICAL_SPECS:
+- Aspect_Ratio: ${selectedVideoFormat.aspectRatio}
+- Quality: Professional commercial grade
+- Transitions: Quick cuts, no complex transitions
+- Color_Scheme: ${colorPalette.join(', ')}
+- Audio: ${selectedMusicGenre.name} style background music
+
+CRITICAL_REQUIREMENTS:
+- The uploaded product image MUST be prominently featured in Scene_2
+- Product visibility is more important than artistic shots
+- Keep text minimal - maximum 6-8 words total
+- Optimize for social media scroll-stopping power
+- No complex storytelling - pure product showcase focus
+
+PRODUCTION_STYLE: ${mood} ${visualStyle} commercial optimized for 8-second attention spans`;
+
+  return prompt;
+}
+
+/**
+ * Future-Ready 15-30 Second Prompt Template (For Future Use)
+ * Full creative journey when duration constraints are lifted
+ */
+export function buildExtendedDurationPrompt(
+  context: ZaraStepContext & {
+    selectedNarrativeStyle: NarrativeStyle;
+    selectedMusicGenre: MusicGenre;
+    selectedVideoFormat: VideoFormat;
+  },
+  targetDuration: number = 30
+): string {
+  const {
+    davidHandoff,
+    selectedNarrativeStyle,
+    selectedMusicGenre,
+    selectedVideoFormat,
+    locale
+  } = context;
+
+  // Full context utilization for extended duration
+  const productName = davidHandoff.mayaAnalysis?.productAnalysis?.name || 'product';
+  const productCategory = davidHandoff.mayaAnalysis?.productAnalysis?.category || 'general';
+  const targetAudience = davidHandoff.mayaAnalysis?.strategicInsights?.targetAudience || 'general consumers';
+  const keyMessages = davidHandoff.mayaAnalysis?.strategicInsights?.keyMessages || [];
+  const productBenefits = davidHandoff.mayaAnalysis?.productAnalysis?.benefits || [];
+  const visualStyle = davidHandoff.creativeDirection?.name || 'modern';
+  const mood = davidHandoff.creativeDirection?.description || 'sophisticated';
+  const colorPalette = davidHandoff.creativeDirection?.colorPalette || ['#000000', '#FFFFFF'];
+  const visualKeywords = davidHandoff.creativeDirection?.visualKeywords || [];
+
+  const prompt = `EXTENDED COMMERCIAL VIDEO (${targetDuration} SECONDS):
+
+FULL_PRODUCT_CONTEXT:
+- Name: ${productName}
+- Category: ${productCategory}
+- Target_Audience: ${targetAudience}
+- Key_Messages: ${keyMessages.join(', ') || 'Quality and innovation'}
+- Product_Benefits: ${productBenefits.join(', ') || 'Premium quality and reliability'}
+
+EXTENDED_NARRATIVE_STRUCTURE:
+- Style: ${selectedNarrativeStyle.name}
+- Approach: ${selectedNarrativeStyle.description}
+- Pacing: ${selectedNarrativeStyle.pacing}
+- Tone: ${selectedNarrativeStyle.tone}
+- Narration_Style: ${selectedNarrativeStyle.narrationStyle}
+
+FULL_SCENE_ARCHITECTURE:
+Scene_1 (0-${Math.floor(targetDuration * 0.2)} seconds): Problem/Context Setup
+  - Establish target audience pain point or need
+  - Create emotional connection with viewer
+  - Set stage for product introduction
+
+Scene_2 (${Math.floor(targetDuration * 0.2)}-${Math.floor(targetDuration * 0.5)} seconds): Product Introduction & Hero Shot
+  - Feature the uploaded product prominently
+  - Showcase key visual elements and design
+  - Begin benefit demonstration
+
+Scene_3 (${Math.floor(targetDuration * 0.5)}-${Math.floor(targetDuration * 0.8)} seconds): Benefit Demonstration
+  - Show product solving the established problem
+  - Demonstrate key features and benefits
+  - Emotional satisfaction from product use
+
+Scene_4 (${Math.floor(targetDuration * 0.8)}-${targetDuration} seconds): Resolution & Call-to-Action
+  - Brand reveal with logo
+  - Key message delivery
+  - Clear call-to-action
+
+ADVANCED_PRODUCTION:
+- Visual_Style: ${visualStyle}
+- Mood: ${mood}
+- Color_Palette: ${colorPalette.join(', ')}
+- Visual_Keywords: ${visualKeywords.join(', ')}
+- Audio_Design: ${selectedMusicGenre.name} - ${selectedMusicGenre.description}
+- Instruments: ${selectedMusicGenre.instruments?.join(', ') || 'full orchestration'}
+
+CREATIVE_FREEDOM:
+- Duration allows for full storytelling arc
+- Multiple camera angles and compositions
+- Complex transitions and effects
+- Detailed product feature showcase
+- Emotional narrative development
+- Brand personality expression
+
+TARGET_PLATFORMS: ${selectedVideoFormat.platforms?.join(', ') || 'All digital platforms'}
+ASPECT_RATIO: ${selectedVideoFormat.aspectRatio}`;
+
+  return prompt;
+}
+
+/**
  * Production Context Data for Integration with Existing Video API
  */
 export function buildProductionContext(
@@ -242,7 +412,12 @@ export function buildProductionContext(
     selectedVideoFormat: VideoFormat;
   }
 ) {
-  const prompt = buildFinalProductionPrompt(context);
+  // Choose prompt strategy based on duration target
+  // Currently using 8-second optimized for realistic commercial constraints
+  const prompt = buildEightSecondOptimizedPrompt(context);
+
+  // Future: Switch to extended duration when platform constraints are lifted
+  // const prompt = buildExtendedDurationPrompt(context, 30);
 
   // Prepare image for Veo API if available
   const imageInput = context.davidHandoff.productImage ? {

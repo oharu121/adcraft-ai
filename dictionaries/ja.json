@@ -79,7 +79,27 @@
     "mood": "ムード",
     "colorPalette": "カラーパレット",
     "reportVideo": "この動画を報告",
-    "videoNotSupported": "お使いのブラウザは動画タグをサポートしていません。"
+    "videoNotSupported": "お使いのブラウザは動画タグをサポートしていません。",
+    "creativeJourney": {
+      "title": "クリエイティブジャーニー",
+      "subtitle": "AIエージェントがあなたの商品をどのように動画に変換したかをご覧ください",
+      "showLess": "詳細を隠す",
+      "showMore": "詳細を表示",
+      "steps": {
+        "product": "商品アップロード",
+        "maya": "Mayaの分析",
+        "david": "Davidの演出",
+        "zara": "Zaraの制作",
+        "final": "完成動画"
+      },
+      "descriptions": {
+        "product": "あなたの元の商品画像と説明",
+        "maya": "AIが商品の特徴、対象者、市場ポジションを分析",
+        "david": "クリエイティブディレクターがビジュアルスタイルと物語手法をデザイン",
+        "zara": "ビデオプロデューサーが最適な効果のためにフォーマット、音楽、ペーシングを選択",
+        "final": "あなた専用のコマーシャル動画が完成！"
+      }
+    }
   },
   "navigation": {
     "home": "生成",
