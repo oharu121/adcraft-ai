@@ -62,7 +62,7 @@ export default function CreativeJourneyModal({
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="cursor-pointer p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
               <svg
                 className="w-6 h-6 text-gray-500"
@@ -304,7 +304,7 @@ export default function CreativeJourneyModal({
         <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4 rounded-b-xl">
           <button
             onClick={onClose}
-            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="cursor-pointer w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
             Close Creative Journey
           </button>

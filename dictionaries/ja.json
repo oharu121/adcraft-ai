@@ -119,7 +119,26 @@
   "footer": {
     "copyright": "© 2025 AdCraft AI. All rights reserved.",
     "poweredBy": "Google Cloud AIを使用",
-    "version": "v0.1.0 - ハッカソンデモ"
+    "version": "v0.1.0 - ハッカソンデモ",
+    "description": "最先端のAI技術を使用してテキストプロンプトをプロフェッショナルな動画コンテンツに変換。AI Agent Hackathon 2025向けに構築。",
+    "hackathonBadge": "AI Agent Hackathon 2025",
+    "sections": {
+      "features": "機能",
+      "technology": "テクノロジー"
+    },
+    "links": {
+      "videoGeneration": "動画生成",
+      "sampleGallery": "サンプルギャラリー",
+      "aboutProject": "プロジェクトについて"
+    },
+    "notice": {
+      "title": "デモアプリケーション",
+      "description": "これはAI Agent Hackathon 2025向けに構築されたデモンストレーションアプリケーションです。"
+    },
+    "status": {
+      "systemOnline": "システム稼働中",
+      "region": "GCP Asia-Northeast1"
+    }
   },
   "home": {
     "heroTitle": "AIで動画を作成",
@@ -1201,7 +1220,7 @@
       "productionCost": "制作コスト：",
       "startProduction": "動画制作開始",
       "startOver": "やり直し",
-      "creativeJourney": "クリエイティブジャーニー",
+      "creativeJourney": "旅の思い出",
       "confirmStartOver": "新しい商品画像でやり直しますか？現在のセッションをクリアしてホームページに戻ります。",
       "startOverSuccess": "新しく始めます！ホームページにリダイレクト中..."
     },

@@ -119,7 +119,26 @@
   "footer": {
     "copyright": "© 2025 AdCraft AI. All rights reserved.",
     "poweredBy": "Powered by Google Cloud AI",
-    "version": "v0.1.0 - Hackathon Demo"
+    "version": "v0.1.0 - Hackathon Demo",
+    "description": "Transform text prompts into professional video content using cutting-edge AI technology. Built for the AI Agent Hackathon 2025.",
+    "hackathonBadge": "AI Agent Hackathon 2025",
+    "sections": {
+      "features": "Features",
+      "technology": "Technology"
+    },
+    "links": {
+      "videoGeneration": "Video Generation",
+      "sampleGallery": "Sample Gallery",
+      "aboutProject": "About Project"
+    },
+    "notice": {
+      "title": "Demo Application",
+      "description": "This is a demonstration application built for the AI Agent Hackathon 2025."
+    },
+    "status": {
+      "systemOnline": "System Online",
+      "region": "GCP Asia-Northeast1"
+    }
   },
   "home": {
     "heroTitle": "Create Videos with AI",

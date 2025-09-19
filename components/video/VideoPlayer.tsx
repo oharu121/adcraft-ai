@@ -30,7 +30,7 @@ interface VideoPlayerProps {
       label: string;
       icon: React.ReactNode;
       onClick: () => void;
-      variant?: "primary" | "secondary" | "outline";
+      variant?: "primary" | "secondary" | "outline" | "special";
     }>;
   };
 
@@ -386,6 +386,8 @@ export default function VideoPlayer({
               className={`cursor-pointer px-4 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2 ${
                 action.variant === 'primary'
                   ? 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white'
+                  : action.variant === 'special'
+                  ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 text-white shadow-purple-500/25 hover:shadow-purple-500/40 border border-purple-400/30 hover:border-purple-300/50'
                   : action.variant === 'outline'
                   ? 'border border-gray-500 text-gray-400 hover:bg-gray-500/10'
                   : 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white'
