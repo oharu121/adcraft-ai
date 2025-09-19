@@ -5,7 +5,7 @@
  * chooses between AI Studio and Vertex AI based on available authentication.
  */
 
-import { GeminiAIStudioClient, type GeminiAPIResponse } from "./ai-studio";
+import { GeminiAIStudioClient, type GeminiAPIResponse, type GeminiImageResponse } from "./ai-studio";
 import { VertexAIClient, VertexAIService, type VertexAIResponse } from "./vertex-ai";
 
 /**
@@ -92,6 +92,19 @@ export class GeminiClient {
     if (this.aiStudioClient) return "ai-studio";
     if (this.vertexAIClient) return "vertex-ai";
     return "none";
+  }
+
+  /**
+   * Generate images using Gemini 2.0 Flash
+   * Only available through AI Studio
+   */
+  public async generateImages(prompt: string, count: number = 4): Promise<GeminiImageResponse> {
+    if (this.aiStudioClient) {
+      console.log("[GEMINI CLIENT] Using AI Studio for image generation");
+      return await this.aiStudioClient.generateImages(prompt, count);
+    } else {
+      throw new Error("Image generation requires AI Studio client - Vertex AI doesn't support Gemini 2.0 Flash yet");
+    }
   }
 
   /**

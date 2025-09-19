@@ -503,7 +503,19 @@
     "stepInstructions4": "Creative Directorエージェントへ引き継ぎます",
     "clickToEnlarge": "クリックで拡大",
     "clickOutsideToClose": "外側をクリックして閉じる",
-    "productFullSize": "商品画像 - フルサイズ"
+    "productFullSize": "商品画像 - フルサイズ",
+    "imageGeneration": {
+      "generating": "商品画像を生成中",
+      "generatingDescription": "AIがあなたの説明に基づいて4つの商品画像を作成しています...",
+      "selectImage": "お好みの商品画像を選択",
+      "selectImageDescription": "コマーシャル分析に最適な商品を表現する画像を選択してください",
+      "generatedImage": "生成された商品画像",
+      "imageSelected": "画像{number}が選択されました",
+      "noImages": "画像が生成されませんでした。もう一度お試しください。",
+      "generateImages": "商品画像を生成",
+      "regenerateImages": "新しい画像を生成",
+      "proceedWithSelected": "選択した画像を使用"
+    }
   },
   "productAnalysis": {
     "title": "📦 プロダクト分析",

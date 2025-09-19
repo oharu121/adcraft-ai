@@ -107,6 +107,21 @@ export function Footer({ className, dict }: FooterProps) {
               </li>
               <li>
                 <a
+                  href="https://aistudio.google.com/models/gemini-2-5-flash-image"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 hover:text-slate-900 transition-colors cursor-pointer"
+                >
+                  <img
+                    src="/product-logo/nano_banana.ico"
+                    alt="Google DeepMind"
+                    className="w-4 h-4"
+                  />
+                  Nano Banana
+                </a>
+              </li>
+              <li>
+                <a
                   href="https://gemini.google.com/"
                   target="_blank"
                   rel="noopener noreferrer"

@@ -503,7 +503,19 @@
     "stepInstructions4": "Hand off to Creative Director Agent",
     "clickToEnlarge": "Click to enlarge",
     "clickOutsideToClose": "Click outside to close",
-    "productFullSize": "Product - Full Size"
+    "productFullSize": "Product - Full Size",
+    "imageGeneration": {
+      "generating": "Generating Product Images",
+      "generatingDescription": "AI is creating 4 product images based on your description...",
+      "selectImage": "Select Your Preferred Product Image",
+      "selectImageDescription": "Choose the image that best represents your product for commercial analysis",
+      "generatedImage": "Generated product image",
+      "imageSelected": "Image {number} selected",
+      "noImages": "No images were generated. Please try again.",
+      "generateImages": "Generate Product Images",
+      "regenerateImages": "Generate New Images",
+      "proceedWithSelected": "Use Selected Image"
+    }
   },
   "productAnalysis": {
     "title": "📦 Product Analysis",

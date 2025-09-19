@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Card } from "@/components/ui";
-import { ImageUploadArea } from "@/components/product-intelligence";
+import { ImageUploadArea, ImageSelectionGrid } from "@/components/product-intelligence";
 import { useProductIntelligenceStore } from "@/lib/stores/product-intelligence-store";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
 import { SessionStatus } from "@/lib/agents/product-intelligence/enums";
@@ -39,10 +39,93 @@ export default function ProductInputForm({
 
   const textInputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Local state for image generation
+  const [isGeneratingImages, setIsGeneratingImages] = useState(false);
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [showImageSelection, setShowImageSelection] = useState(false);
+
   const handleProductNameFocus = () => {
     setTimeout(() => {
       productNameInputRef?.current?.focus();
     }, 100);
+  };
+
+  const handleGenerateImages = async () => {
+    if (!productName.trim() || !productDescription.trim()) {
+      onValidationError(dict.productIntelligence.productNameRequired);
+      return;
+    }
+
+    setIsGeneratingImages(true);
+    setShowImageSelection(false);
+
+    try {
+      const response = await fetch('/api/agents/product-intelligence/generate-images', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productName,
+          productDescription,
+          locale
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.data.images) {
+        setGeneratedImages(result.data.images);
+        setShowImageSelection(true);
+        setSelectedImageIndex(null);
+      } else {
+        onValidationError(result.error || dict.productIntelligence.imageGeneration.noImages);
+      }
+    } catch (error) {
+      console.error('Image generation failed:', error);
+      onValidationError(dict.productIntelligence.imageGeneration.noImages);
+    } finally {
+      setIsGeneratingImages(false);
+    }
+  };
+
+  const handleImageSelect = async (selectedImage: string, index: number) => {
+    setSelectedImageIndex(index);
+
+    // Convert base64 to File for upload processing
+    try {
+      const byteCharacters = atob(selectedImage);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const file = new File([byteArray], `${productName}-generated-${index + 1}.jpg`, {
+        type: 'image/jpeg',
+      });
+
+      // Call the existing image upload handler
+      await onImageUpload(file);
+    } catch (error) {
+      console.error('Failed to process selected image:', error);
+      onValidationError('Failed to process selected image');
+    }
+  };
+
+  const handleTextModeSubmit = () => {
+    if (!productName.trim()) {
+      setShowProductNameError(true);
+      return;
+    }
+
+    if (!productDescription.trim()) {
+      onValidationError('Product description is required');
+      return;
+    }
+
+    // Generate images first, then user can select one
+    handleGenerateImages();
   };
 
   return (
@@ -192,66 +275,121 @@ export default function ProductInputForm({
       {/* Text Input Mode */}
       {inputMode === "text" && (
         <div className="space-y-4">
-          <div className="relative">
-            <textarea
-              value={productDescription}
-              ref={textInputRef}
-              onChange={(e) => setProductDescription(e.target.value)}
-              placeholder={dict.productIntelligence.productDescriptionExample}
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 resize-none transition-colors"
-              rows={6}
-              disabled={sessionStatus === SessionStatus.ANALYZING}
-            />
-          </div>
-
-          <div className="flex justify-between items-center text-sm text-gray-400">
-            <span>{productDescription.length}/1000</span>
-            <div className="flex items-center">
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          {!showImageSelection ? (
+            <>
+              <div className="relative">
+                <textarea
+                  value={productDescription}
+                  ref={textInputRef}
+                  onChange={(e) => setProductDescription(e.target.value)}
+                  placeholder={dict.productIntelligence.productDescriptionExample}
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 resize-none transition-colors"
+                  rows={6}
+                  disabled={sessionStatus === SessionStatus.ANALYZING || isGeneratingImages}
                 />
-              </svg>
-              {dict.productIntelligence.moreDetails}
-            </div>
-          </div>
-
-          <button
-            onClick={onTextSubmit}
-            disabled={
-              !productDescription.trim() ||
-              !productName.trim() ||
-              sessionStatus === SessionStatus.ANALYZING
-            }
-            className="cursor-pointer w-full px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg font-medium hover:from-yellow-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105"
-          >
-            {sessionStatus === SessionStatus.ANALYZING ? (
-              <div className="flex items-center justify-center">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                {dict.productIntelligence.analyzing}
               </div>
-            ) : (
-              <>
-                <svg
-                  className="w-5 h-5 inline mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+
+              <div className="flex justify-between items-center text-sm text-gray-400">
+                <span>{productDescription.length}/1000</span>
+                <div className="flex items-center">
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  {dict.productIntelligence.moreDetails}
+                </div>
+              </div>
+
+              <button
+                onClick={handleTextModeSubmit}
+                disabled={
+                  !productDescription.trim() ||
+                  !productName.trim() ||
+                  sessionStatus === SessionStatus.ANALYZING ||
+                  isGeneratingImages
+                }
+                className="cursor-pointer w-full px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg font-medium hover:from-yellow-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105"
+              >
+                {isGeneratingImages ? (
+                  <div className="flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    {dict.productIntelligence.imageGeneration.generating}
+                  </div>
+                ) : sessionStatus === SessionStatus.ANALYZING ? (
+                  <div className="flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    {dict.productIntelligence.analyzing}
+                  </div>
+                ) : (
+                  <>
+                    <svg
+                      className="w-5 h-5 inline mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    {dict.productIntelligence.imageGeneration.generateImages}
+                  </>
+                )}
+              </button>
+            </>
+          ) : (
+            <>
+              {/* Image Selection Grid */}
+              <ImageSelectionGrid
+                images={generatedImages}
+                onImageSelect={handleImageSelect}
+                dict={dict}
+                isLoading={isGeneratingImages}
+              />
+
+              {/* Regenerate Button */}
+              <div className="flex gap-3">
+                <button
+                  onClick={handleGenerateImages}
+                  disabled={isGeneratingImages || sessionStatus === SessionStatus.ANALYZING}
+                  className="cursor-pointer flex-1 px-4 py-2 bg-gray-700 text-white rounded-lg font-medium hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-                {dict.productIntelligence.startAnalysis}
-              </>
-            )}
-          </button>
+                  <svg
+                    className="w-4 h-4 inline mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                  {dict.productIntelligence.imageGeneration.regenerateImages}
+                </button>
+
+                <button
+                  onClick={() => {
+                    setShowImageSelection(false);
+                    setGeneratedImages([]);
+                    setSelectedImageIndex(null);
+                  }}
+                  className="cursor-pointer px-4 py-2 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-500 transition-all duration-200"
+                >
+                  {dict.common.back}
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
     </Card>

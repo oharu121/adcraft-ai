@@ -6,6 +6,7 @@
 
 export { default as ImageUploadArea } from './ImageUploadArea';
 export { default as ChatContainer } from './ChatContainer';
+export { ImageSelectionGrid } from './ImageSelectionGrid';
 
 export type { ImageUploadProps, UploadedImage } from './ImageUploadArea';
 export type { ChatContainerProps } from './ChatContainer';
