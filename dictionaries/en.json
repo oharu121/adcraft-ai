@@ -1182,7 +1182,10 @@
       "summary": "Production Summary:",
       "estimatedDuration": "Duration:",
       "productionCost": "Production Cost:",
-      "startProduction": "Start Video Production"
+      "startProduction": "Start Video Production",
+      "startOver": "Start Over",
+      "confirmStartOver": "Start over with a new product image? This will clear your current session and take you back to the home page.",
+      "startOverSuccess": "Starting fresh! Redirecting to home page..."
     },
 
     "progress": {

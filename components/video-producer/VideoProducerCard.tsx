@@ -3,9 +3,13 @@
 import React, { useState, useCallback } from "react";
 import { Card } from "@/components/ui";
 import { useVideoProducerStore } from "@/lib/stores/video-producer-store";
+import { useCreativeDirectorStore } from "@/lib/stores/creative-director-store";
+import { useProductIntelligenceStore } from "@/lib/stores/product-intelligence-store";
 import { VideoProducerWorkflowStep, VideoFormat } from "@/lib/stores/video-producer-store";
 import AgentAvatar from "@/components/ui/AgentAvatar";
 import { Toast } from "@/components/ui/Toast";
+import VideoPlayer from "@/components/video/VideoPlayer";
+import ProductionProgress from "@/components/video/ProductionProgress";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
 
 interface VideoProducerCardProps {
@@ -69,7 +73,12 @@ export default function VideoProducerCard({
     availableMusicGenres,
     availableVideoFormats,
     isInitialized,
+    reset: resetVideoProducerStore,
   } = useVideoProducerStore();
+
+  // Get reset functions from other stores
+  const { resetSession: resetCreativeDirectorStore } = useCreativeDirectorStore();
+  const { resetSession: resetProductIntelligenceStore } = useProductIntelligenceStore();
 
   // Debug store state
   console.log('🔍 VideoProducerCard: Store state debug:', {
@@ -614,193 +623,63 @@ export default function VideoProducerCard({
     if (finalVideoUrl) {
       return (
         <div className="text-center space-y-6">
-          <div className="bg-green-900/20 border border-green-500/50 rounded-xl p-8">
-            <div className="text-6xl mb-4">🎬</div>
-            <h3 className="text-2xl font-bold text-green-300 mb-4">{t.production.complete}</h3>
-            <p className="text-gray-300 mb-6">{t.production.ready}</p>
+          <VideoPlayer
+            videoUrl={finalVideoUrl}
+            title={`${selectedNarrativeStyle?.name || 'Commercial'} Video`}
+            jobId={currentJobId || undefined}
+            locale={locale}
+            dict={dict}
+            specifications={{
+              format: `${selectedVideoFormat?.aspectRatio || "16:9"} • ${selectedVideoFormat?.resolution || "1080p"}`,
+              duration: `8 ${t.production.seconds}`,
+              narrative: selectedNarrativeStyle?.name,
+              music: selectedMusicGenre?.name,
+            }}
+            actions={{
+              showViewVideo: true,
+              showViewGallery: true,
+              showDownload: true,
+              showCopyLink: true,
+              showStartOver: true,
+            }}
+            onCopySuccess={(message) => showToast(message, "success")}
+            onCopyError={(message) => showToast(message, "error")}
+            onStartOver={() => {
+              const confirmMessage = t.production?.confirmStartOver ||
+                "Start over with a new product image? This will clear your current session and take you back to the home page.";
 
-            {/* Video Player */}
-            <div className="mb-6">
-              <div className="relative bg-black rounded-lg overflow-hidden shadow-2xl mx-auto max-w-2xl">
-                <video
-                  controls
-                  className="w-full h-auto"
-                  style={{ maxHeight: "400px" }}
-                  poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 450'%3E%3Crect width='800' height='450' fill='%23000'/%3E%3Ctext x='400' y='225' text-anchor='middle' fill='%23fff' font-size='24' font-family='Arial'%3EYour Commercial Video%3C/text%3E%3C/svg%3E"
-                >
-                  <source src={finalVideoUrl} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
+              if (window.confirm(confirmMessage)) {
+                // Reset all Zustand stores to clear everything
+                resetVideoProducerStore();
+                resetCreativeDirectorStore();
+                resetProductIntelligenceStore();
 
-                {/* Video overlay with play icon (hidden when video is playing) */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 hover:opacity-100 transition-opacity">
-                  <div className="w-16 h-16 bg-green-500/80 rounded-full flex items-center justify-center backdrop-blur-sm">
-                    <svg
-                      className="w-6 h-6 text-white ml-1"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
+                // Show success message briefly before redirect
+                showToast(t.production?.startOverSuccess || "Starting fresh! Redirecting to home page...", "success");
 
-            {/* Action Buttons */}
-            <div className="space-y-4">
-              {/* Primary Actions Row */}
-              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                <button
-                  onClick={() => {
-                    // Navigate to video detail page
-                    window.open(`/${locale}/video/${currentJobId}`, '_blank');
-                  }}
-                  className="magical-button cursor-pointer bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                  {t.production.viewVideo}
-                </button>
-
-                <button
-                  onClick={() => {
-                    // Navigate to gallery
-                    window.open(`/${locale}/gallery`, '_blank');
-                  }}
-                  className="cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                    />
-                  </svg>
-                  {t.production.viewGallery}
-                </button>
-              </div>
-
-              {/* Secondary Actions Row */}
-              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                <button
-                  onClick={() => {
-                    // Create a temporary link to download the video
-                    const link = document.createElement("a");
-                    link.href = finalVideoUrl;
-                    link.download = `commercial-video-${Date.now()}.mp4`;
-                    link.target = "_blank";
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                  }}
-                  className="cursor-pointer bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                  {t.production.download}
-                </button>
-
-                <button
-                  onClick={async () => {
-                    try {
-                      // Copy video detail page URL to clipboard (not just the raw video URL)
-                      const videoDetailUrl = `${window.location.origin}/${locale}/video/${currentJobId}`;
-                      await navigator.clipboard.writeText(videoDetailUrl);
-                      showToast(t.production.linkCopied || "Link copied successfully!", "success");
-                    } catch (error) {
-                      console.error('Failed to copy link:', error);
-                      showToast(t.production.copyFailed || "Failed to copy link", "error");
-                    }
-                  }}
-                  className="cursor-pointer border border-green-500 text-green-400 hover:bg-green-500/10 px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                    />
-                  </svg>
-                  {t.production.copyLink}
-                </button>
-              </div>
-
-              {/* Video Specifications */}
-              <div className="bg-gray-800/50 rounded-lg p-4 text-left">
-                <h4 className="font-semibold text-white mb-2">{t.production.specifications}</h4>
-                <div className="grid grid-cols-2 gap-4 text-sm text-gray-300">
-                  <div>
-                    <span className="text-green-300">{t.production.format}</span>{" "}
-                    {selectedVideoFormat?.aspectRatio || "16:9"} •{" "}
-                    {selectedVideoFormat?.resolution || "1080p"}
-                  </div>
-                  <div>
-                    <span className="text-green-300">{t.production.duration}</span> 8{" "}
-                    {t.production.seconds}
-                  </div>
-                  <div>
-                    <span className="text-green-300">{t.production.narrative}</span>{" "}
-                    {selectedNarrativeStyle?.name}
-                  </div>
-                  <div>
-                    <span className="text-green-300">{t.production.music}</span>{" "}
-                    {selectedMusicGenre?.name}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+                // Redirect to home page after short delay
+                setTimeout(() => {
+                  window.location.href = `/${locale}`;
+                }, 1500);
+              }
+            }}
+          />
         </div>
       );
     }
 
     if (isProducing) {
       return (
-        <div className="text-center space-y-6">
-          <div className="bg-red-900/20 border border-red-500/50 rounded-xl p-8">
-            <div className="text-6xl mb-4 animate-pulse">🎬</div>
-            <h3 className="text-2xl font-bold text-red-300 mb-2">{t.production.producing}</h3>
-            <p className="text-gray-300 mb-6">{t.production.crafting}</p>
-
-            <div className="space-y-4">
-              <div className="w-full bg-gray-700 rounded-full h-4">
-                <div
-                  className="bg-gradient-to-r from-red-500 to-orange-500 h-4 rounded-full transition-all duration-300"
-                  style={{ width: `${productionProgress}%` }}
-                />
-              </div>
-              <p className="text-lg font-semibold text-red-300">
-                {Math.round(productionProgress)}
-                {t.production.progress}
-              </p>
-              <p className="text-sm text-gray-400">
-                {t.production.timeRemaining}{" "}
-                {Math.max(1, Math.round((100 - productionProgress) / 20))} {t.production.seconds}
-              </p>
-            </div>
-          </div>
-        </div>
+        <ProductionProgress
+          progress={productionProgress}
+          jobId={currentJobId || undefined}
+          dict={dict}
+          title={t.production.producing}
+          description={t.production.crafting}
+          showTimeEstimate={true}
+          showJobId={true}
+          variant="default"
+        />
       );
     }
 

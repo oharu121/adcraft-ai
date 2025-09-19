@@ -1199,7 +1199,10 @@
       "summary": "制作サマリー：",
       "estimatedDuration": "再生時間：",
       "productionCost": "制作コスト：",
-      "startProduction": "動画制作開始"
+      "startProduction": "動画制作開始",
+      "startOver": "やり直し",
+      "confirmStartOver": "新しい商品画像でやり直しますか？現在のセッションをクリアしてホームページに戻ります。",
+      "startOverSuccess": "新しく始めます！ホームページにリダイレクト中..."
     },
 
     "progress": {

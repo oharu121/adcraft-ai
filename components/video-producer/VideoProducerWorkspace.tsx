@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import VideoProducerProgress from "./VideoProducerProgress";
 import VideoProducerChatContainer from "./VideoProducerChatContainer";
-import { VideoDisplay } from "@/components/video-generator/VideoDisplay";
+import ProductionProgress from "@/components/video/ProductionProgress";
 import { useVideoProducerStore } from "@/lib/stores/video-producer-store";
 import { VideoProducerWorkflowStep } from "@/lib/stores/video-producer-store";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
@@ -99,79 +99,87 @@ export default function VideoProducerWorkspace({
 
   // Initialize Zara when Creative Director handoff data is available
   useEffect(() => {
-    console.log('🔍 VideoProducerWorkspace: useEffect triggered', {
+    console.log("🔍 VideoProducerWorkspace: useEffect triggered", {
       hasHandoffData: !!creativeDirectorHandoffData,
       isInitialized,
       locale,
-      handoffSessionId: creativeDirectorHandoffData?.creativeDirectorSessionId
+      handoffSessionId: creativeDirectorHandoffData?.creativeDirectorSessionId,
     });
 
     const initializeZara = async () => {
       if (creativeDirectorHandoffData && !isInitialized) {
-        console.log('🎬 VideoProducer: Starting initialization...', {
+        console.log("🎬 VideoProducer: Starting initialization...", {
           handoffData: creativeDirectorHandoffData,
-          locale
+          locale,
         });
 
         try {
           const requestBody = {
             sessionId,
-            action: 'initialize',
+            action: "initialize",
             locale,
             data: {
               creativeDirectorHandoffData,
             },
           };
-          console.log('🎬 VideoProducer: Sending request:', requestBody);
+          console.log("🎬 VideoProducer: Sending request:", requestBody);
 
-          const response = await fetch('/api/agents/video-producer', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+          const response = await fetch("/api/agents/video-producer", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(requestBody),
           });
 
-          console.log('🎬 VideoProducer: Response status:', response.status);
+          console.log("🎬 VideoProducer: Response status:", response.status);
           const result = await response.json();
-          console.log('🎬 VideoProducer: Full API response:', result);
+          console.log("🎬 VideoProducer: Full API response:", result);
 
           if (result.success && result.data) {
-            console.log('🎬 VideoProducer: Processing API data...', {
+            console.log("🎬 VideoProducer: Processing API data...", {
               narrativeStylesCount: result.data.narrativeStyles?.length || 0,
               musicGenresCount: result.data.musicGenres?.length || 0,
-              videoFormatsCount: result.data.videoFormats?.length || 0
+              videoFormatsCount: result.data.videoFormats?.length || 0,
             });
 
             // Store the API-generated options in Zustand store
             if (result.data.narrativeStyles) {
-              console.log('📝 Setting narrative styles:', result.data.narrativeStyles);
+              console.log("📝 Setting narrative styles:", result.data.narrativeStyles);
               setAvailableNarrativeStyles(result.data.narrativeStyles);
             }
             if (result.data.musicGenres) {
-              console.log('📝 Setting music genres:', result.data.musicGenres);
+              console.log("📝 Setting music genres:", result.data.musicGenres);
               setAvailableMusicGenres(result.data.musicGenres);
             }
             if (result.data.videoFormats) {
-              console.log('📝 Setting video formats:', result.data.videoFormats);
+              console.log("📝 Setting video formats:", result.data.videoFormats);
               setAvailableVideoFormats(result.data.videoFormats);
             }
 
             setIsInitialized(true);
-            console.log('✅ VideoProducer: Initialization complete - store updated');
+            console.log("✅ VideoProducer: Initialization complete - store updated");
           } else {
-            console.error('❌ VideoProducer: API returned failure:', result);
+            console.error("❌ VideoProducer: API returned failure:", result);
           }
         } catch (error) {
-          console.error('❌ VideoProducer: Initialization failed:', error);
+          console.error("❌ VideoProducer: Initialization failed:", error);
         }
       } else {
-        console.log('⏭️ VideoProducer: Skipping initialization', {
-          reason: !creativeDirectorHandoffData ? 'no handoff data' : 'already initialized'
+        console.log("⏭️ VideoProducer: Skipping initialization", {
+          reason: !creativeDirectorHandoffData ? "no handoff data" : "already initialized",
         });
       }
     };
 
     initializeZara();
-  }, [creativeDirectorHandoffData, isInitialized, locale, setIsInitialized, setAvailableNarrativeStyles, setAvailableMusicGenres, setAvailableVideoFormats]);
+  }, [
+    creativeDirectorHandoffData,
+    isInitialized,
+    locale,
+    setIsInitialized,
+    setAvailableNarrativeStyles,
+    setAvailableMusicGenres,
+    setAvailableVideoFormats,
+  ]);
 
   // Handle chat message sending
   const handleSendMessage = useCallback(
@@ -251,40 +259,6 @@ export default function VideoProducerWorkspace({
           onStepChange={(step: VideoProducerWorkflowStep) => setCurrentStep(step)}
           onExpandWorkflowProgress={handleExpandWorkflowProgress}
         />
-
-        {/* Video Display - Show when video is ready */}
-        {finalVideoUrl && (
-          <div className="mt-6">
-            <VideoDisplay
-              videoUrl={finalVideoUrl}
-              title={`${selectedNarrativeStyle?.name || 'Commercial'} Video`}
-              jobId={currentJobId || undefined}
-              isLoading={isProducing && productionProgress < 100}
-              autoPlay={false}
-              controls={true}
-              muted={false}
-            />
-          </div>
-        )}
-
-        {/* Production Progress - Show when producing */}
-        {isProducing && !finalVideoUrl && (
-          <div className="mt-6 p-6 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-6 h-6 bg-blue-500 rounded-full animate-spin border-2 border-blue-200 border-t-blue-500"></div>
-              <span className="font-medium text-blue-800">Generating Your Video...</span>
-            </div>
-            <div className="w-full bg-blue-200 rounded-full h-3 mb-2">
-              <div
-                className="bg-blue-500 h-3 rounded-full transition-all duration-300"
-                style={{ width: `${Math.max(productionProgress, 10)}%` }}
-              ></div>
-            </div>
-            <div className="text-sm text-blue-600">
-              {currentJobId && `Job ID: ${currentJobId.slice(0, 16)}...`} • {Math.round(productionProgress)}% complete
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Right: Sidebar matches main content height exactly */}
