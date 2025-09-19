@@ -69,7 +69,7 @@ export default function ProductionProgress({
 
         {/* Description with spinner */}
         <div className="flex items-center justify-center gap-3 mb-6">
-          <div className="w-6 h-6 bg-red-500 rounded-full animate-spin border-4 border-red-200 border-t-red-500"></div>
+          <div className="w-4 h-4 bg-red-500 rounded-full animate-spin border-2 border-red-200 border-t-red-500"></div>
           <p className="text-gray-300">
             {description || t.production?.crafting || "Crafting your commercial masterpiece..."}
           </p>

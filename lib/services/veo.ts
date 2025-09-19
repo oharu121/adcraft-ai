@@ -103,6 +103,19 @@ export class VeoService {
     console.log(`Prompt: ${request.prompt}`);
     console.log(`Aspect Ratio: ${request.aspectRatio || '16:9'}`);
 
+    // Create optimized negative prompt for better video quality
+    const negativePrompt = [
+      "blurry, low quality, pixelated, grainy",
+      "multiple products, product collage, split screen",
+      "text overlays covering product, busy text",
+      "amateur video, poor lighting, dark shadows",
+      "shaky camera, unstable footage",
+      "unrealistic colors, oversaturated, neon",
+      "people's faces, human models, hands",
+      "copyrighted content, brand logos, trademarks",
+      "complex backgrounds, cluttered scenes"
+    ].join(", ");
+
     // Prepare request for Gemini API with optional image input
     const instance: any = {
       prompt: request.prompt
@@ -110,19 +123,35 @@ export class VeoService {
 
     // Add image if provided (image-to-video generation)
     if (request.image) {
+      // Optimize image for Veo processing if it's too large
+      let optimizedImage = request.image.bytesBase64Encoded;
+      const imageSizeKB = (optimizedImage.length * 3) / 4 / 1024; // Estimate base64 size in KB
+
+      console.log(`🎬 Original image size: ~${Math.round(imageSizeKB)}KB`);
+
+      // If image is larger than 200KB, we might want to resize it
+      // (This is a placeholder for future optimization)
+      if (imageSizeKB > 200) {
+        console.log(`🎬 Warning: Large image detected (${Math.round(imageSizeKB)}KB). Consider resizing for better Veo performance.`);
+        // TODO: Implement image resizing if needed
+      }
+
       instance.image = {
-        bytesBase64Encoded: request.image.bytesBase64Encoded,
+        bytesBase64Encoded: optimizedImage,
         mimeType: request.image.mimeType
       };
-      console.log(`🎬 Including product image in video generation (${request.image.mimeType})`);
+      console.log(`🎬 Including product image in video generation (${request.image.mimeType}, ~${Math.round(imageSizeKB)}KB)`);
     }
 
     const requestBody = {
       instances: [instance],
       parameters: {
-        aspectRatio: request.aspectRatio || '16:9'
+        aspectRatio: request.aspectRatio || '16:9',
+        negativePrompt: negativePrompt  // Add negative prompt for better quality
       }
     };
+
+    console.log(`🎬 Using negative prompt: ${negativePrompt.substring(0, 100)}...`);
 
     // Call Gemini API to start video generation
     const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/veo-3.0-generate-preview:predictLongRunning', {
@@ -242,11 +271,31 @@ export class VeoService {
     }
 
     if (data.error) {
-      // Failed
+      // Failed - log detailed error information
+      console.error(`🎬 Veo generation failed for operation ${operationName}:`, {
+        errorCode: data.error.code,
+        errorMessage: data.error.message,
+        errorDetails: data.error.details || 'No additional details',
+        fullErrorObject: data.error
+      });
+
+      // Provide user-friendly error messages for common Veo issues
+      let userFriendlyError = data.error.message || 'Video generation failed';
+
+      if (data.error.code === 'INTERNAL') {
+        userFriendlyError = 'Veo service temporarily unavailable. This is a known issue with Google\'s video generation service. Please try again in a few minutes.';
+      } else if (data.error.code === 'QUOTA_EXCEEDED') {
+        userFriendlyError = 'Video generation quota exceeded. Please try again later.';
+      } else if (data.error.code === 'INVALID_ARGUMENT') {
+        userFriendlyError = 'Video request format issue. Please try with a shorter or simpler prompt.';
+      } else if (data.error.message?.includes('timeout') || data.error.message?.includes('deadline')) {
+        userFriendlyError = 'Video generation timed out. Try reducing video length or complexity.';
+      }
+
       return {
         jobId: operationName,
         status: 'failed',
-        error: data.error.message || 'Video generation failed',
+        error: userFriendlyError,
       };
     }
 

@@ -228,8 +228,8 @@ export default function VideoProducerCard({
         <div className="space-y-6">
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
-            <p className="text-gray-400 text-lg">Loading narrative styles...</p>
-            <p className="text-gray-500 text-sm mt-2">Generating options based on your creative direction</p>
+            <p className="text-gray-400 text-lg">{dict.video.loading.narrativeStyles}</p>
+            <p className="text-gray-500 text-sm mt-2">{dict.video.loading.narrativeStylesDescription}</p>
           </div>
         </div>
       );
@@ -369,8 +369,8 @@ export default function VideoProducerCard({
         <div className="space-y-6">
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
-            <p className="text-gray-400 text-lg">Loading music genres...</p>
-            <p className="text-gray-500 text-sm mt-2">Generating audio options for your video</p>
+            <p className="text-gray-400 text-lg">{dict.video.loading.musicGenres}</p>
+            <p className="text-gray-500 text-sm mt-2">{dict.video.loading.musicGenresDescription}</p>
           </div>
         </div>
       );

@@ -1364,5 +1364,29 @@
     "confidenceStyleAuthenticity": "Confidence. Style. Authenticity.",
     "productIntelligenceAgent": "Product Intelligence Agent",
     "systemAgent": "System"
+  },
+  "video": {
+    "errorModal": {
+      "title": "Video Generation Encountered an Issue",
+      "subtitle": "Don't worry - your work isn't lost!",
+      "errorDetails": "Error Details",
+      "stillAvailable": "What's Still Available",
+      "benefits": {
+        "productAnalysis": "Complete product analysis from Maya",
+        "creativeDirection": "Creative direction and style guide from David",
+        "commercialStrategy": "Full commercial strategy and recommendations",
+        "creativeJourney": "Detailed creative journey and insights"
+      },
+      "tryAgain": "Try Video Again",
+      "retrying": "Retrying...",
+      "viewResults": "View Results Without Video",
+      "helpText": "You can always come back to generate the video later using the same creative strategy."
+    },
+    "loading": {
+      "narrativeStyles": "Loading narrative styles...",
+      "narrativeStylesDescription": "Generating options based on your creative direction",
+      "musicGenres": "Loading music genres...",
+      "musicGenresDescription": "Generating audio options for your video"
+    }
   }
 }

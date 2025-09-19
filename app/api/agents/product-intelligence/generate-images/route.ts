@@ -70,8 +70,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Real mode: Use Gemini 2.0 Flash
-    console.log("[IMAGE GENERATION API] Real mode - using Gemini 2.0 Flash");
+    // Real mode: Use Imagen 4.0
+    console.log("[IMAGE GENERATION API] Real mode - using Imagen 4.0");
 
     const startTime = Date.now();
 
@@ -79,12 +79,22 @@ export async function POST(request: NextRequest) {
     const vertexAIService = VertexAIService.getInstance();
     const geminiClient = new GeminiClient(vertexAIService);
 
-    // Create detailed prompt for image generation
-    const imagePrompt = `Product: ${productName}
+    // Create clean, single-product prompt (sampleCount:4 handles multiple images)
+    const imagePrompt = `Create a professional product photography image of ${productName}.
 
-Description: ${productDescription}
+Product details: ${productDescription}
 
-Create professional product photography images suitable for commercial advertising. Each image should showcase the product clearly with different angles and compositions.`;
+Requirements:
+- Single product only, no grids or multiple views
+- Professional commercial photography style
+- Clean white or subtle gradient background
+- Excellent lighting with soft shadows
+- Sharp focus, high resolution
+- Clear display of product features
+
+If the description is unclear, choose one specific realistic product that matches the name "${productName}" and create a professional product photo.`;
+
+    console.log(`[IMAGE GENERATION] Using enhanced prompt for: ${productName}`);
 
     // Generate 4 images
     const result = await geminiClient.generateImages(imagePrompt, 4);
