@@ -10,6 +10,7 @@ import AgentAvatar from "@/components/ui/AgentAvatar";
 import { Toast } from "@/components/ui/Toast";
 import VideoPlayer from "@/components/video/VideoPlayer";
 import ProductionProgress from "@/components/video/ProductionProgress";
+import CreativeJourneyModal from "@/components/video/CreativeJourneyModal";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
 
 interface VideoProducerCardProps {
@@ -76,9 +77,17 @@ export default function VideoProducerCard({
     reset: resetVideoProducerStore,
   } = useVideoProducerStore();
 
-  // Get reset functions from other stores
-  const { resetSession: resetCreativeDirectorStore } = useCreativeDirectorStore();
-  const { resetSession: resetProductIntelligenceStore } = useProductIntelligenceStore();
+  // Get reset functions and data from other stores
+  const {
+    resetSession: resetCreativeDirectorStore,
+    mayaHandoffData
+  } = useCreativeDirectorStore();
+  const {
+    resetSession: resetProductIntelligenceStore
+  } = useProductIntelligenceStore();
+
+  // Creative Journey Modal state
+  const [showCreativeJourneyModal, setShowCreativeJourneyModal] = useState(false);
 
   // Debug store state
   console.log('🔍 VideoProducerCard: Store state debug:', {
@@ -636,11 +645,22 @@ export default function VideoProducerCard({
               music: selectedMusicGenre?.name,
             }}
             actions={{
-              showViewVideo: true,
               showViewGallery: true,
               showDownload: true,
               showCopyLink: true,
               showStartOver: true,
+              customActions: [{
+                label: t.production.creativeJourney,
+                icon: (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
+                  </svg>
+                ),
+                onClick: () => {
+                  setShowCreativeJourneyModal(true);
+                },
+                variant: "outline" as const
+              }]
             }}
             onCopySuccess={(message) => showToast(message, "success")}
             onCopyError={(message) => showToast(message, "error")}
@@ -833,6 +853,18 @@ export default function VideoProducerCard({
           position="top-right"
         />
       )}
+
+      {/* Creative Journey Modal */}
+      <CreativeJourneyModal
+        isOpen={showCreativeJourneyModal}
+        onClose={() => setShowCreativeJourneyModal(false)}
+        dict={dict}
+        productAnalysis={mayaHandoffData?.productAnalysis}
+        creativeDirection={creativeDirectorHandoffData?.creativeDirection}
+        selectedNarrativeStyle={selectedNarrativeStyle}
+        selectedMusicGenre={selectedMusicGenre}
+        selectedVideoFormat={selectedVideoFormat}
+      />
     </Card>
   );
 }

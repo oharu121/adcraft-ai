@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui';
 import { cn } from '@/lib/utils/cn';
+import { useAgentContext } from '@/lib/hooks/useAgentContext';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
 
 export interface HeaderProps {
@@ -18,6 +19,7 @@ export interface HeaderProps {
  */
 export function Header({ className, dict, locale }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const agentContext = useAgentContext();
 
   const handleMobileMenuToggle = useCallback(() => {
     setIsMobileMenuOpen(prev => !prev);
@@ -28,21 +30,38 @@ export function Header({ className, dict, locale }: HeaderProps) {
   }, []);
 
   return (
-    <header className={cn(
-      'bg-white border-b border-slate-200 sticky top-0 z-50',
-      'backdrop-blur-sm bg-white/95',
-      className
-    )}>
+    <header
+      className={cn(
+        'bg-white sticky top-0 z-50',
+        'backdrop-blur-sm bg-white/95',
+        // Agent context border hint
+        agentContext.isActive ? 'border-b-2' : 'border-b border-slate-200',
+        className
+      )}
+      style={{
+        borderBottomColor: agentContext.isActive ? agentContext.color : undefined,
+      }}
+    >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo/Brand */}
           <div className="flex items-center">
-            <Link 
+            <Link
               href={`/${locale}`}
               className="flex items-center gap-3 hover:opacity-80 transition-opacity"
               onClick={handleMenuClose}
             >
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <div
+                className={cn(
+                  "w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300",
+                  agentContext.isActive
+                    ? "shadow-lg"
+                    : "bg-gradient-to-br from-blue-600 to-purple-600"
+                )}
+                style={{
+                  backgroundColor: agentContext.isActive ? agentContext.color : undefined,
+                }}
+              >
                 <svg
                   className="w-5 h-5 text-white"
                   fill="none"
@@ -59,11 +78,27 @@ export function Header({ className, dict, locale }: HeaderProps) {
                 </svg>
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-xl font-bold text-slate-900">
-                  {dict.header.title}
-                </h1>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-xl font-bold text-slate-900">
+                    {dict.header.title}
+                  </h1>
+                  {agentContext.isActive && (
+                    <span
+                      className="text-xs font-medium px-2 py-1 rounded-full transition-all duration-300"
+                      style={{
+                        backgroundColor: agentContext.accentColor,
+                        color: agentContext.color,
+                      }}
+                    >
+                      {agentContext.name}
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-slate-500 -mt-1">
-                  {dict.header.subtitle}
+                  {agentContext.isActive
+                    ? `Working with ${agentContext.name}...`
+                    : dict.header.subtitle
+                  }
                 </p>
               </div>
             </Link>
@@ -156,7 +191,12 @@ export function Header({ className, dict, locale }: HeaderProps) {
 
         {/* Mobile Navigation Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-200 bg-white">
+          <div
+            className="md:hidden border-t bg-white"
+            style={{
+              borderTopColor: agentContext.isActive ? agentContext.accentColor : '#E2E8F0',
+            }}
+          >
             <div className="px-2 pt-2 pb-3 space-y-1">
               <Link
                 href={`/${locale}`}

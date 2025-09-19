@@ -1,5 +1,13 @@
 # AdCraft AI - Development Guide
 
+## ⚠️ **CRITICAL TOOL USAGE POLICY**
+
+**NEVER use any tools without explicit user permission first.**
+- ALWAYS ask before running any commands (npm, build, bash, etc.)
+- ALWAYS ask before reading, writing, or editing files
+- ALWAYS ask before making any changes to the codebase
+- User must explicitly approve each tool use before proceeding
+
 ## 🎯 **PROJECT OVERVIEW**
 
 **AI Agent Hackathon 2025** - Multi-agent system that transforms product images into commercial videos  
@@ -291,7 +299,7 @@ grep -r "type.*=" lib/types/
 
 #### TypeScript Type Issues (CRITICAL)
 
-**⚠️ ALWAYS check for enums when string literals fail**
+**⚠️ ALWAYS check for enums when string literals fail - NEVER use 'any' type**
 
 #### ✅ When TypeScript complains about string types:
 ```typescript
@@ -302,15 +310,17 @@ category: "electronics"  // Error: string not assignable to ProductCategory
 import { ProductCategory } from "@/lib/agents/product-intelligence/enums";
 category: ProductCategory.ELECTRONICS
 
-// ✅ FALLBACK: Use type assertion if enum is complex
-category: "electronics" as any  // Temporary fix
+// ❌ NEVER DO: Using 'any' type
+category: "electronics" as any  // FORBIDDEN - find proper type instead
 ```
 
 #### Type Resolution Strategy:
 1. **Check for existing enums** in `/lib/agents/product-intelligence/enums.ts`
 2. **Import the enum** and use proper enum values
-3. **Use type assertions** (`as any`) only as last resort for complex nested types
-4. **Search codebase** for similar usage patterns when unsure
+3. **Create proper interfaces** instead of using 'any'
+4. **Use union types** for specific string literals: `type Status = 'pending' | 'completed'`
+5. **Search codebase** for similar usage patterns when unsure
+6. **NEVER use 'any'** - always find the correct type solution
 
 #### Common Enum Locations:
 - `ProductCategory` → electronics, fashion, etc.

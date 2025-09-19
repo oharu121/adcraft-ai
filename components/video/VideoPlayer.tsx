@@ -300,9 +300,9 @@ export default function VideoPlayer({
         </div>
       </div>
 
-      {/* Action Buttons - Clean 2x3 grid layout */}
+      {/* Action Buttons - Clean 2x2 + 1 layout */}
       <div className="space-y-4">
-        {/* Main Actions Grid - 2x2 */}
+        {/* Main Actions Grid - 2x2 layout */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
           {actions.showViewVideo && jobId && (
             <button
@@ -377,11 +377,29 @@ export default function VideoPlayer({
               {t.production?.copyLink || "Copy Link"}
             </button>
           )}
+
+          {/* Custom Actions - In 2x2 grid */}
+          {actions.customActions && actions.customActions.map((action, index) => (
+            <button
+              key={index}
+              onClick={action.onClick}
+              className={`cursor-pointer px-4 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2 ${
+                action.variant === 'primary'
+                  ? 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white'
+                  : action.variant === 'outline'
+                  ? 'border border-gray-500 text-gray-400 hover:bg-gray-500/10'
+                  : 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white'
+              }`}
+            >
+              {action.icon}
+              {action.label}
+            </button>
+          ))}
         </div>
 
-        {/* Start Over Button - Separate row for emphasis */}
+        {/* Start Over Button - Centered below the 2x2 grid */}
         {actions.showStartOver && (
-          <div className="flex justify-center pt-2">
+          <div className="flex justify-center">
             <button
               onClick={onStartOver}
               className="cursor-pointer bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 border-2 border-gray-500/50"
@@ -396,28 +414,6 @@ export default function VideoPlayer({
               </svg>
               {t.production?.startOver || "Start Over"}
             </button>
-          </div>
-        )}
-
-        {/* Custom Actions Row */}
-        {actions.customActions && actions.customActions.length > 0 && (
-          <div className="flex flex-wrap gap-3 justify-center pt-2">
-            {actions.customActions.map((action, index) => (
-              <button
-                key={index}
-                onClick={action.onClick}
-                className={`cursor-pointer px-4 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 ${
-                  action.variant === 'primary'
-                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white'
-                    : action.variant === 'outline'
-                    ? 'border border-gray-500 text-gray-400 hover:bg-gray-500/10'
-                    : 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white'
-                }`}
-              >
-                {action.icon}
-                {action.label}
-              </button>
-            ))}
           </div>
         )}
 
