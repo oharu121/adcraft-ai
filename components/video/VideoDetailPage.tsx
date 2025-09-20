@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 // Using inline SVG icons instead of heroicons
 import type { Dictionary, Locale } from "@/lib/dictionaries";
+import PureVideoPlayer from "./PureVideoPlayer";
+import AgentJourneyTimeline from "./AgentJourneyTimeline";
 
 interface VideoData {
   id: string;
@@ -57,7 +59,6 @@ export default function VideoDetailPage({
   const [isSaved, setIsSaved] = useState(false);
   const [showCopied, setShowCopied] = useState(false);
   const [viewCount, setViewCount] = useState(videoData.viewCount);
-  const [showJourneyDetails, setShowJourneyDetails] = useState(false);
 
   const t = dict.videoDetail;
 
@@ -83,16 +84,6 @@ export default function VideoDetailPage({
     }
   };
 
-  const copyVideoLink = useCallback(() => {
-    const fullUrl = `${window.location.origin}/${locale}/video/${videoId}`;
-    navigator.clipboard.writeText(fullUrl).then(() => {
-      setShowCopied(true);
-      setTimeout(() => setShowCopied(false), 2000);
-    }).catch(err => {
-      console.error('Failed to copy link:', err);
-    });
-  }, [locale, videoId]);
-
   const shareOnTwitter = useCallback(() => {
     const fullUrl = `${window.location.origin}/${locale}/video/${videoId}`;
     const text = `Check out this amazing commercial video created with AdCraft AI: ${videoData.title}`;
@@ -105,32 +96,6 @@ export default function VideoDetailPage({
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fullUrl)}`;
     window.open(facebookUrl, '_blank');
   }, [locale, videoId]);
-
-  const downloadVideo = useCallback(async () => {
-    try {
-      // Fetch the video blob
-      const response = await fetch(videoData.videoUrl);
-      const blob = await response.blob();
-
-      // Create a temporary download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${videoData.title || 'commercial-video'}.mp4`;
-
-      // Trigger download
-      document.body.appendChild(link);
-      link.click();
-
-      // Clean up
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error downloading video:', error);
-      // Fallback: open video in new tab
-      window.open(videoData.videoUrl, '_blank');
-    }
-  }, [videoData.videoUrl, videoData.title]);
 
   const formatDuration = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
@@ -148,16 +113,21 @@ export default function VideoDetailPage({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
       {/* Header */}
-      <div className="bg-white shadow-sm">
+      <div className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700/50">
         <div className="container mx-auto px-4 py-4">
           <Link
             href={`/${locale}/gallery`}
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 cursor-pointer transition-colors"
+            className="inline-flex items-center gap-2 text-gray-300 hover:text-white cursor-pointer transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
             {t.backToGallery}
           </Link>
@@ -168,220 +138,52 @@ export default function VideoDetailPage({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Video Section */}
           <div className="lg:col-span-2">
-            {/* Creative Journey Card */}
-            <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-6 mb-6 shadow-sm border border-purple-100">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900 mb-1">
-                    {t.creativeJourney.title}
-                  </h2>
-                  <p className="text-gray-600 text-sm">
-                    {t.creativeJourney.subtitle}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowJourneyDetails(!showJourneyDetails)}
-                  className="flex items-center gap-2 px-4 py-2 bg-white text-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors shadow-sm"
-                >
-                  <span className="text-sm font-medium">
-                    {showJourneyDetails ? t.creativeJourney.showLess : t.creativeJourney.showMore}
-                  </span>
-                  <svg
-                    className={`w-4 h-4 transition-transform ${showJourneyDetails ? 'rotate-180' : ''}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Visual Timeline */}
-              <div className="relative">
-                {/* Timeline Line */}
-                <div className="absolute top-6 left-6 right-6 h-0.5 bg-gradient-to-r from-purple-200 via-blue-200 to-green-200"></div>
-
-                {/* Timeline Steps */}
-                <div className="flex justify-between items-start relative">
-                  {/* Step 1: Product Upload */}
-                  <div className="flex flex-col items-center text-center w-20">
-                    <div className="w-12 h-12 bg-purple-500 text-white rounded-full flex items-center justify-center mb-2 relative z-10 shadow-lg">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                    <span className="text-xs font-medium text-gray-700">{t.creativeJourney.steps.product}</span>
-                  </div>
-
-                  {/* Step 2: Maya's Analysis */}
-                  <div className="flex flex-col items-center text-center w-20">
-                    <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center mb-2 relative z-10 shadow-lg">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <span className="text-xs font-medium text-gray-700">{t.creativeJourney.steps.maya}</span>
-                  </div>
-
-                  {/* Step 3: David's Direction */}
-                  <div className="flex flex-col items-center text-center w-20">
-                    <div className="w-12 h-12 bg-indigo-500 text-white rounded-full flex items-center justify-center mb-2 relative z-10 shadow-lg">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
-                      </svg>
-                    </div>
-                    <span className="text-xs font-medium text-gray-700">{t.creativeJourney.steps.david}</span>
-                  </div>
-
-                  {/* Step 4: Zara's Production */}
-                  <div className="flex flex-col items-center text-center w-20">
-                    <div className="w-12 h-12 bg-pink-500 text-white rounded-full flex items-center justify-center mb-2 relative z-10 shadow-lg">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                    <span className="text-xs font-medium text-gray-700">{t.creativeJourney.steps.zara}</span>
-                  </div>
-
-                  {/* Step 5: Final Video */}
-                  <div className="flex flex-col items-center text-center w-20">
-                    <div className="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center mb-2 relative z-10 shadow-lg">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l14 9-14 9V3z" />
-                      </svg>
-                    </div>
-                    <span className="text-xs font-medium text-gray-700">{t.creativeJourney.steps.final}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Expandable Details */}
-              {showJourneyDetails && (
-                <div className="mt-6 pt-6 border-t border-purple-200">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div className="bg-white rounded-lg p-4 shadow-sm">
-                      <div className="flex items-center mb-2">
-                        <div className="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mr-3">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-800">{t.creativeJourney.steps.product}</h3>
-                      </div>
-                      <p className="text-sm text-gray-600">{t.creativeJourney.descriptions.product}</p>
-                    </div>
-
-                    <div className="bg-white rounded-lg p-4 shadow-sm">
-                      <div className="flex items-center mb-2">
-                        <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mr-3">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-800">{t.creativeJourney.steps.maya}</h3>
-                      </div>
-                      <p className="text-sm text-gray-600">{t.creativeJourney.descriptions.maya}</p>
-                      {videoData.productAnalysis && (
-                        <div className="mt-2 text-xs text-blue-600">
-                          • {videoData.productAnalysis.category}
-                          • {videoData.productAnalysis.targetAudience}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="bg-white rounded-lg p-4 shadow-sm">
-                      <div className="flex items-center mb-2">
-                        <div className="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mr-3">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
-                          </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-800">{t.creativeJourney.steps.david}</h3>
-                      </div>
-                      <p className="text-sm text-gray-600">{t.creativeJourney.descriptions.david}</p>
-                      {videoData.creativeDirection && (
-                        <div className="mt-2 text-xs text-indigo-600">
-                          • {videoData.creativeDirection.name}
-                          • {videoData.creativeDirection.description}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="bg-white rounded-lg p-4 shadow-sm">
-                      <div className="flex items-center mb-2">
-                        <div className="w-8 h-8 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center mr-3">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                          </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-800">{t.creativeJourney.steps.zara}</h3>
-                      </div>
-                      <p className="text-sm text-gray-600">{t.creativeJourney.descriptions.zara}</p>
-                      <div className="mt-2 text-xs text-pink-600">
-                        • {videoData.narrativeStyle}
-                        • {videoData.musicGenre}
-                      </div>
-                    </div>
-
-                    <div className="bg-white rounded-lg p-4 shadow-sm">
-                      <div className="flex items-center mb-2">
-                        <div className="w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center mr-3">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l14 9-14 9V3z" />
-                          </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-800">{t.creativeJourney.steps.final}</h3>
-                      </div>
-                      <p className="text-sm text-gray-600">{t.creativeJourney.descriptions.final}</p>
-                      <div className="mt-2 text-xs text-green-600">
-                        • {formatDuration(videoData.duration)}
-                        • {videoData.productionSpecs?.aspectRatio || '16:9'}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Video Player */}
-            <div className="relative aspect-video bg-black rounded-lg overflow-hidden mb-6">
-              <video
-                src={videoData.videoUrl}
-                poster={videoData.thumbnailUrl}
-                controls
-                className="w-full h-full"
-                preload="metadata"
-              >
-                {t.videoNotSupported}
-              </video>
-            </div>
+            {/* Enhanced Agent Journey Timeline */}
+            <AgentJourneyTimeline
+              dict={dict}
+              locale={locale}
+              videoData={videoData}
+              className="mb-6"
+            />
 
             {/* Video Info */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h1 className="text-2xl font-bold text-gray-900 mb-4">
-                {videoData.title}
-              </h1>
+            <div className="glass-card p-6 rounded-xl border border-gray-600/30">
+              <h1 className="text-2xl font-bold text-white mb-4">{videoData.title}</h1>
 
               {/* Stats and Actions */}
-              <div className="flex items-center justify-between mb-6 pb-6 border-b">
-                <div className="flex items-center gap-6 text-sm text-gray-600">
+              <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-600/50">
+                <div className="flex items-center gap-6 text-sm text-gray-300">
                   <span className="flex items-center gap-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
                     </svg>
                     {viewCount.toLocaleString()} {t.views}
                   </span>
                   <span className="flex items-center gap-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
                     </svg>
                     {formatDate(videoData.createdAt)}
                   </span>
                   <span className="flex items-center gap-1">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z"/>
+                      <path d="M8 5v14l11-7z" />
                     </svg>
                     {formatDuration(videoData.duration)}
                   </span>
@@ -392,17 +194,27 @@ export default function VideoDetailPage({
                     onClick={() => setIsLiked(!isLiked)}
                     className={`flex items-center gap-1 px-3 py-2 rounded cursor-pointer transition-colors ${
                       isLiked
-                        ? 'bg-red-50 text-red-600 hover:bg-red-100'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? "bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/50"
+                        : "bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 border border-gray-600/50"
                     }`}
                   >
                     {isLiked ? (
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                       </svg>
                     ) : (
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                        />
                       </svg>
                     )}
                     {t.like}
@@ -412,68 +224,60 @@ export default function VideoDetailPage({
                     onClick={() => setIsSaved(!isSaved)}
                     className={`flex items-center gap-1 px-3 py-2 rounded cursor-pointer transition-colors ${
                       isSaved
-                        ? 'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? "bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 border border-blue-500/50"
+                        : "bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 border border-gray-600/50"
                     }`}
                   >
                     {isSaved ? (
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
+                        <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" />
                       </svg>
                     ) : (
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 3v18l-5-3-5 3V3a2 2 0 012-2h6a2 2 0 012 2z" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17 3v18l-5-3-5 3V3a2 2 0 012-2h6a2 2 0 012 2z"
+                        />
                       </svg>
                     )}
                     {t.save}
                   </button>
 
-                  <button
-                    onClick={downloadVideo}
-                    className="flex items-center gap-1 px-3 py-2 bg-green-600 text-white rounded cursor-pointer hover:bg-green-700 transition-colors"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    {t.download}
-                  </button>
-
-                  <div className="relative">
-                    <button
-                      onClick={copyVideoLink}
-                      className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded cursor-pointer hover:bg-blue-700 transition-colors"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                      </svg>
-                      {t.copyLink}
-                    </button>
-
-                    {showCopied && (
-                      <div className="absolute top-full left-0 mt-2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-                        {t.linkCopied}
-                      </div>
-                    )}
-                  </div>
-
                   <div className="relative group">
-                    <button className="flex items-center gap-1 px-3 py-2 bg-gray-100 text-gray-600 rounded cursor-pointer hover:bg-gray-200 transition-colors">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                    <button className="flex items-center gap-1 px-3 py-2 bg-gray-700/50 text-gray-300 rounded cursor-pointer hover:bg-gray-600/50 border border-gray-600/50 transition-colors">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
+                        />
                       </svg>
                       {t.share}
                     </button>
 
-                    <div className="absolute top-full right-0 mt-2 bg-white border rounded-lg shadow-lg py-2 min-w-48 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    <div className="absolute top-full right-0 mt-2 glass-card border border-gray-600/50 rounded-lg shadow-lg py-2 min-w-48 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                       <button
                         onClick={shareOnTwitter}
-                        className="w-full px-4 py-2 text-left hover:bg-gray-50 cursor-pointer"
+                        className="w-full px-4 py-2 text-left hover:bg-gray-600/20 cursor-pointer text-gray-300 hover:text-white"
                       >
                         {t.shareOnTwitter}
                       </button>
                       <button
                         onClick={shareOnFacebook}
-                        className="w-full px-4 py-2 text-left hover:bg-gray-50 cursor-pointer"
+                        className="w-full px-4 py-2 text-left hover:bg-gray-600/20 cursor-pointer text-gray-300 hover:text-white"
                       >
                         {t.shareOnFacebook}
                       </button>
@@ -485,20 +289,30 @@ export default function VideoDetailPage({
               {/* Description */}
               {videoData.description && (
                 <div className="mb-6">
-                  <h3 className="font-medium text-gray-900 mb-2">{t.description}</h3>
-                  <p className="text-gray-600 leading-relaxed">{videoData.description}</p>
+                  <h3 className="font-medium text-white mb-2">{t.description}</h3>
+                  <p className="text-gray-300 leading-relaxed">{videoData.description}</p>
                 </div>
               )}
 
+              {/* Pure Video Player */}
+              <div className="mb-6">
+                <PureVideoPlayer
+                  videoUrl={videoData.videoUrl}
+                  thumbnailUrl={videoData.thumbnailUrl}
+                  title={videoData.title}
+                  className="aspect-video"
+                />
+              </div>
+
               {/* Tags */}
               <div className="flex flex-wrap gap-2">
-                <span className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+                <span className="bg-blue-600/80 text-blue-100 text-sm px-3 py-1 rounded-full backdrop-blur-sm">
                   {videoData.narrativeStyle}
                 </span>
-                <span className="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full">
+                <span className="bg-green-600/80 text-green-100 text-sm px-3 py-1 rounded-full backdrop-blur-sm">
                   {videoData.musicGenre}
                 </span>
-                <span className="bg-purple-100 text-purple-800 text-sm px-3 py-1 rounded-full">
+                <span className="bg-purple-600/80 text-purple-100 text-sm px-3 py-1 rounded-full backdrop-blur-sm">
                   {videoData.videoFormat}
                 </span>
               </div>
@@ -508,78 +322,86 @@ export default function VideoDetailPage({
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Product Info */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="font-bold text-gray-900 mb-4">{t.productInfo}</h3>
+            <div className="glass-card p-6 rounded-xl border border-gray-600/30">
+              <h3 className="font-bold text-white mb-4">{t.productInfo}</h3>
               <div className="space-y-3">
                 <div>
-                  <span className="text-sm font-medium text-gray-500">{t.productName}</span>
-                  <p className="text-gray-900">{videoData.productName}</p>
+                  <span className="text-sm font-medium text-gray-400">{t.productName}</span>
+                  <p className="text-gray-200">{videoData.productName}</p>
                 </div>
 
                 {videoData.productAnalysis?.category && (
                   <div>
-                    <span className="text-sm font-medium text-gray-500">{t.category}</span>
-                    <p className="text-gray-900">{videoData.productAnalysis.category}</p>
+                    <span className="text-sm font-medium text-gray-400">{t.category}</span>
+                    <p className="text-gray-200">{videoData.productAnalysis.category}</p>
                   </div>
                 )}
 
                 {videoData.productAnalysis?.targetAudience && (
                   <div>
-                    <span className="text-sm font-medium text-gray-500">{t.targetAudience}</span>
-                    <p className="text-gray-900">{videoData.productAnalysis.targetAudience}</p>
+                    <span className="text-sm font-medium text-gray-400">{t.targetAudience}</span>
+                    <p className="text-gray-200">{videoData.productAnalysis.targetAudience}</p>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Technical Specs */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="font-bold text-gray-900 mb-4">{t.technicalSpecs}</h3>
+            <div className="glass-card p-6 rounded-xl border border-gray-600/30">
+              <h3 className="font-bold text-white mb-4">{t.technicalSpecs}</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">{t.duration}</span>
-                  <span className="text-gray-900">{formatDuration(videoData.duration)}</span>
+                  <span className="text-gray-400">{t.duration}</span>
+                  <span className="text-gray-200">{formatDuration(videoData.duration)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">{t.aspectRatio}</span>
-                  <span className="text-gray-900">{videoData.productionSpecs?.aspectRatio || "16:9"}</span>
+                  <span className="text-gray-400">{t.aspectRatio}</span>
+                  <span className="text-gray-200">
+                    {videoData.productionSpecs?.aspectRatio || "16:9"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">{t.resolution}</span>
-                  <span className="text-gray-900">{videoData.productionSpecs?.resolution || "720p"}</span>
+                  <span className="text-gray-400">{t.resolution}</span>
+                  <span className="text-gray-200">
+                    {videoData.productionSpecs?.resolution || "720p"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">{t.frameRate}</span>
-                  <span className="text-gray-900">{videoData.productionSpecs?.frameRate || 24}fps</span>
+                  <span className="text-gray-400">{t.frameRate}</span>
+                  <span className="text-gray-200">
+                    {videoData.productionSpecs?.frameRate || 24}fps
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Creative Details */}
             {videoData.creativeDirection && (
-              <div className="bg-white rounded-lg p-6 shadow-sm">
-                <h3 className="font-bold text-gray-900 mb-4">{t.creativeDirection}</h3>
+              <div className="glass-card p-6 rounded-xl border border-gray-600/30">
+                <h3 className="font-bold text-white mb-4">{t.creativeDirection}</h3>
                 <div className="space-y-3">
                   <div>
-                    <span className="text-sm font-medium text-gray-500">{t.style}</span>
-                    <p className="text-gray-900">{videoData.creativeDirection.name}</p>
+                    <span className="text-sm font-medium text-gray-400">{t.style}</span>
+                    <p className="text-gray-200">{videoData.creativeDirection.name}</p>
                   </div>
 
                   {videoData.creativeDirection.description && (
                     <div>
-                      <span className="text-sm font-medium text-gray-500">{t.mood}</span>
-                      <p className="text-gray-900 text-sm">{videoData.creativeDirection.description}</p>
+                      <span className="text-sm font-medium text-gray-400">{t.mood}</span>
+                      <p className="text-gray-200 text-sm">
+                        {videoData.creativeDirection.description}
+                      </p>
                     </div>
                   )}
 
                   {videoData.creativeDirection.colorPalette?.length > 0 && (
                     <div>
-                      <span className="text-sm font-medium text-gray-500">{t.colorPalette}</span>
+                      <span className="text-sm font-medium text-gray-400">{t.colorPalette}</span>
                       <div className="flex gap-1 mt-1">
                         {videoData.creativeDirection.colorPalette.map((color, index) => (
                           <div
                             key={index}
-                            className="w-6 h-6 rounded border"
+                            className="w-6 h-6 rounded border border-gray-500/50"
                             style={{ backgroundColor: color }}
                             title={color}
                           />
@@ -592,9 +414,14 @@ export default function VideoDetailPage({
             )}
 
             {/* Report Button */}
-            <button className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded cursor-pointer hover:bg-gray-50 transition-colors">
+            <button className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-gray-300 border border-gray-600/50 rounded cursor-pointer hover:bg-gray-700/20 hover:text-white transition-colors">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"
+                />
               </svg>
               {t.reportVideo}
             </button>

@@ -53,6 +53,44 @@
       "createVideo": "Create Video"
     }
   },
+  "agentJourney": {
+    "title": "AI Agent Journey",
+    "subtitle": "Follow the creative process through our multi-agent system",
+    "collaboration": "AI Agent Collaboration",
+    "unknown": "Unknown",
+    "agents": {
+      "maya": {
+        "phase": "Product Analysis",
+        "description": "Analyzed product features, target audience, and key messaging"
+      },
+      "david": {
+        "phase": "Creative Direction",
+        "description": "Developed visual style, narrative approach, and creative direction"
+      },
+      "zara": {
+        "phase": "Video Production",
+        "description": "Produced final commercial video with specified technical requirements"
+      }
+    },
+    "fields": {
+      "category": "Category",
+      "targetAudience": "Target Audience",
+      "keyFeatures": "Key Features",
+      "keyMessages": "Key Messages",
+      "confidenceScore": "Confidence Score",
+      "creativeStyle": "Creative Style",
+      "creativeVision": "Creative Vision",
+      "narrativeStyle": "Narrative Style",
+      "musicGenre": "Music Genre",
+      "colorPalette": "Color Palette",
+      "visualKeywords": "Visual Keywords",
+      "videoFormat": "Format",
+      "resolution": "Resolution",
+      "aspectRatio": "Aspect Ratio",
+      "frameRate": "Frame Rate",
+      "duration": "Duration"
+    }
+  },
   "videoDetail": {
     "backToGallery": "Back to Gallery",
     "views": "views",

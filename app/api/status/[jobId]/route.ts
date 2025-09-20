@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { 
+import {
   JobStatusRequestSchema,
   createApiResponseSchema,
   ValidationUtils
@@ -10,6 +10,105 @@ import { VeoService } from '@/lib/services/veo';
 import { FirestoreService } from '@/lib/services/firestore';
 import { JobTracker } from '@/lib/utils/job-tracker';
 import RateLimiterService from '@/lib/monitor/rate-limiter';
+
+/**
+ * Collect rich metadata from agent sessions for video gallery/detail pages
+ */
+async function collectVideoMetadata(sessionId: string, jobId: string) {
+  const firestoreService = FirestoreService.getInstance();
+
+  try {
+    // Get main video session
+    const session = await firestoreService.getSession(sessionId);
+
+    // Get product intelligence session data
+    let productAnalysisData = null;
+    try {
+      const piSession = await firestoreService.getPISession(sessionId);
+      productAnalysisData = piSession?.productAnalysis;
+    } catch (error) {
+      console.warn(`Could not get PI session for ${sessionId}:`, error);
+    }
+
+    // Get creative director session data
+    let creativeDirectionData = null;
+    try {
+      const creativeSession = await firestoreService.getCreativeSession(sessionId);
+      creativeDirectionData = creativeSession?.creativeDirection;
+    } catch (error) {
+      console.warn(`Could not get creative session for ${sessionId}:`, error);
+    }
+
+    // Extract product name from multiple sources
+    const productName = productAnalysisData?.product?.name ||
+                       creativeDirectionData?.productName ||
+                       "Commercial Video";
+
+    // Create rich metadata object
+    const metadata = {
+      // Basic video info
+      productName,
+      title: `Commercial for ${productName}`,
+      description: productAnalysisData?.product?.description ||
+                   `A stunning commercial video for ${productName} created with AdCraft AI`,
+      duration: 8, // Default duration
+      quality: "720p",
+
+      // Product analysis from Maya
+      productAnalysis: productAnalysisData ? {
+        keyFeatures: productAnalysisData.product?.keyFeatures?.slice(0, 3) || [],
+        targetAudience: productAnalysisData.targetAudience?.description,
+        keyMessages: productAnalysisData.keyMessages?.supportingMessages?.slice(0, 2) || [],
+        confidenceScore: productAnalysisData.metadata?.confidenceScore
+      } : null,
+
+      // Creative direction from David
+      creativeDirection: creativeDirectionData ? {
+        narrativeStyle: creativeDirectionData.narrativeStyle,
+        visualStyle: creativeDirectionData.visualStyle,
+        colorPalette: creativeDirectionData.colorPalette?.slice(0, 3) || [],
+        musicGenre: creativeDirectionData.musicGenre,
+        pacing: creativeDirectionData.pacing
+      } : null,
+
+      // Production metadata (default values for now)
+      productionMetadata: {
+        narrativeStyle: creativeDirectionData?.narrativeStyle || "Cinematic",
+        musicGenre: creativeDirectionData?.musicGenre || "Orchestral",
+        videoFormat: "16:9 HD",
+        pacing: creativeDirectionData?.pacing || "Dynamic"
+      }
+    };
+
+    console.log(`[METADATA] Collected for ${jobId}:`, {
+      productName: metadata.productName,
+      hasProductAnalysis: !!metadata.productAnalysis,
+      hasCreativeDirection: !!metadata.creativeDirection
+    });
+
+    return metadata;
+
+  } catch (error) {
+    console.error(`[METADATA] Collection failed for session ${sessionId}:`, error);
+
+    // Return minimal metadata as fallback
+    return {
+      productName: "Commercial Video",
+      title: "Commercial Video",
+      description: "A commercial video created with AdCraft AI",
+      duration: 8,
+      quality: "720p",
+      productAnalysis: null,
+      creativeDirection: null,
+      productionMetadata: {
+        narrativeStyle: "Cinematic",
+        musicGenre: "Orchestral",
+        videoFormat: "16:9 HD",
+        pacing: "Dynamic"
+      }
+    };
+  }
+}
 
 const JobStatusResponseApiSchema = createApiResponseSchema(
   JobStatusRequestSchema.omit({ jobId: true }).extend({
@@ -126,24 +225,95 @@ export async function GET(
         progress = veoStatus.progress || progress;
         error = veoStatus.error || error;
         
-        // If job completed, get video URLs
+        // If job completed, handle permanent storage migration
         if (veoStatus.status === 'completed' && veoStatus.videoUrl) {
-          // Use the proxy URL directly (no signing needed)
-          videoUrl = veoStatus.videoUrl;
-          thumbnailUrl = veoStatus.thumbnailUrl;
-          console.log(`🎬 Video completed with URL: ${videoUrl}`);
+          console.log(`🎬 Video completed, handling permanent storage...`);
+
+          // Import app mode config
+          const { AppModeConfig } = await import('@/lib/config/app-mode');
+          const isDemoMode = AppModeConfig.getMode() === 'demo';
+
+          if (isDemoMode) {
+            // Demo mode: Create permanent-style URLs but don't actually store anything
+            videoUrl = `https://storage.googleapis.com/adcraft-videos/demo/videos/${sanitizedJobId}.mp4`;
+            thumbnailUrl = `https://storage.googleapis.com/adcraft-videos/demo/thumbnails/${sanitizedJobId}.jpg`;
+            console.log(`🎬 Demo mode: Using mock permanent URLs for ${sanitizedJobId}`);
+          } else {
+            // Production mode: Migrate to real Cloud Storage
+            try {
+              const { VideoStorageService } = await import('@/lib/services/video-storage');
+              const videoStorage = VideoStorageService.getInstance();
+
+              // Collect rich metadata from agent sessions
+              const metadata = await collectVideoMetadata(videoJob.sessionId, sanitizedJobId);
+
+              // Migrate video to permanent Cloud Storage
+              const migrationResult = await videoStorage.migrateFromGeminiApi(
+                veoStatus.videoUrl,
+                sanitizedJobId,
+                {
+                  productName: metadata.productName,
+                  duration: metadata.duration,
+                  quality: metadata.quality,
+                }
+              );
+
+              if (migrationResult.success) {
+                // Use permanent URLs instead of temporary proxy URLs
+                videoUrl = migrationResult.newVideoUrl;
+                thumbnailUrl = migrationResult.newThumbnailUrl;
+                console.log(`🎬 Video migrated to permanent storage: ${videoUrl}`);
+              } else {
+                console.error(`🎬 Video migration failed: ${migrationResult.error}`);
+                // Fallback to proxy URLs
+                videoUrl = veoStatus.videoUrl;
+                thumbnailUrl = veoStatus.thumbnailUrl;
+              }
+            } catch (error) {
+              console.error(`🎬 Video migration error:`, error);
+              // Fallback to proxy URLs
+              videoUrl = veoStatus.videoUrl;
+              thumbnailUrl = veoStatus.thumbnailUrl;
+            }
+          }
         }
 
         // Update job record in Firestore if status changed
         if (currentStatus !== videoJob.status) {
-          await firestoreService.updateVideoJob(sanitizedJobId, {
+          // Collect metadata for completed videos
+          const updateData: any = {
             status: currentStatus,
             progress: progress,
-            videoUrl: veoStatus.videoUrl, // Store proxy URL for frontend use
-            thumbnailUrl: veoStatus.thumbnailUrl,
+            videoUrl: videoUrl, // Use permanent URL if migration succeeded
+            thumbnailUrl: thumbnailUrl,
             error: error,
             updatedAt: new Date(),
-          });
+          };
+
+          // Add rich metadata for completed videos
+          if (currentStatus === 'completed' && videoJob.sessionId) {
+            try {
+              const richMetadata = await collectVideoMetadata(videoJob.sessionId, sanitizedJobId);
+              updateData.productName = richMetadata.productName;
+              updateData.title = richMetadata.title;
+              updateData.description = richMetadata.description;
+              updateData.duration = richMetadata.duration;
+              updateData.quality = richMetadata.quality;
+              updateData.completedAt = new Date();
+              updateData.productAnalysis = richMetadata.productAnalysis;
+              updateData.creativeDirection = richMetadata.creativeDirection;
+              updateData.productionMetadata = richMetadata.productionMetadata;
+
+              console.log(`🎬 Added rich metadata for video: ${sanitizedJobId}`, {
+                productName: updateData.productName,
+                videoUrl: videoUrl
+              });
+            } catch (metadataError) {
+              console.warn(`🎬 Failed to collect metadata for ${sanitizedJobId}:`, metadataError);
+            }
+          }
+
+          await firestoreService.updateVideoJob(sanitizedJobId, updateData);
 
           // Update session status if job completed
           if (currentStatus === 'completed' && videoJob.sessionId) {

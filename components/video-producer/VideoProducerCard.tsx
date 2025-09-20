@@ -8,7 +8,7 @@ import { useProductIntelligenceStore } from "@/lib/stores/product-intelligence-s
 import { VideoProducerWorkflowStep, VideoFormat } from "@/lib/stores/video-producer-store";
 import AgentAvatar from "@/components/ui/AgentAvatar";
 import { Toast } from "@/components/ui/Toast";
-import VideoPlayer from "@/components/video/VideoPlayer";
+import PureVideoPlayer from "@/components/video/PureVideoPlayer";
 import ProductionProgress from "@/components/video/ProductionProgress";
 import CreativeJourneyModal from "@/components/video/CreativeJourneyModal";
 import type { Dictionary, Locale } from "@/lib/dictionaries";
@@ -368,7 +368,8 @@ export default function VideoProducerCard({
       return (
         <div className="space-y-6">
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+            <div className="animate-
+             rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
             <p className="text-gray-400 text-lg">{dict.video.loading.musicGenres}</p>
             <p className="text-gray-500 text-sm mt-2">{dict.video.loading.musicGenresDescription}</p>
           </div>
@@ -627,63 +628,224 @@ export default function VideoProducerCard({
     );
   };
 
+  // Handle copy link functionality
+  const handleCopyLink = useCallback(async () => {
+    try {
+      let linkToCopy;
+
+      if (currentJobId) {
+        // Real mode: Copy video detail page URL
+        linkToCopy = `${window.location.origin}/${locale}/video/${currentJobId}`;
+      } else {
+        // Demo mode: Copy dummy video URL or current video URL
+        linkToCopy = finalVideoUrl;
+      }
+
+      if (linkToCopy) {
+        await navigator.clipboard.writeText(linkToCopy);
+      }
+      showToast(t.production?.linkCopied || "Link copied successfully!", "success");
+    } catch (error) {
+      console.error('Failed to copy link:', error);
+      showToast(t.production?.copyFailed || "Failed to copy link", "error");
+    }
+  }, [locale, currentJobId, finalVideoUrl, showToast, t]);
+
+  // Handle download functionality
+  const handleDownload = useCallback(async () => {
+    try {
+      if (!finalVideoUrl) return;
+
+      const link = document.createElement("a");
+      link.href = finalVideoUrl;
+      link.download = `commercial-video-${currentJobId || Date.now()}.mp4`;
+      link.target = "_blank";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Download failed:", error);
+    }
+  }, [finalVideoUrl, currentJobId]);
+
+  // Handle view gallery
+  const handleViewGallery = useCallback(() => {
+    window.open(`/${locale}/gallery`, '_blank');
+  }, [locale]);
+
+  // Handle start over
+  const handleStartOver = useCallback(() => {
+    const confirmMessage = t.production?.confirmStartOver ||
+      "Start over with a new product image? This will clear your current session and take you back to the home page.";
+
+    if (window.confirm(confirmMessage)) {
+      // Reset all Zustand stores to clear everything
+      resetVideoProducerStore();
+      resetCreativeDirectorStore();
+      resetProductIntelligenceStore();
+
+      // Show success message briefly before redirect
+      showToast(t.production?.startOverSuccess || "Starting fresh! Redirecting to home page...", "success");
+
+      // Redirect to home page after short delay
+      setTimeout(() => {
+        window.location.href = `/${locale}`;
+      }, 1500);
+    }
+  }, [resetVideoProducerStore, resetCreativeDirectorStore, resetProductIntelligenceStore, showToast, t, locale]);
+
   // Render final production step
   const renderFinalProduction = () => {
     if (finalVideoUrl) {
       return (
-        <div className="text-center space-y-6">
-          <VideoPlayer
-            videoUrl={finalVideoUrl}
-            title={`${selectedNarrativeStyle?.name || 'Commercial'} Video`}
-            jobId={currentJobId || undefined}
-            locale={locale}
-            dict={dict}
-            specifications={{
-              format: `${selectedVideoFormat?.aspectRatio || "16:9"} • ${selectedVideoFormat?.resolution || "1080p"}`,
-              duration: `8 ${t.production.seconds}`,
-              narrative: selectedNarrativeStyle?.name,
-              music: selectedMusicGenre?.name,
-            }}
-            actions={{
-              showViewGallery: true,
-              showDownload: true,
-              showCopyLink: true,
-              showStartOver: true,
-              customActions: [{
-                label: t.production.creativeJourney,
-                icon: (
+        <div className="bg-green-900/20 border border-green-500/50 rounded-xl p-8">
+          <div className="text-center space-y-6">
+            {/* Success Header */}
+            <div className="text-6xl mb-4">🎬</div>
+            <h3 className="text-2xl font-bold text-green-300 mb-4">
+              {t.production?.complete || "Video Complete!"}
+            </h3>
+            <p className="text-gray-300 mb-6">
+              {t.production?.ready || "Your commercial video is ready!"}
+            </p>
+
+            {/* Pure Video Player */}
+            <div className="mb-6">
+              <PureVideoPlayer
+                videoUrl={finalVideoUrl}
+                title={`${selectedNarrativeStyle?.name || 'Commercial'} Video`}
+                className="mx-auto max-w-2xl"
+              />
+            </div>
+
+            {/* Action Buttons - Clean 2x2 + 1 layout */}
+            <div className="space-y-4">
+              {/* Main Actions Grid - 2x2 layout */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
+                {currentJobId && (
+                  <button
+                    onClick={() => window.open(`/${locale}/video/${currentJobId}`, '_blank')}
+                    className="magical-button cursor-pointer bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-4 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
+                    </svg>
+                    {t.production?.viewVideo || "View Video"}
+                  </button>
+                )}
+
+                <button
+                  onClick={handleViewGallery}
+                  className="cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                    />
+                  </svg>
+                  {t.production?.viewGallery || "View Gallery"}
+                </button>
+
+                <button
+                  onClick={handleDownload}
+                  className="cursor-pointer bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  {t.production?.download || "Download"}
+                </button>
+
+                <button
+                  onClick={handleCopyLink}
+                  className="cursor-pointer border border-green-500 text-green-400 hover:bg-green-500/10 px-4 py-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                    />
+                  </svg>
+                  {t.production?.copyLink || "Copy Link"}
+                </button>
+
+                {/* Creative Journey Button */}
+                <button
+                  onClick={() => setShowCreativeJourneyModal(true)}
+                  className="cursor-pointer bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2 shadow-purple-500/25 hover:shadow-purple-500/40 border border-purple-400/30 hover:border-purple-300/50"
+                >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                   </svg>
-                ),
-                onClick: () => {
-                  setShowCreativeJourneyModal(true);
-                },
-                variant: "special" as const
-              }]
-            }}
-            onCopySuccess={(message) => showToast(message, "success")}
-            onCopyError={(message) => showToast(message, "error")}
-            onStartOver={() => {
-              const confirmMessage = t.production?.confirmStartOver ||
-                "Start over with a new product image? This will clear your current session and take you back to the home page.";
+                  {t.production.creativeJourney}
+                </button>
+              </div>
 
-              if (window.confirm(confirmMessage)) {
-                // Reset all Zustand stores to clear everything
-                resetVideoProducerStore();
-                resetCreativeDirectorStore();
-                resetProductIntelligenceStore();
+              {/* Start Over Button - Centered below the grid */}
+              <div className="flex justify-center">
+                <button
+                  onClick={handleStartOver}
+                  className="cursor-pointer bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 border-2 border-gray-500/50"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                  {t.production?.startOver || "Start Over"}
+                </button>
+              </div>
 
-                // Show success message briefly before redirect
-                showToast(t.production?.startOverSuccess || "Starting fresh! Redirecting to home page...", "success");
-
-                // Redirect to home page after short delay
-                setTimeout(() => {
-                  window.location.href = `/${locale}`;
-                }, 1500);
-              }
-            }}
-          />
+              {/* Video Specifications */}
+              <div className="bg-gray-800/50 rounded-lg p-4 text-left">
+                <h4 className="font-semibold text-white mb-2">
+                  {t.production?.specifications || "Video Specifications"}
+                </h4>
+                <div className="grid grid-cols-2 gap-4 text-sm text-gray-300">
+                  <div>
+                    <span className="text-green-300">{t.production?.format || "Format"}</span>{" "}
+                    {`${selectedVideoFormat?.aspectRatio || "16:9"} • ${selectedVideoFormat?.resolution || "1080p"}`}
+                  </div>
+                  <div>
+                    <span className="text-green-300">{t.production?.duration || "Duration"}</span>{" "}
+                    {`8 ${t.production.seconds}`}
+                  </div>
+                  <div>
+                    <span className="text-green-300">{t.production?.narrative || "Narrative"}</span>{" "}
+                    {selectedNarrativeStyle?.name}
+                  </div>
+                  <div>
+                    <span className="text-green-300">{t.production?.music || "Music"}</span>{" "}
+                    {selectedMusicGenre?.name}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       );
     }

@@ -16,6 +16,24 @@ interface VideoItem {
   productName: string;
   narrativeStyle: string;
   musicGenre: string;
+
+  // Optional rich metadata fields
+  description?: string;
+  quality?: string;
+  productAnalysis?: {
+    keyFeatures?: string[];
+    targetAudience?: string;
+    keyMessages?: string[];
+    confidenceScore?: number;
+  };
+  creativeDirection?: {
+    visualStyle?: string;
+    colorPalette?: string[];
+    pacing?: string;
+  };
+  productionMetadata?: {
+    videoFormat?: string;
+  };
 }
 
 interface VideoGalleryProps {
@@ -73,9 +91,16 @@ export default function VideoGallery({ dict, locale }: VideoGalleryProps) {
           console.log(`[VIDEO GALLERY] Video ${index + 1} (${video.id}):`, {
             hasVideoUrl: !!video.videoUrl,
             hasTitle: !!video.title,
+            productName: video.productName,
+            narrativeStyle: video.narrativeStyle,
+            musicGenre: video.musicGenre,
+            hasDescription: !!video.description,
+            hasProductAnalysis: !!video.productAnalysis,
+            hasCreativeDirection: !!video.creativeDirection,
             createdAtRaw: video.createdAt,
             createdAtParsed: createdAtDate,
-            dateIsValid: isValidDate
+            dateIsValid: isValidDate,
+            allFields: Object.keys(video)
           });
 
           return {

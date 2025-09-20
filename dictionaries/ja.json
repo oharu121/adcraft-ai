@@ -1366,6 +1366,60 @@
       "platforms": "プラットフォーム："
     }
   },
+  "agentJourney": {
+    "title": "AIエージェントジャーニー",
+    "subtitle": "マルチエージェントシステムによるクリエイティブプロセスをご覧ください",
+    "collaboration": "AIエージェント協力",
+    "agents": {
+      "maya": {
+        "phase": "商品分析",
+        "description": "商品特徴、ターゲット層、市場ポジションを分析"
+      },
+      "david": {
+        "phase": "クリエイティブディレクション",
+        "description": "戦略をビジュアルディレクション、カラーパレット、制作アセットに変換"
+      },
+      "zara": {
+        "phase": "動画制作",
+        "description": "クリエイティブビジョンを最終的なプロフェッショナル動画に制作"
+      }
+    },
+    "fields": {
+      "category": "カテゴリー",
+      "targetAudience": "ターゲット層",
+      "targetAge": "対象年齢",
+      "targetGender": "対象性別",
+      "keyFeatures": "主要機能",
+      "brandPersonality": "ブランドパーソナリティ",
+      "valueProposition": "価値提案",
+      "keyMessages": "キーメッセージ",
+      "headline": "ヘッドライン",
+      "tagline": "タグライン",
+      "emotionalTriggers": "感情的トリガー",
+      "callToAction": "コール・トゥ・アクション",
+      "visualStyle": "ビジュアルスタイル",
+      "overallStyle": "全体的なスタイル",
+      "mood": "ムード",
+      "lighting": "ライティング",
+      "environment": "環境",
+      "colorPalette": "カラーパレット",
+      "primaryColor": "プライマリーカラー",
+      "secondaryColor": "セカンダリーカラー",
+      "accentColor": "アクセントカラー",
+      "productionStyle": "制作スタイル",
+      "creativeDirection": "クリエイティブディレクション",
+      "narrativeStyle": "ナラティブスタイル",
+      "musicGenre": "音楽ジャンル",
+      "videoFormat": "動画フォーマット",
+      "duration": "再生時間",
+      "aspectRatio": "アスペクト比",
+      "resolution": "解像度",
+      "confidenceScore": "信頼度スコア",
+      "creativeStyle": "クリエイティブスタイル",
+      "creativeVision": "クリエイティブビジョン",
+      "visualKeywords": "ビジュアルキーワード"
+    }
+  },
   "chat": {
     "typeMessage": "メッセージを入力...",
     "send": "送信",

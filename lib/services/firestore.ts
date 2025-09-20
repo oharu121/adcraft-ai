@@ -42,6 +42,39 @@ export interface VideoJob {
   actualCost?: number;
   createdAt: Date;
   updatedAt: Date;
+
+  // Rich metadata for completed videos (gallery/detail pages)
+  productName?: string;
+  title?: string;
+  description?: string;
+  duration?: number;
+  quality?: string;
+  completedAt?: Date;
+
+  // Agent journey data
+  productAnalysis?: {
+    keyFeatures?: string[];
+    targetAudience?: string;
+    keyMessages?: string[];
+    confidenceScore?: number;
+  };
+
+  creativeDirection?: {
+    narrativeStyle?: string;
+    visualStyle?: string;
+    colorPalette?: string[];
+    musicGenre?: string;
+    pacing?: string;
+  };
+
+  productionMetadata?: {
+    narrativeStyle?: string;
+    musicGenre?: string;
+    videoFormat?: string;
+    pacing?: string;
+  };
+
+  // All completed videos are permanent - no need for a flag
 }
 
 export interface CostEntry {
@@ -632,7 +665,15 @@ export class FirestoreService {
 
         FirestoreService.mockSessions.forEach((session, sessionId) => {
           if (session.expiresAt <= now) {
-            expiredSessionIds.push(sessionId);
+            // Check if this session has completed videos
+            const hasCompletedVideos = Array.from(FirestoreService.mockJobs.values())
+              .some(job => job.sessionId === sessionId && job.status === 'completed');
+
+            if (hasCompletedVideos) {
+              console.log(`[MOCK CLEANUP] Preserving expired session ${sessionId} - has completed videos`);
+            } else {
+              expiredSessionIds.push(sessionId);
+            }
           }
         });
 
@@ -654,14 +695,43 @@ export class FirestoreService {
         .get();
 
       const batch = this.db.batch();
-      snapshot.docs.forEach((doc) => {
-        batch.delete(doc.ref);
-      });
+      let deletedCount = 0;
+
+      // Check each expired session to see if it has completed videos
+      for (const doc of snapshot.docs) {
+        const sessionData = doc.data();
+        const sessionId = doc.id;
+
+        // Check if this session has any completed video jobs
+        let hasCompletedVideos = false;
+        try {
+          if (this.jobsCollection) {
+            const jobsSnapshot = await this.jobsCollection
+              .where("sessionId", "==", sessionId)
+              .where("status", "==", "completed")
+              .limit(1)
+              .get();
+
+            hasCompletedVideos = !jobsSnapshot.empty;
+          }
+        } catch (error) {
+          console.warn(`Failed to check for completed videos in session ${sessionId}:`, error);
+        }
+
+        if (hasCompletedVideos) {
+          console.log(`[CLEANUP] Preserving expired session ${sessionId} - has completed videos`);
+          // Don't delete sessions with completed videos - they're part of the gallery
+        } else {
+          console.log(`[CLEANUP] Deleting expired session ${sessionId} - no completed videos`);
+          batch.delete(doc.ref);
+          deletedCount++;
+        }
+      }
 
       await batch.commit();
 
-      console.log(`Cleaned up ${snapshot.docs.length} expired sessions`);
-      return snapshot.docs.length;
+      console.log(`Cleaned up ${deletedCount} expired sessions (preserved ${snapshot.docs.length - deletedCount} with completed videos)`);
+      return deletedCount;
     } catch (error) {
       console.error("Failed to cleanup expired sessions:", error);
       return 0;

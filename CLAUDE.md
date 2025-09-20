@@ -202,6 +202,36 @@ const Component = ({ dict }: { dict: Dictionary }) => {
 4. **Organize by feature**: `dict.productIntelligence.imageUpload.title`
 5. **Dynamic text** (like file sizes) handled in component, labels in dictionary
 
+#### Professional Dictionary Usage (CRITICAL)
+
+**⚠️ NEVER use optional chaining (?) when accessing dictionary keys - ALWAYS check dictionary structure first**
+
+#### ✅ ALWAYS Follow: Check Dictionary First, Then Use Direct Access
+```typescript
+// ❌ BAD: Optional chaining and fallbacks (unprofessional)
+const t = dict.agentJourney || dict.common;
+const title = t.agents?.maya?.phase || "Product Analysis";
+const description = t.fields?.category || "Category";
+
+// ✅ GOOD: Check dictionary structure first, then use direct access
+const t = dict.agentJourney;  // Result is certain - dictionary structure exists
+const title = t.agents.maya.phase;  // Direct access - no optional chaining
+const description = t.fields.category;  // Direct access - no fallbacks
+```
+
+#### Dictionary Development Workflow:
+1. **First: Check existing dictionary structure** - Use Read tool to examine `dictionaries/en.json`
+2. **Add missing sections** - Create proper nested structure in both `en.json` and `ja.json`
+3. **Use direct access** - Access keys with certainty: `t.section.subsection.key`
+4. **No fallbacks needed** - Dictionary structure guarantees key existence
+5. **Professional pattern** - `const t = dict.sectionName;` then `t.key` (not `t?.key`)
+
+#### Dictionary Structure Rules:
+- **Nested organization**: `agentJourney.agents.maya.phase`
+- **Consistent structure**: Both EN and JA files must have identical key structure
+- **Atomic keys**: Each key serves a single, specific purpose
+- **Professional access**: `t.fields.targetAudience` not `t.fields?.targetAudience || "fallback"`
+
 #### Interactive Component Styling (CRITICAL)
 
 **⚠️ ALL interactive elements MUST have cursor-pointer for better UX**
@@ -655,6 +685,7 @@ lib/agents/feature/
 - **"State persistence"** → Zustand required for chat inputs
 - **"Ref issues"** or **"Focus not working"** → Check for duplicate refs, apply parent-owns-ref pattern
 - **"Localization"** or **"Text in component"** → Move to dictionaries, use `const t = dict.section` pattern
+- **"Dictionary access"** or **"i18n error"** → NEVER use optional chaining (?), check dictionary structure first, use direct access
 - **"Scrolling"** or **"Header blocking view"** → Use getElementById approach, never refs for page scrolling
 - **"Function optimization"** → Always wrap functions in useCallback to prevent re-renders
 - **"API route errors"** or **".next/types/validator.ts errors"** → Use Next.js 15 async params pattern with await
@@ -678,6 +709,7 @@ lib/agents/feature/
 - Parent component should own refs when it needs to control child DOM elements
 - **ALWAYS use dictionaries for text** - never hardcode localized strings in components
 - **Keep `const t = dict.section` pattern** - it's clean and readable
+- **NEVER use optional chaining (?) with dictionaries** - check structure first, then use direct access for professional code
 - **getElementById beats refs for scrolling** - browser handles headers intelligently
 - **useCallback for all functions** - prevents unnecessary re-renders and improves performance
 - **Demo mode bypasses** are common bugs - ensure demo handlers use the same core logic as real mode

@@ -832,3 +832,176 @@ My honest recommendation: Let's create a new VideoPlayer.tsx component that's:
    management✅ Infrastructure monitoring of Google Cloud services✅ Performance benchmarks with actual metrics✅    
    Professional UI with magical cards and glass effects✅ Comprehensive coverage without overwhelming
   complexity✅ Mobile responsive grid layout
+
+
+  await firestoreService.updateVideoJob(sanitizedJobId, {
+    status: currentStatus,
+    progress: progress,
+    videoUrl: veoStatus.videoUrl,
+    thumbnailUrl: veoStatus.thumbnailUrl,
+    error: error,
+    updatedAt: new Date(),
+  });
+
+
+  1. Firestore Schema ✅ SATISFIES requirements
+  - Schema is extensible and can handle all needed fields
+  - The getRealCompletedVideos() method already tries to extract metadata but finds none
+
+  2. Video Registration ❌ COMPLETELY INADEQUATE
+  // This is ALL we save when video completes:
+  await firestoreService.updateVideoJob(jobId, {
+    status: 'completed',
+    videoUrl: veoStatus.videoUrl,
+    thumbnailUrl: veoStatus.thumbnailUrl,
+    // ❌ NO product metadata
+    // ❌ NO agent journey data
+    // ❌ NO title, description
+  });
+
+  3. Auto-Deletion ⚠️ WILL DELETE EVERYTHING
+  - 12-hour expiration on ALL sessions/jobs
+  - Gallery videos will disappear after 12 hours
+  - cleanupExpiredSessions() actively deletes content
+
+  4. Missing Journey Context
+  - Video completion happens isolated from Maya/David/Zara context
+  - No connection between video jobs and agent session data
+
+  5. Gallery/Detail Pages ❌ CAN'T WORK
+  - Expect metadata that doesn't exist
+  - Hardcoded fallbacks everywhere
+  - Using wrong VideoPlayer component
+
+  🎯 WHAT NEEDS TO BE FIXED
+
+  CRITICAL Priority:
+
+  1. Rich Metadata Collection Pipeline
+    - Modify video completion to gather Maya/David/Zara data
+    - Save complete journey context with video
+  2. Disable Auto-Deletion for Completed Videos
+    - Keep sessions at 12-hour expiration
+    - Gallery videos should persist (30+ days)
+  3. Video Title Strategy
+    - Use productName as video title (your suggestion is perfect)
+  4. Journey Data Structure
+    - Bullet points from each agent's key insights
+    - Store in video job record for gallery display
+
+  Medium Priority:
+
+  5. UI Integration
+    - Use consistent VideoPlayer component
+    - Fix gallery card data binding
+    - Implement proper share functionality
+
+  💡 RECOMMENDED SOLUTION APPROACH
+
+  Phase 1: Metadata Pipeline (CRITICAL)
+  - Enhance video completion flow to collect rich context
+  - Design optimal video metadata schema
+  - Implement video persistence policy
+
+  Phase 2: UI Integration
+  - Fix gallery/detail page data binding
+  - Integrate proper VideoPlayer component
+  - Add journey timeline component
+
+  Your instincts are spot-on - the current system saves videos but throws away all the valuable context that makes them       
+  meaningful. This explains why the gallery shows generic placeholder data.
+
+  Answer to your specific questions:
+  1. ✅ Schema satisfies requirements
+  2. ❌ Registration is completely inadequate
+  3. ⚠️ Auto-deletion will kill everything
+  4. ✅ Use productName as title
+  5. ✅ Bullet points from agent stores needed
+
+ CRITICAL INFRASTRUCTURE ISSUE CONFIRMED
+
+  Your concern is absolutely valid and urgent! Here's my honest assessment:
+
+  💥 The Current System is Fundamentally Broken
+
+  What we're saving:
+  videoUrl: "/api/video/proxy/abc123"     // Proxy to Gemini API file
+  thumbnailUrl: undefined                  // Usually empty
+
+  Critical Problems:
+
+  1. videoUrl vs thumbnailUrl Difference
+
+  - videoUrl: Proxy URL to actual video file (/api/video/proxy/{fileId})
+  - thumbnailUrl: Supposed to be video preview image (usually missing/undefined)
+  - Thumbnail generation: Not implemented - relies on fallback thumbnailUrl || videoUrl
+
+  2. URL Expiration Disaster 🔥
+
+  YES, URLs will expire and break everything:
+
+  - Gemini API files expire after 48 hours
+  - Our proxy URLs become dead links after 48 hours
+  - Gallery videos become unplayable after 2 days
+  - No backup storage strategy
+
+  3. Current Flow is Completely Unsustainable
+
+  Video Generated → Saved to Gemini temp storage (48hr TTL)
+       ↓
+  Proxy URL saved to Firestore → Works for 48 hours
+       ↓
+  Gallery displays proxy URLs → BROKEN after 48 hours
+
+  🎯 RECOMMENDED SOLUTION
+
+  Option 1: Cloud Storage Migration (RECOMMENDED)
+  // When video completes:
+  1. Download from Gemini API (/api/video/proxy/{fileId})
+  2. Upload to Google Cloud Storage bucket
+  3. Generate signed URL (or public URL)
+  4. Save permanent Cloud Storage URL to Firestore
+  5. Delete Gemini temp file (optional)
+
+  Option 2: Hybrid Approach
+  - Keep proxy URLs for immediate playback
+  - Background job migrates to Cloud Storage within 24 hours
+  - Update Firestore URLs after migration
+
+  🛠️ Implementation Strategy
+
+  Phase 1: Fix URL Expiration (URGENT)
+  1. Create Cloud Storage upload service
+  2. Modify video completion flow to migrate files
+  3. Update Firestore with permanent URLs
+
+  Phase 2: Thumbnail Generation
+  1. Extract video frame at 2-second mark
+  2. Generate thumbnail image
+  3. Upload thumbnail to Cloud Storage
+  4. Save thumbnail URL separately
+
+  Phase 3: Gallery Data Enhancement
+  1. Add rich metadata collection
+  2. Implement proper video title/description
+
+  🚨 IMMEDIATE RISKS
+
+  - All gallery videos older than 48 hours are broken
+  - User disappointment when videos become unplayable
+  - Demo presentation failure if videos expire
+
+  Timeline:
+  - Videos generated today will break by Monday
+  - Gallery becomes useless after 2 days
+  - Production launch impossible with current system
+
+  💡 Quick Fix for Demo
+
+  If you need immediate functionality:
+  1. Use Cloud Storage signed URLs (7-day expiration)
+  2. Implement video migration background job
+  3. Update gallery to use permanent URLs
+
+  Your instinct is 100% correct - we're storing temporary URLs that will break. The system needs proper persistent storage    
+   immediately.
