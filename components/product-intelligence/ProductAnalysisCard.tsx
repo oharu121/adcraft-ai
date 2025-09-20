@@ -166,8 +166,8 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
                 {dict.productAnalysis?.productSummary || "Product Overview"}
               </h4>
               <p className="text-gray-300 text-sm leading-relaxed">
-                {productDescription ||
-                  analysis.product?.description ||
+                {analysis.product?.description ||
+                  productDescription ||
                   `${productName || "This product"} is developed with a focus on quality and functionality. It provides innovative solutions that meet customer needs.`}
               </p>
             </div>

@@ -193,6 +193,51 @@ export class CostTracker {
   }
 
   /**
+   * Get real budget status for monitoring (ignores app mode)
+   */
+  public async getRealBudgetStatus(): Promise<BudgetStatus> {
+    try {
+      const currentSpend = await this.firestore.getRealTotalCosts();
+      const remainingBudget = this.totalBudget - currentSpend;
+      const percentageUsed = (currentSpend / this.totalBudget) * 100;
+
+      let alertLevel: BudgetStatus["alertLevel"] = "safe";
+      let canProceed = true;
+
+      if (currentSpend >= this.totalBudget) {
+        alertLevel = "exceeded";
+        canProceed = false;
+      } else if (currentSpend / this.totalBudget >= this.alertThresholds.danger) {
+        alertLevel = "danger";
+        canProceed = false; // Stop new operations at 90%
+      } else if (currentSpend / this.totalBudget >= this.alertThresholds.warning) {
+        alertLevel = "warning";
+      }
+
+      console.log(`[MONITORING] Real budget status: $${currentSpend.toFixed(2)} / $${this.totalBudget.toFixed(2)} (${percentageUsed.toFixed(1)}%)`);
+
+      return {
+        totalBudget: this.totalBudget,
+        currentSpend,
+        remainingBudget,
+        percentageUsed,
+        alertLevel,
+        canProceed,
+      };
+    } catch (error) {
+      console.error("[MONITORING] Failed to get real budget status:", error);
+      return {
+        totalBudget: this.totalBudget,
+        currentSpend: 0,
+        remainingBudget: this.totalBudget,
+        percentageUsed: 0,
+        alertLevel: "safe",
+        canProceed: true,
+      };
+    }
+  }
+
+  /**
    * Get cost breakdown by service
    */
   public async getCostBreakdown(startDate?: Date, endDate?: Date): Promise<CostBreakdown> {

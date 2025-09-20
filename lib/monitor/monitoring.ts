@@ -467,7 +467,7 @@ export class MonitoringService {
 
     try {
       const memUsage = process.memoryUsage();
-      const budgetStatus = await this.costTracker.getBudgetStatus();
+      const budgetStatus = await this.costTracker.getRealBudgetStatus();
 
       // Check memory usage
       if (memUsage.heapUsed > this.config.criticalThresholds.memoryUsage) {
@@ -558,7 +558,7 @@ export class MonitoringService {
       const timestamp = new Date();
       const memUsage = process.memoryUsage();
       const systemMetrics = this.metrics.getSystemMetrics("1h");
-      const budgetStatus = await this.costTracker.getBudgetStatus();
+      const budgetStatus = await this.costTracker.getRealBudgetStatus();
       const performanceSummary = this.metrics.getPerformanceSummary("1h");
 
       // Update trends
@@ -627,7 +627,7 @@ export class MonitoringService {
         this.lastHealthCheck || this.performHealthCheck(),
         Promise.resolve(this.metrics.getPerformanceSummary("24h")),
         Promise.resolve(this.logger.getMetrics()),
-        this.costTracker.getBudgetStatus(),
+        this.costTracker.getRealBudgetStatus(),
         Promise.resolve(this.securityMonitor.getMetrics()),
         Promise.resolve(this.securityMonitor.getRecentEvents(20)),
         Promise.resolve(this.securityMonitor.getActiveAlerts()),

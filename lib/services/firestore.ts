@@ -556,6 +556,39 @@ export class FirestoreService {
   }
 
   /**
+   * Get real total costs for monitoring (ignores app mode)
+   */
+  public async getRealTotalCosts(startDate?: Date, endDate?: Date): Promise<number> {
+    try {
+      if (!this.costsCollection) {
+        throw new Error("Firestore not initialized");
+      }
+
+      let query = this.costsCollection as any;
+
+      if (startDate) {
+        query = query.where("timestamp", ">=", startDate);
+      }
+      if (endDate) {
+        query = query.where("timestamp", "<=", endDate);
+      }
+
+      const snapshot: QuerySnapshot<DocumentData> = await query.get();
+
+      const total = snapshot.docs.reduce((total, doc) => {
+        const data = doc.data();
+        return total + (data.amount || 0);
+      }, 0);
+
+      console.log(`[MONITORING] Real total costs: $${total.toFixed(2)}`);
+      return total;
+    } catch (error) {
+      console.error("[MONITORING] Failed to get real total costs:", error);
+      return 0;
+    }
+  }
+
+  /**
    * Get cost breakdown by service
    */
   public async getCostBreakdown(startDate?: Date, endDate?: Date): Promise<Record<string, number>> {
@@ -640,20 +673,17 @@ export class FirestoreService {
    */
   public async healthCheck(): Promise<boolean> {
     try {
-      if (AppModeConfig.getMode() === "demo") {
-        console.log("[MOCK MODE] Health check passed");
-        return true;
-      }
-
+      // ALWAYS use real health check for monitoring - regardless of app mode
       if (!this.sessionsCollection) {
         throw new Error("Firestore not initialized");
       }
 
       // Try to read from a collection to test connectivity
       const snapshot = await this.sessionsCollection.limit(1).get();
+      console.log("[MONITORING] Firestore health check passed");
       return true;
     } catch (error) {
-      console.error("Firestore health check failed:", error);
+      console.error("[MONITORING] Firestore health check failed:", error);
       return false;
     }
   }
@@ -1229,6 +1259,242 @@ export class FirestoreService {
   }
 
   /**
+   * Get completed video jobs for gallery with pagination and sorting (ALWAYS REAL DATA)
+   * Gallery should always show real videos regardless of app mode
+   * Automatically filters out broken URLs and optionally cleans them up
+   */
+  public async getRealCompletedVideos(options: {
+    page?: number;
+    limit?: number;
+    sortBy?: "recent" | "popular" | "views";
+    autoCleanup?: boolean;
+  } = {}): Promise<{
+    videos: any[];
+    totalCount: number;
+    hasMore: boolean;
+  }> {
+    console.log("[FIRESTORE] getRealCompletedVideos called with options:", options);
+
+    try {
+      const { page = 1, limit = 12, sortBy = "recent" } = options;
+      const offset = (page - 1) * limit;
+
+      console.log("[FIRESTORE] Processed parameters:", { page, limit, sortBy, offset });
+
+      // ALWAYS use real data for gallery - gallery should show actual generated videos
+      if (!this.jobsCollection) {
+        console.error("[FIRESTORE] ERROR: Firestore not initialized");
+        throw new Error("Firestore not initialized");
+      }
+
+      console.log("[FIRESTORE] Firestore jobs collection available");
+
+      // Build query for completed videos - simplified to avoid index requirements
+      let query = this.jobsCollection.where("status", "==", "completed");
+      console.log("[FIRESTORE] Base query created: status == 'completed'");
+
+      // Apply sorting - use different fields based on sortBy to avoid complex indexes
+      if (sortBy === "views" || sortBy === "popular") {
+        query = query.orderBy("viewCount", "desc");
+        console.log("[FIRESTORE] Applied sorting: viewCount desc");
+      } else {
+        query = query.orderBy("createdAt", "desc");
+        console.log("[FIRESTORE] Applied sorting: createdAt desc");
+      }
+
+      // Get more results than needed to account for filtering
+      const queryLimit = limit * 2;
+      console.log("[FIRESTORE] Executing query with limit:", queryLimit);
+      const snapshot = await query.limit(queryLimit).get();
+      console.log("[FIRESTORE] Query executed, docs returned:", snapshot.docs.length);
+
+      // Filter out videos without videoUrl and apply pagination in memory
+      console.log("[FIRESTORE] Starting document processing...");
+      const allVideos = snapshot.docs
+        .map((doc, index) => {
+          const data = doc.data();
+          console.log(`[FIRESTORE] Processing doc ${index + 1}/${snapshot.docs.length} (${doc.id}):`, {
+            status: data.status,
+            hasVideoUrl: !!data.videoUrl,
+            hasTitle: !!data.title,
+            // Raw field inspection
+            title: data.title,
+            productName: data.productName,
+            videoUrl: data.videoUrl,
+            thumbnailUrl: data.thumbnailUrl,
+            duration: data.duration,
+            viewCount: data.viewCount,
+            // Check for metadata in different possible locations
+            productionMetadata: data.productionMetadata,
+            metadata: data.metadata,
+            creativeDirection: data.creativeDirection,
+            productAnalysis: data.productAnalysis,
+            // Date fields
+            createdAtRaw: data.createdAt,
+            completedAtRaw: data.completedAt,
+            updatedAt: data.updatedAt,
+            // All available fields (for discovery)
+            allFields: Object.keys(data)
+          });
+
+          let processedDate;
+          try {
+            if (data.completedAt && typeof data.completedAt.toDate === 'function') {
+              processedDate = data.completedAt.toDate();
+              console.log(`[FIRESTORE] Used completedAt.toDate():`, processedDate);
+            } else if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+              processedDate = data.createdAt.toDate();
+              console.log(`[FIRESTORE] Used createdAt.toDate():`, processedDate);
+            } else {
+              processedDate = new Date();
+              console.log(`[FIRESTORE] Used fallback date:`, processedDate);
+            }
+          } catch (dateError) {
+            console.error(`[FIRESTORE] Date conversion error for ${doc.id}:`, dateError);
+            processedDate = new Date();
+          }
+
+          // Extract metadata from various possible sources
+          const extractedProductName = data.productName
+            || data.productAnalysis?.productName
+            || data.creativeDirection?.productName
+            || data.metadata?.productName
+            || 'Product';
+
+          const extractedNarrativeStyle = data.productionMetadata?.narrativeStyle
+            || data.creativeDirection?.narrativeStyle
+            || data.metadata?.narrativeStyle
+            || 'Cinematic';
+
+          const extractedMusicGenre = data.productionMetadata?.musicGenre
+            || data.creativeDirection?.musicGenre
+            || data.metadata?.musicGenre
+            || 'Orchestral';
+
+          const extractedTitle = data.title
+            || data.metadata?.title
+            || `Commercial for ${extractedProductName}`;
+
+          console.log(`[FIRESTORE] Extracted metadata for ${doc.id}:`, {
+            productName: extractedProductName,
+            narrativeStyle: extractedNarrativeStyle,
+            musicGenre: extractedMusicGenre,
+            title: extractedTitle,
+            usedFallbacks: {
+              productName: !data.productName && !data.productAnalysis?.productName,
+              narrativeStyle: !data.productionMetadata?.narrativeStyle && !data.creativeDirection?.narrativeStyle,
+              musicGenre: !data.productionMetadata?.musicGenre && !data.creativeDirection?.musicGenre,
+              title: !data.title && !data.metadata?.title
+            }
+          });
+
+          const video = {
+            id: doc.id,
+            title: extractedTitle,
+            thumbnailUrl: data.thumbnailUrl || data.videoUrl,
+            videoUrl: data.videoUrl,
+            duration: data.duration || 8,
+            createdAt: processedDate,
+            viewCount: data.viewCount || 0,
+            productName: extractedProductName,
+            narrativeStyle: extractedNarrativeStyle,
+            musicGenre: extractedMusicGenre,
+          };
+
+          console.log(`[FIRESTORE] Created video object for ${doc.id}:`, {
+            hasVideoUrl: !!video.videoUrl,
+            createdAt: video.createdAt,
+            dateIsValid: !isNaN(video.createdAt.getTime())
+          });
+
+          return video;
+        })
+        .filter(video => {
+          // Check for broken URL patterns
+          const videoUrl = video.videoUrl;
+          const isBroken =
+            !videoUrl ||
+            (videoUrl.startsWith("/api/video/") && !videoUrl.startsWith("/api/video/proxy/")) ||
+            videoUrl === "" ||
+            videoUrl === null;
+
+          if (isBroken) {
+            console.log(`[FIRESTORE] Filtering out broken video ${video.id}:`, {
+              videoUrl,
+              reason: !videoUrl ? "no videoUrl" :
+                      videoUrl.startsWith("/api/video/") ? "wrong API pattern" : "invalid URL"
+            });
+
+            // If autoCleanup is enabled, queue this video for deletion
+            if (options.autoCleanup) {
+              console.log(`[FIRESTORE] Auto-cleanup: Deleting broken video ${video.id}`);
+              // Fire and forget deletion - don't wait for it
+              this.deleteVideoJob(video.id).catch(error =>
+                console.error(`[FIRESTORE] Failed to auto-delete ${video.id}:`, error)
+              );
+            }
+          }
+
+          return !isBroken;
+        }); // Filter out broken videos and optionally clean them up
+
+      const filteredCount = snapshot.docs.length - allVideos.length;
+      console.log("[FIRESTORE] Document processing complete:", {
+        totalDocs: snapshot.docs.length,
+        validVideos: allVideos.length,
+        filteredBroken: filteredCount,
+        autoCleanupEnabled: !!options.autoCleanup
+      });
+
+      if (filteredCount > 0 && options.autoCleanup) {
+        console.log(`[FIRESTORE] Auto-cleanup: Removed ${filteredCount} broken video references from database`);
+      }
+
+      // Apply pagination after filtering
+      const videos = allVideos.slice(offset, offset + limit);
+      console.log("[FIRESTORE] Applied pagination:", {
+        offset,
+        limit,
+        totalFiltered: allVideos.length,
+        returnedCount: videos.length
+      });
+
+      // Get total count - simplified query
+      console.log("[FIRESTORE] Getting total count...");
+      const totalSnapshot = await this.jobsCollection
+        .where("status", "==", "completed")
+        .count()
+        .get();
+
+      const totalCount = totalSnapshot.data().count;
+      console.log("[FIRESTORE] Total count query result:", totalCount);
+
+      const result = {
+        videos,
+        totalCount,
+        hasMore: offset + limit < totalCount,
+      };
+
+      console.log("[FIRESTORE] Final result:", {
+        videosReturned: result.videos.length,
+        totalCount: result.totalCount,
+        hasMore: result.hasMore,
+        firstVideoId: result.videos[0]?.id,
+        firstVideoDate: result.videos[0]?.createdAt
+      });
+
+      return result;
+    } catch (error) {
+      console.error("Failed to get completed videos:", error);
+      return {
+        videos: [],
+        totalCount: 0,
+        hasMore: false,
+      };
+    }
+  }
+
+  /**
    * Get completed video jobs for gallery with pagination and sorting
    */
   public async getCompletedVideos(options: {
@@ -1303,7 +1569,25 @@ export class FirestoreService {
           thumbnailUrl: data.thumbnailUrl || data.videoUrl,
           videoUrl: data.videoUrl,
           duration: data.duration || 8,
-          createdAt: data.completedAt?.toDate() || data.createdAt?.toDate() || new Date(),
+          createdAt: (() => {
+            // Safely convert Firestore timestamps to Date objects
+            if (data.completedAt && typeof data.completedAt.toDate === 'function') {
+              return data.completedAt.toDate();
+            }
+            if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+              return data.createdAt.toDate();
+            }
+            // Handle string dates or invalid dates
+            if (data.completedAt && typeof data.completedAt === 'string') {
+              const parsed = new Date(data.completedAt);
+              return isNaN(parsed.getTime()) ? new Date() : parsed;
+            }
+            if (data.createdAt && typeof data.createdAt === 'string') {
+              const parsed = new Date(data.createdAt);
+              return isNaN(parsed.getTime()) ? new Date() : parsed;
+            }
+            return new Date(); // Fallback to current date
+          })(),
           viewCount: data.viewCount || 0,
           productName: data.productName || 'Product',
           narrativeStyle: data.productionMetadata?.narrativeStyle || 'Cinematic',
@@ -1340,9 +1624,15 @@ export class FirestoreService {
    */
   public async getVideoDetails(videoId: string): Promise<any | null> {
     try {
+      console.log(`[FIRESTORE] getVideoDetails called for videoId: ${videoId}`);
+      console.log(`[FIRESTORE] Current mode: ${AppModeConfig.getMode()}`);
+
       if (AppModeConfig.getMode() === "demo") {
+        console.log("[FIRESTORE] Running in demo mode");
         const mockJob = FirestoreService.mockJobs.get(videoId);
+        console.log(`[FIRESTORE] Mock job found: ${!!mockJob}`);
         if (mockJob && mockJob.status === "completed" && mockJob.videoUrl) {
+          console.log("[FIRESTORE] Returning demo video details");
           return {
             id: videoId,
             title: `Commercial for Product`,
@@ -1363,22 +1653,31 @@ export class FirestoreService {
             },
           };
         }
-        return null;
+        console.log("[FIRESTORE] Demo job not found in mock data, checking real data for gallery compatibility");
+        // Fall through to real data check for gallery videos that exist in Firestore
       }
 
+      console.log("[FIRESTORE] Checking real Firestore data (or demo mode fallback)");
       if (!this.jobsCollection) {
         throw new Error("Firestore not initialized");
       }
 
+      console.log(`[FIRESTORE] Fetching document: ${videoId}`);
       const videoDoc = await this.jobsCollection.doc(videoId).get();
+      console.log(`[FIRESTORE] Document exists: ${videoDoc.exists}`);
 
       if (!videoDoc.exists) {
+        console.log(`[FIRESTORE] Document ${videoId} not found`);
         return null;
       }
 
       const videoData = videoDoc.data()!;
+      console.log(`[FIRESTORE] Document data status: ${videoData.status}`);
+      console.log(`[FIRESTORE] Document has videoUrl: ${!!videoData.videoUrl}`);
+      console.log(`[FIRESTORE] Document videoUrl: ${videoData.videoUrl}`);
 
       if (videoData.status !== "completed" || !videoData.videoUrl) {
+        console.log(`[FIRESTORE] Video not completed or missing videoUrl`);
         return null;
       }
 
@@ -1484,6 +1783,48 @@ export class FirestoreService {
     } catch (error) {
       console.error("Failed to increment video views:", error);
       return null;
+    }
+  }
+
+  /**
+   * Delete a video job by ID
+   */
+  public async deleteVideoJob(jobId: string): Promise<boolean> {
+    try {
+      if (!this.jobsCollection) {
+        throw new Error("Firestore not initialized");
+      }
+
+      await this.jobsCollection.doc(jobId).delete();
+      console.log(`[FIRESTORE] Deleted video job: ${jobId}`);
+      return true;
+    } catch (error) {
+      console.error(`[FIRESTORE] Failed to delete video job ${jobId}:`, error);
+      return false;
+    }
+  }
+
+  /**
+   * Get all completed video jobs with their IDs and URLs for cleanup purposes
+   */
+  public async getAllCompletedJobsForCleanup(): Promise<Array<{ id: string; videoUrl: string; data: any }>> {
+    try {
+      if (!this.jobsCollection) {
+        throw new Error("Firestore not initialized");
+      }
+
+      const snapshot = await this.jobsCollection
+        .where("status", "==", "completed")
+        .get();
+
+      return snapshot.docs.map(doc => ({
+        id: doc.id,
+        videoUrl: doc.data().videoUrl || "",
+        data: doc.data()
+      }));
+    } catch (error) {
+      console.error("Failed to get completed jobs for cleanup:", error);
+      return [];
     }
   }
 }

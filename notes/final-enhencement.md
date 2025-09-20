@@ -638,6 +638,197 @@ My honest recommendation: Let's create a new VideoPlayer.tsx component that's:
 2.  Beautifully styled (from VideoProducerCard)
 3.  Highly configurable for different use
 
-            <div className="w-6 h-6 bg-red-500 rounded-full animate-spin border-2 border-red-200 border-t-red-500"></div>
+  🚫 Current Problems with Overwhelming UI
 
-loading narrative options
+  1. Information Overload
+
+  - Too many metrics scattered across the page
+  - No clear hierarchy of what's important vs. nice-to-have
+  - Users can't quickly answer "How am I doing on budget?"
+
+  2. Poor Data Prioritization
+
+  - Secondary metrics (CPU, memory) taking equal space as critical budget info
+  - Alerts buried among less important data
+  - No visual emphasis on what needs immediate attention
+
+  3. Cognitive Load Issues
+
+  - Multiple charts/graphs competing for attention
+  - Technical jargon instead of user-friendly language
+  - No clear actionable insights
+
+  ✅ Redesigned Information Architecture
+
+  Primary Dashboard (80% of screen space)
+
+  ┌─────────────────────────────────────────┐
+  │ 🎯 BUDGET STATUS (Hero Section)         │
+  │ $127 of $300 used (42%)                 │
+  │ ████████░░░░ 173 left                   │
+  │ At current rate: 18 days remaining      │
+  └─────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────┐
+  │ 📊 TODAY'S ACTIVITY                     │
+  │ • 3 videos generated                    │
+  │ • $12.50 spent                          │
+  │ • 2 users active                        │
+  └─────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────┐
+  │ ⚠️  ALERTS (only if issues exist)       │
+  │ • High usage detected (last 2 hours)    │
+  │ • Approaching daily limit               │
+  └─────────────────────────────────────────┘
+
+  Secondary Details (Collapsible)
+
+  - API response times
+  - System health metrics
+  - Detailed cost breakdown
+  - Historical trends
+
+  📊 Real Data Strategy
+
+  For Demo Mode
+
+  // Still show REAL monitoring data even in demo mode
+  const monitoringData = {
+    // Real infrastructure metrics
+    systemHealth: await getActualSystemHealth(),
+    apiResponseTimes: await getActualAPIMetrics(),
+
+    // Real budget tracking
+    budgetUsed: await getRealBudgetUsage(),
+    costPerRequest: await getActualCosts(),
+
+    // Demo mode only affects AI responses, not monitoring
+    mode: 'demo', // Just indicates what mode app is in
+  };
+
+  Unified Data Sources
+
+  1. Google Cloud Monitoring - Real infrastructure data
+  2. Database queries - Actual usage counts
+  3. Cost tracking - Real API usage regardless of demo/real mode
+  4. Error logs - Actual system issues
+
+  🎯 User-Centric Information Design
+
+  What Users Actually Want to Know:
+
+  1. "Am I going to run out of budget?"
+    - Clear budget remaining
+    - Projected timeline
+    - Usage trends
+  2. "Is the system working properly?"
+    - Simple green/yellow/red status
+    - Current response times
+    - Any active issues
+  3. "How much am I spending?"
+    - Today's costs
+    - Cost per video
+    - Most expensive operations
+
+  Progressive Disclosure:
+
+  Level 1: Status at a glance (always visible)
+  Level 2: Current day details (click to expand)
+  Level 3: Historical trends (separate page/modal)
+  Level 4: Technical details (admin only)
+
+  🚀 Recommended Implementation
+
+  Dashboard Priority Order:
+
+  1. Budget meter (most important)
+  2. System status indicator
+  3. Today's activity summary
+  4. Alerts (only when needed)
+  5. Everything else (collapsible)
+
+  Visual Hierarchy:
+
+  - Hero numbers: Large, bold, immediate impact
+  - Supporting metrics: Medium size, contextual
+  - Technical details: Small, accessible but not prominent
+
+  Actionable Design:
+
+  - Every metric should suggest an action
+  - Red = "Take action now"
+  - Yellow = "Monitor closely"
+  - Green = "All good"
+
+  💡 Key Principles
+
+  1. Real data everywhere - Demo mode only affects AI responses
+  2. Mobile-first design - Works on phones
+  3. Glanceable information - 3-second understanding
+  4. Progressive enhancement - Start simple, add complexity on demand
+  5. Actionable insights - Don't just show data, show what to do
+
+  Recommendation: Redesign with budget status as the hero element, real infrastructure data regardless of mode,      
+  and progressive disclosure for advanced metrics.
+
+
+   Judge-Optimized Monitoring Dashboard
+
+  🎯 Key Improvements:
+
+  1. 6-Panel Grid Layout - Clean, organized presentation showing all critical metrics simultaneously
+  2. Real Data Integration - Uses actual monitoring data from API endpoints (regardless of demo/real mode)
+  3. Magical UI Styling - Consistent with main app design using magical cards and glass morphism
+  4. Live Updates - Real-time clock and automatic data refresh every 30 seconds
+
+  📊 Panel Breakdown:
+
+  Panel 1: Budget & Cost Management
+
+  - 🎯 Budget usage with visual progress bar
+  - Real-time cost tracking and remaining budget
+  - Daily spend and estimated runway calculation
+  - Clear financial KPIs for judges
+
+  Panel 2: System Health
+
+  - ⚡ Live infrastructure health monitoring
+  - Service status for Vertex AI, Veo API, Database
+  - Response times and overall system score
+  - Color-coded health indicators
+
+  Panel 3: Today's Activity
+
+  - 📊 Daily performance metrics
+  - Videos generated, costs incurred
+  - Active and peak user counts
+  - Success rate percentage
+
+  Panel 4: Performance Metrics
+
+  - ⚡ Response times and uptime percentages
+  - CPU and memory usage monitoring
+  - Average video generation time
+  - System performance KPIs
+
+  Panel 5: Infrastructure Status
+
+  - 🔧 Real infrastructure monitoring
+  - Google Cloud services status
+  - Database performance metrics
+  - Queue status and request totals
+
+  Panel 6: Intelligent Alerts
+
+  - ⚠️ Live alert monitoring with severity levels
+  - Color-coded alert cards (red, orange, yellow, blue)
+  - "All Systems Normal" when no issues
+  - Shows most recent critical alerts
+
+  🚀 Judge Impression Features:
+
+  ✅ Real-time data (updates every 30 seconds)✅ Live clock showing current time✅ Financial tracking with budget    
+   management✅ Infrastructure monitoring of Google Cloud services✅ Performance benchmarks with actual metrics✅    
+   Professional UI with magical cards and glass effects✅ Comprehensive coverage without overwhelming
+  complexity✅ Mobile responsive grid layout

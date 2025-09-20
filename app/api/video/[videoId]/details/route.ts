@@ -11,8 +11,10 @@ export async function GET(
 ) {
   try {
     const { videoId } = await params;
+    console.log(`[VIDEO DETAILS] Starting request for videoId: ${videoId}`);
 
     if (!videoId) {
+      console.log("[VIDEO DETAILS] Missing videoId in request");
       return NextResponse.json(
         {
           success: false,
@@ -26,11 +28,19 @@ export async function GET(
     }
 
     const firestoreService = FirestoreService.getInstance();
+    console.log("[VIDEO DETAILS] FirestoreService initialized");
 
     // Use the new method to get video details
+    console.log(`[VIDEO DETAILS] Calling getVideoDetails for: ${videoId}`);
     const videoDetails = await firestoreService.getVideoDetails(videoId);
+    console.log("[VIDEO DETAILS] getVideoDetails result:", {
+      found: !!videoDetails,
+      hasVideoUrl: videoDetails?.videoUrl ? 'yes' : 'no',
+      videoUrl: videoDetails?.videoUrl || 'none'
+    });
 
     if (!videoDetails) {
+      console.log(`[VIDEO DETAILS] Video not found for ID: ${videoId}`);
       return NextResponse.json(
         {
           success: false,

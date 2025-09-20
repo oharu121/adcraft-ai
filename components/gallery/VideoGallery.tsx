@@ -35,25 +35,66 @@ export default function VideoGallery({ dict, locale }: VideoGalleryProps) {
   }, []);
 
   const fetchVideos = async () => {
+    console.log("[VIDEO GALLERY] Starting video fetch...");
     try {
       setLoading(true);
+      console.log("[VIDEO GALLERY] Making API request to /api/gallery/videos");
+
       const response = await fetch("/api/gallery/videos");
+      console.log("[VIDEO GALLERY] API response status:", response.status, response.statusText);
 
       if (!response.ok) {
-        throw new Error("Failed to fetch videos");
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
       }
 
       const result = await response.json();
+      console.log("[VIDEO GALLERY] API response data:", {
+        success: result.success,
+        dataLength: result.data?.length,
+        pagination: result.pagination,
+        firstVideo: result.data?.[0] ? {
+          id: result.data[0].id,
+          title: result.data[0].title,
+          hasVideoUrl: !!result.data[0].videoUrl,
+          createdAt: result.data[0].createdAt,
+          createdAtType: typeof result.data[0].createdAt
+        } : null
+      });
+
       if (result.success) {
-        setVideos(result.data || []);
+        const videos = result.data || [];
+        console.log("[VIDEO GALLERY] Processing videos:", videos.length);
+
+        // Validate each video object
+        const validatedVideos = videos.map((video: any, index: number) => {
+          const createdAtDate = new Date(video.createdAt);
+          const isValidDate = !isNaN(createdAtDate.getTime());
+
+          console.log(`[VIDEO GALLERY] Video ${index + 1} (${video.id}):`, {
+            hasVideoUrl: !!video.videoUrl,
+            hasTitle: !!video.title,
+            createdAtRaw: video.createdAt,
+            createdAtParsed: createdAtDate,
+            dateIsValid: isValidDate
+          });
+
+          return {
+            ...video,
+            createdAt: isValidDate ? createdAtDate : new Date()
+          };
+        });
+
+        setVideos(validatedVideos);
+        console.log("[VIDEO GALLERY] Videos set successfully:", validatedVideos.length);
       } else {
         throw new Error(result.error?.message || "Unknown error");
       }
     } catch (err) {
-      console.error("Error fetching videos:", err);
+      console.error("[VIDEO GALLERY] Error fetching videos:", err);
       setError(err instanceof Error ? err.message : "Failed to load videos");
     } finally {
       setLoading(false);
+      console.log("[VIDEO GALLERY] Fetch completed");
     }
   };
 
@@ -63,12 +104,27 @@ export default function VideoGallery({ dict, locale }: VideoGalleryProps) {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const formatDate = (date: Date): string => {
-    return new Intl.DateTimeFormat(locale, {
+  const formatDate = (date: Date | null | undefined): string => {
+    console.log("[VIDEO GALLERY] formatDate called with:", { date, type: typeof date, isDate: date instanceof Date });
+
+    // Handle invalid or missing dates
+    if (!date || isNaN(date.getTime())) {
+      console.log("[VIDEO GALLERY] Using fallback date");
+      return new Intl.DateTimeFormat(locale, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }).format(new Date()); // Use current date as fallback
+    }
+
+    const formatted = new Intl.DateTimeFormat(locale, {
       year: "numeric",
       month: "short",
       day: "numeric",
     }).format(date);
+
+    console.log("[VIDEO GALLERY] Formatted date:", { original: date, formatted });
+    return formatted;
   };
 
   if (loading) {

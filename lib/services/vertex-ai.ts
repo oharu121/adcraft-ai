@@ -289,14 +289,12 @@ export class VertexAIService {
    */
   public async healthCheck(): Promise<boolean> {
     try {
-      if (this.isMockMode) {
-        console.log("[MOCK MODE] Health check passed (mock mode)");
-        return true;
-      }
+      // ALWAYS use real health check for monitoring - regardless of app mode
       await this.getAccessToken();
+      console.log("[MONITORING] Vertex AI health check passed");
       return true;
     } catch (error) {
-      console.error("Vertex AI health check failed:", error);
+      console.error("[MONITORING] Vertex AI health check failed:", error);
       return false;
     }
   }

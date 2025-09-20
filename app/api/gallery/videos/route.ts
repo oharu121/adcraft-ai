@@ -14,6 +14,8 @@ const QuerySchema = z.object({
  * Fetch paginated list of completed videos for gallery display
  */
 export async function GET(request: NextRequest) {
+  console.log("[GALLERY API] Starting gallery videos request");
+
   try {
     const { searchParams } = new URL(request.url);
     const query = validateAndParse(QuerySchema, {
@@ -26,18 +28,38 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(parseInt(query.limit), 50); // Max 50 per page
     const offset = (page - 1) * limit;
 
-    const firestoreService = FirestoreService.getInstance();
+    console.log("[GALLERY API] Query parameters:", { page, limit, sortBy: query.sortBy, offset });
 
-    // Use the new method to get completed videos
-    const result = await firestoreService.getCompletedVideos({
+    const firestoreService = FirestoreService.getInstance();
+    console.log("[GALLERY API] Firestore service initialized");
+
+    // Use the real data method to get completed videos (always real data for gallery)
+    // Enable auto-cleanup to automatically remove broken video references
+    console.log("[GALLERY API] Calling getRealCompletedVideos with auto-cleanup enabled...");
+    const result = await firestoreService.getRealCompletedVideos({
       page,
       limit,
       sortBy: query.sortBy,
+      autoCleanup: true, // Automatically clean up broken videos
+    });
+
+    console.log("[GALLERY API] Firestore result:", {
+      videosCount: result.videos.length,
+      totalCount: result.totalCount,
+      hasMore: result.hasMore,
+      firstVideo: result.videos[0] ? {
+        id: result.videos[0].id,
+        title: result.videos[0].title,
+        hasVideoUrl: !!result.videos[0].videoUrl,
+        createdAt: result.videos[0].createdAt,
+        createdAtType: typeof result.videos[0].createdAt,
+        isValidDate: result.videos[0].createdAt instanceof Date && !isNaN(result.videos[0].createdAt.getTime())
+      } : null
     });
 
     const totalPages = Math.ceil(result.totalCount / limit);
 
-    return NextResponse.json({
+    const response = {
       success: true,
       data: result.videos,
       pagination: {
@@ -48,7 +70,15 @@ export async function GET(request: NextRequest) {
         hasNext: page < totalPages,
         hasPrev: page > 1,
       },
+    };
+
+    console.log("[GALLERY API] Sending response:", {
+      success: response.success,
+      dataCount: response.data.length,
+      pagination: response.pagination
     });
+
+    return NextResponse.json(response);
 
   } catch (error) {
     console.error("Gallery videos API error:", error);
