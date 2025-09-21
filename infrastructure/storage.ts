@@ -34,21 +34,22 @@ export function createStorageResources(region: string) {
     }],
   });
 
-  // Bucket IAM: Allow public read access to generated videos
-  const bucketIAMPolicy = new gcp.storage.BucketIAMPolicy('adcraft-bucket-policy', {
-    bucket: bucket.name,
-    policyData: pulumi.interpolate`{
-      "bindings": [
-        {
-          "role": "roles/storage.objectViewer",
-          "members": ["allUsers"]
-        }
-      ]
-    }`,
-  });
+  // Bucket IAM: Temporarily disabled due to permission issues
+  // TODO: Configure bucket public access after deployment
+  // const bucketIAMPolicy = new gcp.storage.BucketIAMPolicy('adcraft-bucket-policy', {
+  //   bucket: bucket.name,
+  //   policyData: pulumi.interpolate`{
+  //     "bindings": [
+  //       {
+  //         "role": "roles/storage.objectViewer",
+  //         "members": ["allUsers"]
+  //       }
+  //     ]
+  //   }`,
+  // });
 
   return {
     bucket,
-    bucketIAMPolicy,
+    // bucketIAMPolicy, // Temporarily disabled
   };
 }

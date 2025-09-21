@@ -7,47 +7,13 @@ export function createMonitoringResources(projectId: string) {
     name: 'adcraft-budget-alerts',
   });
 
-  // Billing budget with alerts at 50%, 75%, 90%
-  const budget = new gcp.billing.Budget('adcraft-budget', {
-    billingAccount: pulumi.interpolate`${gcp.config.billingProject}`,
-    displayName: 'AdCraft AI Budget',
-    
-    budgetFilter: {
-      projects: [pulumi.interpolate`projects/${projectId}`],
-      services: [
-        'services/aiplatform.googleapis.com', // Vertex AI
-        'services/run.googleapis.com',         // Cloud Run
-        'services/storage-api.googleapis.com', // Cloud Storage
-        'services/firestore.googleapis.com',   // Firestore
-      ],
-    },
-    
-    amount: {
-      specifiedAmount: {
-        currencyCode: 'USD',
-        units: '300', // $300 budget
-      },
-    },
-    
-    thresholdRules: [
-      {
-        thresholdPercent: 0.5, // 50%
-        spendBasis: 'CURRENT_SPEND',
-      },
-      {
-        thresholdPercent: 0.75, // 75%
-        spendBasis: 'CURRENT_SPEND',
-      },
-      {
-        thresholdPercent: 0.9, // 90%
-        spendBasis: 'CURRENT_SPEND',
-      },
-    ],
-    
-    allUpdatesRule: {
-      pubsubTopic: budgetAlert.id,
-    },
-  });
+  // Billing budget - temporarily disabled due to authentication issues
+  // TODO: Enable billing budget after proper billing account setup
+  // const budget = new gcp.billing.Budget('adcraft-budget', {
+  //   billingAccount: pulumi.interpolate`${gcp.config.billingProject}`,
+  //   displayName: 'AdCraft AI Budget',
+  //   // ... budget configuration
+  // });
 
   // Log sink for application logs  
   const logSink = new gcp.logging.ProjectSink('adcraft-logs', {
@@ -123,7 +89,7 @@ export function createMonitoringResources(projectId: string) {
 
   return {
     budgetAlert,
-    budget,
+    // budget, // Temporarily disabled
     logSink,
     dashboard,
   };

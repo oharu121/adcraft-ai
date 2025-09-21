@@ -8,6 +8,17 @@ export function createComputeResources(
   bucketName: pulumi.Output<string>,
   databaseName: pulumi.Output<string>
 ) {
+  // Artifact Registry repository for container images
+  const repository = new gcp.artifactregistry.Repository('adcraft-repo', {
+    repositoryId: 'adcraft-ai',
+    location: region,
+    format: 'DOCKER',
+    description: 'AdCraft AI container repository',
+  });
+
+  // Use pre-built image (will be built manually or via Cloud Build)
+  const imageName = pulumi.interpolate`${region}-docker.pkg.dev/${projectId}/adcraft-ai/adcraft-ai:latest`;
+
   // Cloud Run service for the Next.js application
   const service = new gcp.cloudrun.Service('adcraft-service', {
     name: 'adcraft-service',
@@ -28,7 +39,7 @@ export function createComputeResources(
         timeoutSeconds: 300, // 5 minutes
         
         containers: [{
-          image: `gcr.io/adcraft-dev-2025/adcraft-ai:latest`,
+          image: imageName,
           
           resources: {
             limits: {
@@ -43,11 +54,15 @@ export function createComputeResources(
           
           envs: [
             {
+              name: 'APP_MODE',
+              value: 'real',
+            },
+            {
               name: 'GCP_PROJECT_ID',
               value: projectId,
             },
             {
-              name: 'GCP_REGION', 
+              name: 'GCP_REGION',
               value: region,
             },
             {
@@ -99,6 +114,8 @@ export function createComputeResources(
   });
 
   return {
+    repository,
+    imageName,
     service,
     serviceIAMPolicy,
   };
