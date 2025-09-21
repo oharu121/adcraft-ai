@@ -1,11 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui';
-import { cn } from '@/lib/utils/cn';
-import { useAgentContext } from '@/lib/hooks/useAgentContext';
-import type { Dictionary, Locale } from '@/lib/dictionaries';
+import { useState, useCallback } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui";
+import { cn } from "@/lib/utils/cn";
+import { useAgentContext } from "@/lib/hooks/useAgentContext";
+import type { Dictionary, Locale } from "@/lib/dictionaries";
 
 export interface HeaderProps {
   className?: string;
@@ -19,23 +20,35 @@ export interface HeaderProps {
  */
 export function Header({ className, dict, locale }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
   const agentContext = useAgentContext();
 
   const handleMobileMenuToggle = useCallback(() => {
-    setIsMobileMenuOpen(prev => !prev);
+    setIsMobileMenuOpen((prev) => !prev);
   }, []);
 
   const handleMenuClose = useCallback(() => {
     setIsMobileMenuOpen(false);
   }, []);
 
+  // Helper function to check if a route is active
+  const isActiveRoute = useCallback(
+    (route: string) => {
+      if (route === `/${locale}`) {
+        return pathname === `/${locale}` || pathname === "/";
+      }
+      return pathname.startsWith(route);
+    },
+    [pathname, locale]
+  );
+
   return (
     <header
       className={cn(
-        'bg-white sticky top-0 z-50',
-        'backdrop-blur-sm bg-white/95',
+        "bg-white sticky top-0 z-50",
+        "backdrop-blur-sm bg-white/95",
         // Agent context border hint
-        agentContext.isActive ? 'border-b-2' : 'border-b border-slate-200',
+        agentContext.isActive ? "border-b-2" : "border-b border-slate-200",
         className
       )}
       style={{
@@ -79,9 +92,7 @@ export function Header({ className, dict, locale }: HeaderProps) {
               </div>
               <div className="hidden sm:block">
                 <div className="flex items-center gap-2">
-                  <h1 className="text-xl font-bold text-slate-900">
-                    {dict.header.title}
-                  </h1>
+                  <h1 className="text-xl font-bold text-slate-900">{dict.header.title}</h1>
                   {agentContext.isActive && (
                     <span
                       className="text-xs font-medium px-2 py-1 rounded-full transition-all duration-300"
@@ -97,37 +108,88 @@ export function Header({ className, dict, locale }: HeaderProps) {
                 <p className="text-xs text-slate-500 -mt-1">
                   {agentContext.isActive
                     ? `Working with ${agentContext.name}...`
-                    : dict.header.subtitle
-                  }
+                    : dict.header.subtitle}
                 </p>
               </div>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className="hidden md:flex items-center space-x-1">
             <Link
               href={`/${locale}`}
-              className="text-slate-600 hover:text-slate-900 font-medium transition-colors"
+              className={cn(
+                "flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all duration-200",
+                isActiveRoute(`/${locale}`)
+                  ? "bg-blue-50 text-blue-700 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+              )}
             >
-              {dict.navigation.home}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+              {dict.navigation.generate}
             </Link>
             <Link
               href={`/${locale}/gallery`}
-              className="text-slate-600 hover:text-slate-900 font-medium transition-colors"
+              className={cn(
+                "flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all duration-200",
+                isActiveRoute(`/${locale}/gallery`)
+                  ? "bg-blue-50 text-blue-700 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+              )}
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                />
+              </svg>
               {dict.navigation.gallery}
             </Link>
             <Link
               href={`/${locale}/monitoring`}
-              className="text-slate-600 hover:text-slate-900 font-medium transition-colors"
+              className={cn(
+                "flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all duration-200",
+                isActiveRoute(`/${locale}/monitoring`)
+                  ? "bg-blue-50 text-blue-700 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+              )}
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                />
+              </svg>
               {dict.navigation.monitoring}
             </Link>
             <Link
               href={`/${locale}/about`}
-              className="text-slate-600 hover:text-slate-900 font-medium transition-colors"
+              className={cn(
+                "flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all duration-200",
+                isActiveRoute(`/${locale}/about`)
+                  ? "bg-blue-50 text-blue-700 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+              )}
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
               {dict.navigation.about}
             </Link>
           </nav>
@@ -139,10 +201,10 @@ export function Header({ className, dict, locale }: HeaderProps) {
               <Link
                 href="/en"
                 className={cn(
-                  'px-2 py-1 text-xs font-medium rounded transition-colors',
-                  locale === 'en' 
-                    ? 'bg-blue-100 text-blue-700' 
-                    : 'text-slate-600 hover:text-slate-900'
+                  "px-2 py-1 text-xs font-medium rounded transition-colors",
+                  locale === "en"
+                    ? "bg-blue-100 text-blue-700"
+                    : "text-slate-600 hover:text-slate-900"
                 )}
               >
                 EN
@@ -150,16 +212,15 @@ export function Header({ className, dict, locale }: HeaderProps) {
               <Link
                 href="/ja"
                 className={cn(
-                  'px-2 py-1 text-xs font-medium rounded transition-colors',
-                  locale === 'ja' 
-                    ? 'bg-blue-100 text-blue-700' 
-                    : 'text-slate-600 hover:text-slate-900'
+                  "px-2 py-1 text-xs font-medium rounded transition-colors",
+                  locale === "ja"
+                    ? "bg-blue-100 text-blue-700"
+                    : "text-slate-600 hover:text-slate-900"
                 )}
               >
                 JP
               </Link>
             </div>
-
 
             {/* Mobile menu button */}
             <Button
@@ -172,17 +233,27 @@ export function Header({ className, dict, locale }: HeaderProps) {
             >
               <svg
                 className={cn(
-                  'w-5 h-5 transition-transform duration-200',
-                  isMobileMenuOpen && 'rotate-90'
+                  "w-5 h-5 transition-transform duration-200",
+                  isMobileMenuOpen && "rotate-90"
                 )}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 {isMobileMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 )}
               </svg>
             </Button>
@@ -194,38 +265,120 @@ export function Header({ className, dict, locale }: HeaderProps) {
           <div
             className="md:hidden border-t bg-white"
             style={{
-              borderTopColor: agentContext.isActive ? agentContext.accentColor : '#E2E8F0',
+              borderTopColor: agentContext.isActive ? agentContext.accentColor : "#E2E8F0",
             }}
           >
             <div className="px-2 pt-2 pb-3 space-y-1">
               <Link
                 href={`/${locale}`}
-                className="block px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-md font-medium transition-colors"
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors",
+                  isActiveRoute(`/${locale}`)
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                )}
                 onClick={handleMenuClose}
               >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
                 {dict.navigation.generate}
               </Link>
               <Link
                 href={`/${locale}/gallery`}
-                className="block px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-md font-medium transition-colors"
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors",
+                  isActiveRoute(`/${locale}/gallery`)
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                )}
                 onClick={handleMenuClose}
               >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                  />
+                </svg>
                 {dict.navigation.gallery}
               </Link>
               <Link
                 href={`/${locale}/monitoring`}
-                className="block px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-md font-medium transition-colors"
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors",
+                  isActiveRoute(`/${locale}/monitoring`)
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                )}
                 onClick={handleMenuClose}
               >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
                 {dict.navigation.monitoring}
               </Link>
               <Link
                 href={`/${locale}/about`}
-                className="block px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-md font-medium transition-colors"
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors",
+                  isActiveRoute(`/${locale}/about`)
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                )}
                 onClick={handleMenuClose}
               >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
                 {dict.navigation.about}
               </Link>
+
+              {/* Language Switcher in Mobile */}
+              <div className="pt-4 mt-4 border-t border-slate-200">
+                <div className="flex items-center justify-center gap-2">
+                  <Link
+                    href="/en"
+                    className={cn(
+                      "px-3 py-2 text-sm font-medium rounded transition-colors",
+                      locale === "en"
+                        ? "bg-blue-100 text-blue-700"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                    )}
+                    onClick={handleMenuClose}
+                  >
+                    English
+                  </Link>
+                  <Link
+                    href="/ja"
+                    className={cn(
+                      "px-3 py-2 text-sm font-medium rounded transition-colors",
+                      locale === "ja"
+                        ? "bg-blue-100 text-blue-700"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                    )}
+                    onClick={handleMenuClose}
+                  >
+                    日本語
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         )}

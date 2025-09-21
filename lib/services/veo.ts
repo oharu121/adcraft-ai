@@ -260,7 +260,10 @@ export class VeoService {
     }
 
     const data = await response.json();
-    
+
+    // LOG THE FULL RAW RESPONSE FOR DEBUGGING
+    console.log(`🔍 RAW VEO RESPONSE for ${operationName}:`, JSON.stringify(data, null, 2));
+
     if (!data.done) {
       // Still processing
       return {
@@ -300,18 +303,24 @@ export class VeoService {
     }
 
     // Completed - extract video URL
+    console.log(`🔍 LOOKING FOR VIDEO URL in response structure:`);
+    console.log(`🔍 data.response exists: ${!!data.response}`);
+    console.log(`🔍 data.response?.generateVideoResponse exists: ${!!data.response?.generateVideoResponse}`);
+
     const videoResponse = data.response?.generateVideoResponse;
+    console.log(`🔍 videoResponse:`, JSON.stringify(videoResponse, null, 2));
+
     if (videoResponse && videoResponse.generatedSamples?.[0]?.video?.uri) {
       const videoUri = videoResponse.generatedSamples[0].video.uri;
       console.log(`🎬 Video completed! URI: ${videoUri}`);
-      
+
       // Extract file ID from URI and create proxy URL
       const fileIdMatch = videoUri.match(/files\/([^:]+):/);
       if (fileIdMatch) {
         const fileId = fileIdMatch[1];
         const proxyUrl = `/api/video/proxy/${fileId}`;
         console.log(`🎬 Created proxy URL: ${proxyUrl}`);
-        
+
         return {
           jobId: operationName,
           status: 'completed',
@@ -327,6 +336,35 @@ export class VeoService {
         };
       }
     }
+
+    // Check for safety filter issues (common with non-English content)
+    if (videoResponse && videoResponse.raiMediaFilteredCount > 0) {
+      const filterReason = videoResponse.raiMediaFilteredReasons?.[0] || 'Content filtered by safety policies';
+      console.error(`🛡️ Veo safety filter blocked content:`, {
+        filteredCount: videoResponse.raiMediaFilteredCount,
+        reasons: videoResponse.raiMediaFilteredReasons
+      });
+
+      // Provide specific guidance for audio/language issues
+      let userFriendlyError = filterReason;
+      if (filterReason.includes('audio')) {
+        userFriendlyError = 'Video generation failed due to audio content restrictions. This often occurs with non-English text or complex narration. Try simplifying the product description or using English text.';
+      }
+
+      return {
+        jobId: operationName,
+        status: 'failed',
+        error: userFriendlyError,
+      };
+    }
+
+    // Debug exactly what structure we got
+    console.log(`🔍 Expected path not found. Full response structure:`, {
+      hasResponse: !!data.response,
+      responseKeys: data.response ? Object.keys(data.response) : 'none',
+      hasGenerateVideoResponse: !!data.response?.generateVideoResponse,
+      generateVideoResponseKeys: data.response?.generateVideoResponse ? Object.keys(data.response.generateVideoResponse) : 'none'
+    });
 
     // Fallback if no video URL found
     return {

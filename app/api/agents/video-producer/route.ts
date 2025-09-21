@@ -845,11 +845,22 @@ export async function POST(request: NextRequest) {
 
       // Real mode: Build comprehensive context and bridge to video generation
       try {
+        // 🔍 DEBUG: Log what we received from frontend
+        console.log("[VideoProducer] 🔍 HANDOFF DATA DEBUG:", {
+          hasCreativeDirectorHandoffData: !!data.creativeDirectorHandoffData,
+          productAnalysis_structure: data.creativeDirectorHandoffData?.productAnalysis,
+          productAnalysis_keys: Object.keys(data.creativeDirectorHandoffData?.productAnalysis || {}),
+          productAnalysis_name: data.creativeDirectorHandoffData?.productAnalysis?.name,
+          productAnalysis_description: data.creativeDirectorHandoffData?.productAnalysis?.description,
+          productAnalysis_product: data.creativeDirectorHandoffData?.productAnalysis?.product,
+          productImage: data.creativeDirectorHandoffData?.productImage ? "Present" : "Missing"
+        });
+
         // Map creativeDirectorHandoffData to davidHandoff structure
         const davidHandoff = data.creativeDirectorHandoffData ? {
-          productImage: data.creativeDirectorHandoffData.productAnalysis?.product?.image || '',
+          productImage: data.creativeDirectorHandoffData.productImage || '', // Use the passed productImage
           mayaAnalysis: {
-            productAnalysis: data.creativeDirectorHandoffData.productAnalysis?.product || {},
+            productAnalysis: data.creativeDirectorHandoffData.productAnalysis?.product || data.creativeDirectorHandoffData.productAnalysis || {},
             strategicInsights: data.creativeDirectorHandoffData.productAnalysis?.targetAudience || {},
             visualOpportunities: data.creativeDirectorHandoffData.productAnalysis?.keyMessages || {}
           },
@@ -857,6 +868,13 @@ export async function POST(request: NextRequest) {
           creativeDirection: data.creativeDirectorHandoffData.creativeDirection || {},
           sceneArchitecture: data.creativeDirectorHandoffData.creativeDirection?.zaraHandoffData?.sceneBreakdown || []
         } : data.davidHandoff;
+
+        // 🔍 DEBUG: Log what we mapped
+        console.log("[VideoProducer] 🔍 MAPPED HANDOFF DEBUG:", {
+          mapped_productAnalysis: davidHandoff.mayaAnalysis?.productAnalysis,
+          mapped_productName: davidHandoff.mayaAnalysis?.productAnalysis?.name,
+          mapped_productDescription: davidHandoff.mayaAnalysis?.productAnalysis?.description
+        });
 
         // Validate all required context is present
         const readinessCheck = validateProductionReadiness({

@@ -1005,3 +1005,19 @@ My honest recommendation: Let's create a new VideoPlayer.tsx component that's:
 
   Your instinct is 100% correct - we're storing temporary URLs that will break. The system needs proper persistent storage    
    immediately.
+
+    Instead of /about page, invest 4 days in:
+
+  1. Polish the main flow (30 min)
+    - Ensure upload → analysis → video works perfectly
+    - Test with different product types
+  2. Add simple onboarding (1 hour)
+    - Add 2-3 tooltip hints on the main page
+    - "Upload product image" → "Get AI commercial"
+  3. Improve error handling (2 hours)
+    - What if Maya analysis fails?
+    - What if video generation times out?
+    - Clear error messages with retry options
+  4. Demo data quality (Remaining time)
+    - Perfect your demo responses
+    - Ensure they showcase best capabilities

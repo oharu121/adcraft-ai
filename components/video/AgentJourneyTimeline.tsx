@@ -173,12 +173,6 @@ export default function AgentJourneyTimeline({
           <h2 className="text-2xl font-bold text-white mb-2">🤖 {t.title}</h2>
           <p className="text-gray-300">{t.subtitle}</p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-400">
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-          </svg>
-          {t.collaboration}
-        </div>
       </div>
 
       {/* Timeline */}
@@ -187,7 +181,7 @@ export default function AgentJourneyTimeline({
         <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-purple-500/60 via-indigo-500/60 to-pink-500/60"></div>
 
         <div className="space-y-6">
-          {steps.map((step, index) => {
+          {steps.map((step) => {
             const agent = agentConfig[step.agent];
             const isExpanded = expandedStep === step.id;
 

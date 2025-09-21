@@ -83,10 +83,12 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
     // Product input state
     uploadedImage,
+    uploadedImageBase64,
     productName,
     productDescription,
     inputMode,
     setUploadedImage,
+    setUploadedImageBase64,
     setProductName,
     setProductDescription,
     setInputMode,
@@ -200,6 +202,9 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
 
         // Convert image to base64
         const base64Image = await fileToBase64(file);
+
+        // Store base64 image for later use in video generation
+        setUploadedImageBase64(`data:${file.type};base64,${base64Image}`);
 
         // Analysis request with current mode
         const analysisResponse = await fetch("/api/agents/product-intelligence", {
@@ -639,6 +644,7 @@ export default function HomeClient({ dict, locale }: HomeClientProps) {
             creativeDirectorSessionId: sessionId,
             creativeDirection: creativeDirection,
             productAnalysis: analysis, // Pass along product analysis from Maya
+            productImage: uploadedImageBase64, // Pass along the base64 image for video generation
             handoffTimestamp: Date.now(),
           },
           locale,

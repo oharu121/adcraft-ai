@@ -66,6 +66,7 @@ export interface CreativeDirectorHandoffData {
   creativeDirectorSessionId: string;
   creativeDirection: any; // From David's handoff
   productAnalysis: any; // From Maya's analysis
+  productImage: string | null; // Base64 encoded product image from Maya
   handoffTimestamp: number;
 }
 

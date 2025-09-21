@@ -1,4 +1,46 @@
 {
+  "about": {
+    "title": "About AdCraft AI",
+    "subtitle": "Transforming product images into compelling commercial videos using multi-agent AI systems",
+    "backHome": "Back to Home",
+    "agentsTitle": "Multi-Agent AI System",
+    "maya": {
+      "title": "Maya - Product Intelligence",
+      "description": "Advanced computer vision and NLP to analyze product images, extract features, and understand market positioning."
+    },
+    "david": {
+      "title": "David - Creative Director",
+      "description": "Strategic creative planning, visual direction, and brand storytelling to craft compelling commercial narratives."
+    },
+    "zara": {
+      "title": "Zara - Video Producer",
+      "description": "Advanced video generation using Google's Veo API, transforming creative concepts into professional commercials."
+    },
+    "techTitle": "Powered by Cutting-Edge Technology",
+    "journeyTitle": "Your Journey from Image to Commercial",
+    "steps": {
+      "upload": "Upload Product Image",
+      "uploadDesc": "Simply drag and drop your product image to begin the AI analysis process.",
+      "analyze": "AI Analysis",
+      "analyzeDesc": "Maya analyzes your product, extracting features, benefits, and market positioning.",
+      "create": "Creative Direction",
+      "createDesc": "David crafts compelling visual narratives and brand storytelling strategies.",
+      "produce": "Video Production",
+      "produceDesc": "Zara generates your professional commercial video using advanced AI technology."
+    },
+    "inputTitle": "Two Ways to Start Your Commercial",
+    "imageUpload": {
+      "title": "Upload Product Image",
+      "description": "Already have a product photo? Perfect! Simply drag and drop your image to begin instant AI analysis and commercial generation."
+    },
+    "textPrompt": {
+      "title": "Describe Your Product",
+      "description": "No image yet? No problem! Describe your product in words and our AI will generate a stunning product image before creating your commercial."
+    },
+    "ctaTitle": "Ready to Transform Your Product?",
+    "ctaDesc": "Join the future of AI-powered commercial video creation",
+    "ctaButton": "Start Creating Now"
+  },
   "common": {
     "loading": "Loading...",
     "cancel": "Cancel",
@@ -161,12 +203,12 @@
     "description": "Transform text prompts into professional video content using cutting-edge AI technology. Built for the AI Agent Hackathon 2025.",
     "hackathonBadge": "AI Agent Hackathon 2025",
     "sections": {
-      "features": "Features",
+      "navigation": "Navigation",
       "technology": "Technology"
     },
     "links": {
-      "videoGeneration": "Video Generation",
-      "sampleGallery": "Sample Gallery",
+      "videoGeneration": "Commercial Generation",
+      "sampleGallery": "Gallery",
       "aboutProject": "About Project"
     },
     "notice": {
@@ -353,7 +395,7 @@
     }
   },
   "productIntelligence": {
-    "title": "AI Product AdCraft",
+    "title": "AdCraft AI",
     "subtitle": "Turn your product into a professional commercial with our AI agents",
     "description": "Upload your product image and let our AI agents create a compelling commercial story.",
     "getStarted": "Get Started Now",
@@ -502,8 +544,6 @@
     "imageAnalysis": "Analyzing Image...",
     "productAnalysis": "Analyzing Product...",
     "analysisWithName": "Analyzing {productName}...",
-    "imagingMode": "Image to Commercial",
-    "textMode": "Text to Commercial",
     "moreDetails": "More details = better analysis",
     "detailedDescription": "The more detailed your description, the better the analysis",
     "sessionId": "Session ID",
@@ -535,10 +575,20 @@
     "analysisFailedDemo": "AI analysis failed. Switch to demo mode or try again.",
     "validationError": "Validation Error",
     "productNameReady": "Product name ready",
-    "stepInstructions1": "Upload your product image or type in text",
-    "stepInstructions2": "AI automatically analyzes your product",
-    "stepInstructions3": "Chat with the agent to refine insights",
-    "stepInstructions4": "Hand off to Creative Director Agent",
+    "imageMode": {
+      "label": "Image to Commercial",
+      "stepInstructions1": "Upload your product image",
+      "stepInstructions2": "Maya analyzes visual features",
+      "stepInstructions3": "Chat with Maya to refine product details",
+      "stepInstructions4": "Complete product intelligence report"
+    },
+    "textMode": {
+      "label": "Text to Commercial",
+      "stepInstructions1": "Describe your product in detail",
+      "stepInstructions2": "Maya generates 4 candidate product images",
+      "stepInstructions3": "Select image and chat with Maya to refine details",
+      "stepInstructions4": "Complete product intelligence report"
+    },
     "clickToEnlarge": "Click to enlarge",
     "clickOutsideToClose": "Click outside to close",
     "productFullSize": "Product - Full Size",
@@ -1140,14 +1190,24 @@
       "heroJourney": {
         "name": "Hero's Journey",
         "description": "Classic storytelling with problem-solution narrative",
-        "features": ["Problem Introduction", "Journey to Solution", "Transformation", "Call to Action"],
+        "features": [
+          "Problem Introduction",
+          "Journey to Solution",
+          "Transformation",
+          "Call to Action"
+        ],
         "bestFor": "Products that solve clear problems",
         "pacing": "Gradual build-up with strong finale"
       },
       "lifestyleAspiration": {
         "name": "Lifestyle Aspiration",
         "description": "Aspirational lifestyle and emotional connection",
-        "features": ["Lifestyle Showcase", "Emotional Connection", "Product Integration", "Aspiration"],
+        "features": [
+          "Lifestyle Showcase",
+          "Emotional Connection",
+          "Product Integration",
+          "Aspiration"
+        ],
         "bestFor": "Lifestyle and luxury products",
         "pacing": "Smooth, flowing narrative"
       },
@@ -1161,7 +1221,12 @@
       "creativePlayful": {
         "name": "Creative Playful",
         "description": "Fun and engaging storytelling with creative elements",
-        "features": ["Creative Approach", "Engaging Content", "Playful Elements", "Memorable Experience"],
+        "features": [
+          "Creative Approach",
+          "Engaging Content",
+          "Playful Elements",
+          "Memorable Experience"
+        ],
         "bestFor": "Creative products, entertainment, lifestyle brands",
         "pacing": "Medium & Dynamic"
       }

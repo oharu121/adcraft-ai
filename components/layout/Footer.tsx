@@ -54,7 +54,7 @@ export function Footer({ className, dict }: FooterProps) {
           {/* Navigation Links */}
           <div>
             <h4 className="text-sm font-semibold text-slate-900 mb-4">
-              {dict.footer.sections.features}
+              {dict.footer.sections.navigation}
             </h4>
             <ul className="space-y-2">
               <li>

@@ -18,6 +18,7 @@ interface ProductIntelligenceStore {
   
   // Product input state
   uploadedImage: File | null;
+  uploadedImageBase64: string | null; // Store base64 for video generation
   productName: string;
   productDescription: string;
   inputMode: 'image' | 'text';
@@ -56,6 +57,7 @@ interface ProductIntelligenceStore {
   
   // Actions for product input
   setUploadedImage: (file: File | null) => void;
+  setUploadedImageBase64: (base64: string | null) => void;
   setProductName: (name: string) => void;
   setProductDescription: (description: string) => void;
   setInputMode: (mode: 'image' | 'text') => void;
@@ -99,6 +101,7 @@ export const useProductIntelligenceStore = create<ProductIntelligenceStore>((set
   completedPhases: [],
 
   uploadedImage: null,
+  uploadedImageBase64: null,
   productName: "",
   productDescription: "",
   inputMode: "image",
@@ -152,6 +155,7 @@ export const useProductIntelligenceStore = create<ProductIntelligenceStore>((set
   },
 
   setUploadedImage: (file) => set({ uploadedImage: file }),
+  setUploadedImageBase64: (base64) => set({ uploadedImageBase64: base64 }),
   setProductName: (name) => set({ productName: name }),
   setProductDescription: (description) => set({ productDescription: description }),
   setInputMode: (mode) => set({ inputMode: mode }),
@@ -183,6 +187,7 @@ export const useProductIntelligenceStore = create<ProductIntelligenceStore>((set
       messages: [],
       analysis: null,
       uploadedImage: null,
+      uploadedImageBase64: null,
       productDescription: "",
       productName: "",
       currentStep: "upload",

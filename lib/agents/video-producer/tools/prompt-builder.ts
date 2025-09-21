@@ -233,10 +233,10 @@ TECHNICAL_SPECS:
 }
 
 /**
- * 8-Second Optimized Prompt Refinement (Current Reality)
- * Strips complex narrative to focus on pure product showcase
+ * Single Scene + Narration Focused Prompt (NEW APPROACH)
+ * One focused 8-second scene with clear product showcase and narration
  */
-export function buildEightSecondOptimizedPrompt(
+export function buildSingleSceneNarrationPrompt(
   context: ZaraStepContext & {
     selectedNarrativeStyle: NarrativeStyle;
     selectedMusicGenre: MusicGenre;
@@ -251,65 +251,101 @@ export function buildEightSecondOptimizedPrompt(
     locale
   } = context;
 
-  // Extract only essential context for 8-second format
+  // Extract ACTUAL analysis data - no more placeholders!
   const productName = davidHandoff.mayaAnalysis?.productAnalysis?.name || 'product';
-  const productCategory = davidHandoff.mayaAnalysis?.productAnalysis?.category || 'general';
-  const primaryBenefit = davidHandoff.mayaAnalysis?.productAnalysis?.benefits?.[0] || 'Premium quality';
+  const productDescription = davidHandoff.mayaAnalysis?.productAnalysis?.description || '';
+  const keyFeatures = davidHandoff.mayaAnalysis?.productAnalysis?.keyFeatures || [];
+  const targetAudience = davidHandoff.mayaAnalysis?.strategicInsights?.targetAudience || 'consumers';
+  const keyMessages = davidHandoff.mayaAnalysis?.strategicInsights?.keyMessages || [];
+  const productBenefits = davidHandoff.mayaAnalysis?.productAnalysis?.benefits || [];
+
+  // David's ACTUAL creative direction
   const visualStyle = davidHandoff.creativeDirection?.name || 'modern';
   const mood = davidHandoff.creativeDirection?.description || 'sophisticated';
-  const colorPalette = davidHandoff.creativeDirection?.colorPalette || ['#000000', '#FFFFFF'];
+  const actualColorPalette = davidHandoff.creativeDirection?.colorPalette || [];
+  const visualKeywords = davidHandoff.creativeDirection?.visualKeywords || [];
 
-  // 8-second optimized prompt focuses on product hero shots only
-  const prompt = `8-SECOND COMMERCIAL VIDEO:
+  // Build narration text from actual analysis
+  const narrationText = keyMessages.length > 0
+    ? keyMessages[0]
+    : productBenefits.length > 0
+      ? `${productName} - ${productBenefits[0]}`
+      : productDescription
+        ? `${productName} - ${productDescription.slice(0, 50)}${productDescription.length > 50 ? '...' : ''}`
+        : `Experience ${productName}`;
+
+  const prompt = `SINGLE SCENE COMMERCIAL VIDEO (8 SECONDS):
 
 PRODUCT_HERO_FOCUS:
 - Name: ${productName}
-- Category: ${productCategory}
-- Key_Benefit: ${primaryBenefit}
-- Visual_Style: ${visualStyle}
+- Description: ${productDescription || 'Premium product'}
+- Target_Audience: ${targetAudience}
+- Key_Features: ${keyFeatures.join(', ') || 'Premium quality'}
+- Primary_Benefit: ${productBenefits[0] || 'Premium quality'}
+- Key_Message: ${keyMessages[0] || 'Experience premium quality'}
+
+SINGLE_SCENE_STRUCTURE:
+Scene_1 (0-8 seconds): Complete Product Showcase with Narration
+  - Shot_Type: Hero beauty shot of the ACTUAL uploaded product
+  - Product_Context: ${productDescription ? `Show ${productName} as ${productDescription}` : `Focus on ${productName} product showcase`}
+  - Composition: Product prominently centered and clearly visible
+  - Lighting: Professional, dramatic lighting to highlight product details
+  - Camera_Movement: Slow zoom or gentle rotation to showcase all angles
+  - Product_Focus: The uploaded product must be the star throughout
+  - Text_Overlay: "${productName}" appears at 2-3 seconds
+  - Narration: "${narrationText}" (clear voiceover delivery)
+  - Background: Minimal, elegant to not distract from product
+  - Final_Frame: Product with brand name clearly visible
+
+VISUAL_DIRECTION:
+- Creative_Style: ${visualStyle}
 - Mood: ${mood}
+- Color_Palette: ${actualColorPalette.length > 0 ? actualColorPalette.join(', ') : 'elegant and sophisticated colors'}
+- Visual_Keywords: ${visualKeywords.join(', ') || 'professional, clean, premium'}
+- Product_Context: Design appropriate for the specific product shown
 
-DURATION_CONSTRAINTS:
-- Total_Duration: 8 seconds MAXIMUM
-- Scene_Count: 2-3 quick cuts only
-- Text_Overlays: Maximum 1-2 short phrases
-- Focus: Pure product showcase, no complex narrative
-
-OPTIMIZED_SCENE_STRUCTURE:
-Scene_1 (0-2 seconds): Quick attention hook
-  - Shot_Type: close-up or medium shot
-  - Focus: Product or lifestyle context
-  - Purpose: Stop scroll, grab attention
-
-Scene_2 (2-6 seconds): HERO PRODUCT SHOWCASE
-  - Shot_Type: beauty shot of the uploaded product
-  - Composition: centered, prominent
-  - Lighting: professional, dramatic
-  - Focus: Make the actual product the star
-  - Purpose: Product must be clearly visible and featured
-
-Scene_3 (6-8 seconds): Brand reveal with benefit
-  - Shot_Type: product with text overlay
-  - Text: "${productName}" + "${primaryBenefit}"
-  - Purpose: Brand recognition and key message
-
-TECHNICAL_SPECS:
-- Aspect_Ratio: ${selectedVideoFormat.aspectRatio}
-- Quality: Professional commercial grade
-- Transitions: Quick cuts, no complex transitions
-- Color_Scheme: ${colorPalette.join(', ')}
-- Audio: ${selectedMusicGenre.name} style background music
+AUDIO_DESIGN:
+- Background_Music: ${selectedMusicGenre.name} style
+- Music_Mood: ${selectedMusicGenre.mood}
+- Narration_Voice: Professional, clear voiceover
+- Narration_Text: "${narrationText}"
+- Audio_Balance: Music supports but doesn't overpower narration
 
 CRITICAL_REQUIREMENTS:
-- The uploaded product image MUST be prominently featured in Scene_2
-- Product visibility is more important than artistic shots
-- Keep text minimal - maximum 6-8 words total
-- Optimize for social media scroll-stopping power
-- No complex storytelling - pure product showcase focus
+- UPLOADED PRODUCT MUST BE PROMINENTLY FEATURED throughout all 8 seconds
+- Product identity must be visually clear and accurate
+- ONE continuous scene - no quick cuts or scene changes
+- Clear product visibility is priority over artistic effects
+- Narration must be clearly audible and synchronized
+- Brand name "${productName}" must appear as text overlay
+- Product must match the uploaded image exactly
 
-PRODUCTION_STYLE: ${mood} ${visualStyle} commercial optimized for 8-second attention spans`;
+TECHNICAL_SPECS:
+- Duration: 8 seconds continuous
+- Aspect_Ratio: ${selectedVideoFormat.aspectRatio}
+- Quality: Professional commercial grade
+- Audio: Background music + clear narration voiceover
+- Text_Overlay: "${productName}" brand name
+- Focus: Single hero product shot throughout
+
+PRODUCTION_STYLE: Professional commercial with clear product showcase and informative narration`;
 
   return prompt;
+}
+
+/**
+ * 8-Second Optimized Prompt Refinement (DEPRECATED - Use Single Scene instead)
+ * Strips complex narrative to focus on pure product showcase
+ */
+export function buildEightSecondOptimizedPrompt(
+  context: ZaraStepContext & {
+    selectedNarrativeStyle: NarrativeStyle;
+    selectedMusicGenre: MusicGenre;
+    selectedVideoFormat: VideoFormat;
+  }
+): string {
+  // DEPRECATED: Use buildSingleSceneNarrationPrompt instead
+  return buildSingleSceneNarrationPrompt(context);
 }
 
 /**
@@ -412,9 +448,8 @@ export function buildProductionContext(
     selectedVideoFormat: VideoFormat;
   }
 ) {
-  // Choose prompt strategy based on duration target
-  // Currently using 8-second optimized for realistic commercial constraints
-  const prompt = buildEightSecondOptimizedPrompt(context);
+  // NEW APPROACH: Single Scene + Narration for better product focus
+  const prompt = buildSingleSceneNarrationPrompt(context);
 
   // Future: Switch to extended duration when platform constraints are lifted
   // const prompt = buildExtendedDurationPrompt(context, 30);

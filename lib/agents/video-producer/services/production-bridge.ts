@@ -67,6 +67,89 @@ export class ProductionBridgeService {
   }
 
   /**
+   * Refine prompt for Veo API optimization using Gemini AI
+   * Uses AI to intelligently optimize prompts while preserving product information
+   */
+  private async refinePromptForVeo(
+    originalRequest: {
+      prompt: string;
+      duration: number;
+      aspectRatio: "16:9" | "9:16";
+      style: string;
+      image?: {
+        bytesBase64Encoded: string;
+        mimeType: string;
+      };
+    },
+    context: VideoProductionRequest
+  ): Promise<typeof originalRequest> {
+    const { prompt } = originalRequest;
+
+    // If prompt is already concise (under 1000 characters), no need to refine
+    if (prompt.length <= 1000) {
+      console.log("[ProductionBridge] Prompt already optimized, skipping refinement");
+      return originalRequest;
+    }
+
+    try {
+      // Import Gemini service dynamically to avoid circular dependencies
+      const { VertexAIService } = await import('@/lib/services/vertex-ai');
+      const { GeminiClient } = await import('@/lib/services/gemini');
+
+      const vertexAI = VertexAIService.getInstance();
+      const geminiClient = new GeminiClient(vertexAI);
+
+      const hasImage = !!originalRequest.image;
+      const targetDuration = originalRequest.duration;
+
+      // Create refinement prompt for Gemini
+      const refinementPrompt = `Transform this commercial prompt for Google Veo API to generate an ${targetDuration}-second video.
+
+ORIGINAL PROMPT:
+${prompt}
+
+REQUIREMENTS:
+- Translate everything to English except product name
+- Show uploaded product image prominently in video
+- Create one single key message for narration
+- Include brief music style instruction
+- Output as clear paragraph describing video generation
+
+EXAMPLE OUTPUT:
+Generate an 8-second commercial featuring the uploaded AquaPure water bottle as the hero. Show the sleek blue bottle with professional lighting and gentle rotation. Display "AquaPure" text overlay at 2-3 seconds. Narration: "Pure hydration for your active lifestyle." Background music should be fresh and energetic with light electronic beats. Keep the product prominently visible throughout with clean white background.
+
+OUTPUT: Single paragraph with clear video generation instructions only.`;
+
+      console.log("[ProductionBridge] 🤖 Calling Gemini for prompt refinement:", {
+        originalLength: prompt.length,
+        hasImage,
+        targetDuration,
+        aspectRatio: originalRequest.aspectRatio
+      });
+
+      const response = await geminiClient.generateTextOnly(refinementPrompt);
+      const refinedPrompt = response.text.trim();
+
+      console.log("[ProductionBridge] ✅ Gemini refinement complete:", {
+        originalLength: prompt.length,
+        refinedLength: refinedPrompt.length,
+        reduction: Math.round((1 - refinedPrompt.length / prompt.length) * 100) + '%',
+        tokensUsed: response.usage?.input_tokens + response.usage?.output_tokens || 0
+      });
+
+      return {
+        ...originalRequest,
+        prompt: refinedPrompt
+      };
+
+    } catch (error) {
+      console.error("[ProductionBridge] ❌ Gemini refinement failed, using original:", error);
+      // Fallback to original prompt if Gemini fails
+      return originalRequest;
+    }
+  }
+
+  /**
    * Write debug data to output directory
    */
   private writeDebugFile(filename: string, data: any): void {
@@ -97,6 +180,17 @@ export class ProductionBridgeService {
         videoFormat: request.selectedVideoFormat.name
       });
 
+      // 🔍 DEBUG: Trace product description through handoff
+      console.log("[ProductionBridge] 🔍 PRODUCT DESCRIPTION DEBUG:", {
+        davidHandoff_productAnalysis: request.davidHandoff.mayaAnalysis?.productAnalysis,
+        davidHandoff_keys: Object.keys(request.davidHandoff.mayaAnalysis || {}),
+        productAnalysis_keys: Object.keys(request.davidHandoff.mayaAnalysis?.productAnalysis || {}),
+        productDescription: request.davidHandoff.mayaAnalysis?.productAnalysis?.description,
+        productBenefits: request.davidHandoff.mayaAnalysis?.productAnalysis?.benefits,
+        hasProductImage: !!request.davidHandoff.productImage,
+        productImageLength: request.davidHandoff.productImage?.length
+      });
+
       // Build comprehensive production context
       const productionContext = buildProductionContext({
         davidHandoff: request.davidHandoff,
@@ -113,10 +207,17 @@ export class ProductionBridgeService {
         estimatedCost: productionContext.productionMetadata.estimatedCost
       });
 
-      // Call existing video generation API
-      const videoGenerationResponse = await this.callVideoGenerationAPI(
-        productionContext.videoGenerationRequest
-      );
+      // Refine prompt for Veo optimization (8-second video focus)
+      const refinedRequest = await this.refinePromptForVeo(productionContext.videoGenerationRequest, request);
+
+      console.log("[ProductionBridge] Refined prompt for Veo:", {
+        originalLength: productionContext.videoGenerationRequest.prompt.length,
+        refinedLength: refinedRequest.prompt.length,
+        reduction: Math.round((1 - refinedRequest.prompt.length / productionContext.videoGenerationRequest.prompt.length) * 100) + '%'
+      });
+
+      // Call existing video generation API with refined prompt
+      const videoGenerationResponse = await this.callVideoGenerationAPI(refinedRequest);
 
       if (!videoGenerationResponse.success) {
         return {
@@ -167,6 +268,10 @@ export class ProductionBridgeService {
     duration: number;
     aspectRatio: "16:9" | "9:16";
     style: string;
+    image?: {
+      bytesBase64Encoded: string;
+      mimeType: string;
+    };
   }): Promise<any> {
     try {
       // Get the current host for the API call
@@ -180,7 +285,9 @@ export class ProductionBridgeService {
         promptLength: videoRequest.prompt.length,
         duration: videoRequest.duration,
         aspectRatio: videoRequest.aspectRatio,
-        style: videoRequest.style
+        style: videoRequest.style,
+        hasImage: !!videoRequest.image,
+        imageSize: videoRequest.image?.bytesBase64Encoded?.length
       });
 
       // Write full payload to debug file

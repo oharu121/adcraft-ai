@@ -1,4 +1,46 @@
 {
+  "about": {
+    "title": "AdCraft AIについて",
+    "subtitle": "マルチエージェントAIシステムを使用して商品画像を魅力的なコマーシャル動画に変換",
+    "backHome": "ホームに戻る",
+    "agentsTitle": "マルチエージェントAIシステム",
+    "maya": {
+      "title": "Maya - プロダクトインテリジェンス",
+      "description": "高度なコンピュータービジョンとNLPで商品画像を分析し、特徴を抽出し、市場での位置づけを理解します。"
+    },
+    "david": {
+      "title": "David - クリエイティブディレクター",
+      "description": "戦略的クリエイティブプランニング、ビジュアルディレクション、ブランドストーリーテリングで魅力的なコマーシャルナラティブを制作します。"
+    },
+    "zara": {
+      "title": "Zara - ビデオプロデューサー",
+      "description": "GoogleのVeo APIを使用した高度な動画生成で、クリエイティブコンセプトをプロフェッショナルなコマーシャルに変換します。"
+    },
+    "techTitle": "最先端テクノロジーで動作",
+    "journeyTitle": "画像からコマーシャルまでのジャーニー",
+    "steps": {
+      "upload": "商品画像をアップロード",
+      "uploadDesc": "商品画像をドラッグ&ドロップするだけでAI分析プロセスが開始されます。",
+      "analyze": "AI分析",
+      "analyzeDesc": "Mayaが商品を分析し、特徴、利点、市場での位置づけを抽出します。",
+      "create": "クリエイティブディレクション",
+      "createDesc": "Davidが魅力的なビジュアルナラティブとブランドストーリーテリング戦略を制作します。",
+      "produce": "動画制作",
+      "produceDesc": "Zaraが高度なAI技術を使用してプロフェッショナルなコマーシャル動画を生成します。"
+    },
+    "inputTitle": "コマーシャル作成の2つの方法",
+    "imageUpload": {
+      "title": "商品画像をアップロード",
+      "description": "すでに商品写真をお持ちですか？完璧です！画像をドラッグ&ドロップするだけで、即座にAI分析とコマーシャル生成が開始されます。"
+    },
+    "textPrompt": {
+      "title": "商品を説明",
+      "description": "まだ画像がありませんか？問題ありません！商品を言葉で説明すれば、AIが美しい商品画像を生成してからコマーシャルを作成します。"
+    },
+    "ctaTitle": "商品を変革する準備はできましたか？",
+    "ctaDesc": "AI駆動のコマーシャル動画制作の未来に参加しましょう",
+    "ctaButton": "今すぐ作成開始"
+  },
   "common": {
     "loading": "読み込み中...",
     "cancel": "キャンセル",
@@ -104,8 +146,8 @@
   "navigation": {
     "home": "生成",
     "gallery": "ギャラリー",
-    "about": "について",
-    "generate": "動画生成",
+    "about": "AdCraft AIについて",
+    "generate": "広告生成",
     "monitoring": "モニタリング",
     "menu": "メニュー",
     "toggleMenu": "メニューの切り替え"
@@ -123,12 +165,12 @@
     "description": "最先端のAI技術を使用してテキストプロンプトをプロフェッショナルな動画コンテンツに変換。AI Agent Hackathon 2025向けに構築。",
     "hackathonBadge": "AI Agent Hackathon 2025",
     "sections": {
-      "features": "機能",
+      "navigation": "ナビゲーション",
       "technology": "テクノロジー"
     },
     "links": {
       "videoGeneration": "動画生成",
-      "sampleGallery": "サンプルギャラリー",
+      "sampleGallery": "ギャラリー",
       "aboutProject": "プロジェクトについて"
     },
     "notice": {
@@ -315,7 +357,7 @@
     }
   },
   "productIntelligence": {
-    "title": "AI Product AdCraft",
+    "title": "AdCraft AI",
     "subtitle": "商品をプロの広告に変えるAIエージェント",
     "description": "商品画像をアップロードして、AIエージェントに魅力的な広告ストーリーを作成させましょう。",
     "getStarted": "今すぐ始める",
@@ -464,8 +506,6 @@
     "imageAnalysis": "画像を分析中...",
     "productAnalysis": "商品を分析中...",
     "analysisWithName": "{productName}を分析中...",
-    "imagingMode": "画像から広告へ",
-    "textMode": "テキストから広告へ",
     "moreDetails": "詳しく書くほど精度が上がります",
     "detailedDescription": "詳細な説明ほど分析の精度が向上します",
     "sessionId": "セッションID",
@@ -497,10 +537,20 @@
     "analysisFailedDemo": "AI分析が失敗しました。デモモードに切り替えるか、やり直してください。",
     "validationError": "バリデーションエラー",
     "productNameReady": "商品名を入力済み",
-    "stepInstructions1": "商品画像をアップロードまたはテキストを入力します",
-    "stepInstructions2": "AIが自動で商品を分析します",
-    "stepInstructions3": "エージェントとチャットで詳細を相談します",
-    "stepInstructions4": "Creative Directorエージェントへ引き継ぎます",
+    "imageMode": {
+      "label": "画像から広告へ",
+      "stepInstructions1": "商品画像をアップロード",
+      "stepInstructions2": "Mayaが画像を分析",
+      "stepInstructions3": "Mayaとチャットで商品詳細を深掘り",
+      "stepInstructions4": "商品分析レポート完成"
+    },
+    "textMode": {
+      "label": "テキストから広告へ",
+      "stepInstructions1": "商品をテキストで詳しく説明",
+      "stepInstructions2": "Mayaが4つの商品画像候補を生成",
+      "stepInstructions3": "画像を選択してMayaとチャットで商品詳細を深掘り",
+      "stepInstructions4": "商品分析レポート完成"
+    },
     "clickToEnlarge": "クリックで拡大",
     "clickOutsideToClose": "外側をクリックして閉じる",
     "productFullSize": "商品画像 - フルサイズ",
@@ -1140,7 +1190,12 @@
       "creativePlayful": {
         "name": "クリエイティブ・プレイフル",
         "description": "クリエイティブな要素を持つ楽しくて魅力的なストーリーテリング",
-        "features": ["クリエイティブアプローチ", "魅力的なコンテンツ", "遊び心のある要素", "記憶に残る体験"],
+        "features": [
+          "クリエイティブアプローチ",
+          "魅力的なコンテンツ",
+          "遊び心のある要素",
+          "記憶に残る体験"
+        ],
         "bestFor": "クリエイティブ商品、エンターテインメント、ライフスタイルブランド",
         "pacing": "ミディアム&ダイナミック"
       }
