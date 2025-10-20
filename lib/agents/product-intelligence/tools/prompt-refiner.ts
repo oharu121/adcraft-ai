@@ -32,7 +32,7 @@ export class PromptRefiner {
     this.vertexAI = VertexAIService.getInstance();
     this.costTracker = CostTracker.getInstance();
     const config = this.vertexAI.getConfig();
-    this.modelEndpoint = `${this.vertexAI.getBaseUrl()}/publishers/google/models/gemini-1.5-pro:predict`;
+    this.modelEndpoint = `${this.vertexAI.getBaseUrl()}/publishers/google/models/gemini-2.5-flash:predict`;
   }
 
   /**

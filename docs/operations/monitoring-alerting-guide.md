@@ -14,20 +14,20 @@ graph TB
     A --> C[Metrics Service]
     A --> D[Security Monitor]
     A --> E[Cost Tracker]
-    
+
     B --> F[Cloud Logging]
     C --> G[Monitoring Service]
     D --> G
     E --> G
-    
+
     G --> H[Alerting Service]
     H --> I[Notification Channels]
-    
+
     I --> J[Console Logs]
     I --> K[Email Alerts]
     I --> L[Webhook Notifications]
     I --> M[Cloud Monitoring]
-    
+
     N[Admin Dashboard] --> G
     N --> H
     N --> D
@@ -51,6 +51,7 @@ graph TB
 ### Production Logger Setup
 
 #### Environment Variables
+
 ```bash
 # Production logging configuration
 LOG_LEVEL=info                    # info, warn, error, critical
@@ -61,23 +62,25 @@ CLOUD_LOGGING_ENABLED=true       # Enable Google Cloud Logging
 ```
 
 #### Logger Service Configuration
+
 ```typescript
 // Production logger configuration
 const loggerConfig = {
-  level: 'info',
-  format: 'json',
+  level: "info",
+  format: "json",
   enableCloudLogging: true,
   enableConsoleLogging: false,
   enableFileLogging: false,
   correlationIdEnabled: true,
   performanceTrackingEnabled: true,
   retentionDays: 90,
-  maxLogSize: '100MB',
-  rotationInterval: 'daily'
+  maxLogSize: "100MB",
+  rotationInterval: "daily",
 };
 ```
 
 #### Cloud Logging Integration
+
 ```bash
 # Enable Cloud Logging API
 gcloud services enable logging.googleapis.com
@@ -134,6 +137,7 @@ ORDER BY avg_duration DESC;
 ### Production Metrics Setup
 
 #### Environment Variables
+
 ```bash
 # Metrics configuration
 METRICS_ENABLED=true
@@ -146,49 +150,51 @@ METRICS_COLLECTION_INTERVAL=30000    # 30 seconds
 #### Key Metrics Collected
 
 ##### Performance Metrics
+
 ```typescript
 interface PerformanceMetrics {
   // API Performance
-  apiResponseTime: number;          // Average response time per endpoint
-  apiSuccessRate: number;           // Success rate percentage
-  apiErrorRate: number;             // Error rate percentage
-  apiThroughput: number;            // Requests per minute
-  
+  apiResponseTime: number; // Average response time per endpoint
+  apiSuccessRate: number; // Success rate percentage
+  apiErrorRate: number; // Error rate percentage
+  apiThroughput: number; // Requests per minute
+
   // System Performance
-  cpuUsage: number;                 // CPU utilization percentage
-  memoryUsage: number;              // Memory usage in bytes
-  memoryPercent: number;            // Memory utilization percentage
-  diskUsage: number;                // Disk usage in bytes
-  
+  cpuUsage: number; // CPU utilization percentage
+  memoryUsage: number; // Memory usage in bytes
+  memoryPercent: number; // Memory utilization percentage
+  diskUsage: number; // Disk usage in bytes
+
   // Application Performance
-  videoGenerationTime: number;      // Average video generation time
-  videoSuccessRate: number;         // Video generation success rate
-  concurrentGenerations: number;    // Active video generations
-  
+  videoGenerationTime: number; // Average video generation time
+  videoSuccessRate: number; // Video generation success rate
+  concurrentGenerations: number; // Active video generations
+
   // Database Performance
-  firestoreReadLatency: number;     // Firestore read response time
-  firestoreWriteLatency: number;    // Firestore write response time
-  firestoreErrorRate: number;       // Firestore operation error rate
+  firestoreReadLatency: number; // Firestore read response time
+  firestoreWriteLatency: number; // Firestore write response time
+  firestoreErrorRate: number; // Firestore operation error rate
 }
 ```
 
 ##### Business Metrics
+
 ```typescript
 interface BusinessMetrics {
   // Usage Metrics
-  totalUsers: number;               // Total unique users
-  dailyActiveUsers: number;         // Daily active users
-  videosGenerated: number;          // Total videos generated
-  chatSessions: number;             // Total chat sessions
-  
+  totalUsers: number; // Total unique users
+  dailyActiveUsers: number; // Daily active users
+  videosGenerated: number; // Total videos generated
+  chatSessions: number; // Total chat sessions
+
   // Performance Metrics
-  userSatisfactionScore: number;    // User satisfaction (1-5)
-  averageSessionDuration: number;   // Average user session time
-  featureUsageRate: number;         // Feature adoption rate
-  
+  userSatisfactionScore: number; // User satisfaction (1-5)
+  averageSessionDuration: number; // Average user session time
+  featureUsageRate: number; // Feature adoption rate
+
   // Cost Metrics
-  costPerVideo: number;             // Average cost per video
-  revenuePerUser: number;           // Revenue per user (if applicable)
+  costPerVideo: number; // Average cost per video
+  revenuePerUser: number; // Revenue per user (if applicable)
 }
 ```
 
@@ -198,32 +204,32 @@ interface BusinessMetrics {
 class MetricsService {
   // Record API call metrics
   recordAPICall(endpoint: string, duration: number, status: number): void {
-    this.recordCustomMetric('api_response_time', duration, {
+    this.recordCustomMetric("api_response_time", duration, {
       endpoint,
-      status: status.toString()
+      status: status.toString(),
     });
-    
-    this.recordCustomMetric('api_request_count', 1, {
+
+    this.recordCustomMetric("api_request_count", 1, {
       endpoint,
-      status: status.toString()
+      status: status.toString(),
     });
   }
-  
+
   // Record video generation metrics
   recordVideoGeneration(duration: number, cost: number, success: boolean): void {
-    this.recordCustomMetric('video_generation_duration', duration);
-    this.recordCustomMetric('video_generation_cost', cost);
-    this.recordCustomMetric('video_generation_count', 1, {
-      success: success.toString()
+    this.recordCustomMetric("video_generation_duration", duration);
+    this.recordCustomMetric("video_generation_cost", cost);
+    this.recordCustomMetric("video_generation_count", 1, {
+      success: success.toString(),
     });
   }
-  
+
   // Record system metrics
   recordSystemMetrics(): void {
     const memUsage = process.memoryUsage();
-    this.recordCustomMetric('system_memory_used', memUsage.heapUsed);
-    this.recordCustomMetric('system_memory_total', memUsage.heapTotal);
-    this.recordCustomMetric('system_uptime', process.uptime());
+    this.recordCustomMetric("system_memory_used", memUsage.heapUsed);
+    this.recordCustomMetric("system_memory_total", memUsage.heapTotal);
+    this.recordCustomMetric("system_uptime", process.uptime());
   }
 }
 ```
@@ -288,6 +294,7 @@ EOF
 ### Security Event Detection
 
 #### Environment Variables
+
 ```bash
 # Security monitoring configuration
 SECURITY_MONITORING_ENABLED=true
@@ -303,8 +310,8 @@ SECURITY_ALERT_ENABLED=true
 interface SecurityEvent {
   id: string;
   type: SecurityEventType;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  source: string;                   // IP address or identifier
+  severity: "low" | "medium" | "high" | "critical";
+  source: string; // IP address or identifier
   message: string;
   timestamp: Date;
   metadata: {
@@ -317,16 +324,16 @@ interface SecurityEvent {
 }
 
 enum SecurityEventType {
-  AUTHENTICATION_FAILURE = 'authentication_failure',
-  RATE_LIMIT_VIOLATION = 'rate_limit_violation',
-  SUSPICIOUS_REQUEST = 'suspicious_request',
-  SQL_INJECTION_ATTEMPT = 'sql_injection_attempt',
-  XSS_ATTEMPT = 'xss_attempt',
-  BRUTE_FORCE_ATTACK = 'brute_force_attack',
-  UNAUTHORIZED_ACCESS = 'unauthorized_access',
-  MALFORMED_REQUEST = 'malformed_request',
-  SUSPICIOUS_PAYLOAD = 'suspicious_payload',
-  GEO_ANOMALY = 'geo_anomaly'
+  AUTHENTICATION_FAILURE = "authentication_failure",
+  RATE_LIMIT_VIOLATION = "rate_limit_violation",
+  SUSPICIOUS_REQUEST = "suspicious_request",
+  SQL_INJECTION_ATTEMPT = "sql_injection_attempt",
+  XSS_ATTEMPT = "xss_attempt",
+  BRUTE_FORCE_ATTACK = "brute_force_attack",
+  UNAUTHORIZED_ACCESS = "unauthorized_access",
+  MALFORMED_REQUEST = "malformed_request",
+  SUSPICIOUS_PAYLOAD = "suspicious_payload",
+  GEO_ANOMALY = "geo_anomaly",
 }
 ```
 
@@ -336,26 +343,27 @@ enum SecurityEventType {
 class SecurityRules {
   // Detect brute force attacks
   static detectBruteForce(events: SecurityEvent[]): boolean {
-    const recentFailures = events.filter(e => 
-      e.type === SecurityEventType.AUTHENTICATION_FAILURE &&
-      Date.now() - e.timestamp.getTime() < 300000 // 5 minutes
+    const recentFailures = events.filter(
+      (e) =>
+        e.type === SecurityEventType.AUTHENTICATION_FAILURE &&
+        Date.now() - e.timestamp.getTime() < 300000 // 5 minutes
     );
-    
+
     return recentFailures.length >= 5;
   }
-  
+
   // Detect SQL injection attempts
   static detectSQLInjection(payload: string): boolean {
     const sqlPatterns = [
       /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION)\b)/i,
       /(--|\;|\|)/,
       /(\bOR\s+\d+\s*=\s*\d+\b)/i,
-      /('(''|[^'])*')/
+      /('(''|[^'])*')/,
     ];
-    
-    return sqlPatterns.some(pattern => pattern.test(payload));
+
+    return sqlPatterns.some((pattern) => pattern.test(payload));
   }
-  
+
   // Detect XSS attempts
   static detectXSS(payload: string): boolean {
     const xssPatterns = [
@@ -364,10 +372,10 @@ class SecurityRules {
       /on\w+\s*=/i,
       /<iframe\b/i,
       /<object\b/i,
-      /<embed\b/i
+      /<embed\b/i,
     ];
-    
-    return xssPatterns.some(pattern => pattern.test(payload));
+
+    return xssPatterns.some((pattern) => pattern.test(payload));
   }
 }
 ```
@@ -377,9 +385,12 @@ class SecurityRules {
 ```typescript
 class GeoAnomalyDetector {
   private static SUSPICIOUS_COUNTRIES = [
-    'CN', 'RU', 'KP', 'IR'  // Add based on your risk assessment
+    "CN",
+    "RU",
+    "KP",
+    "IR", // Add based on your risk assessment
   ];
-  
+
   static async analyzeRequest(ip: string): Promise<{
     country: string;
     isSuspicious: boolean;
@@ -387,16 +398,19 @@ class GeoAnomalyDetector {
   }> {
     // Integrate with IP geolocation service
     const geoData = await this.getGeoLocation(ip);
-    
-    const isSuspicious = this.SUSPICIOUS_COUNTRIES.includes(geoData.country) ||
-      geoData.isVPN || geoData.isTor || geoData.isProxy;
-    
+
+    const isSuspicious =
+      this.SUSPICIOUS_COUNTRIES.includes(geoData.country) ||
+      geoData.isVPN ||
+      geoData.isTor ||
+      geoData.isProxy;
+
     const riskScore = this.calculateRiskScore(geoData);
-    
+
     return {
       country: geoData.country,
       isSuspicious,
-      riskScore
+      riskScore,
     };
   }
 }
@@ -409,12 +423,13 @@ class GeoAnomalyDetector {
 ### Budget Monitoring Setup
 
 #### Environment Variables
+
 ```bash
 # Cost tracking configuration
 BUDGET_LIMIT=300                    # Total budget in USD
 COST_TRACKING_ENABLED=true
 BUDGET_ALERT_50=150                 # 50% threshold
-BUDGET_ALERT_75=225                 # 75% threshold  
+BUDGET_ALERT_75=225                 # 75% threshold
 BUDGET_ALERT_90=270                 # 90% threshold
 DAILY_BUDGET_LIMIT=20               # Daily limit
 PER_VIDEO_COST_LIMIT=3.00          # Per-video limit
@@ -449,30 +464,30 @@ gcloud functions deploy process-budget-alerts \
 ```typescript
 interface CostBreakdown {
   // By Service
-  vertexAI: number;                 // Gemini API costs
-  veoAPI: number;                   // Video generation costs
-  cloudRun: number;                 // Compute costs
-  cloudStorage: number;             // Storage costs
-  firestore: number;                // Database costs
-  cloudLogging: number;             // Logging costs
-  cloudMonitoring: number;          // Monitoring costs
-  networking: number;               // Network costs
-  
+  vertexAI: number; // Gemini API costs
+  veoAPI: number; // Video generation costs
+  cloudRun: number; // Compute costs
+  cloudStorage: number; // Storage costs
+  firestore: number; // Database costs
+  cloudLogging: number; // Logging costs
+  cloudMonitoring: number; // Monitoring costs
+  networking: number; // Network costs
+
   // By Operation Type
-  videoGeneration: number;          // Video generation costs
-  imageAnalysis: number;            // Image analysis costs
-  textGeneration: number;           // Text generation costs
-  storage: number;                  // File storage costs
-  
+  videoGeneration: number; // Video generation costs
+  imageAnalysis: number; // Image analysis costs
+  textGeneration: number; // Text generation costs
+  storage: number; // File storage costs
+
   // By Time Period
-  hourly: number[];                 // Hourly cost breakdown
-  daily: number[];                  // Daily cost breakdown
-  monthly: number[];                // Monthly cost breakdown
-  
+  hourly: number[]; // Hourly cost breakdown
+  daily: number[]; // Daily cost breakdown
+  monthly: number[]; // Monthly cost breakdown
+
   // Projections
-  projectedDaily: number;           // Projected daily spend
-  projectedMonthly: number;         // Projected monthly spend
-  remainingBudget: number;          // Remaining budget
+  projectedDaily: number; // Projected daily spend
+  projectedMonthly: number; // Projected monthly spend
+  remainingBudget: number; // Remaining budget
   daysUntilBudgetExhausted: number; // Days until budget exhausted
 }
 ```
@@ -488,173 +503,163 @@ interface CostBreakdown {
 ```typescript
 const DEFAULT_ALERT_RULES: AlertRule[] = [
   {
-    id: 'high-error-rate',
-    name: 'High Error Rate',
-    description: 'Triggers when error rate exceeds 5% for 5 minutes',
+    id: "high-error-rate",
+    name: "High Error Rate",
+    description: "Triggers when error rate exceeds 5% for 5 minutes",
     enabled: true,
-    source: 'performance',
-    conditions: [
-      { metric: 'error_rate', operator: 'gt', value: 5 }
-    ],
-    aggregationWindow: 5 * 60 * 1000,        // 5 minutes
-    threshold: 5,                             // 5%
-    operator: 'gt',
-    severity: 'high',
+    source: "performance",
+    conditions: [{ metric: "error_rate", operator: "gt", value: 5 }],
+    aggregationWindow: 5 * 60 * 1000, // 5 minutes
+    threshold: 5, // 5%
+    operator: "gt",
+    severity: "high",
     channels: [
-      { type: 'console', enabled: true },
-      { type: 'email', enabled: true }
+      { type: "console", enabled: true },
+      { type: "email", enabled: true },
     ],
-    cooldownPeriod: 10 * 60 * 1000,          // 10 minutes
+    cooldownPeriod: 10 * 60 * 1000, // 10 minutes
     maxAlerts: 5,
     autoResolve: true,
-    autoResolveAfter: 15 * 60 * 1000,        // 15 minutes
-    tags: ['performance', 'critical']
+    autoResolveAfter: 15 * 60 * 1000, // 15 minutes
+    tags: ["performance", "critical"],
   },
-  
+
   {
-    id: 'slow-response-time',
-    name: 'Slow Response Time',
-    description: 'Triggers when average response time exceeds 2 seconds',
+    id: "slow-response-time",
+    name: "Slow Response Time",
+    description: "Triggers when average response time exceeds 2 seconds",
     enabled: true,
-    source: 'performance',
-    conditions: [
-      { metric: 'avg_response_time', operator: 'gt', value: 2000 }
-    ],
+    source: "performance",
+    conditions: [{ metric: "avg_response_time", operator: "gt", value: 2000 }],
     aggregationWindow: 5 * 60 * 1000,
-    threshold: 2000,                          // 2 seconds
-    operator: 'gt',
-    severity: 'medium',
-    channels: [
-      { type: 'console', enabled: true }
-    ],
+    threshold: 2000, // 2 seconds
+    operator: "gt",
+    severity: "medium",
+    channels: [{ type: "console", enabled: true }],
     cooldownPeriod: 15 * 60 * 1000,
     maxAlerts: 3,
     autoResolve: true,
     autoResolveAfter: 10 * 60 * 1000,
-    tags: ['performance']
+    tags: ["performance"],
   },
-  
+
   {
-    id: 'budget-exceeded',
-    name: 'Budget Threshold Exceeded',
-    description: 'Triggers when budget threshold is exceeded',
+    id: "budget-exceeded",
+    name: "Budget Threshold Exceeded",
+    description: "Triggers when budget threshold is exceeded",
     enabled: true,
-    source: 'cost',
-    conditions: [
-      { metric: 'budget_percentage', operator: 'gt', value: 90 }
-    ],
-    aggregationWindow: 1 * 60 * 1000,        // 1 minute
-    threshold: 90,                            // 90%
-    operator: 'gt',
-    severity: 'critical',
+    source: "cost",
+    conditions: [{ metric: "budget_percentage", operator: "gt", value: 90 }],
+    aggregationWindow: 1 * 60 * 1000, // 1 minute
+    threshold: 90, // 90%
+    operator: "gt",
+    severity: "critical",
     channels: [
-      { type: 'console', enabled: true },
-      { type: 'email', enabled: true },
-      { type: 'webhook', enabled: true }
+      { type: "console", enabled: true },
+      { type: "email", enabled: true },
+      { type: "webhook", enabled: true },
     ],
-    cooldownPeriod: 30 * 60 * 1000,          // 30 minutes
+    cooldownPeriod: 30 * 60 * 1000, // 30 minutes
     maxAlerts: 10,
     autoResolve: false,
-    tags: ['budget', 'critical']
+    tags: ["budget", "critical"],
   },
-  
+
   {
-    id: 'security-critical-events',
-    name: 'Critical Security Events',
-    description: 'Triggers on critical security events',
+    id: "security-critical-events",
+    name: "Critical Security Events",
+    description: "Triggers on critical security events",
     enabled: true,
-    source: 'security',
-    conditions: [
-      { metric: 'critical_security_events', operator: 'gt', value: 0 }
-    ],
+    source: "security",
+    conditions: [{ metric: "critical_security_events", operator: "gt", value: 0 }],
     aggregationWindow: 1 * 60 * 1000,
     threshold: 0,
-    operator: 'gt',
-    severity: 'critical',
+    operator: "gt",
+    severity: "critical",
     channels: [
-      { type: 'console', enabled: true },
-      { type: 'email', enabled: true },
-      { type: 'webhook', enabled: true }
+      { type: "console", enabled: true },
+      { type: "email", enabled: true },
+      { type: "webhook", enabled: true },
     ],
-    cooldownPeriod: 5 * 60 * 1000,           // 5 minutes
+    cooldownPeriod: 5 * 60 * 1000, // 5 minutes
     maxAlerts: 20,
     autoResolve: false,
-    tags: ['security', 'critical']
+    tags: ["security", "critical"],
   },
-  
+
   {
-    id: 'high-memory-usage',
-    name: 'High Memory Usage',
-    description: 'Triggers when memory usage exceeds 90%',
+    id: "high-memory-usage",
+    name: "High Memory Usage",
+    description: "Triggers when memory usage exceeds 90%",
     enabled: true,
-    source: 'system',
-    conditions: [
-      { metric: 'memory_percent', operator: 'gt', value: 90 }
-    ],
+    source: "system",
+    conditions: [{ metric: "memory_percent", operator: "gt", value: 90 }],
     aggregationWindow: 5 * 60 * 1000,
     threshold: 90,
-    operator: 'gt',
-    severity: 'high',
+    operator: "gt",
+    severity: "high",
     channels: [
-      { type: 'console', enabled: true },
-      { type: 'email', enabled: true }
+      { type: "console", enabled: true },
+      { type: "email", enabled: true },
     ],
     cooldownPeriod: 10 * 60 * 1000,
     maxAlerts: 5,
     autoResolve: true,
     autoResolveAfter: 10 * 60 * 1000,
-    tags: ['system', 'performance']
-  }
+    tags: ["system", "performance"],
+  },
 ];
 ```
 
 #### Notification Channels
 
 ##### Console Notifications
+
 ```typescript
 class ConsoleNotificationChannel implements NotificationChannel {
-  type = 'console';
-  
+  type = "console";
+
   async send(alert: Alert): Promise<boolean> {
     const timestamp = new Date().toISOString();
     const prefix = this.getSeverityPrefix(alert.severity);
-    
+
     console.log(`${prefix} [${timestamp}] ${alert.title}`);
     console.log(`  Message: ${alert.message}`);
     console.log(`  Severity: ${alert.severity}`);
     console.log(`  Source: ${alert.source}`);
     console.log(`  Triggered At: ${alert.triggeredAt.toISOString()}`);
-    
+
     return true;
   }
 }
 ```
 
 ##### Email Notifications
+
 ```typescript
 class EmailNotificationChannel implements NotificationChannel {
-  type = 'email';
+  type = "email";
   private emailService: EmailService;
-  
+
   async send(alert: Alert): Promise<boolean> {
     const subject = `[AdCraft AI] ${alert.severity.toUpperCase()}: ${alert.title}`;
     const body = this.formatEmailBody(alert);
-    
+
     try {
       await this.emailService.sendEmail({
-        to: process.env.ALERT_EMAIL_RECIPIENTS?.split(',') || [],
+        to: process.env.ALERT_EMAIL_RECIPIENTS?.split(",") || [],
         subject,
         body,
-        priority: alert.severity === 'critical' ? 'high' : 'normal'
+        priority: alert.severity === "critical" ? "high" : "normal",
       });
-      
+
       return true;
     } catch (error) {
-      console.error('Failed to send email alert:', error);
+      console.error("Failed to send email alert:", error);
       return false;
     }
   }
-  
+
   private formatEmailBody(alert: Alert): string {
     return `
     <h2>Alert: ${alert.title}</h2>
@@ -679,14 +684,15 @@ class EmailNotificationChannel implements NotificationChannel {
 ```
 
 ##### Webhook Notifications
+
 ```typescript
 class WebhookNotificationChannel implements NotificationChannel {
-  type = 'webhook';
-  
+  type = "webhook";
+
   async send(alert: Alert): Promise<boolean> {
     const webhookUrl = process.env.ALERT_WEBHOOK_URL;
     if (!webhookUrl) return false;
-    
+
     const payload = {
       timestamp: new Date().toISOString(),
       alert: {
@@ -697,26 +703,26 @@ class WebhookNotificationChannel implements NotificationChannel {
         source: alert.source,
         triggeredAt: alert.triggeredAt.toISOString(),
         ruleId: alert.ruleId,
-        status: alert.status
+        status: alert.status,
       },
-      service: 'adcraft-ai',
-      environment: process.env.NODE_ENV
+      service: "adcraft-ai",
+      environment: process.env.NODE_ENV,
     };
-    
+
     try {
       const response = await fetch(webhookUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'X-Alert-Source': 'adcraft-ai',
-          'Authorization': `Bearer ${process.env.WEBHOOK_SECRET}`
+          "Content-Type": "application/json",
+          "X-Alert-Source": "adcraft-ai",
+          Authorization: `Bearer ${process.env.WEBHOOK_SECRET}`,
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
-      
+
       return response.ok;
     } catch (error) {
-      console.error('Failed to send webhook alert:', error);
+      console.error("Failed to send webhook alert:", error);
       return false;
     }
   }
@@ -730,6 +736,7 @@ class WebhookNotificationChannel implements NotificationChannel {
 ### Dashboard Access Setup
 
 #### Authentication Configuration
+
 ```bash
 # Set admin API key for production
 export ADMIN_API_KEY="$(openssl rand -base64 32 | tr -d '/+=' | head -c 32)"
@@ -746,6 +753,7 @@ gcloud run services update adcraft-service \
 #### Dashboard Endpoints
 
 ##### Health Overview
+
 ```bash
 # GET /api/admin/monitoring?section=health
 curl -H "Authorization: Bearer $ADMIN_API_KEY" \
@@ -753,6 +761,7 @@ curl -H "Authorization: Bearer $ADMIN_API_KEY" \
 ```
 
 ##### Performance Metrics
+
 ```bash
 # GET /api/admin/monitoring?section=performance&timeRange=24h
 curl -H "Authorization: Bearer $ADMIN_API_KEY" \
@@ -760,6 +769,7 @@ curl -H "Authorization: Bearer $ADMIN_API_KEY" \
 ```
 
 ##### Cost Analytics
+
 ```bash
 # GET /api/admin/monitoring?section=costs
 curl -H "Authorization: Bearer $ADMIN_API_KEY" \
@@ -767,6 +777,7 @@ curl -H "Authorization: Bearer $ADMIN_API_KEY" \
 ```
 
 ##### Security Dashboard
+
 ```bash
 # GET /api/admin/security?timeRange=24h&severity=high
 curl -H "Authorization: Bearer $ADMIN_API_KEY" \
@@ -774,6 +785,7 @@ curl -H "Authorization: Bearer $ADMIN_API_KEY" \
 ```
 
 ##### Alert Management
+
 ```bash
 # GET /api/admin/monitoring?section=alerts
 curl -H "Authorization: Bearer $ADMIN_API_KEY" \
@@ -789,40 +801,41 @@ curl -X POST -H "Authorization: Bearer $ADMIN_API_KEY" \
 ### Dashboard Widgets Configuration
 
 #### Performance Dashboard
+
 ```typescript
 interface PerformanceDashboardConfig {
   widgets: [
     {
-      type: 'metric',
-      title: 'Average Response Time',
-      metric: 'avg_response_time',
-      format: 'milliseconds',
-      target: 2000,
-      critical: 5000
+      type: "metric";
+      title: "Average Response Time";
+      metric: "avg_response_time";
+      format: "milliseconds";
+      target: 2000;
+      critical: 5000;
     },
     {
-      type: 'chart',
-      title: 'Request Volume',
-      metrics: ['request_count'],
-      timeRange: '24h',
-      chartType: 'line'
+      type: "chart";
+      title: "Request Volume";
+      metrics: ["request_count"];
+      timeRange: "24h";
+      chartType: "line";
     },
     {
-      type: 'gauge',
-      title: 'Error Rate',
-      metric: 'error_rate',
-      format: 'percentage',
-      target: 1,
-      critical: 5
+      type: "gauge";
+      title: "Error Rate";
+      metric: "error_rate";
+      format: "percentage";
+      target: 1;
+      critical: 5;
     },
     {
-      type: 'table',
-      title: 'Top Endpoints by Response Time',
-      metrics: ['endpoint', 'avg_response_time', 'request_count'],
-      sortBy: 'avg_response_time',
-      limit: 10
-    }
-  ]
+      type: "table";
+      title: "Top Endpoints by Response Time";
+      metrics: ["endpoint", "avg_response_time", "request_count"];
+      sortBy: "avg_response_time";
+      limit: 10;
+    },
+  ];
 }
 ```
 
@@ -833,12 +846,13 @@ interface PerformanceDashboardConfig {
 ### Application Health Checks
 
 #### Comprehensive Health Check
+
 ```typescript
 class HealthCheckService {
   async performComprehensiveHealthCheck(): Promise<HealthStatus> {
     const startTime = Date.now();
     const services: ServiceHealth[] = [];
-    
+
     // Check all critical services
     const serviceChecks = [
       this.checkVertexAI(),
@@ -847,72 +861,77 @@ class HealthCheckService {
       this.checkCloudStorage(),
       this.checkLogging(),
       this.checkMetrics(),
-      this.checkSecurity()
+      this.checkSecurity(),
     ];
-    
+
     const results = await Promise.allSettled(serviceChecks);
-    
+
     results.forEach((result, index) => {
-      if (result.status === 'fulfilled') {
+      if (result.status === "fulfilled") {
         services.push(result.value);
       } else {
         services.push({
           name: this.serviceNames[index],
-          status: 'critical',
+          status: "critical",
           responseTime: -1,
           lastCheck: new Date(),
           details: {
             available: false,
-            error: result.reason?.message
-          }
+            error: result.reason?.message,
+          },
         });
       }
     });
-    
+
     const overallScore = this.calculateHealthScore(services);
     const status = this.determineOverallStatus(overallScore);
-    
+
     return {
       status,
       timestamp: new Date(),
       uptime: process.uptime(),
       overallScore,
       services,
-      duration: Date.now() - startTime
+      duration: Date.now() - startTime,
     };
   }
-  
+
   private calculateHealthScore(services: ServiceHealth[]): number {
     const weights = {
-      'Vertex AI': 25,
-      'Veo API': 25,
-      'Firestore': 20,
-      'Cloud Storage': 15,
-      'Logging': 5,
-      'Metrics': 5,
-      'Security': 5
+      "Vertex AI": 25,
+      "Veo API": 25,
+      Firestore: 20,
+      "Cloud Storage": 15,
+      Logging: 5,
+      Metrics: 5,
+      Security: 5,
     };
-    
+
     let totalScore = 0;
     let totalWeight = 0;
-    
-    services.forEach(service => {
+
+    services.forEach((service) => {
       const weight = weights[service.name] || 1;
       const score = this.getServiceScore(service);
       totalScore += score * weight;
       totalWeight += weight;
     });
-    
+
     return Math.round(totalScore / totalWeight);
   }
-  
+
   private getServiceScore(service: ServiceHealth): number {
     switch (service.status) {
-      case 'healthy': return 100;
-      case 'degraded': return 70;
-      case 'unhealthy': return 30;
-      case 'critical': return 0;
-      default: return 0;
+      case "healthy":
+        return 100;
+      case "degraded":
+        return 70;
+      case "unhealthy":
+        return 30;
+      case "critical":
+        return 0;
+      default:
+        return 0;
     }
   }
 }
@@ -924,15 +943,15 @@ class HealthCheckService {
 // Vertex AI Health Check
 async checkVertexAI(): Promise<ServiceHealth> {
   const startTime = Date.now();
-  
+
   try {
     const response = await this.vertexAI.generateText(
-      'Health check test', 
+      'Health check test',
       { maxTokens: 10, timeout: 5000 }
     );
-    
+
     const responseTime = Date.now() - startTime;
-    
+
     return {
       name: 'Vertex AI',
       status: responseTime < 3000 ? 'healthy' : 'degraded',
@@ -940,7 +959,7 @@ async checkVertexAI(): Promise<ServiceHealth> {
       lastCheck: new Date(),
       details: {
         available: true,
-        modelUsed: 'gemini-1.5-pro',
+        modelUsed: 'gemini-2.5-flash',
         apiVersion: 'v1'
       }
     };
@@ -958,18 +977,18 @@ async checkVertexAI(): Promise<ServiceHealth> {
   }
 }
 
-// Firestore Health Check  
+// Firestore Health Check
 async checkFirestore(): Promise<ServiceHealth> {
   const startTime = Date.now();
-  
+
   try {
     const testDoc = await this.firestore
       .collection('health_checks')
       .doc('test')
       .get();
-    
+
     const responseTime = Date.now() - startTime;
-    
+
     return {
       name: 'Firestore',
       status: responseTime < 1000 ? 'healthy' : 'degraded',
@@ -1003,6 +1022,7 @@ async checkFirestore(): Promise<ServiceHealth> {
 ### Automated Monitoring Tasks
 
 #### Daily Health Report
+
 ```bash
 #!/bin/bash
 # daily-health-report.sh
@@ -1028,6 +1048,7 @@ fi
 ```
 
 #### Weekly Performance Review
+
 ```bash
 #!/bin/bash
 # weekly-performance-review.sh
@@ -1053,6 +1074,7 @@ fi
 ```
 
 #### Cost Optimization Review
+
 ```bash
 #!/bin/bash
 # monthly-cost-review.sh
@@ -1081,6 +1103,7 @@ fi
 ### Monitoring Maintenance
 
 #### Log Rotation and Cleanup
+
 ```bash
 #!/bin/bash
 # log-cleanup.sh
@@ -1102,6 +1125,7 @@ gsutil cp monthly-costs-*.json gs://adcraft-archives-prod/cost-data/
 ```
 
 #### Alert Rule Optimization
+
 ```bash
 #!/bin/bash
 # optimize-alert-rules.sh
@@ -1112,8 +1136,8 @@ ALERT_STATS=$(curl -s -H "Authorization: Bearer $ADMIN_API_KEY" \
 
 # Check for noisy alerts (>10 per day)
 NOISY_RULES=$(echo $ALERT_STATS | jq -r '
-  .alerts.rules[] | 
-  select(.statistics.triggersPerDay > 10) | 
+  .alerts.rules[] |
+  select(.statistics.triggersPerDay > 10) |
   .id'
 )
 
@@ -1130,34 +1154,37 @@ fi
 ### 1. Alert Tuning Guidelines ✅
 
 #### Initial Alert Configuration
+
 - **Start Conservative**: Begin with higher thresholds to avoid alert fatigue
 - **Gradual Optimization**: Lower thresholds based on baseline performance
 - **Seasonal Adjustments**: Account for traffic patterns and usage cycles
 
 #### Alert Effectiveness Metrics
+
 ```typescript
 interface AlertEffectiveness {
-  truePositives: number;        // Alerts that identified real issues
-  falsePositives: number;       // Alerts that were false alarms
-  falseNegatives: number;       // Issues that didn't trigger alerts
-  meanTimeToDetection: number;  // Average detection time
+  truePositives: number; // Alerts that identified real issues
+  falsePositives: number; // Alerts that were false alarms
+  falseNegatives: number; // Issues that didn't trigger alerts
+  meanTimeToDetection: number; // Average detection time
   meanTimeToResolution: number; // Average resolution time
-  alertFatigue: number;        // Alerts ignored/dismissed rate
+  alertFatigue: number; // Alerts ignored/dismissed rate
 }
 
 // Target metrics
 const TARGET_METRICS = {
-  truePositiveRate: 0.9,       // >90% of alerts should be real issues
-  falsePositiveRate: 0.1,      // <10% false positive rate
-  meanTimeToDetection: 300,    // <5 minutes detection time
-  meanTimeToResolution: 1800,  // <30 minutes resolution time
-  alertFatigue: 0.05          // <5% alerts ignored
+  truePositiveRate: 0.9, // >90% of alerts should be real issues
+  falsePositiveRate: 0.1, // <10% false positive rate
+  meanTimeToDetection: 300, // <5 minutes detection time
+  meanTimeToResolution: 1800, // <30 minutes resolution time
+  alertFatigue: 0.05, // <5% alerts ignored
 };
 ```
 
 ### 2. Performance Baseline Establishment ✅
 
 #### Baseline Metrics Collection
+
 ```bash
 # Collect baseline performance data for 2 weeks
 for i in {1..14}; do
@@ -1178,22 +1205,23 @@ jq -s 'map(.performance) | {
 ```
 
 #### Dynamic Threshold Adjustment
+
 ```typescript
 class DynamicThresholds {
   static calculateThresholds(baseline: BaselineMetrics): AlertThresholds {
     return {
       responseTime: {
         warning: baseline.avgResponseTime * 1.5,
-        critical: baseline.avgResponseTime * 2.0
+        critical: baseline.avgResponseTime * 2.0,
       },
       errorRate: {
         warning: Math.max(baseline.avgErrorRate * 2, 1),
-        critical: Math.max(baseline.avgErrorRate * 3, 5)
+        critical: Math.max(baseline.avgErrorRate * 3, 5),
       },
       memoryUsage: {
         warning: Math.max(baseline.avgMemoryUsage * 1.2, 80),
-        critical: Math.max(baseline.avgMemoryUsage * 1.4, 90)
-      }
+        critical: Math.max(baseline.avgMemoryUsage * 1.4, 90),
+      },
     };
   }
 }
@@ -1202,6 +1230,7 @@ class DynamicThresholds {
 ### 3. Monitoring Coverage Assessment ✅
 
 #### Critical Path Monitoring
+
 ```typescript
 interface CriticalPaths {
   videoGeneration: {
@@ -1229,38 +1258,39 @@ const REQUIRED_COVERAGE = {
   videoGeneration: 100,
   userAuthentication: 100,
   adminDashboard: 95,
-  auxiliaryFeatures: 80
+  auxiliaryFeatures: 80,
 };
 ```
 
 ### 4. Incident Response Integration ✅
 
 #### Automated Incident Creation
+
 ```typescript
 class IncidentManagement {
   static async createIncident(alert: Alert): Promise<string> {
     // Only create incidents for critical and high severity alerts
-    if (!['critical', 'high'].includes(alert.severity)) {
+    if (!["critical", "high"].includes(alert.severity)) {
       return null;
     }
-    
+
     const incident = {
       title: `${alert.severity.toUpperCase()}: ${alert.title}`,
       description: alert.message,
       severity: alert.severity,
-      source: 'automated-monitoring',
+      source: "automated-monitoring",
       alerts: [alert.id],
-      status: 'investigating',
+      status: "investigating",
       createdAt: new Date(),
-      assignee: this.getOnCallEngineer()
+      assignee: this.getOnCallEngineer(),
     };
-    
+
     // Create incident in tracking system
     const incidentId = await this.incidentTracker.create(incident);
-    
+
     // Notify on-call engineer
     await this.notifyOnCall(incident);
-    
+
     return incidentId;
   }
 }
@@ -1269,23 +1299,24 @@ class IncidentManagement {
 ### 5. Monitoring ROI Analysis ✅
 
 #### Monitoring Cost vs. Value
+
 ```typescript
 interface MonitoringROI {
   costs: {
-    tooling: number;               // Cost of monitoring tools
-    storage: number;               // Log and metric storage costs
-    personnel: number;             // Staff time for monitoring
-    infrastructure: number;        // Additional compute for monitoring
+    tooling: number; // Cost of monitoring tools
+    storage: number; // Log and metric storage costs
+    personnel: number; // Staff time for monitoring
+    infrastructure: number; // Additional compute for monitoring
   };
-  
+
   benefits: {
-    downtimeReduced: number;       // Value of prevented downtime
-    issuesDetected: number;        // Number of issues caught early
+    downtimeReduced: number; // Value of prevented downtime
+    issuesDetected: number; // Number of issues caught early
     performanceImprovements: number; // Performance gains from insights
-    costOptimization: number;      // Savings from cost monitoring
+    costOptimization: number; // Savings from cost monitoring
   };
-  
-  roi: number;                     // Return on investment ratio
+
+  roi: number; // Return on investment ratio
 }
 
 // Target: 10:1 ROI for monitoring investment
@@ -1299,6 +1330,7 @@ const TARGET_ROI = 10;
 ### Common Monitoring Problems ✅
 
 #### 1. Missing Metrics Data
+
 ```bash
 # Check if metrics service is running
 curl -H "Authorization: Bearer $ADMIN_API_KEY" \
@@ -1316,6 +1348,7 @@ gcloud run services logs read adcraft-service \
 ```
 
 #### 2. Alerts Not Triggering
+
 ```bash
 # Check alert rule configuration
 curl -H "Authorization: Bearer $ADMIN_API_KEY" \
@@ -1334,6 +1367,7 @@ curl -X POST -H "Authorization: Bearer $ADMIN_API_KEY" \
 ```
 
 #### 3. Performance Issues with Monitoring
+
 ```bash
 # Check monitoring overhead
 curl -H "Authorization: Bearer $ADMIN_API_KEY" \

@@ -11,7 +11,7 @@ import type { Locale } from "@/lib/dictionaries";
 import type { NarrativeStyle, MusicGenre } from "@/lib/stores/video-producer-store";
 import type { DavidHandoffData } from "../tools/prompt-builder";
 
-const MODEL_NAME = "gemini-1.5-pro-vision";
+const MODEL_NAME = "gemini-2.5-flash";
 
 // Cost configuration (per 1000 tokens)
 const COST_CONFIG = {
@@ -61,10 +61,7 @@ export async function processNarrativeStyleValidation(
     const cost = calculateProcessingCost(geminiResponse);
 
     // Parse AI response to match expected validation format
-    const validationResponse = parseValidationResponse(
-      geminiResponse.text,
-      "narrative"
-    );
+    const validationResponse = parseValidationResponse(geminiResponse.text, "narrative");
 
     const processingTime = Date.now() - startTime;
 
@@ -73,9 +70,8 @@ export async function processNarrativeStyleValidation(
       response: validationResponse,
       cost,
       confidence: 0.85, // Base confidence for video production validation
-      processingTime
+      processingTime,
     };
-
   } catch (error) {
     console.error("[ZARA REAL] Narrative validation error:", error);
 
@@ -85,7 +81,7 @@ export async function processNarrativeStyleValidation(
       cost: 0,
       confidence: 0,
       processingTime: Date.now() - startTime,
-      error: error instanceof Error ? error.message : 'Unknown AI processing error'
+      error: error instanceof Error ? error.message : "Unknown AI processing error",
     };
   }
 }
@@ -113,10 +109,7 @@ export async function processMusicToneValidation(
     const cost = calculateProcessingCost(geminiResponse);
 
     // Parse AI response to match expected validation format
-    const validationResponse = parseValidationResponse(
-      geminiResponse.text,
-      "music"
-    );
+    const validationResponse = parseValidationResponse(geminiResponse.text, "music");
 
     const processingTime = Date.now() - startTime;
 
@@ -125,9 +118,8 @@ export async function processMusicToneValidation(
       response: validationResponse,
       cost,
       confidence: 0.88, // Slightly higher confidence for accumulated context
-      processingTime
+      processingTime,
     };
-
   } catch (error) {
     console.error("[ZARA REAL] Music validation error:", error);
 
@@ -137,7 +129,7 @@ export async function processMusicToneValidation(
       cost: 0,
       confidence: 0,
       processingTime: Date.now() - startTime,
-      error: error instanceof Error ? error.message : 'Unknown AI processing error'
+      error: error instanceof Error ? error.message : "Unknown AI processing error",
     };
   }
 }
@@ -146,7 +138,7 @@ export async function processMusicToneValidation(
  * Build enhanced prompt with Zara's video production persona
  */
 function buildZaraPersonaPrompt(prompt: string, locale: Locale): string {
-  const isJapanese = locale === 'ja';
+  const isJapanese = locale === "ja";
 
   const zaraPersona = isJapanese
     ? `あなたはザラです。8年以上の経験を持つAI動画プロデューサーで、ハイインパクトなコマーシャルコンテンツの制作を専門としています。
@@ -164,7 +156,6 @@ function buildZaraPersonaPrompt(prompt: string, locale: Locale): string {
 - データ駆動の意思決定と創造的直感の組み合わせ
 
 以下のタスクについて、動画制作の専門家として分析し、JSON形式で構造化された回答を提供してください。`
-
     : `You are Zara, an AI Video Producer with 8+ years of experience creating high-impact commercial content.
 
 Expertise:
@@ -203,13 +194,15 @@ function parseValidationResponse(aiText: string, validationType: "narrative" | "
         validation: {
           alignmentScore: extractScore(aiText) || 8.5,
           strengths: extractStrengths(aiText),
-          recommendations: extractRecommendations(aiText)
+          recommendations: extractRecommendations(aiText),
         },
         confirmation: {
           approved: true,
-          message: extractMainMessage(aiText) || "This narrative style aligns well with your creative direction.",
-          nextStepGuidance: "Ready to select music that will enhance the emotional impact."
-        }
+          message:
+            extractMainMessage(aiText) ||
+            "This narrative style aligns well with your creative direction.",
+          nextStepGuidance: "Ready to select music that will enhance the emotional impact.",
+        },
       };
     } else {
       return {
@@ -217,16 +210,17 @@ function parseValidationResponse(aiText: string, validationType: "narrative" | "
           harmonyScore: extractScore(aiText) || 9.0,
           brandAlignment: extractScore(aiText, "brand") || 8.5,
           emotionalImpact: extractEmotionalImpact(aiText) || "Creates strong emotional connection",
-          recommendations: extractRecommendations(aiText)
+          recommendations: extractRecommendations(aiText),
         },
         confirmation: {
           approved: true,
-          message: extractMainMessage(aiText) || "This music selection enhances your commercial perfectly.",
-          productionReadiness: "All creative elements are in harmony. Ready for production!"
-        }
+          message:
+            extractMainMessage(aiText) ||
+            "This music selection enhances your commercial perfectly.",
+          productionReadiness: "All creative elements are in harmony. Ready for production!",
+        },
       };
     }
-
   } catch (error) {
     console.error("[ZARA REAL] Failed to parse AI response:", error);
 
@@ -236,26 +230,26 @@ function parseValidationResponse(aiText: string, validationType: "narrative" | "
           validation: {
             alignmentScore: 8.0,
             strengths: ["AI analysis completed"],
-            recommendations: ["Proceed with selected narrative style"]
+            recommendations: ["Proceed with selected narrative style"],
           },
           confirmation: {
             approved: true,
             message: "Narrative style validated successfully.",
-            nextStepGuidance: "Ready for music selection."
-          }
+            nextStepGuidance: "Ready for music selection.",
+          },
         }
       : {
           validation: {
             harmonyScore: 8.5,
             brandAlignment: 8.0,
             emotionalImpact: "Positive alignment with creative direction",
-            recommendations: ["Music selection approved"]
+            recommendations: ["Music selection approved"],
           },
           confirmation: {
             approved: true,
             message: "Music selection validated successfully.",
-            productionReadiness: "Ready for video production!"
-          }
+            productionReadiness: "Ready for video production!",
+          },
         };
   }
 }
@@ -267,7 +261,7 @@ function extractScore(text: string, type?: string): number | undefined {
   const scorePatterns = [
     /(\d+(?:\.\d+)?)(?:\/10|\s*out\s*of\s*10|\s*score|\s*rating)/i,
     /score[:\s]*(\d+(?:\.\d+)?)/i,
-    /rating[:\s]*(\d+(?:\.\d+)?)/i
+    /rating[:\s]*(\d+(?:\.\d+)?)/i,
   ];
 
   for (const pattern of scorePatterns) {
@@ -288,7 +282,7 @@ function extractStrengths(text: string): string[] {
   const strengthPatterns = [
     /strengths?[:\s]*([^\.]+)/i,
     /positive[:\s]*([^\.]+)/i,
-    /benefits?[:\s]*([^\.]+)/i
+    /benefits?[:\s]*([^\.]+)/i,
   ];
 
   for (const pattern of strengthPatterns) {
@@ -308,7 +302,7 @@ function extractRecommendations(text: string): string[] {
   const recPatterns = [
     /recommendation[s]?[:\s]*([^\.]+)/i,
     /suggest[s]?[:\s]*([^\.]+)/i,
-    /consider[:\s]*([^\.]+)/i
+    /consider[:\s]*([^\.]+)/i,
   ];
 
   for (const pattern of recPatterns) {
@@ -326,11 +320,11 @@ function extractRecommendations(text: string): string[] {
  */
 function extractMainMessage(text: string): string | undefined {
   // Look for concluding statements or main recommendations
-  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 10);
+  const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 10);
 
   // Return the longest sentence as likely main message
   return sentences.length > 0
-    ? sentences.reduce((a, b) => a.length > b.length ? a : b).trim()
+    ? sentences.reduce((a, b) => (a.length > b.length ? a : b)).trim()
     : undefined;
 }
 
@@ -341,7 +335,7 @@ function extractEmotionalImpact(text: string): string | undefined {
   const emotionalPatterns = [
     /emotional[ly]?\s+impact[:\s]*([^\.]+)/i,
     /emotion[al]*[:\s]*([^\.]+)/i,
-    /feel[ing]*[s]?[:\s]*([^\.]+)/i
+    /feel[ing]*[s]?[:\s]*([^\.]+)/i,
   ];
 
   for (const pattern of emotionalPatterns) {

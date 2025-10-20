@@ -50,31 +50,40 @@ export interface CostAnalytics {
   totalSpent: number;
   budgetRemaining: number;
   utilizationRate: number;
-  
-  byService: Record<string, {
-    amount: number;
-    count: number;
-    averageCost: number;
-  }>;
-  
-  byAssetType: Record<string, {
-    amount: number;
-    count: number;
-    averageCost: number;
-  }>;
-  
-  byQuality: Record<string, {
-    amount: number;
-    count: number;
-    averageCost: number;
-  }>;
-  
+
+  byService: Record<
+    string,
+    {
+      amount: number;
+      count: number;
+      averageCost: number;
+    }
+  >;
+
+  byAssetType: Record<
+    string,
+    {
+      amount: number;
+      count: number;
+      averageCost: number;
+    }
+  >;
+
+  byQuality: Record<
+    string,
+    {
+      amount: number;
+      count: number;
+      averageCost: number;
+    }
+  >;
+
   trends: {
     hourlySpend: number;
     projectedDailySpend: number;
     efficiency: number; // cost per successful asset
   };
-  
+
   optimization: {
     potentialSavings: number;
     recommendations: string[];
@@ -107,13 +116,13 @@ export class CreativeDirectorCostTracker {
     sessionBudget: 50, // $50 per session
     alertThresholds: {
       warning: 0.5,
-      critical: 0.8
+      critical: 0.8,
     },
     limits: {
       maxCostPerAsset: 10,
       maxAssetsPerSession: 20,
-      maxDailySpend: 100
-    }
+      maxDailySpend: 100,
+    },
   };
 
   private constructor() {
@@ -142,7 +151,7 @@ export class CreativeDirectorCostTracker {
   ): Promise<CostEntry> {
     const costId = crypto.randomUUID();
     const timestamp = new Date().toISOString();
-    
+
     // Calculate budget impact
     const sessionBudget = await this.getSessionBudget(sessionId);
     const currentSessionSpend = await this.getSessionSpend(sessionId);
@@ -152,7 +161,7 @@ export class CreativeDirectorCostTracker {
     const budgetImpact = {
       sessionBudget,
       totalBudget,
-      percentageUsed: ((totalSpend + amount) / totalBudget) * 100
+      percentageUsed: ((totalSpend + amount) / totalBudget) * 100,
     };
 
     const costEntry: CostEntry = {
@@ -164,9 +173,9 @@ export class CreativeDirectorCostTracker {
       description,
       metadata: {
         timestamp,
-        ...metadata
+        ...metadata,
       },
-      budgetImpact
+      budgetImpact,
     };
 
     try {
@@ -177,18 +186,21 @@ export class CreativeDirectorCostTracker {
         currency: "USD",
         description: `${category.operation} - ${description}`,
         sessionId,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
 
       // Check for budget alerts
       await this.checkBudgetAlerts(sessionId, currentSessionSpend + amount, totalSpend + amount);
 
-      console.log(`[COST TRACKER] Recorded cost: $${amount} for ${category.service}/${category.operation}`);
+      console.log(
+        `[COST TRACKER] Recorded cost: $${amount} for ${category.service}/${category.operation}`
+      );
       return costEntry;
-
     } catch (error) {
       console.error("[COST TRACKER] Failed to track cost:", error);
-      throw new Error(`Cost tracking failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+      throw new Error(
+        `Cost tracking failed: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
     }
   }
 
@@ -214,7 +226,7 @@ export class CreativeDirectorCostTracker {
         service: "imagen",
         operation: "generate_image",
         model,
-        quality
+        quality,
       },
       amount,
       `Generated ${imageCount} image(s) with ${model} at ${quality} quality`,
@@ -226,8 +238,8 @@ export class CreativeDirectorCostTracker {
         resourceUsage: {
           model,
           quality,
-          inferenceSteps: this.estimateInferenceSteps(quality)
-        }
+          inferenceSteps: this.estimateInferenceSteps(quality),
+        },
       }
     );
   }
@@ -248,7 +260,7 @@ export class CreativeDirectorCostTracker {
       sessionId,
       {
         service: "storage",
-        operation
+        operation,
       },
       amount,
       `Storage operation: ${operation} for ${fileName}`,
@@ -259,8 +271,8 @@ export class CreativeDirectorCostTracker {
         resourceUsage: {
           operation,
           fileSize,
-          storageClass: "standard"
-        }
+          storageClass: "standard",
+        },
       }
     );
   }
@@ -272,7 +284,7 @@ export class CreativeDirectorCostTracker {
     sessionId: string,
     inputTokens: number,
     outputTokens: number,
-    model: string = "gemini-1.5-pro"
+    model: string = "gemini-2.5-flash"
   ): Promise<CostEntry> {
     const inputCost = (inputTokens / 1000) * 0.00125; // $0.00125 per 1K input tokens
     const outputCost = (outputTokens / 1000) * 0.00375; // $0.00375 per 1K output tokens
@@ -283,7 +295,7 @@ export class CreativeDirectorCostTracker {
       {
         service: "gemini",
         operation: "generate_response",
-        model
+        model,
       },
       amount,
       `Gemini conversation: ${inputTokens} input + ${outputTokens} output tokens`,
@@ -294,8 +306,8 @@ export class CreativeDirectorCostTracker {
           model,
           totalTokens: inputTokens + outputTokens,
           inputCost,
-          outputCost
-        }
+          outputCost,
+        },
       }
     );
   }
@@ -309,47 +321,50 @@ export class CreativeDirectorCostTracker {
       // For now, we'll provide estimated analytics
       const sessionSpend = await this.getSessionSpend(sessionId);
       const sessionBudget = await this.getSessionBudget(sessionId);
-      
+
       return {
         totalSpent: sessionSpend,
         budgetRemaining: sessionBudget - sessionSpend,
         utilizationRate: (sessionSpend / sessionBudget) * 100,
-        
+
         byService: {
           imagen: { amount: sessionSpend * 0.7, count: 5, averageCost: sessionSpend * 0.14 },
           storage: { amount: sessionSpend * 0.2, count: 10, averageCost: sessionSpend * 0.02 },
-          gemini: { amount: sessionSpend * 0.1, count: 15, averageCost: sessionSpend * 0.0067 }
+          gemini: { amount: sessionSpend * 0.1, count: 15, averageCost: sessionSpend * 0.0067 },
         },
-        
+
         byAssetType: {
           "product-hero": { amount: sessionSpend * 0.4, count: 2, averageCost: sessionSpend * 0.2 },
-          "lifestyle-scene": { amount: sessionSpend * 0.3, count: 2, averageCost: sessionSpend * 0.15 },
-          "background": { amount: sessionSpend * 0.2, count: 3, averageCost: sessionSpend * 0.067 },
-          "mood-board": { amount: sessionSpend * 0.1, count: 1, averageCost: sessionSpend * 0.1 }
+          "lifestyle-scene": {
+            amount: sessionSpend * 0.3,
+            count: 2,
+            averageCost: sessionSpend * 0.15,
+          },
+          background: { amount: sessionSpend * 0.2, count: 3, averageCost: sessionSpend * 0.067 },
+          "mood-board": { amount: sessionSpend * 0.1, count: 1, averageCost: sessionSpend * 0.1 },
         },
-        
+
         byQuality: {
           premium: { amount: sessionSpend * 0.5, count: 2, averageCost: sessionSpend * 0.25 },
           high: { amount: sessionSpend * 0.3, count: 3, averageCost: sessionSpend * 0.1 },
-          standard: { amount: sessionSpend * 0.2, count: 3, averageCost: sessionSpend * 0.067 }
+          standard: { amount: sessionSpend * 0.2, count: 3, averageCost: sessionSpend * 0.067 },
         },
-        
+
         trends: {
           hourlySpend: sessionSpend / 2, // Assuming 2-hour session
           projectedDailySpend: (sessionSpend / 2) * 24,
-          efficiency: sessionSpend / 8 // cost per successful asset
+          efficiency: sessionSpend / 8, // cost per successful asset
         },
-        
+
         optimization: {
           potentialSavings: sessionSpend * 0.15,
           recommendations: [
             "Consider using high quality instead of premium for backgrounds",
             "Batch similar assets for cost efficiency",
-            "Optimize prompts to reduce generation attempts"
-          ]
-        }
+            "Optimize prompts to reduce generation attempts",
+          ],
+        },
       };
-
     } catch (error) {
       console.error("[COST TRACKER] Failed to get analytics:", error);
       throw new Error("Failed to retrieve cost analytics");
@@ -360,29 +375,41 @@ export class CreativeDirectorCostTracker {
    * Check budget alerts and create notifications
    */
   private async checkBudgetAlerts(
-    sessionId: string, 
-    sessionSpend: number, 
+    sessionId: string,
+    sessionSpend: number,
     totalSpend: number
   ): Promise<void> {
     const sessionBudget = await this.getSessionBudget(sessionId);
     const totalBudget = this.defaultBudgetConfig.totalBudget;
-    
+
     const sessionUtilization = sessionSpend / sessionBudget;
     const totalUtilization = totalSpend / totalBudget;
 
     // Session budget alerts
     if (sessionUtilization >= this.defaultBudgetConfig.alertThresholds.critical) {
-      await this.createBudgetAlert(sessionId, "critical", sessionUtilization, 
-        `Session budget critically high: ${(sessionUtilization * 100).toFixed(1)}%`);
+      await this.createBudgetAlert(
+        sessionId,
+        "critical",
+        sessionUtilization,
+        `Session budget critically high: ${(sessionUtilization * 100).toFixed(1)}%`
+      );
     } else if (sessionUtilization >= this.defaultBudgetConfig.alertThresholds.warning) {
-      await this.createBudgetAlert(sessionId, "warning", sessionUtilization, 
-        `Session budget warning: ${(sessionUtilization * 100).toFixed(1)}%`);
+      await this.createBudgetAlert(
+        sessionId,
+        "warning",
+        sessionUtilization,
+        `Session budget warning: ${(sessionUtilization * 100).toFixed(1)}%`
+      );
     }
 
     // Total budget alerts
     if (totalUtilization >= this.defaultBudgetConfig.alertThresholds.critical) {
-      await this.createBudgetAlert(sessionId, "critical", totalUtilization, 
-        `Total project budget critically high: ${(totalUtilization * 100).toFixed(1)}%`);
+      await this.createBudgetAlert(
+        sessionId,
+        "critical",
+        totalUtilization,
+        `Total project budget critically high: ${(totalUtilization * 100).toFixed(1)}%`
+      );
     }
   }
 
@@ -399,13 +426,14 @@ export class CreativeDirectorCostTracker {
       id: crypto.randomUUID(),
       sessionId,
       alertType,
-      threshold: alertType === "warning" ? 
-        this.defaultBudgetConfig.alertThresholds.warning :
-        this.defaultBudgetConfig.alertThresholds.critical,
+      threshold:
+        alertType === "warning"
+          ? this.defaultBudgetConfig.alertThresholds.warning
+          : this.defaultBudgetConfig.alertThresholds.critical,
       currentUsage,
       message,
       timestamp: new Date().toISOString(),
-      acknowledged: false
+      acknowledged: false,
     };
 
     // In a real implementation, this would be stored and possibly trigger notifications
@@ -448,9 +476,9 @@ export class CreativeDirectorCostTracker {
     const costs = {
       "imagen-3": 0.03,
       "imagen-4": 0.04,
-      "imagen-4-ultra": 0.06
+      "imagen-4-ultra": 0.06,
     } as Record<string, number>;
-    
+
     return costs[model] || costs["imagen-3"];
   }
 
@@ -459,12 +487,12 @@ export class CreativeDirectorCostTracker {
    */
   private getQualityMultiplier(quality: string): number {
     const multipliers = {
-      "draft": 0.5,
-      "standard": 1.0,
-      "high": 1.5,
-      "premium": 2.5
+      draft: 0.5,
+      standard: 1.0,
+      high: 1.5,
+      premium: 2.5,
     } as Record<string, number>;
-    
+
     return multipliers[quality] || multipliers["standard"];
   }
 
@@ -473,12 +501,12 @@ export class CreativeDirectorCostTracker {
    */
   private estimateInferenceSteps(quality: string): number {
     const steps = {
-      "draft": 20,
-      "standard": 30,
-      "high": 40,
-      "premium": 50
+      draft: 20,
+      standard: 30,
+      high: 40,
+      premium: 50,
     } as Record<string, number>;
-    
+
     return steps[quality] || steps["standard"];
   }
 
@@ -487,14 +515,14 @@ export class CreativeDirectorCostTracker {
    */
   private calculateStorageCost(operation: string, fileSize: number): number {
     const fileSizeGB = fileSize / (1024 * 1024 * 1024);
-    
+
     switch (operation) {
       case "upload":
         return fileSizeGB * 0.02; // $0.02 per GB uploaded
       case "download":
         return fileSizeGB * 0.12; // $0.12 per GB downloaded
       case "storage":
-        return fileSizeGB * 0.020; // $0.020 per GB per month (prorated)
+        return fileSizeGB * 0.02; // $0.020 per GB per month (prorated)
       default:
         return 0.001; // minimal cost
     }
@@ -522,30 +550,32 @@ export class CreativeDirectorCostTracker {
         return {
           allowed: false,
           reason: `Operation cost ($${estimatedCost.toFixed(2)}) exceeds remaining budget ($${budgetRemaining.toFixed(2)})`,
-          budgetRemaining
+          budgetRemaining,
         };
       }
 
       // Check per-asset limit
-      if (operation.includes("asset") && estimatedCost > this.defaultBudgetConfig.limits.maxCostPerAsset) {
+      if (
+        operation.includes("asset") &&
+        estimatedCost > this.defaultBudgetConfig.limits.maxCostPerAsset
+      ) {
         return {
           allowed: false,
           reason: `Asset cost ($${estimatedCost.toFixed(2)}) exceeds per-asset limit ($${this.defaultBudgetConfig.limits.maxCostPerAsset})`,
-          budgetRemaining
+          budgetRemaining,
         };
       }
 
       return {
         allowed: true,
-        budgetRemaining
+        budgetRemaining,
       };
-
     } catch (error) {
       console.error("[COST TRACKER] Budget check failed:", error);
       return {
         allowed: false,
         reason: "Budget check failed",
-        budgetRemaining: 0
+        budgetRemaining: 0,
       };
     }
   }
@@ -565,13 +595,17 @@ export class CreativeDirectorCostTracker {
 
     // Service-specific recommendations
     if (analytics.byService.imagen?.amount > analytics.totalSpent * 0.8) {
-      recommendations.push("Imagen costs are high - optimize prompts to reduce generation attempts");
+      recommendations.push(
+        "Imagen costs are high - optimize prompts to reduce generation attempts"
+      );
       recommendations.push("Consider using Imagen-3 instead of Imagen-4 for draft assets");
     }
 
     // Quality recommendations
     if (analytics.byQuality.premium?.amount > analytics.totalSpent * 0.6) {
-      recommendations.push("Consider using 'high' quality instead of 'premium' for background assets");
+      recommendations.push(
+        "Consider using 'high' quality instead of 'premium' for background assets"
+      );
     }
 
     return recommendations.length > 0 ? recommendations : ["Cost optimization is on track"];
@@ -584,7 +618,7 @@ export class CreativeDirectorCostTracker {
     try {
       // Verify Firestore connection
       const firestoreHealthy = await this.firestore.healthCheck();
-      
+
       // Test cost recording (with minimal cost)
       if (firestoreHealthy) {
         await this.firestore.recordCost({
@@ -592,7 +626,7 @@ export class CreativeDirectorCostTracker {
           amount: 0.001,
           currency: "USD",
           description: "Health check test cost",
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
 

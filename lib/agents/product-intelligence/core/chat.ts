@@ -18,7 +18,7 @@ import {
 import { PromptBuilder } from "../tools";
 import { MAYA_PERSONA } from "@/lib/constants/maya-persona";
 
-const MODEL_NAME = "gemini-1.5-pro";
+const MODEL_NAME = "gemini-2.5-flash";
 
 // Cost configuration (per 1000 tokens)
 const COST_CONFIG = {

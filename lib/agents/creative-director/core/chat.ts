@@ -16,7 +16,7 @@ import {
 import { DAVID_PERSONA } from "@/lib/constants/david-persona";
 import { CreativePhase, CreativeMessageType } from "../enums";
 
-const MODEL_NAME = "gemini-1.5-pro-vision";
+const MODEL_NAME = "gemini-2.5-flash";
 
 // Cost configuration (per 1000 tokens)
 const COST_CONFIG = {

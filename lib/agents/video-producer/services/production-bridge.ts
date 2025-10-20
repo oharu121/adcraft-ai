@@ -103,22 +103,28 @@ export class ProductionBridgeService {
       const targetDuration = originalRequest.duration;
 
       // Create refinement prompt for Gemini
-      const refinementPrompt = `Transform this commercial prompt for Google Veo API to generate an ${targetDuration}-second video.
+      const refinementPrompt = `
+      Transform this commercial prompt for Google Veo API to generate an ${targetDuration}-second video.
 
-ORIGINAL PROMPT:
-${prompt}
+      ORIGINAL PROMPT:
+      ${prompt}
 
-REQUIREMENTS:
-- Translate everything to English except product name
-- Show uploaded product image prominently in video
-- Create one single key message for narration
-- Include brief music style instruction
-- Output as clear paragraph describing video generation
+      REQUIREMENTS:
+      - Translate everything to English except product name
+      - Show uploaded product image prominently in video
+      - Create one single key message for narration
+      - Include brief music style instruction
+      - Output as clear paragraph describing video generation
 
-EXAMPLE OUTPUT:
-Generate an 8-second commercial featuring the uploaded AquaPure water bottle as the hero. Show the sleek blue bottle with professional lighting and gentle rotation. Display "AquaPure" text overlay at 2-3 seconds. Narration: "Pure hydration for your active lifestyle." Background music should be fresh and energetic with light electronic beats. Keep the product prominently visible throughout with clean white background.
+      EXAMPLE OUTPUT:
+      Generate an 8-second commercial featuring the uploaded AquaPure water bottle as the hero.
+      Show the sleek blue bottle with professional lighting and gentle rotation.
+      Display "AquaPure" text overlay at 2-3 seconds.
+      Narration: "Pure hydration for your active lifestyle."
+      Background music should be fresh and energetic with light electronic beats.
+      Keep the product prominently visible throughout with clean white background.
 
-OUTPUT: Single paragraph with clear video generation instructions only.`;
+      OUTPUT: Single paragraph with clear video generation instructions only.`;
 
       console.log("[ProductionBridge] 🤖 Calling Gemini for prompt refinement:", {
         originalLength: prompt.length,

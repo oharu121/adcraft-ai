@@ -27,7 +27,7 @@ export interface GeminiImageResponse {
 export class GeminiAIStudioClient {
   private readonly apiKey: string;
   private readonly baseUrl =
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent";
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
   private readonly imageGenUrl =
     "https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict";
 
@@ -80,7 +80,17 @@ export class GeminiAIStudioClient {
 
     const result = await response.json();
 
+    // DEBUG: Log vision API response for comparison
+    console.log("[DEBUG VISION API] Full response:", JSON.stringify(result, null, 2));
+    console.log("[DEBUG VISION API] Has candidates:", !!result.candidates);
+    console.log("[DEBUG VISION API] Candidates length:", result.candidates?.length);
+
     if (!result.candidates || !result.candidates[0] || !result.candidates[0].content) {
+      console.error("[DEBUG VISION API] Invalid response structure:", {
+        hasCandidates: !!result.candidates,
+        candidatesLength: result.candidates?.length,
+        firstCandidate: result.candidates?.[0],
+      });
       throw new Error("Invalid response format from Gemini AI Studio API");
     }
 
@@ -102,7 +112,7 @@ export class GeminiAIStudioClient {
       ],
       generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 1000,
+        maxOutputTokens: 4096, // Increased from 1000 to accommodate Gemini 2.5 Flash thinking tokens
       },
     };
 
@@ -122,9 +132,25 @@ export class GeminiAIStudioClient {
     }
 
     const data = await response.json();
+
+    // DEBUG: Log full API response structure
+    console.log("[DEBUG TEXT API] Full response:", JSON.stringify(data, null, 2));
+    console.log("[DEBUG TEXT API] Has candidates:", !!data.candidates);
+    console.log("[DEBUG TEXT API] Candidates length:", data.candidates?.length);
+    console.log("[DEBUG TEXT API] First candidate:", JSON.stringify(data.candidates?.[0], null, 2));
+
     const textContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!textContent) {
+      console.error("[DEBUG TEXT API] No text content found in response");
+      console.error("[DEBUG TEXT API] Response structure:", {
+        hasCandidates: !!data.candidates,
+        candidatesLength: data.candidates?.length,
+        firstCandidate: data.candidates?.[0],
+        hasContent: !!data.candidates?.[0]?.content,
+        hasParts: !!data.candidates?.[0]?.content?.parts,
+        partsLength: data.candidates?.[0]?.content?.parts?.length,
+      });
       throw new Error("No content received from Gemini AI Studio API");
     }
 
