@@ -9,8 +9,7 @@
 export type AppMode = "demo" | "real";
 
 export class AppModeConfig {
-  // private static _mode: AppMode = process.env.NODE_ENV === "production" ? "real" : "demo";
-  private static _mode: AppMode = "real";
+  private static _mode: AppMode = process.env.NODE_ENV === "production" ? "real" : "demo";
 
   /**
    * Get current application mode

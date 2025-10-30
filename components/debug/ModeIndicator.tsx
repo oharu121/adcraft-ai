@@ -52,7 +52,7 @@ export function ModeToggle() {
   }
 
   return (
-    <div className="hidden fixed bottom-4 right-4 bg-white border-2 border-gray-200 rounded-lg p-4 shadow-lg max-w-xs z-50">
+    <div className="fixed bottom-4 right-4 bg-white border-2 border-gray-200 rounded-lg p-4 shadow-lg max-w-xs z-50">
       <div className="text-sm font-medium mb-2 text-gray-700">Developer Controls</div>
 
       <div className="flex items-center justify-between mb-2">

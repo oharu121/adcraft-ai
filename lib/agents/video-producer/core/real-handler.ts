@@ -11,7 +11,7 @@ import type { Locale } from "@/lib/dictionaries";
 import type { NarrativeStyle, MusicGenre } from "@/lib/stores/video-producer-store";
 import type { DavidHandoffData } from "../tools/prompt-builder";
 
-const MODEL_NAME = "gemini-2.5-flash";
+const MODEL_NAME = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
 // Cost configuration (per 1000 tokens)
 const COST_CONFIG = {

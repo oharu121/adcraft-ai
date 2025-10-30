@@ -99,10 +99,10 @@ export default function CreativeDirectorHandoffModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md" className="backdrop-blur-sm">
-      {/* Magical Header with Gradient */}
+      {/* Magical Header with Gradient - Mobile optimized padding */}
       <div className="relative bg-gradient-to-br from-red-900/90 via-red-800/80 to-orange-900/90 backdrop-blur-md rounded-t-lg border-b border-red-500/30">
         <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 to-orange-500/20 animate-pulse"></div>
-        <div className="relative p-6">
+        <div className="relative p-4 sm:p-6">
           <div className="flex items-center gap-4">
             {/* Animated Video Producer Avatar */}
             <div className="relative">
@@ -114,10 +114,10 @@ export default function CreativeDirectorHandoffModal({
             </div>
 
             <div className="flex-1">
-              <h2 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
+              <h2 className="text-xl sm:text-2xl font-bold text-white mb-1 flex items-center gap-2">
                 <span>{dict.creativeDirector.confirmHandoff}</span>
               </h2>
-              <p className="text-red-200 text-sm">{dict.creativeDirector.handoffToVideoProducer}</p>
+              <p className="text-red-200 text-xs sm:text-sm">{dict.creativeDirector.handoffToVideoProducer}</p>
             </div>
 
             {/* Close Button */}
@@ -140,25 +140,25 @@ export default function CreativeDirectorHandoffModal({
         </div>
       </div>
 
-      {/* Main Content with Glass Effect */}
-      <div className="bg-gray-900/95 backdrop-blur-md p-6 space-y-6">
+      {/* Main Content with Glass Effect - Mobile optimized with max-height and scroll */}
+      <div className="bg-gray-900/95 backdrop-blur-md p-4 sm:p-6 space-y-4 sm:space-y-6 max-h-[60vh] sm:max-h-[70vh] overflow-y-auto">
         {/* Description */}
-        <div className="space-y-4">
-          <p className="text-gray-300 text-lg leading-relaxed">
+        <div className="space-y-3 sm:space-y-4">
+          <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
             {dict.creativeDirector.handoffDescription}
           </p>
 
-          {/* David to Zara Flow Visualization */}
-          <div className="relative py-4 space-y-2">
+          {/* David to Zara Flow Visualization - Mobile optimized */}
+          <div className="relative py-3 sm:py-4 space-y-2">
             {/* Container for avatars and handover animation - perfectly aligned */}
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center justify-center gap-2 sm:gap-4">
               {/* David Avatar */}
               <div className="flex items-center">
                 <AgentAvatar agent="david" size="md" state="idle" />
               </div>
 
-              {/* Handover Animation Container - aligned to avatar center */}
-              <div className="flex-1 relative flex items-center" style={{ height: "48px" }}>
+              {/* Handover Animation Container - aligned to avatar center, responsive height */}
+              <div className="flex-1 relative flex items-center h-10 sm:h-12">
                 {/* Base connection line */}
                 <div className="absolute inset-0 flex items-center">
                   <div className="h-0.5 w-full bg-gradient-to-r from-purple-500 via-red-500 to-orange-500 opacity-60"></div>
@@ -214,10 +214,10 @@ export default function CreativeDirectorHandoffModal({
                   </div>
                 </div>
 
-                {/* Handshake icon in the center */}
+                {/* Handshake icon in the center - Mobile optimized */}
                 <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-3/8">
-                  <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 animate-bounce">
-                    <span className="text-lg">🤝🏻</span>
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 animate-bounce">
+                    <span className="text-base sm:text-lg">🤝🏻</span>
                     <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-orange-500 rounded-full blur-md opacity-40"></div>
                   </div>
                 </div>
@@ -229,13 +229,13 @@ export default function CreativeDirectorHandoffModal({
               </div>
             </div>
 
-            {/* Agent Names Below - Matching avatar container structure */}
-            <div className="flex items-center justify-center gap-4">
-              <div className="flex items-center justify-center" style={{ width: "48px" }}>
+            {/* Agent Names Below - Matching avatar container structure, mobile optimized */}
+            <div className="flex items-center justify-center gap-2 sm:gap-4">
+              <div className="flex items-center justify-center w-10 sm:w-12">
                 <span className="text-xs text-purple-400 font-medium">David</span>
               </div>
               <div className="flex-1"></div>
-              <div className="flex items-center justify-center" style={{ width: "48px" }}>
+              <div className="flex items-center justify-center w-10 sm:w-12">
                 <span className="text-xs text-red-400 font-medium">Zara</span>
               </div>
             </div>
@@ -275,15 +275,15 @@ export default function CreativeDirectorHandoffModal({
           </div>
         </div>
 
-        {/* Transfer Summary with Enhanced Design */}
+        {/* Transfer Summary with Enhanced Design - Mobile optimized */}
         {creativeDirection && (
-          <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-xl border border-gray-700/50 p-5 space-y-4">
-            <h3 className="font-semibold text-white text-base flex items-center gap-2">
+          <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-xl border border-gray-700/50 p-3 sm:p-5 space-y-3 sm:space-y-4">
+            <h3 className="font-semibold text-white text-sm sm:text-base flex items-center gap-2">
               <div className="w-2 h-2 bg-gradient-to-r from-red-400 to-orange-400 rounded-full"></div>
               {dict.creativeDirector.transferSummary}
             </h3>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {[
                 { color: "purple", icon: "🎨", label: dict.creativeDirector.visualStrategy },
                 { color: "red", icon: "🎬", label: dict.creativeDirector.sceneComposition },
@@ -292,10 +292,10 @@ export default function CreativeDirectorHandoffModal({
               ].map((item, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-gray-800/40 hover:bg-gray-700/40 transition-colors duration-200"
+                  className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg bg-gray-800/40 hover:bg-gray-700/40 transition-colors duration-200"
                 >
-                  <div className="text-lg">{item.icon}</div>
-                  <span className="text-gray-300 text-sm font-medium">{item.label}</span>
+                  <div className="text-base sm:text-lg">{item.icon}</div>
+                  <span className="text-gray-300 text-xs sm:text-sm font-medium">{item.label}</span>
                   <div
                     className={`ml-auto w-2 h-2 rounded-full animate-pulse ${COLOR_MAP[item.color as keyof typeof COLOR_MAP]}`}
                   ></div>
@@ -305,11 +305,11 @@ export default function CreativeDirectorHandoffModal({
           </div>
         )}
 
-        {/* Processing Indicator */}
+        {/* Processing Indicator - Mobile optimized */}
         {isProcessing && (
-          <div className="bg-red-900/30 border border-red-500/30 rounded-lg p-4 flex items-center gap-3">
-            <div className="w-5 h-5 border-2 border-red-400 border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-red-200 font-medium">{dict.creativeDirector.initializing}</span>
+          <div className="bg-red-900/30 border border-red-500/30 rounded-lg p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+            <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-red-400 border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-red-200 text-sm sm:text-base font-medium">{dict.creativeDirector.initializing}</span>
             <div className="ml-auto flex gap-1">
               {[0, 1, 2].map((i) => (
                 <div
@@ -323,13 +323,13 @@ export default function CreativeDirectorHandoffModal({
         )}
       </div>
 
-      {/* Footer with Glass Effect */}
-      <div className="bg-gray-800/95 backdrop-blur-md rounded-b-lg border-t border-gray-700/50 p-6">
-        <div className="flex items-center justify-between gap-4">
+      {/* Footer with Glass Effect - Sticky on mobile */}
+      <div className="sticky bottom-0 bg-gray-800/95 backdrop-blur-md rounded-b-lg border-t border-gray-700/50 p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
           <button
             onClick={onClose}
             disabled={isProcessing}
-            className="cursor-pointer px-6 py-2.5 text-gray-300 hover:text-white bg-gray-700/50 hover:bg-gray-600/50 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600/30"
+            className="cursor-pointer px-4 sm:px-6 py-2.5 text-sm sm:text-base text-gray-300 hover:text-white bg-gray-700/50 hover:bg-gray-600/50 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600/30 w-full sm:w-auto"
           >
             {dict.creativeDirector.reviewMore}
           </button>
@@ -337,7 +337,7 @@ export default function CreativeDirectorHandoffModal({
           <button
             onClick={handleConfirmHandoff}
             disabled={isProcessing || !creativeDirection}
-            className="magical-button cursor-pointer px-8 py-2.5 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white rounded-lg font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="magical-button cursor-pointer px-6 sm:px-8 py-2.5 text-sm sm:text-base bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white rounded-lg font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-lg hover:shadow-xl transform hover:scale-105 w-full sm:w-auto"
           >
             {isProcessing ? (
               <>

@@ -284,7 +284,7 @@ export class CreativeDirectorCostTracker {
     sessionId: string,
     inputTokens: number,
     outputTokens: number,
-    model: string = "gemini-2.5-flash"
+    model: string = process.env.GEMINI_MODEL || "gemini-2.5-flash"
   ): Promise<CostEntry> {
     const inputCost = (inputTokens / 1000) * 0.00125; // $0.00125 per 1K input tokens
     const outputCost = (outputTokens / 1000) * 0.00375; // $0.00375 per 1K output tokens

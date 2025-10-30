@@ -36,9 +36,9 @@ export class VertexAIClient {
   private readonly vertexAI: VertexAIService;
   private readonly modelName: string;
 
-  constructor(vertexAI: VertexAIService, modelName: string = "gemini-2.5-flash") {
+  constructor(vertexAI: VertexAIService, modelName?: string) {
     this.vertexAI = vertexAI;
-    this.modelName = modelName;
+    this.modelName = modelName || process.env.GEMINI_MODEL || "gemini-2.5-flash";
   }
 
   /**
@@ -126,7 +126,7 @@ export class VertexAIClient {
     console.log("[VERTEX AI] Using text-only API with service account");
 
     const response = await fetch(
-      `${baseUrl}/v1/projects/${config.projectId}/locations/${config.region}/publishers/google/models/gemini-2.5-flash:generateContent`,
+      `${baseUrl}/v1/projects/${config.projectId}/locations/${config.region}/publishers/google/models/${this.modelName}:generateContent`,
       {
         method: "POST",
         headers: {

@@ -26,13 +26,14 @@ export interface GeminiImageResponse {
  */
 export class GeminiAIStudioClient {
   private readonly apiKey: string;
-  private readonly baseUrl =
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+  private readonly baseUrl: string;
   private readonly imageGenUrl =
     "https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict";
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
+    const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+    this.baseUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
   }
 
   /**
