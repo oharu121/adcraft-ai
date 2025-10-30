@@ -123,21 +123,21 @@ export class VeoService {
 
     // Add image if provided (image-to-video generation)
     if (request.image) {
-      // Optimize image for Veo processing if it's too large
-      let optimizedImage = request.image.bytesBase64Encoded;
-      const imageSizeKB = (optimizedImage.length * 3) / 4 / 1024; // Estimate base64 size in KB
+      // Check image size - Veo API has payload size limits
+      const imageSizeKB = (request.image.bytesBase64Encoded.length * 3) / 4 / 1024;
+      const MAX_IMAGE_SIZE_KB = 500; // 500KB limit for stable API performance
 
-      console.log(`🎬 Original image size: ~${Math.round(imageSizeKB)}KB`);
+      console.log(`🎬 Product image size: ~${Math.round(imageSizeKB)}KB`);
 
-      // If image is larger than 200KB, we might want to resize it
-      // (This is a placeholder for future optimization)
-      if (imageSizeKB > 200) {
-        console.log(`🎬 Warning: Large image detected (${Math.round(imageSizeKB)}KB). Consider resizing for better Veo performance.`);
-        // TODO: Implement image resizing if needed
+      // CRITICAL: Reject images that are too large to prevent 500 errors
+      if (imageSizeKB > MAX_IMAGE_SIZE_KB) {
+        const errorMessage = `Image too large for Veo API: ${Math.round(imageSizeKB)}KB (max: ${MAX_IMAGE_SIZE_KB}KB). Please use a smaller image or enable image compression.`;
+        console.error(`🎬 ERROR: ${errorMessage}`);
+        throw new Error(errorMessage);
       }
 
       instance.image = {
-        bytesBase64Encoded: optimizedImage,
+        bytesBase64Encoded: request.image.bytesBase64Encoded,
         mimeType: request.image.mimeType
       };
       console.log(`🎬 Including product image in video generation (${request.image.mimeType}, ~${Math.round(imageSizeKB)}KB)`);
@@ -484,6 +484,16 @@ export class VeoService {
 
     if (request.aspectRatio && !['16:9', '9:16', '1:1'].includes(request.aspectRatio)) {
       errors.push('Aspect ratio must be 16:9, 9:16, or 1:1');
+    }
+
+    // Validate image size if provided
+    if (request.image?.bytesBase64Encoded) {
+      const imageSizeKB = (request.image.bytesBase64Encoded.length * 3) / 4 / 1024;
+      const MAX_IMAGE_SIZE_KB = 500;
+
+      if (imageSizeKB > MAX_IMAGE_SIZE_KB) {
+        errors.push(`Image too large: ${Math.round(imageSizeKB)}KB (max: ${MAX_IMAGE_SIZE_KB}KB). Please upload a smaller image.`);
+      }
     }
 
     return errors;

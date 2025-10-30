@@ -61,6 +61,7 @@
     "success": "成功",
     "warning": "警告",
     "info": "情報",
+    "chat": "チャット",
     "confirmRestart": "現在、後のエージェントと作業中です。最初からやり直しますか？",
     "handoffComplete": "引き継ぎ完了",
     "preparingHandoff": "引き継ぎ準備中...",

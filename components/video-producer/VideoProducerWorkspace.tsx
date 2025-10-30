@@ -22,6 +22,7 @@ export default function VideoProducerWorkspace({
 }: VideoProducerWorkspaceProps) {
   const [workflowProgressExpanded, setWorkflowProgressExpanded] = useState(true);
   const [mainContentHeight, setMainContentHeight] = useState<number | null>(null);
+  const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
   const mainContentRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -247,27 +248,28 @@ export default function VideoProducerWorkspace({
   );
 
   return (
-    <div className="flex gap-6 min-h-screen items-start">
-      {/* Left: Main Video Producer Card - Fully Expanded */}
-      <div className="flex-1" ref={mainContentRef}>
-        <VideoProducerCard
-          dict={dict}
-          locale={locale}
-          onScrollToChatSection={onScrollToChatSection}
-          onNavigateToStep={handleNavigateToStep}
-          currentStep={currentStep}
-          onStepChange={(step: VideoProducerWorkflowStep) => setCurrentStep(step)}
-          onExpandWorkflowProgress={handleExpandWorkflowProgress}
-        />
-      </div>
+    <>
+      <div className="flex gap-6 min-h-screen items-start">
+        {/* Left: Main Video Producer Card - Full width on mobile, flex-1 on desktop */}
+        <div className="w-full lg:flex-1" ref={mainContentRef}>
+          <VideoProducerCard
+            dict={dict}
+            locale={locale}
+            onScrollToChatSection={onScrollToChatSection}
+            onNavigateToStep={handleNavigateToStep}
+            currentStep={currentStep}
+            onStepChange={(step: VideoProducerWorkflowStep) => setCurrentStep(step)}
+            onExpandWorkflowProgress={handleExpandWorkflowProgress}
+          />
+        </div>
 
-      {/* Right: Sidebar matches main content height exactly */}
-      <div
-        className="w-80 flex flex-col"
-        style={{
-          height: mainContentHeight ? `${mainContentHeight}px` : "auto",
-        }}
-      >
+        {/* Right: Sidebar - Hidden on mobile (< lg), visible on desktop */}
+        <div
+          className="hidden lg:flex w-80 flex-col"
+          style={{
+            height: mainContentHeight ? `${mainContentHeight}px` : "auto",
+          }}
+        >
         {/* Workflow Progress */}
         <VideoProducerProgress
           onNavigateToStep={handleNavigateToStep}
@@ -297,6 +299,62 @@ export default function VideoProducerWorkspace({
           </div>
         </div>
       </div>
-    </div>
+      </div>
+
+      {/* Mobile Floating Chat Button - Only visible on mobile (< lg) */}
+      <button
+        onClick={() => setIsMobileChatOpen(true)}
+        className="lg:hidden fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-br from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white rounded-full shadow-lg flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-110"
+        aria-label="Open chat"
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+        {messages.length > 0 && (
+          <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold">
+            {messages.length}
+          </div>
+        )}
+      </button>
+
+      {/* Mobile Chat Modal - Full screen on mobile */}
+      {isMobileChatOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 bg-gray-900">
+          {/* Header */}
+          <div className="bg-gradient-to-br from-red-900/90 via-red-800/80 to-orange-900/90 p-4 flex items-center justify-between">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <span className="text-2xl">💬</span>
+              {dict.common.chat || "Chat"}
+            </h2>
+            <button
+              onClick={() => setIsMobileChatOpen(false)}
+              className="cursor-pointer w-10 h-10 rounded-full bg-black/20 hover:bg-black/40 text-white/70 hover:text-white transition-all duration-200 flex items-center justify-center"
+              aria-label="Close chat"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Chat Content */}
+          <div className="flex flex-col h-[calc(100vh-64px)]">
+            <VideoProducerChatContainer
+              sessionId={sessionId || ""}
+              messages={messages}
+              isConnected={true}
+              isAgentTyping={isAgentTyping}
+              onSendMessage={handleSendMessage}
+              dict={dict}
+              locale={locale}
+              inputMessage={chatInputMessage}
+              onInputMessageChange={setChatInputMessage}
+              onScrollRequest={onScrollToChatSection}
+              onTextareaFocus={() => {}}
+            />
+          </div>
+        </div>
+      )}
+    </>
   );
 }

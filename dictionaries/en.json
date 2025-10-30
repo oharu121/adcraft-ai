@@ -61,6 +61,7 @@
     "success": "Success",
     "warning": "Warning",
     "info": "Information",
+    "chat": "Chat",
     "confirmRestart": "You're currently working with a later agent. Do you want to start over from the beginning?",
     "handoffComplete": "Handoff Complete",
     "preparingHandoff": "Preparing handoff...",
