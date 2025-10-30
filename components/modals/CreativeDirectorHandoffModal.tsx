@@ -102,12 +102,12 @@ export default function CreativeDirectorHandoffModal({
       {/* Magical Header with Gradient - Mobile optimized padding */}
       <div className="relative bg-gradient-to-br from-red-900/90 via-red-800/80 to-orange-900/90 backdrop-blur-md rounded-t-lg border-b border-red-500/30">
         <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 to-orange-500/20 animate-pulse"></div>
-        <div className="relative p-4 sm:p-6">
+        <div className="relative p-3 sm:p-6">
           <div className="flex items-center gap-4">
             {/* Animated Video Producer Avatar */}
             <div className="relative">
-              <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
-                <span className="text-3xl">🎬</span>
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                <span className="text-2xl sm:text-3xl">🎬</span>
                 {/* Glow effect */}
                 <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-orange-500 rounded-full blur-lg opacity-30 animate-pulse"></div>
               </div>
@@ -141,15 +141,15 @@ export default function CreativeDirectorHandoffModal({
       </div>
 
       {/* Main Content with Glass Effect - Mobile optimized with max-height and scroll */}
-      <div className="bg-gray-900/95 backdrop-blur-md p-4 sm:p-6 space-y-4 sm:space-y-6 max-h-[60vh] sm:max-h-[70vh] overflow-y-auto">
+      <div className="bg-gray-900/95 backdrop-blur-md p-3 sm:p-6 space-y-3 sm:space-y-6 max-h-[50vh] sm:max-h-[70vh] overflow-y-auto">
         {/* Description */}
-        <div className="space-y-3 sm:space-y-4">
-          <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+        <div className="space-y-2 sm:space-y-4">
+          <p className="text-gray-300 text-sm sm:text-lg leading-relaxed">
             {dict.creativeDirector.handoffDescription}
           </p>
 
           {/* David to Zara Flow Visualization - Mobile optimized */}
-          <div className="relative py-3 sm:py-4 space-y-2">
+          <div className="relative py-2 sm:py-4 space-y-1.5 sm:space-y-2">
             {/* Container for avatars and handover animation - perfectly aligned */}
             <div className="flex items-center justify-center gap-2 sm:gap-4">
               {/* David Avatar */}
@@ -324,7 +324,7 @@ export default function CreativeDirectorHandoffModal({
       </div>
 
       {/* Footer with Glass Effect - Sticky on mobile */}
-      <div className="sticky bottom-0 bg-gray-800/95 backdrop-blur-md rounded-b-lg border-t border-gray-700/50 p-4 sm:p-6">
+      <div className="sticky bottom-0 bg-gray-800/95 backdrop-blur-md rounded-b-lg border-t border-gray-700/50 p-3 sm:p-6">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
           <button
             onClick={onClose}

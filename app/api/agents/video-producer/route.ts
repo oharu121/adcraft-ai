@@ -250,12 +250,32 @@ Return as valid JSON:
     // Call Gemini API for dynamic narrative styles
     const response = await geminiClient.generateTextOnly(prompt);
 
-    // Parse JSON response (following David's parsing pattern)
-    const cleanedText = response.text.replace(/```json\n?|\n?```/g, '').trim();
+    // Parse JSON response with enhanced extraction
+    let cleanedText = response.text;
+
+    // Extract JSON from markdown code blocks
+    const jsonBlockMatch = cleanedText.match(/```json\s*([\s\S]*?)\s*```/);
+    if (jsonBlockMatch) {
+      cleanedText = jsonBlockMatch[1].trim();
+    } else {
+      // Try to find JSON array or object directly
+      const jsonMatch = cleanedText.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
+      if (jsonMatch) {
+        cleanedText = jsonMatch[1].trim();
+      } else {
+        // Fallback: remove markdown markers
+        cleanedText = cleanedText.replace(/```json\n?|\n?```/g, '').trim();
+      }
+    }
+
+    // Additional JSON cleaning for special characters
+    cleanedText = cleanedText
+      .replace(/[\u2018\u2019]/g, "'") // Replace smart quotes with regular quotes
+      .replace(/[\u201C\u201D]/g, '"'); // Replace smart double quotes
 
     console.log("[AI Narrative Styles] Raw AI response:", {
-      originalText: response.text,
-      cleanedText: cleanedText,
+      originalText: response.text.substring(0, 200) + '...',
+      cleanedText: cleanedText.substring(0, 200) + '...',
       textLength: cleanedText.length
     });
 
@@ -392,22 +412,33 @@ Return as valid JSON:
     const response = await geminiClient.generateTextOnly(prompt);
 
     // Parse JSON response with enhanced error handling
-    let cleanedText = response.text.replace(/```json\n?|\n?```/g, '').trim();
+    let cleanedText = response.text;
+
+    // Extract JSON from markdown code blocks
+    const jsonBlockMatch = cleanedText.match(/```json\s*([\s\S]*?)\s*```/);
+    if (jsonBlockMatch) {
+      cleanedText = jsonBlockMatch[1].trim();
+    } else {
+      // Try to find JSON array or object directly
+      const jsonMatch = cleanedText.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
+      if (jsonMatch) {
+        cleanedText = jsonMatch[1].trim();
+      } else {
+        // Fallback: remove markdown markers
+        cleanedText = cleanedText.replace(/```json\n?|\n?```/g, '').trim();
+      }
+    }
 
     console.log("[AI Music Genres] Raw AI response:", {
-      originalText: response.text,
-      cleanedText: cleanedText,
+      originalText: response.text.substring(0, 200) + '...',
+      cleanedText: cleanedText.substring(0, 200) + '...',
       textLength: cleanedText.length
     });
 
-    // Additional JSON cleaning for special characters
+    // Additional JSON cleaning for special characters (but preserve structure)
     cleanedText = cleanedText
       .replace(/[\u2018\u2019]/g, "'") // Replace smart quotes with regular quotes
-      .replace(/[\u201C\u201D]/g, '"') // Replace smart double quotes
-      .replace(/\n/g, ' ') // Replace newlines with spaces
-      .replace(/\r/g, '') // Remove carriage returns
-      .replace(/\t/g, ' ') // Replace tabs with spaces
-      .replace(/\\/g, '\\\\'); // Escape backslashes
+      .replace(/[\u201C\u201D]/g, '"'); // Replace smart double quotes
 
     let musicGenres;
     try {
