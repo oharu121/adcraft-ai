@@ -31,6 +31,7 @@ export class AppModeConfig {
   }
 
   static switchMode(): void {
+    console.log(process.env.NODE_ENV);
     if (process.env.NODE_ENV === "production") {
       console.warn("[AppMode] Mode switching disabled in production");
       return;

@@ -12,6 +12,9 @@ const gcpConfig = new pulumi.Config('gcp');
 const projectId = gcpConfig.require('project');
 const region = gcpConfig.get('region') || 'asia-northeast1';
 
+// Get secrets from config (encrypted)
+const geminiApiKey = config.requireSecret('gemini-api-key');
+
 // Create resources in order
 const iam = createIAMResources();
 const storage = createStorageResources(region);
@@ -21,7 +24,8 @@ const compute = createComputeResources(
   region,
   iam.serviceAccount,
   storage.bucket.name,
-  database.database.name
+  database.database.name,
+  geminiApiKey
 );
 const monitoring = createMonitoringResources(projectId);
 

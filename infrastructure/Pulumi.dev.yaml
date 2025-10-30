@@ -1,3 +1,5 @@
 config:
   gcp:project: adcraft-dev-2025
   gcp:region: asia-northeast1
+  adcraft-ai-infrastructure:gemini-api-key:
+    secure: AAABAMUE/o68Nq8oAj8dc2nt3XW9bOJZZr/iTDpA6Ohmc2G6xDnR30RjM2D3OLf9LCD+QYUlWBGw4TKW6zfNCl1M4m+snEk=

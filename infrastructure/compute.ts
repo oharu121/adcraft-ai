@@ -6,7 +6,8 @@ export function createComputeResources(
   region: string,
   serviceAccount: gcp.serviceaccount.Account,
   bucketName: pulumi.Output<string>,
-  databaseName: pulumi.Output<string>
+  databaseName: pulumi.Output<string>,
+  geminiApiKey: pulumi.Output<string>
 ) {
   // Artifact Registry repository for container images
   const repository = new gcp.artifactregistry.Repository('adcraft-repo', {
@@ -76,6 +77,10 @@ export function createComputeResources(
             {
               name: 'NODE_ENV',
               value: 'production',
+            },
+            {
+              name: 'GEMINI_API_KEY',
+              value: geminiApiKey,
             },
           ],
           

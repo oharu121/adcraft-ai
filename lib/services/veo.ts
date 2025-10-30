@@ -132,10 +132,8 @@ export class VeoService {
 
       // Use inline_data format based on Gemini API documentation
       instance.image = {
-        inline_data: {
-          mime_type: request.image.mimeType,
-          data: request.image.bytesBase64Encoded,
-        },
+        bytesBase64Encoded: request.image.bytesBase64Encoded,
+        mimeType: request.image.mimeType,
       };
       console.log(
         `🎬 Including product image in video generation (${request.image.mimeType}, ~${Math.round(imageSizeKB)}KB)`

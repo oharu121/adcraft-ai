@@ -21,8 +21,9 @@
     "test:firestore-prod": "tsx scripts/test-firestore-production.ts",
     "deploy:firestore-rules": "node scripts/deploy-firestore-rules.js",
     "docker:build": "docker build -t adcraft-ai .",
-    "docker:tag": "docker tag adcraft-ai gcr.io/adcraft-dev-2025/adcraft-service:latest",
-    "docker:push": "docker push gcr.io/adcraft-dev-2025/adcraft-service:latest",
+    "docker:tag": "docker tag adcraft-ai asia-northeast1-docker.pkg.dev/adcraft-dev-2025/adcraft-ai/adcraft-ai:latest",
+    "docker:push": "docker push asia-northeast1-docker.pkg.dev/adcraft-dev-2025/adcraft-ai/adcraft-ai:latest",
+    "docker:deploy": "npm run docker:build && npm run docker:tag && npm run docker:push",
     "gcloud:url": "gcloud run services describe adcraft-service --region=asia-northeast1 --project=adcraft-dev-2025 --format=\"value(status.url)\""
   },
   "dependencies": {
