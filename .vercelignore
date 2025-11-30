@@ -1,0 +1,22 @@
+# Infrastructure (Pulumi IaC for GCP) - preserved for GCP compatibility
+infrastructure/
+
+# Docker/GCP Deployment - preserved for GCP compatibility
+Dockerfile
+.dockerignore
+scripts/deploy.sh
+scripts/deploy.ps1
+scripts/deploy-firestore-rules.js
+
+# Firebase/Firestore Config - preserved for GCP compatibility
+firebase.json
+firestore.rules
+firestore.indexes.json
+.firebaserc
+
+# GCP Credentials (never deploy these)
+gcp-credentials.json
+*-credentials.json
+
+# Reference documentation (saves build time)
+05-gcp-reference/

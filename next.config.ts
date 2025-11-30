@@ -1,10 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Enable standalone output for Docker optimization
-  output: 'standalone',
-  
-  // Disable strict ESLint during build for Docker compatibility
+  // NOTE: 'output: standalone' removed for Vercel deployment
+  // For GCP/Docker deployment, add back: output: 'standalone',
+
+  // Disable strict ESLint during build
   eslint: {
     // Warning: This allows production builds to successfully complete even if
     // your project has ESLint errors.
