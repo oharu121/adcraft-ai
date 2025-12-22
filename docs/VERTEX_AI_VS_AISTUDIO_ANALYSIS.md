@@ -68,24 +68,6 @@ public async generateImages(prompt: string, count: number = 4): Promise<GeminiIm
 
 ---
 
-## Environment Comparison
-
-### Local Development (.env.local)
-
-```bash
-GCP_PROJECT_ID=adcraft-dev-2025
-GCP_REGION=asia-northeast1
-SKIP_GCP_AUTH=false
-GEMINI_API_KEY=AIzaSyC4DWI8zy-KywLFXj9l5pjwQs7Lxy-Loro  # ← KEY PRESENT
-```
-
-**Result**:
-- ✅ AI Studio client initialized (has API key)
-- ✅ Vertex AI client initialized (has service account from local auth)
-- ✅ Image generation uses AI Studio (works!)
-
----
-
 ### Production (Cloud Run - infrastructure/compute.ts:55-80)
 
 ```typescript
