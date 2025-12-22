@@ -3,15 +3,17 @@
 ## ✅ What We Fixed
 
 **Before (INSECURE):**
+
 ```typescript
 // ❌ BAD: Hardcoded API key in code (checked into git)
 {
   name: 'GEMINI_API_KEY',
-  value: 'AIzaSyC4DWI8zy-KywLFXj9l5pjwQs7Lxy-Loro',
+  value: 'xxx',
 }
 ```
 
 **After (SECURE):**
+
 ```typescript
 // ✅ GOOD: API key stored as encrypted Pulumi secret
 const geminiApiKey = config.requireSecret('gemini-api-key');
@@ -34,6 +36,7 @@ pulumi config set --secret gemini-api-key YOUR_API_KEY_HERE
 ```
 
 **What this does:**
+
 - Encrypts the value using Pulumi's encryption
 - Stores it in `Pulumi.dev.yaml` (encrypted, safe to commit)
 - Never exposes plaintext in your code
@@ -46,9 +49,10 @@ pulumi config get gemini-api-key
 ```
 
 To see the actual value (for debugging):
+
 ```bash
 pulumi config get gemini-api-key --show-secrets
-# Output: AIzaSyC4DWI8zy-KywLFXj9l5pjwQs7Lxy-Loro
+# Output: xxx
 ```
 
 ### Step 3: Deploy with the Secret
@@ -58,6 +62,7 @@ pulumi up --yes
 ```
 
 Pulumi will:
+
 1. Decrypt the secret at runtime
 2. Pass it to Cloud Run as an environment variable
 3. Never log the plaintext value
@@ -82,7 +87,7 @@ config:
 
 ```bash
 # Local development only
-GEMINI_API_KEY=AIzaSyC4DWI8zy-KywLFXj9l5pjwQs7Lxy-Loro
+GEMINI_API_KEY=xxx
 ```
 
 ❌ **This file should NEVER be committed to git** (already in `.gitignore`)
@@ -94,11 +99,13 @@ GEMINI_API_KEY=AIzaSyC4DWI8zy-KywLFXj9l5pjwQs7Lxy-Loro
 ### Development vs Production
 
 **Local Development (.env.local):**
+
 - Next.js reads from `.env.local`
 - Simple, no encryption needed (local only)
 - File is git-ignored
 
 **Production (Cloud Run):**
+
 - Pulumi reads encrypted secret from `Pulumi.dev.yaml`
 - Passes decrypted value to Cloud Run as environment variable
 - Cloud Run receives: `GEMINI_API_KEY=AIzaSy...`
@@ -144,11 +151,13 @@ GEMINI_API_KEY=AIzaSyC4DWI8zy-KywLFXj9l5pjwQs7Lxy-Loro
 ### ✅ DO:
 
 1. **Use Pulumi secrets for production:**
+
    ```bash
    pulumi config set --secret api-key VALUE
    ```
 
 2. **Keep `.env.local` git-ignored:**
+
    ```bash
    # .gitignore
    .env.local
@@ -156,6 +165,7 @@ GEMINI_API_KEY=AIzaSyC4DWI8zy-KywLFXj9l5pjwQs7Lxy-Loro
    ```
 
 3. **Use different secrets per environment:**
+
    ```bash
    # Development stack
    pulumi stack select dev
@@ -176,35 +186,39 @@ GEMINI_API_KEY=AIzaSyC4DWI8zy-KywLFXj9l5pjwQs7Lxy-Loro
 ### ❌ DON'T:
 
 1. **Never hardcode secrets in TypeScript files:**
+
    ```typescript
    // ❌ BAD
-   const apiKey = 'AIzaSyC4DWI8zy...';
+   const apiKey = "AIzaSyC4DWI8zy...";
    ```
 
 2. **Never commit `.env.local`:**
+
    ```bash
    # ❌ BAD - exposes secrets
    git add .env.local
    ```
 
 3. **Never log secrets:**
+
    ```typescript
    // ❌ BAD
-   console.log('API Key:', apiKey);
+   console.log("API Key:", apiKey);
 
    // ✅ GOOD
-   console.log('API Key:', apiKey ? '[REDACTED]' : 'not set');
+   console.log("API Key:", apiKey ? "[REDACTED]" : "not set");
    ```
 
 4. **Never expose secrets in client-side code:**
+
    ```typescript
    // ❌ BAD - client components can't use secrets
-   'use client';
-   const apiKey = process.env.GEMINI_API_KEY;  // Exposed to browser!
+   "use client";
+   const apiKey = process.env.GEMINI_API_KEY; // Exposed to browser!
 
    // ✅ GOOD - only use in API routes or server components
    export async function POST(request: Request) {
-     const apiKey = process.env.GEMINI_API_KEY;  // Safe, server-side only
+     const apiKey = process.env.GEMINI_API_KEY; // Safe, server-side only
    }
    ```
 
@@ -219,6 +233,7 @@ error: missing required configuration variable 'adcraft-ai:gemini-api-key'
 ```
 
 **Solution:**
+
 ```bash
 pulumi config set --secret gemini-api-key YOUR_API_KEY
 ```
@@ -226,11 +241,13 @@ pulumi config set --secret gemini-api-key YOUR_API_KEY
 ### Problem: Wrong secret value in production
 
 **Check current value:**
+
 ```bash
 pulumi config get gemini-api-key --show-secrets
 ```
 
 **Update:**
+
 ```bash
 pulumi config set --secret gemini-api-key CORRECT_VALUE
 pulumi up --yes
@@ -265,6 +282,7 @@ const dbPassword = config.requireSecret('database-password');
 ## 🌍 Multi-Environment Setup
 
 ### Development Stack
+
 ```bash
 pulumi stack select dev
 pulumi config set --secret gemini-api-key DEV_API_KEY
@@ -272,6 +290,7 @@ pulumi config set gcp:project adcraft-dev-2025
 ```
 
 ### Production Stack
+
 ```bash
 pulumi stack select prod
 pulumi config set --secret gemini-api-key PROD_API_KEY
@@ -279,6 +298,7 @@ pulumi config set gcp:project adcraft-prod-2025
 ```
 
 Each stack has its own encrypted secrets in:
+
 - `Pulumi.dev.yaml` (development)
 - `Pulumi.prod.yaml` (production)
 

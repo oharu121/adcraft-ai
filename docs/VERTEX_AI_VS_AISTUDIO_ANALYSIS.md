@@ -9,12 +9,15 @@
 ## TL;DR - The Problem
 
 **Local (Works)**:
+
 - `GEMINI_API_KEY` is set → AI Studio client initialized → Image generation succeeds
 
 **Production (Fails)**:
+
 - `GEMINI_API_KEY` is NOT set → Only Vertex AI client initialized → Image generation throws error
 
 **Error Message**:
+
 ```
 "Image generation requires AI Studio client - Vertex AI doesn't support Gemini 2.0 Flash yet"
 ```
@@ -41,6 +44,7 @@ constructor(vertexAIService?: VertexAIService) {
 ```
 
 **What This Does**:
+
 1. **Checks for `GEMINI_API_KEY`** in environment variables
 2. **If found**: Creates AI Studio client (supports Gemini 2.0 Flash + image generation)
 3. **If VertexAIService provided**: Creates Vertex AI client (supports Gemini Pro, but NOT 2.0 Flash for images)
@@ -62,6 +66,7 @@ public async generateImages(prompt: string, count: number = 4): Promise<GeminiIm
 ```
 
 **Critical Logic**:
+
 - **ONLY works with AI Studio client**
 - **Vertex AI cannot generate images** (Gemini 2.0 Flash not available on Vertex AI yet)
 - **Throws error if AI Studio client is missing**
@@ -72,17 +77,18 @@ public async generateImages(prompt: string, count: number = 4): Promise<GeminiIm
 
 ```typescript
 envs: [
-  { name: 'APP_MODE', value: 'real' },
-  { name: 'GCP_PROJECT_ID', value: projectId },
-  { name: 'GCP_REGION', value: region },
-  { name: 'STORAGE_BUCKET_NAME', value: bucketName },
-  { name: 'FIRESTORE_DATABASE_NAME', value: databaseName },
-  { name: 'NODE_ENV', value: 'production' },
+  { name: "APP_MODE", value: "real" },
+  { name: "GCP_PROJECT_ID", value: projectId },
+  { name: "GCP_REGION", value: region },
+  { name: "STORAGE_BUCKET_NAME", value: bucketName },
+  { name: "FIRESTORE_DATABASE_NAME", value: databaseName },
+  { name: "NODE_ENV", value: "production" },
   // ❌ GEMINI_API_KEY is MISSING!
-]
+];
 ```
 
 **Result**:
+
 - ❌ AI Studio client NOT initialized (no API key)
 - ✅ Vertex AI client initialized (service account auth from Cloud Run)
 - ❌ Image generation fails (no AI Studio client)
@@ -94,16 +100,21 @@ envs: [
 ### Authentication Methods
 
 #### AI Studio (REST API)
+
 ```typescript
 // Simple API key authentication
-const response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent', {
-  headers: {
-    'x-goog-api-key': process.env.GEMINI_API_KEY
+const response = await fetch(
+  "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent",
+  {
+    headers: {
+      "x-goog-api-key": process.env.GEMINI_API_KEY,
+    },
   }
-});
+);
 ```
 
 **Characteristics**:
+
 - ✅ Works anywhere (local, production, mobile apps)
 - ✅ Simple to set up (just an API key)
 - ✅ Supports latest models (Gemini 2.0 Flash)
@@ -115,6 +126,7 @@ const response = await fetch('https://generativelanguage.googleapis.com/v1/model
 ---
 
 #### Vertex AI (gRPC + Service Account)
+
 ```typescript
 // Service account authentication via Google Cloud SDK
 const vertexai = new VertexAI({
@@ -124,12 +136,15 @@ const vertexai = new VertexAI({
 ```
 
 **Authentication Flow**:
+
 1. **Local Development**:
+
    ```bash
    gcloud auth application-default login
    # Creates credential file at:
    # ~/.config/gcloud/application_default_credentials.json
    ```
+
    - App reads credential file
    - Impersonates your user account
    - Uses your GCP permissions
@@ -138,11 +153,13 @@ const vertexai = new VertexAI({
    ```yaml
    serviceAccountName: adcraft-service-account@adcraft-dev-2025.iam.gserviceaccount.com
    ```
+
    - Cloud Run automatically injects service account credentials
    - No credential files needed
    - Uses IAM role permissions
 
 **Characteristics**:
+
 - ✅ More secure (service account with IAM policies)
 - ✅ VPC service controls
 - ✅ Enterprise features (audit logs, quotas, monitoring)
@@ -160,6 +177,7 @@ const vertexai = new VertexAI({
 ### What You're Experiencing
 
 **Scenario 1: Vertex AI Seems to Fail Locally**
+
 ```
 Reality: Vertex AI DOES work locally, but...
 - Text generation: ✅ Works (Gemini Pro)
@@ -168,6 +186,7 @@ Reality: Vertex AI DOES work locally, but...
 ```
 
 **Scenario 2: "But It Works in Production!"**
+
 ```
 Reality: In production, Vertex AI ALSO works for text/vision, but...
 - AI Studio client is missing (no GEMINI_API_KEY)
@@ -176,6 +195,7 @@ Reality: In production, Vertex AI ALSO works for text/vision, but...
 ```
 
 **The Truth**:
+
 - Vertex AI works IDENTICALLY in local and production
 - The DIFFERENCE is which client gets initialized
 - Local: AI Studio (because API key exists)
@@ -188,6 +208,7 @@ Reality: In production, Vertex AI ALSO works for text/vision, but...
 **Test it yourself**:
 
 1. **Temporarily remove AI Studio client** (gemini.ts):
+
 ```typescript
 constructor(vertexAIService?: VertexAIService) {
   // Comment out AI Studio initialization
@@ -204,6 +225,7 @@ constructor(vertexAIService?: VertexAIService) {
 ```
 
 2. **Test product analysis** (text generation):
+
 ```bash
 # Upload product image and analyze
 # This will use ONLY Vertex AI locally
@@ -216,15 +238,15 @@ constructor(vertexAIService?: VertexAIService) {
 
 ## The Real Issue: Feature Availability
 
-| Feature | AI Studio | Vertex AI | Notes |
-|---------|-----------|-----------|-------|
-| **Text Generation** | ✅ Gemini 2.0 Flash | ✅ Gemini Pro | Both work |
-| **Vision Analysis** | ✅ Gemini 2.0 Flash | ✅ Gemini Pro Vision | Both work |
-| **Image Generation** | ✅ Gemini 2.0 Flash (Imagen) | ❌ NOT SUPPORTED | Only AI Studio |
-| **Latest Models** | ✅ Beta/experimental | ❌ Stable only | AI Studio first |
-| **Authentication** | API Key | Service Account | Different methods |
-| **Local Development** | ✅ Simple setup | ✅ Works (needs gcloud auth) | Both supported |
-| **Production** | ✅ Works (needs env var) | ✅ Works (automatic) | Both supported |
+| Feature               | AI Studio                    | Vertex AI                    | Notes             |
+| --------------------- | ---------------------------- | ---------------------------- | ----------------- |
+| **Text Generation**   | ✅ Gemini 2.0 Flash          | ✅ Gemini Pro                | Both work         |
+| **Vision Analysis**   | ✅ Gemini 2.0 Flash          | ✅ Gemini Pro Vision         | Both work         |
+| **Image Generation**  | ✅ Gemini 2.0 Flash (Imagen) | ❌ NOT SUPPORTED             | Only AI Studio    |
+| **Latest Models**     | ✅ Beta/experimental         | ❌ Stable only               | AI Studio first   |
+| **Authentication**    | API Key                      | Service Account              | Different methods |
+| **Local Development** | ✅ Simple setup              | ✅ Works (needs gcloud auth) | Both supported    |
+| **Production**        | ✅ Works (needs env var)     | ✅ Works (automatic)         | Both supported    |
 
 ---
 
@@ -233,6 +255,7 @@ constructor(vertexAIService?: VertexAIService) {
 ### Why You See This Pattern
 
 **Local Development**:
+
 ```
 You: "I need to generate images"
 App: Checks GEMINI_API_KEY → Found → Uses AI Studio → Success!
@@ -241,6 +264,7 @@ Reality: Vertex AI WOULD work, but AI Studio has priority
 ```
 
 **Production**:
+
 ```
 You: "I need to generate images"
 App: Checks GEMINI_API_KEY → Not found → Only Vertex AI available → Fails!
@@ -256,6 +280,7 @@ Reality: Vertex AI works the same everywhere, but image generation isn't support
 ### ✅ Solution 1: Add GEMINI_API_KEY to Cloud Run (RECOMMENDED)
 
 **Why This is Best**:
+
 - ✅ Minimal code changes
 - ✅ Uses existing working logic
 - ✅ AI Studio has latest features
@@ -265,6 +290,7 @@ Reality: Vertex AI works the same everywhere, but image generation isn't support
 **How to Implement**:
 
 #### Option A: Via Pulumi (Recommended)
+
 ```typescript
 // infrastructure/compute.ts
 envs: [
@@ -301,10 +327,11 @@ envs: [
 ```
 
 **Then deploy**:
+
 ```bash
 # Set API key in Pulumi config (secure)
 cd infrastructure
-pulumi config set --secret gemini-api-key AIzaSyC4DWI8zy-KywLFXj9l5pjwQs7Lxy-Loro
+pulumi config set --secret gemini-api-key xxx
 
 # Update compute.ts to read from config
 const config = new pulumi.Config();
@@ -321,11 +348,12 @@ pulumi up
 ```
 
 #### Option B: Via Google Secret Manager (Most Secure)
+
 ```bash
 # 1. Create secret
 gcloud secrets create gemini-api-key \
   --data-file=- <<EOF
-AIzaSyC4DWI8zy-KywLFXj9l5pjwQs7Lxy-Loro
+xxx
 EOF
 
 # 2. Grant access to service account
@@ -346,12 +374,14 @@ gcloud secrets add-iam-policy-binding gemini-api-key \
 ```
 
 **Pros**:
+
 - ✅ Fastest to implement
 - ✅ Works immediately
 - ✅ Consistent behavior local/prod
 - ✅ Latest Gemini features
 
 **Cons**:
+
 - ⚠️ Relies on AI Studio (external service)
 - ⚠️ API key needs rotation
 - ⚠️ Less enterprise control
@@ -361,6 +391,7 @@ gcloud secrets add-iam-policy-binding gemini-api-key \
 ### ⚠️ Solution 2: Wait for Vertex AI Image Support (NOT RECOMMENDED)
 
 **When Vertex AI Adds Gemini 2.0 Flash**:
+
 ```typescript
 // Future: When Vertex AI supports image generation
 public async generateImages(prompt: string, count: number = 4): Promise<GeminiImageResponse> {
@@ -376,11 +407,13 @@ public async generateImages(prompt: string, count: number = 4): Promise<GeminiIm
 ```
 
 **Pros**:
+
 - ✅ Enterprise-grade (Vertex AI)
 - ✅ VPC controls
 - ✅ Better security
 
 **Cons**:
+
 - ❌ Unknown timeline (could be months)
 - ❌ Blocks current functionality
 - ❌ No workaround
@@ -395,18 +428,18 @@ public async generateImages(prompt: string, count: number = 4): Promise<GeminiIm
 
 ```typescript
 // New service: lib/services/imagen.ts
-import { ImageGenerationModel } from '@google-cloud/vertexai';
+import { ImageGenerationModel } from "@google-cloud/vertexai";
 
 export class ImagenService {
   async generateImages(prompt: string, count: number = 4) {
-    const model = new ImageGenerationModel('imagen-3.0-generate-001');
+    const model = new ImageGenerationModel("imagen-3.0-generate-001");
     const result = await model.predict({
       instances: [{ prompt }],
       parameters: {
         sampleCount: count,
-        aspectRatio: '1:1',
-        safetyFilterLevel: 'block_some',
-      }
+        aspectRatio: "1:1",
+        safetyFilterLevel: "block_some",
+      },
     });
     return result.predictions;
   }
@@ -414,11 +447,13 @@ export class ImagenService {
 ```
 
 **Pros**:
+
 - ✅ Uses Vertex AI (enterprise)
 - ✅ No API key needed
 - ✅ Production-grade
 
 **Cons**:
+
 - ⚠️ Different API (requires code changes)
 - ⚠️ Different image quality/style
 - ⚠️ Different pricing model
@@ -431,14 +466,16 @@ export class ImagenService {
 ### ❌ Solution 4: Remove Image Generation Feature (BAD IDEA)
 
 **Don't Do This**:
+
 ```typescript
 // Just disable the feature in production
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === "production") {
   throw new Error("Image generation not available in production");
 }
 ```
 
 **Why This is Bad**:
+
 - ❌ Removes valuable feature
 - ❌ Poor user experience
 - ❌ Doesn't solve the root issue
@@ -452,9 +489,10 @@ if (process.env.NODE_ENV === 'production') {
 **Implementation Steps**:
 
 1. **Use Google Secret Manager** (most secure):
+
 ```bash
 # Create secret
-echo -n "AIzaSyC4DWI8zy-KywLFXj9l5pjwQs7Lxy-Loro" | \
+echo -n "xxx" | \
   gcloud secrets create gemini-api-key --data-file=-
 
 # Grant access
@@ -464,6 +502,7 @@ gcloud secrets add-iam-policy-binding gemini-api-key \
 ```
 
 2. **Update Pulumi to use secret**:
+
 ```typescript
 // infrastructure/compute.ts
 import * as gcp from '@pulumi/gcp';
@@ -482,12 +521,14 @@ const geminiApiKeySecret = gcp.secretmanager.getSecretVersionOutput({
 ```
 
 3. **Deploy**:
+
 ```bash
 cd infrastructure
 pulumi up
 ```
 
 4. **Test**:
+
 ```bash
 curl -X POST https://adcraft-service-ybvh3xrona-an.a.run.app/api/agents/product-intelligence/generate-images \
   -H "Content-Type: application/json" \
@@ -495,6 +536,7 @@ curl -X POST https://adcraft-service-ybvh3xrona-an.a.run.app/api/agents/product-
 ```
 
 **Why This is Best**:
+
 - ✅ 15 minutes to implement
 - ✅ Secure (Secret Manager)
 - ✅ Works immediately
@@ -509,10 +551,13 @@ curl -X POST https://adcraft-service-ybvh3xrona-an.a.run.app/api/agents/product-
 ### The Misconception
 
 **What You Think**:
+
 > "Vertex AI doesn't work locally but works in production"
 
 **The Reality**:
+
 > "Vertex AI works IDENTICALLY in both environments. The DIFFERENCE is:
+>
 > - **Local**: AI Studio gets priority (because API key exists)
 > - **Production**: Only Vertex AI available (because API key missing)
 > - **Image generation**: Only AI Studio supports it (Vertex AI doesn't have this feature yet)"
@@ -521,13 +566,13 @@ curl -X POST https://adcraft-service-ybvh3xrona-an.a.run.app/api/agents/product-
 
 **Vertex AI is ENVIRONMENT-AGNOSTIC**:
 
-| Operation | Local (with gcloud auth) | Production (with service account) |
-|-----------|-------------------------|-----------------------------------|
-| Text generation | ✅ Works | ✅ Works |
-| Vision analysis | ✅ Works | ✅ Works |
-| Image generation | ❌ Not supported | ❌ Not supported |
-| Authentication | Uses user account | Uses service account |
-| Performance | Same | Same |
+| Operation        | Local (with gcloud auth) | Production (with service account) |
+| ---------------- | ------------------------ | --------------------------------- |
+| Text generation  | ✅ Works                 | ✅ Works                          |
+| Vision analysis  | ✅ Works                 | ✅ Works                          |
+| Image generation | ❌ Not supported         | ❌ Not supported                  |
+| Authentication   | Uses user account        | Uses service account              |
+| Performance      | Same                     | Same                              |
 
 **The difference you see is NOT Vertex AI behavior - it's which CLIENT gets used!**
 
