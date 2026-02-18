@@ -2,6 +2,7 @@
   "name": "adcraft-ai",
   "version": "0.3.0",
   "private": true,
+  "packageManager": "pnpm@10.21.0",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
@@ -23,7 +24,7 @@
     "docker:build": "docker build -t adcraft-ai .",
     "docker:tag": "docker tag adcraft-ai asia-northeast1-docker.pkg.dev/adcraft-dev-2025/adcraft-ai/adcraft-ai:latest",
     "docker:push": "docker push asia-northeast1-docker.pkg.dev/adcraft-dev-2025/adcraft-ai/adcraft-ai:latest",
-    "docker:deploy": "npm run docker:build && npm run docker:tag && npm run docker:push",
+    "docker:deploy": "pnpm run docker:build && pnpm run docker:tag && pnpm run docker:push",
     "gcloud:url": "gcloud run services describe adcraft-service --region=asia-northeast1 --project=adcraft-dev-2025 --format=\"value(status.url)\""
   },
   "dependencies": {

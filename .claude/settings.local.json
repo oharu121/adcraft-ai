@@ -1,13 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run typecheck:*)",
+      "Bash(pnpm run typecheck:*)",
       "WebFetch(domain:next-intl.dev)",
       "Bash(docker build:*)",
       "Bash(npx tsc:*)",
-      "Bash(npm test:*)",
-      "Bash(npm run test:run:*)",
-      "Bash(cat:*)"
+      "Bash(pnpm test:*)",
+      "Bash(pnpm run test:run:*)",
+      "Bash(cat:*)",
+      "Bash(pnpm --version:*)"
     ],
     "deny": [],
     "ask": []

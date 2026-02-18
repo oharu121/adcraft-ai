@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "AdCraft AI infrastructure for minimal video generator",
   "main": "index.ts",
+  "packageManager": "pnpm@10.21.0",
   "scripts": {
     "build": "tsc",
     "up": "pulumi up",

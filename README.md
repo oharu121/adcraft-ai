@@ -50,14 +50,14 @@ git clone <repository-url>
 cd adcraft-ai
 
 # 依存関係インストール
-npm install
+pnpm install
 
 # 環境変数設定
 cp .env.local.example .env.local
 # Google Cloud認証情報を設定
 
 # 開発サーバー起動
-npm run dev
+pnpm dev
 ```
 
 ブラウザで [http://localhost:3000](http://localhost:3000) を開いて確認
@@ -112,13 +112,13 @@ gcloud run deploy adcraft-ai \
 
 ```bash
 # 開発
-npm run dev          # 開発サーバー起動
-npm run build        # 本番ビルド
-npm run lint         # コードチェック
-npm run typecheck    # 型チェック
+pnpm dev             # 開発サーバー起動
+pnpm build           # 本番ビルド
+pnpm lint            # コードチェック
+pnpm typecheck       # 型チェック
 
 # テスト
-npm run test         # テスト実行
+pnpm test            # テスト実行
 
 # インフラ
 cd infrastructure

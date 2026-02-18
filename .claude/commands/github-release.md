@@ -256,10 +256,10 @@ This monorepo has the following check scripts in the root `package.json`:
 
 | Script | Command | Scope |
 |--------|---------|-------|
-| `typecheck` | `npm run typecheck` | Frontend (tsc) + Backend (pyright) |
-| `lint:frontend` | `npm run lint:frontend` | Frontend (eslint) |
-| `test` | `npm run test` | Frontend (vitest) + Backend (pytest) |
-| `build:frontend` | `npm run build:frontend` | Frontend (Next.js build) |
+| `typecheck` | `pnpm typecheck` | Frontend (tsc) + Backend (pyright) |
+| `lint:frontend` | `pnpm lint:frontend` | Frontend (eslint) |
+| `test` | `pnpm test` | Frontend (vitest) + Backend (pytest) |
+| `build:frontend` | `pnpm build:frontend` | Frontend (Next.js build) |
 
 Inform the user: "Will run: typecheck, lint:frontend, test, build:frontend"
 
@@ -269,19 +269,19 @@ Run each check script in order. Stop on first failure.
 
 **Typecheck** (frontend + backend):
 ```bash
-npm run typecheck
+pnpm typecheck
 ```
 If fails: Stop, show error, output "Fix the type errors and re-run /github-release"
 
 **Lint** (frontend):
 ```bash
-npm run lint:frontend
+pnpm lint:frontend
 ```
-If fails: Stop, show error, output "Fix the lint errors (try: npm run lint:frontend -- --fix) and re-run /github-release"
+If fails: Stop, show error, output "Fix the lint errors (try: pnpm lint:frontend -- --fix) and re-run /github-release"
 
 **Test** (frontend + backend):
 ```bash
-npm run test
+pnpm test
 ```
 If fails: Stop, show error, output "Fix the failing tests and re-run /github-release"
 
@@ -292,7 +292,7 @@ If all checks pass, continue to next step.
 Build the frontend:
 
 ```bash
-npm run build:frontend
+pnpm build:frontend
 ```
 
 If build fails: Stop, show error, output "Fix the build errors and re-run /github-release"
@@ -335,12 +335,12 @@ Use AskUserQuestion:
 
 Get current version:
 ```bash
-npm pkg get version
+node -p "require('./package.json').version"
 ```
 
 Run version bump (this creates a git tag automatically):
 ```bash
-npm version <patch|minor|major>
+pnpm version <patch|minor|major>
 ```
 
 Capture the new version from output (e.g., "v1.2.0").
@@ -356,7 +356,7 @@ git add backend/pyproject.toml
 git commit --amend --no-edit
 ```
 
-If npm version fails (tag exists, dirty working dir), stop and show error with guidance.
+If pnpm version fails (tag exists, dirty working dir), stop and show error with guidance.
 
 ### Step 16: Push to Remote
 
@@ -450,11 +450,11 @@ No version bump or GitHub release (skipped as requested).
 | Remote fetch fails | Warn and continue (might be offline) |
 | Pull fails (conflicts) | Stop, instruct to resolve conflicts |
 | Typecheck fails | Stop, show errors, suggest fixes |
-| Lint fails | Stop, show errors, suggest `npm run lint:frontend -- --fix` |
+| Lint fails | Stop, show errors, suggest `pnpm lint:frontend -- --fix` |
 | Tests fail | Stop, show errors, suggest fixes |
 | Build fails | Stop, show error |
 | Commit fails | Stop (likely pre-commit hook) |
-| npm version fails | Stop (tag exists? dirty working dir?) |
+| pnpm version fails | Stop (tag exists? dirty working dir?) |
 | Push fails | Warn, show manual push command |
 | gh not installed | Warn, provide manual release URL |
 | gh not authenticated | Warn, suggest `gh auth login` |

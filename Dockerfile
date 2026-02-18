@@ -1,33 +1,35 @@
 # AdCraft AI - Production Dockerfile
-# Multi-stage build for Next.js 15.5.0 with optimized layer caching
+# Multi-stage build for Next.js 16 with pnpm and optimized layer caching
 
 # Stage 1: Dependencies
 FROM node:18-alpine AS deps
 RUN apk add --no-cache libc6-compat
+RUN corepack enable && corepack prepare pnpm@10.21.0 --activate
 WORKDIR /app
 
 # Copy package files for dependency caching
-COPY package.json package-lock.json ./
-RUN npm ci --only=production --frozen-lockfile
+COPY package.json pnpm-lock.yaml .npmrc ./
+RUN pnpm install --frozen-lockfile --prod
 
-# Stage 2: Builder  
+# Stage 2: Builder
 FROM node:18-alpine AS builder
 RUN apk add --no-cache libc6-compat
+RUN corepack enable && corepack prepare pnpm@10.21.0 --activate
 WORKDIR /app
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Install all dependencies for build
-RUN npm ci --frozen-lockfile
+# Install all dependencies for build (including devDependencies)
+RUN pnpm install --frozen-lockfile
 
 # Clean any existing .next directory to avoid conflicts
 RUN rm -rf .next tsconfig.tsbuildinfo
 
 # Build the application without Turbopack for better Docker compatibility
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npm run build:docker
+RUN pnpm run build:docker
 
 # Stage 3: Production Runtime
 FROM node:18-alpine AS runner

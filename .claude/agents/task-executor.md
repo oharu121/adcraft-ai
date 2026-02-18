@@ -33,7 +33,7 @@ You are implementing a single task from a pre-approved plan. You MUST operate wi
 - **Platform**: Windows (win32)
 - **Working Directory**: D:\repositories\adcraft-ai
 - **Node.js**: v22.12.0 (C:\Program Files\nodejs\)
-- **npm**: 10.9.0
+- **pnpm**: 10.21.0
 - **Pulumi CLI**: v3.191.0 (Chocolatey managed)
 - **Google Cloud SDK**: 531.0.0 (C:\Users\jeffl\AppData\Local\Google\Cloud SDK\)
 - **Docker**: 27.4.0 (Docker Desktop 4.37.1)
@@ -58,7 +58,7 @@ All required development tools are installed and ready. Refer to @ENVIRONMENT.md
 # **INSTRUCTIONS**
 
 ## 🚨 CRITICAL CODE QUALITY REQUIREMENT
-**MANDATORY TYPE CHECKING:** After implementing any code changes and before proceeding to the next task, you MUST run `npm run typecheck` or `npx tsc --noEmit` to ensure zero TypeScript errors. Fix ALL type errors immediately. This is non-negotiable for maintaining code quality.
+**MANDATORY TYPE CHECKING:** After implementing any code changes and before proceeding to the next task, you MUST run `pnpm typecheck` or `pnpm exec tsc --noEmit` to ensure zero TypeScript errors. Fix ALL type errors immediately. This is non-negotiable for maintaining code quality.
 
 1.  **Identify Task:** Open `specs//tasks.md` and find the first unchecked (`[ ]`) task.
 2.  **Understand Task:** Read the task description. Refer to the `design.md` and `requirements.md` to fully understand the technical details and the user-facing goal of this task.
@@ -69,7 +69,7 @@ All required development tools are installed and ready. Refer to @ENVIRONMENT.md
     *   **Never edit, remove, or update any other code, file, or checklist item except what this step describes—even if related changes seem logical.**
     *   Fix all lint errors flagged during editing.
 4.  **Verify the Change:** Verify the change based on the task's acceptance criteria (if specified).
-    *   **🚨 CRITICAL REQUIREMENT - ALWAYS RUN TYPE CHECKS FIRST:** Before any testing or proceeding to the next task, you MUST run `npm run typecheck` or `npx tsc --noEmit` to ensure no TypeScript errors. Fix ALL TypeScript errors before proceeding. This is MANDATORY for code quality.
+    *   **🚨 CRITICAL REQUIREMENT - ALWAYS RUN TYPE CHECKS FIRST:** Before any testing or proceeding to the next task, you MUST run `pnpm typecheck` or `pnpm exec tsc --noEmit` to ensure no TypeScript errors. Fix ALL TypeScript errors before proceeding. This is MANDATORY for code quality.
     *   If a "Test:" sub-task exists, follow its instructions.
     *   **Automated Test:** If the test is automated (e.g., "Write a unit test..."), implement the test and run the project's entire test suite. If it fails, fix the code or the test (repeat up to 3 times). If it still fails, STOP and report the error. For database tests, do NOT clean up test data.
     *   **Manual Test:** If the test is manual (e.g., "Manually verify..."), STOP and ask the user to perform the manual test. Wait for their confirmation before proceeding.
@@ -105,7 +105,7 @@ All required development tools are installed and ready. Refer to @ENVIRONMENT.md
 - Comprehensive error handling and budget protection built into all operations  
 - Type-safe validation ensures runtime safety across all API endpoints  
 - Infrastructure ready for immediate deployment once GCP project is configured
-- **CRITICAL:** Always run type checks (`npm run typecheck` or `npx tsc --noEmit`) before moving to next main task and fix all TypeScript errors
+- **CRITICAL:** Always run type checks (`pnpm typecheck` or `pnpm exec tsc --noEmit`) before moving to next main task and fix all TypeScript errors
 - Official Next.js internationalization approach works better than next-intl for this project
 - Server/client component split is essential for proper dictionary prop passing
 - Middleware must properly exclude static files and API routes for internationalization
