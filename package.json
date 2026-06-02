@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@google-ai/generativelanguage": "^3.7.1",
-    "@google-cloud/aiplatform": "^6.8.0",
+    "@google-cloud/aiplatform": "^6.8.1",
     "@google-cloud/firestore": "^8.6.0",
     "@google-cloud/storage": "^7.19.0",
     "@google-cloud/text-to-speech": "^6.4.1",
@@ -39,10 +39,10 @@
     "clsx": "^2.1.1",
     "d3": "^7.9.0",
     "framer-motion": "^12.40.0",
-    "next": "16.2.6",
-    "react": "19.2.6",
-    "react-dom": "19.2.6",
-    "react-hook-form": "^7.76.1",
+    "next": "16.2.7",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "react-hook-form": "^7.77.0",
     "react-player": "^3.4.0",
     "recharts": "^3.8.1",
     "swr": "^2.4.1",
@@ -50,7 +50,7 @@
     "uuid": "^14.0.0",
     "ws": "^8.21.0",
     "zod": "^4.4.3",
-    "zustand": "^5.0.13"
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -62,15 +62,15 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5.1.4",
-    "@vitest/coverage-v8": "^4.1.7",
+    "@vitest/coverage-v8": "^4.1.8",
     "eslint": "^10",
-    "eslint-config-next": "16.2.6",
+    "eslint-config-next": "16.2.7",
     "eslint-config-prettier": "^10.1.8",
     "jsdom": "^29.1.1",
     "prettier": "^3.8.3",
     "tailwindcss": "^4",
-    "tsx": "^4.22.3",
+    "tsx": "^4.22.4",
     "typescript": "^6",
-    "vitest": "^4.1.7"
+    "vitest": "^4.1.8"
   }
 }
