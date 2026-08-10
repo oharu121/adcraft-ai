@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@google-ai/generativelanguage':
-        specifier: ^3.7.1
-        version: 3.7.1
+        specifier: ^4.0.0
+        version: 4.0.0
       '@google-cloud/aiplatform':
         specifier: ^7.0.0
         version: 7.0.0
@@ -737,9 +737,9 @@ packages:
       '@noble/hashes':
         optional: true
 
-  '@google-ai/generativelanguage@3.7.1':
-    resolution: {integrity: sha512-J8VgnBMOIPJJh5E71XV4EMlxqNEfOkEyZZlgqX0xEGbEdvdTQNZmrcyIdKDOqe7QkPQ4+R7fYGiesFzVLyL15Q==}
-    engines: {node: '>=18'}
+  '@google-ai/generativelanguage@4.0.0':
+    resolution: {integrity: sha512-Pdn9X2ViZRWGxfTdA49+HG4qNCvKAxwdq2It80Pg9cVeDaCx0i69cQsbyMlh5o7ezhqBEUU5PU4fCTpoJigH1Q==}
+    engines: {node: '>=22'}
 
   '@google-cloud/aiplatform@7.0.0':
     resolution: {integrity: sha512-R2WXai5JcMHxDt2GAYhSOCNHH/rQ4X1NpVnWiPXV/xMVlDhhVyd/6BxOhUETtE/0yZ7p0DEdY3UqjTTZAMLbUA==}
@@ -4869,9 +4869,9 @@ snapshots:
 
   '@exodus/bytes@1.15.1': {}
 
-  '@google-ai/generativelanguage@3.7.1':
+  '@google-ai/generativelanguage@4.0.0':
     dependencies:
-      google-gax: 5.0.6
+      google-gax: 6.0.0
     transitivePeerDependencies:
       - supports-color
 

@@ -28,7 +28,7 @@
     "gcloud:url": "gcloud run services describe adcraft-service --region=asia-northeast1 --project=adcraft-dev-2025 --format=\"value(status.url)\""
   },
   "dependencies": {
-    "@google-ai/generativelanguage": "^3.7.1",
+    "@google-ai/generativelanguage": "^4.0.0",
     "@google-cloud/aiplatform": "^7.0.0",
     "@google-cloud/firestore": "^8.7.1",
     "@google-cloud/storage": "^7.21.0",
