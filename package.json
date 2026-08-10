@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@google-ai/generativelanguage": "^3.7.1",
-    "@google-cloud/aiplatform": "^6.11.0",
+    "@google-cloud/aiplatform": "^7.0.0",
     "@google-cloud/firestore": "^8.7.1",
     "@google-cloud/storage": "^7.21.0",
     "@google-cloud/text-to-speech": "^6.4.1",
