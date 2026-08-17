@@ -30,7 +30,7 @@
   "dependencies": {
     "@google-ai/generativelanguage": "^4.0.0",
     "@google-cloud/aiplatform": "^7.0.0",
-    "@google-cloud/firestore": "^8.7.1",
+    "@google-cloud/firestore": "^9.0.0",
     "@google-cloud/storage": "^7.21.0",
     "@google-cloud/text-to-speech": "^6.4.1",
     "@hookform/resolvers": "^5.7.1",
