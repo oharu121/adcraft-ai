@@ -33,7 +33,7 @@
     "@google-cloud/firestore": "^9.4.0",
     "@google-cloud/storage": "^8.4.0",
     "@google-cloud/text-to-speech": "^7.2.0",
-    "@hookform/resolvers": "^6.0.2",
+    "@hookform/resolvers": "^7.0.3",
     "@types/d3": "^7.4.3",
     "@types/ws": "^8.18.2",
     "clsx": "^2.1.1",
